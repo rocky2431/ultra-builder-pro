@@ -30,7 +30,7 @@
 **Technical terms**: English (SOLID, JWT, LCP, INP, CLS, DRY, KISS, YAGNI)
 **Code/paths/commands**: English
 
-**Example**: "正在运行 /ultra-test，检查 Core Web Vitals（LCP<2.5s）"
+**Example**: "Running /ultra-test, checking Core Web Vitals (LCP<2.5s)" (output in Chinese at runtime)
 
 ---
 
@@ -108,20 +108,20 @@
 
 Ultra Builder Pro supports different project scenarios with tailored workflows:
 
-### Scenario A: New Project (从零开始)
-- **特征**: Requirements unclear, no existing codebase
+### Scenario A: New Project
+- **Characteristics**: Requirements unclear, no existing codebase
 - **Workflow**: `/ultra-init` → `/ultra-research` (full 4-round) → `/ultra-plan` → `/ultra-dev`
 - **Research duration**: ~70 minutes for complete discovery
 - **Use when**: Starting from scratch, building new product
 
-### Scenario B: Incremental Feature (现有项目)
-- **特征**: Existing system, adding features or fixing bugs
+### Scenario B: Incremental Feature
+- **Characteristics**: Existing system, adding features or fixing bugs
 - **Workflow**: `/ultra-research` (Round 2-3 only) → `/ultra-plan` → `/ultra-dev`
 - **Research duration**: ~30 minutes for focused research
 - **Use when**: Extending existing codebase, feature enhancement
 
-### Scenario C: Tech Decision (技术选型)
-- **特征**: Development tech problem, need solution comparison
+### Scenario C: Tech Decision
+- **Characteristics**: Development tech problem, need solution comparison
 - **Workflow**: `/ultra-research` (Round 3 only) → Apply decision
 - **Research duration**: ~15 minutes for tech evaluation
 - **Use when**: Technology selection, architecture decision
