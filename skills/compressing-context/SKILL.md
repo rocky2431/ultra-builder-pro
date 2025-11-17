@@ -37,6 +37,29 @@ Prevent context overflow by proactively compressing accumulated information duri
 - Orange limit: `config.context.total_limit * config.context.thresholds.orange`
 - Red limit: `config.context.total_limit * config.context.thresholds.red`
 
+**Loading config in runtime** (TypeScript example):
+```typescript
+// Load config from project
+const configPath = '.ultra/config.json';
+const config = JSON.parse(await Read(configPath));
+
+// Extract thresholds
+const totalLimit = config.context.total_limit;  // 200000
+const thresholds = config.context.thresholds;
+
+// Calculate actual limits
+const greenLimit = totalLimit * thresholds.green;    // 120000
+const yellowLimit = totalLimit * thresholds.yellow;  // 140000
+const orangeLimit = totalLimit * thresholds.orange;  // 170000
+
+// Use in compression logic
+if (currentTokens > orangeLimit) {
+  // Enforce compression
+} else if (currentTokens > yellowLimit) {
+  // Suggest compression
+}
+```
+
 ## When (Trigger Conditions)
 
 ### Primary Triggers

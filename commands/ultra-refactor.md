@@ -10,6 +10,8 @@ allowed-tools: Read, Write, Edit, TodoWrite
 
 Perform intelligent, safe code refactoring using semantic analysis.
 
+**Role clarification**: This command **executes** refactorings suggested by `guarding-code-quality` skill (which **detects** violations).
+
 **Required**: This command uses Serena MCP for semantic code intelligence. Ensure Serena MCP is configured.
 
 ## Arguments

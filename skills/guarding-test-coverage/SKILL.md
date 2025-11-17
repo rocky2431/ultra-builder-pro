@@ -25,6 +25,24 @@ Verify six-dimensional test coverage before completion.
 }
 ```
 
+**Loading config in runtime** (TypeScript example):
+```typescript
+// Load config from project
+const configPath = '.ultra/config.json';
+const config = JSON.parse(await Read(configPath));
+
+// Extract test coverage thresholds
+const overallThreshold = config.quality_gates.test_coverage.overall;          // 0.80 (80%)
+const criticalThreshold = config.quality_gates.test_coverage.critical_paths;  // 1.00 (100%)
+const branchThreshold = config.quality_gates.test_coverage.branch;            // 0.75 (75%)
+const functionThreshold = config.quality_gates.test_coverage.function;        // 0.85 (85%)
+
+// Use in coverage validation
+if (actualCoverage < overallThreshold) {
+  // BLOCK: Coverage insufficient
+}
+```
+
 ## When
 - Running /ultra-test or marking features complete
 - Discussing test coverage

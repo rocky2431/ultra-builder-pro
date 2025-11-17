@@ -35,6 +35,28 @@ Intelligently route operations to Serena MCP when it provides significant benefi
 - Medium threshold: `config.file_routing.thresholds.medium - config.file_routing.thresholds.large` → Suggest Serena
 - Large threshold: `> config.file_routing.thresholds.large` → Enforce Serena
 
+**Loading config in runtime** (TypeScript example):
+```typescript
+// Load config from project
+const configPath = '.ultra/config.json';
+const config = JSON.parse(await Read(configPath));
+
+// Extract file routing thresholds
+const mediumThreshold = config.file_routing.thresholds.medium;  // 5000
+const largeThreshold = config.file_routing.thresholds.large;    // 8000
+
+// Use in routing logic
+const lineCount = await Bash(`wc -l ${filePath} | awk '{print $1}'`);
+
+if (lineCount > largeThreshold) {
+  // BLOCK Read, ENFORCE Serena
+} else if (lineCount >= mediumThreshold) {
+  // SUGGEST Serena
+} else {
+  // ALLOW Read tool
+}
+```
+
 ## When (Trigger Conditions)
 
 ### Passive Triggers (Before Tool Use)
