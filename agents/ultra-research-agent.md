@@ -113,8 +113,10 @@ Your report **MUST** include all 7 items:
 
 ```typescript
 Write(`.ultra/docs/research/${topic}-${date}.md`, markdownReport)
-// Output in Chinese: "✅ 研究报告已保存至 .ultra/docs/research/[filename]"
+// Output to user (in Chinese at runtime): "✅ Research report saved to .ultra/docs/research/[filename]"
 ```
+
+**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
 
 **Language Protocol**: Documentation (English), User output (Chinese), Technical terms (English)
 

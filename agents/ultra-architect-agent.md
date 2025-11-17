@@ -153,11 +153,13 @@ Your architecture designs must meet:
    Write(".ultra/docs/decisions/log.json", JSON.stringify(decisions, null, 2))
    ```
 
-4. **Confirm to user** (in Chinese):
+4. **Confirm to user**:
    ```
-   ✅ 架构设计文档已保存至 .ultra/docs/decisions/[filename]
-   ✅ 决策已记录至 .ultra/docs/decisions/log.json
+   ✅ Architecture design document saved to .ultra/docs/decisions/[filename]
+   ✅ Decision logged to .ultra/docs/decisions/log.json
    ```
+
+   **OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
 
 ### What to Save
 
@@ -192,8 +194,8 @@ decisions.push({
 })
 Write(".ultra/docs/decisions/log.json", JSON.stringify(decisions, null, 2))
 
-// Confirm in Chinese:
-// "✅ 架构设计文档已保存至 .ultra/docs/decisions/architecture-auth-system-2025-10-31.md"
+// Confirm to user (output in Chinese at runtime):
+// "✅ Architecture design document saved to .ultra/docs/decisions/architecture-auth-system-2025-10-31.md"
 ```
 
 **DO NOT skip this step** - architecture decisions must be documented for team alignment and future reference.

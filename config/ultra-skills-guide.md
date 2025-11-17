@@ -287,44 +287,46 @@ Detects project type from recent /ultra-research execution and adapts next-step 
 
 | Project Type | Detected Keywords | Next-Step Strategy |
 |--------------|-------------------|-------------------|
-| **New Project** | "New Project", "新项目" | Suggest `/ultra-plan` after all 4 rounds complete |
-| **Incremental Feature** | "Incremental Feature", "老项目增量" | Suggest `/ultra-plan` after Round 2-3 complete |
-| **Tech Decision** | "Tech Decision", "技术选型" | Suggest validating choice or proceeding to implementation |
-| **Custom Flow** | "Custom", "自定义" | Suggest next step based on user-selected rounds completed |
+| **New Project** | "New Project" | Suggest `/ultra-plan` after all 4 rounds complete |
+| **Incremental Feature** | "Incremental Feature" | Suggest `/ultra-plan` after Round 2-3 complete |
+| **Tech Decision** | "Tech Decision" | Suggest validating choice or proceeding to implementation |
+| **Custom Flow** | "Custom" | Suggest next step based on user-selected rounds completed |
 
 **Suggestion examples** (Chinese output at runtime):
 
 **After New Project research** (4 rounds complete):
 ```
-当前状态：
-- ✅ 研究完成（4 轮完整流程）
-- ✅ specs/product.md 100% 完成
-- ✅ specs/architecture.md 100% 完成
+Current status:
+- ✅ Research complete (4-round full process)
+- ✅ specs/product.md 100% complete
+- ✅ specs/architecture.md 100% complete
 
-建议下一步：/ultra-plan
-原因：规范已完整，可以开始任务规划
+Suggested next step: /ultra-plan
+Rationale: Specifications complete, can start task planning
 ```
 
 **After Incremental Feature research** (2 rounds complete):
 ```
-当前状态：
-- ✅ 方案探索完成（Round 2）
-- ✅ 技术选型完成（Round 3）
-- ✅ specs/product.md 部分完成
+Current status:
+- ✅ Solution exploration complete (Round 2)
+- ✅ Technology selection complete (Round 3)
+- ✅ specs/product.md partially complete
 
-建议下一步：/ultra-plan
-原因：增量功能需求明确，可以规划实施任务
+Suggested next step: /ultra-plan
+Rationale: Incremental feature requirements clear, can plan implementation tasks
 ```
 
 **After Tech Decision research** (1 round complete):
 ```
-当前状态：
-- ✅ 技术选型完成（Round 3）
-- ✅ specs/architecture.md 已更新
+Current status:
+- ✅ Technology selection complete (Round 3)
+- ✅ specs/architecture.md updated
 
-建议下一步：/ultra-plan 或直接实施
-原因：技术栈已确定，可以规划实施任务
+Suggested next step: /ultra-plan or direct implementation
+Rationale: Tech stack determined, can plan implementation tasks
 ```
+
+**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
 
 **Integration with ultra-research**:
 - ultra-research saves project type to research report metadata
@@ -387,10 +389,12 @@ main (always active, never frozen)
 4. **Continuous Deployment**: Main always deployable enables CD/CD
 5. **Code Review**: Smaller, focused PRs are easier to review
 
-**Output format** (in Chinese at runtime):
-- Warning header (⚠️ 工作流不可协商提醒)
+**Output format**:
+- Warning header (⚠️ Workflow Non-Negotiable Reminder)
 - Explanation of mandatory workflow
 - Forbidden patterns list
+
+**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
 - Rationale
 - Reference to documentation
 

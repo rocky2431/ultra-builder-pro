@@ -52,7 +52,7 @@ Based on `claude mcp list`:
 | 5,000-8,000 lines | Suggest | Advisor offers 3 Serena MCP options (you choose) |
 | > 8,000 lines | Block | Advisor enforces Serena MCP (prevents errors) |
 
-**Problem**: Read tool fails with "Token limit exceeded", times out, or throws errors ("疯狗的报错")
+**Problem**: Read tool fails with "Token limit exceeded", times out, or throws errors (frustrating error messages)
 
 **Solution**: Use Serena for large file processing (advisor provides exact commands)
 
@@ -412,16 +412,16 @@ claude mcp list
 
 ---
 
-### Install Serena (必需 - Required)
+### Install Serena (Required)
 
-**为什么必需**：
-- ✅ **系统完整性**：无 Serena = 60% 功能，有 Serena = 100% 功能
-- ✅ **TDD 完整性**：REFACTOR 步骤依赖 Serena
-- ✅ **/ultra-refactor**：核心命令完全依赖 Serena
-- ✅ **SOLID 实践**：安全重构能力是 SOLID 原则的前提
+**Why Required**:
+- ✅ **System Completeness**: Without Serena = 60% functionality, With Serena = 100% functionality
+- ✅ **TDD Completeness**: REFACTOR step depends on Serena
+- ✅ **/ultra-refactor**: Core command fully depends on Serena
+- ✅ **SOLID Practice**: Safe refactoring capability is prerequisite for SOLID principles
 
-**何时可以跳过**：
-- ❌ 几乎无场景（除非纯静态网站/文档项目）
+**When Can Skip**:
+- ❌ Almost no scenarios (unless pure static website/documentation project)
 
 ```bash
 uvx --from git+https://github.com/oraios/serena serena start-mcp-server \
@@ -430,41 +430,41 @@ uvx --from git+https://github.com/oraios/serena serena start-mcp-server \
 
 **Token cost**: +1,480 tokens at startup (~0.7% of 200K budget)
 
-**投资回报**：
-- 跨文件重构：2.5 小时 → 5 分钟（30x 时间节省）
-- 重构错误率：30% → 0%
-- 代码理解速度：30 分钟 → 5 分钟（6x 提升）
+**ROI (Return on Investment)**:
+- Cross-file refactoring: 2.5 hours → 5 minutes (30x time savings)
+- Refactoring error rate: 30% → 0%
+- Code understanding speed: 30 minutes → 5 minutes (6x improvement)
 
 ---
 
 ## MCP Usage by Command
 
 ### /ultra-init
-- **Serena** - 项目激活（activate_project）、入职（onboarding）
+- **Serena** - Project activation (activate_project), onboarding
 
 ### /ultra-research
-- **Serena** - 现有代码分析（接手遗留项目时）
+- **Serena** - Existing code analysis (when taking over legacy project)
 - **Context7** - Official documentation
 - **Exa** - AI semantic search (EN/ZH)
 
 ### /ultra-plan
-- **Serena** - 依赖分析（find_referencing_symbols）、影响评估
+- **Serena** - Dependency analysis (find_referencing_symbols), impact assessment
 
 ### /ultra-dev
-- **Serena** - TDD REFACTOR（rename_symbol）、增量理解、项目记忆
+- **Serena** - TDD REFACTOR (rename_symbol), incremental understanding, project memory
 - **Context7** - API reference lookup
 - **Exa** - Code examples
 
 ### /ultra-test
-- **Serena** - 覆盖率分析、未测试方法检测
+- **Serena** - Coverage analysis, untested method detection
 - **Lighthouse CLI** - Core Web Vitals measurement
 
 ### /ultra-deliver
-- **Serena** - ADR 生成、技术债务追踪（memory 系统）
+- **Serena** - ADR generation, technical debt tracking (memory system)
 - **Lighthouse CLI** - Final performance validation
 
 ### /ultra-refactor
-- **Serena** - 核心命令（完全依赖所有编辑工具）
+- **Serena** - Core command (fully depends on all editing tools)
 
 ---
 
@@ -487,34 +487,36 @@ uvx --from git+https://github.com/oraios/serena serena start-mcp-server \
 "Read the UserService implementation in src/services/userService.ts"
 ```
 
-**routing-serena-operations Response** (in Chinese at runtime):
+**routing-serena-operations Response**:
 ```
-文件大小检测：src/services/userService.ts 有 6,500 行
+File size detection: src/services/userService.ts has 6,500 lines
 
-⚠️ 文件较大，建议使用 Serena MCP 以获得更好的性能（60x 效率提升）
+⚠️ Large file detected, suggest using Serena MCP for better performance (60x efficiency improvement)
 
-推荐方案：
-1️⃣ 获取文件概览（推荐）
+Recommended approaches:
+1️⃣ Get file overview (recommended)
    mcp__serena__get_symbols_overview({
      relative_path: "src/services/userService.ts"
    })
-   预计 token：~500（vs Read 工具的 28,000）
+   Estimated tokens: ~500 (vs Read tool's 28,000)
 
-2️⃣ 查找特定符号
+2️⃣ Find specific symbol
    mcp__serena__find_symbol({
      name_path: "UserService",
      relative_path: "src/services/userService.ts",
      depth: 1
    })
 
-3️⃣ 搜索模式
+3️⃣ Search pattern
    mcp__serena__search_for_pattern({
      substring_pattern: "getUserById",
      relative_path: "src/services/userService.ts"
    })
 
-是否使用 Serena MCP？
+Use Serena MCP?
 ```
+
+**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
 
 ### Benefits
 
@@ -640,4 +642,4 @@ claude mcp remove <server-name>
 
 ---
 
-**Remember**: Serena's large file processing is now your **first line of defense** when Read tool fails. This solves the "疯狂的报错" problem and provides 60x efficiency improvement.
+**Remember**: Serena's large file processing is now your **first line of defense** when Read tool fails. This solves the "frustrating error messages" problem and provides 60x efficiency improvement.

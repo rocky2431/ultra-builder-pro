@@ -122,10 +122,12 @@ Your optimization recommendations must:
    Write(`.ultra/reports/performance/${filename}`, fullPerformanceReport)
    ```
 
-3. **Confirm to user** (in Chinese):
+3. **Confirm to user**:
    ```
-   ✅ 性能分析报告已保存至 .ultra/reports/performance/[filename]
+   ✅ Performance analysis report saved to .ultra/reports/performance/[filename]
    ```
+
+   **OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
 
 ### What to Save
 
@@ -149,13 +151,13 @@ const filename = `performance-${scope}-${date}.md`
 
 Write(`.ultra/reports/performance/${filename}`, markdownReport)
 
-// Confirm in Chinese:
-// "✅ 性能分析报告已保存至 .ultra/reports/performance/performance-checkout-page-2025-10-31.md"
+// Confirm to user (output in Chinese at runtime):
+// "✅ Performance analysis report saved to .ultra/reports/performance/performance-checkout-page-2025-10-31.md"
 // "
-//   关键发现：
-//   - LCP: 4.2s → 目标 2.5s (需优化图片加载)
-//   - INP: 350ms → 目标 200ms (需拆分长任务)
-//   - 预期改进：页面加载速度提升 45%
+//   Key findings:
+//   - LCP: 4.2s → Target 2.5s (optimize image loading)
+//   - INP: 350ms → Target 200ms (split long tasks)
+//   - Expected improvement: 45% faster page load
 // "
 ```
 
