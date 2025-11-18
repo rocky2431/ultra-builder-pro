@@ -37,7 +37,7 @@ Create independent branch per task:
 git checkout -b feat/task-{id}-{slug}
 ```
 
-**Note**: Workflow enforcement is handled by `enforcing-workflow` skill. See `@guidelines/ultra-git-workflow.md` for complete branch workflow rules.
+**Note**: Workflow enforcement is handled by `guarding-git-workflow` skill. See `@guidelines/ultra-git-workflow.md` for complete branch workflow rules.
 
 ### 2.7. Create Changes Directory (OpenSpec Pattern)
 
@@ -100,7 +100,7 @@ mkdir -p .ultra/changes/task-{id}/specs
 
 **Tool Selection**:
 - Small projects (<50 files): Grep/Glob + Edit
-- Large projects (>100 files): Use Serena MCP (explicit instruction required)
+- Large projects (>100 files): Use built-in tools (explicit instruction required)
 
 **Reference**: `@config/ultra-mcp-guide.md` for tool selection decision tree
 
@@ -232,7 +232,7 @@ git push origin --delete feat/task-{id}-{slug}
 
 ## Integration
 
-- **Skills**: code-quality-guardian, git-workflow-guardian (auto-activate)
+- **Skills**: guarding-quality, guarding-git-workflow (auto-activate)
 - **Agents**: ultra-architect-agent (for complex design)
 - **Next**: `/ultra-test` or `/ultra-dev [next-task-id]`
 

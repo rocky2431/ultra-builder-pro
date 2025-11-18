@@ -55,142 +55,102 @@ lighthouse http://localhost:3000 --only-categories=performance --output=json
 
 ---
 
-### 4. Coverage Gap Analysis (Serena MCP)
+### 3.5 Test Coverage Gap Analysis (AI Automated)
 
-**Purpose**: Use semantic analysis to find untested code that traditional coverage tools miss.
-
-#### 4.1 Find Untested Public Methods
-
-**Traditional coverage tools show**:
-- Lines executed during tests
-- Branch coverage percentage
-- Overall coverage number (e.g., 82%)
-
-**What they DON'T show**:
-- Which public methods have no tests
-- Which critical paths are untested
-- Which classes lack boundary/exception tests
-
-**Serena Solution**:
-```typescript
-// Step 1: Get all public methods in a file
-mcp__serena__get_symbols_overview({
-  relative_path: "src/services/userService.ts"
-})
-// Returns: All classes and methods with line numbers
-
-// Step 2: For each public method, check if tests exist
-mcp__serena__search_for_pattern({
-  substring_pattern: "describe.*UserService.*getUserById",
-  relative_path: "src/__tests__/"
-})
-// If no results → Method is untested
-
-// Step 3: Find all references to understand criticality
-mcp__serena__find_referencing_symbols({
-  name_path: "getUserById",
-  relative_path: "src/services/userService.ts"
-})
-// High reference count → Critical path, needs 100% coverage
-```
-
-#### 4.2 Generate Test TODO List
-
-**Output Format Template**:
-```markdown
-## Test Coverage Gap Analysis
-
-### Critical Gaps (Critical Paths, 0% Coverage)
-1. **UserService.deleteUser** (23 references)
-   - [ ] Functional test: Normal user deletion
-   - [ ] Boundary test: Delete non-existent user
-   - [ ] Exception test: Database connection failure
-   - [ ] Security test: Permission validation
-
-2. **PaymentService.processRefund** (15 references)
-   - [ ] Functional test: Full refund
-   - [ ] Boundary test: Partial refund
-   - [ ] Exception test: Duplicate refund on already refunded order
-   - [ ] Performance test: Large refund processing time
-
-### Medium Gaps (Public Methods, <80% Coverage)
-3. **OrderService.calculateTax** (8 references)
-   - [x] Functional test: Basic tax rate calculation (existing)
-   - [ ] Boundary test: Tax-exempt items
-   - [ ] Boundary test: Cross-state tax rates
-   - [ ] Exception test: Missing tax rate configuration
-
-### Minor Gaps (Low Priority, 80-100% Coverage)
-4. **EmailService.formatTemplate** (2 references)
-   - [x] Functional test: Basic template substitution (existing)
-   - [ ] Boundary test: Null value handling
-```
-
-**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
-
-#### 4.3 Six-Dimensional Coverage Matrix
-
-**For each untested method, generate dimension checklist**:
+**AI Workflow** (executes automatically after test execution):
 
 ```typescript
-// Example: UserService.deleteUser has 0% coverage
-// Serena analysis shows it's called from 23 places → Critical path
+// Step 1: Find all exported functions, classes, and methods
+const exports = Grep({
+  pattern: "export (function|const|class)",
+  path: "src/",
+  type: "ts",
+  output_mode: "content",
+  "-n": true
+});
 
-// Auto-generate comprehensive test plan:
-const testPlan = {
-  method: "UserService.deleteUser",
-  criticality: "HIGH", // Based on reference count
-  sixDimensions: {
-    functional: [
-      "Delete existing user successfully",
-      "Return success confirmation"
-    ],
-    boundary: [
-      "Delete non-existent user (404 handling)",
-      "Delete user with ID = 0",
-      "Delete user with very long ID"
-    ],
-    exception: [
-      "Database connection failure",
-      "Concurrent deletion attempts",
-      "Delete user while they're logged in"
-    ],
-    performance: [
-      "Delete operation completes <100ms",
-      "Cascade delete 1000+ related records <500ms"
-    ],
-    security: [
-      "Verify authentication required",
-      "Verify authorization (only admin can delete)",
-      "Prevent SQL injection in user ID"
-    ],
-    compatibility: [
-      "Works with PostgreSQL and MySQL",
-      "Works across all API versions"
-    ]
+// Step 2: Extract symbol names
+// Example matches:
+// - "export function login(" → "login"
+// - "export class UserService" → "UserService"
+// - "export const getUserById =" → "getUserById"
+const symbolNames = [];
+exports.split('\n').forEach(line => {
+  const match = line.match(/export\s+(function|const|class)\s+(\w+)/);
+  if (match) symbolNames.push(match[2]);
+});
+
+// Step 3: Search for each symbol in test files
+const gaps = [];
+for (const symbol of symbolNames) {
+  const testMatches = Grep({
+    pattern: symbol,
+    path: "**/*.test.ts",
+    output_mode: "count"
+  });
+
+  if (testMatches === 0) {
+    gaps.push({
+      symbol,
+      file: extractFileFromGrep(symbol),  // Helper to get file path
+      status: 'UNTESTED'
+    });
   }
 }
+
+// Step 4: Generate gap report
+const gapReport = `
+# Test Coverage Gaps Report
+
+Generated: ${new Date().toISOString()}
+
+## Summary
+- Total Exported Symbols: ${symbolNames.length}
+- Untested Symbols: ${gaps.length}
+- Coverage: ${((1 - gaps.length / symbolNames.length) * 100).toFixed(1)}%
+
+## Untested Methods/Functions
+
+${gaps.map(gap => `- ❌ **${gap.symbol}** (\`${gap.file}\`) - 0 test cases found`).join('\n')}
+
+## Recommendations
+
+${gaps.slice(0, 5).map(gap => `
+### ${gap.symbol}
+**File**: \`${gap.file}\`
+**Priority**: ${gap.symbol.includes('delete') || gap.symbol.includes('remove') ? 'HIGH' : 'MEDIUM'}
+**Suggested Test Dimensions**:
+1. Functional: Core logic validation
+2. Boundary: Edge cases (null, empty, max values)
+3. Exception: Error handling
+4. Security: Input validation
+`).join('\n')}
+`;
+
+Write(".ultra/docs/test-coverage-gaps.md", gapReport);
 ```
 
-#### 4.4 Workflow Integration
+**Output**: `.ultra/docs/test-coverage-gaps.md`
 
-**Automated flow**:
-1. Run traditional coverage: `npm test -- --coverage`
-2. Parse coverage report → Identify files with <80% coverage
-3. For each under-covered file:
-   - `get_symbols_overview` → List all public methods
-   - `search_for_pattern` in test files → Check if tests exist
-   - `find_referencing_symbols` → Assess criticality
-4. Generate prioritized test TODO list
-5. For critical paths (>10 references, 0% coverage) → Auto-generate six-dimensional test plan
+**Accuracy**: ~90%
+- ✅ Detects most untested exports
+- ⚠️ May miss: Methods inside classes (requires deeper analysis), private functions (not exported), dynamic exports
 
-**Output to**:
-- `.ultra/docs/test-gaps-report.md` (detailed analysis)
-- Console (prioritized TODO list in Chinese)
+**Token cost**: ~8000 tokens
+
+**When to use**:
+- After running `npm test -- --coverage`
+- Before marking task as complete
+- During /ultra-test Phase 3
+
+**Optional: User Review for Higher Accuracy**:
+- Review AI-generated gap report
+- Compare with coverage report HTML for detailed line-by-line coverage
+- Add missed methods identified by AI to test suite
 
 ---
 
-### 5. Fix and Retest
+### 4. Fix and Retest
 
 Iterate until all tests pass and metrics meet baselines.
 
@@ -209,7 +169,7 @@ Iterate until all tests pass and metrics meet baselines.
 ## Integration
 
 - **Skills**:
-  - test-strategy-guardian (six-dimensional coverage enforcement)
+  - guarding-quality (six-dimensional coverage enforcement)
   - playwright-skill (E2E testing, auto-activates on keywords)
 - **Next**: `/ultra-deliver` for deployment prep
 

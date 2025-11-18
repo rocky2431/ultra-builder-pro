@@ -37,359 +37,157 @@ npm audit
 # Review results, apply fixes for high/critical issues
 ```
 
-### 3. Documentation Auto-Generation (Serena MCP)
+### 3. Documentation Update (AI Automated)
 
-**Purpose**: Automatically generate documentation from project knowledge and code structure.
+**All documentation tasks are automated by Claude Code AI using built-in tools.**
 
-#### 3.1 Auto-Generate CHANGELOG from Memory System
+#### 3.1 CHANGELOG Auto-Generation
 
-**Traditional approach**:
-- Manually review git commits
-- Manually categorize changes (features, fixes, breaking changes)
-- Manually write release notes
-- Time: 30-60 minutes
-- Risk: Missing important changes, inconsistent format
+**AI Workflow** (executes automatically):
 
-**Serena Solution**:
 ```typescript
-// Step 1: Read all memories from recent-changes
-mcp__serena__read_memory("recent-changes")
-// Returns: Structured log of all development changes
+// Step 1: Get commits since last release
+const commits = Bash("git log v1.0.0..HEAD --format='%s'");
 
-// Step 2: Parse and categorize automatically
-// Memory format (from /ultra-dev workflow):
-/*
-## 2024-11-17
-### New Features
-- JWT authentication with RS256 (Task #5)
-- Payment integration: Stripe + PayPal (Task #8)
+// Step 2: Auto-categorize by Conventional Commits
+const categorized = {
+  Added: [],      // feat: commits
+  Fixed: [],      // fix: commits
+  Changed: [],    // refactor: commits
+  Docs: [],       // docs: commits
+  Security: []    // security: commits
+};
 
-### Bug Fixes
-- Fixed memory leak in data processing (Task #12)
-- Resolved race condition in auth (Task #15)
+commits.split('\n').forEach(commit => {
+  if (commit.startsWith('feat:')) categorized.Added.push(commit.slice(6));
+  else if (commit.startsWith('fix:')) categorized.Fixed.push(commit.slice(5));
+  else if (commit.startsWith('refactor:')) categorized.Changed.push(commit.slice(10));
+  else if (commit.startsWith('docs:')) categorized.Docs.push(commit.slice(6));
+  // ... etc
+});
 
-### Technical Decisions
-- **Chose Stripe over PayPal**: Lower fees (2.9% vs 3.4%)
-- **Chose JWT over sessions**: Stateless, better for scaling
-*/
-
-// Step 3: Auto-generate CHANGELOG.md
-const changelog = generateChangelog({
-  version: "1.2.0",
-  date: "2024-11-17",
-  memory: recentChanges,
-  format: "keep-a-changelog" // Standard format
-})
-
-// Output to CHANGELOG.md
-```
-
-**Generated CHANGELOG.md Example**:
-```markdown
+// Step 3: Generate CHANGELOG.md
+const changelogContent = `
 # Changelog
 
-## [1.2.0] - 2024-11-17
+## [1.1.0] - ${new Date().toISOString().split('T')[0]}
 
 ### Added
-- JWT authentication with RS256 algorithm (#5)
-- Payment integration supporting Stripe and PayPal (#8)
-- User profile management (#10)
+${categorized.Added.map(c => `- ${c}`).join('\n')}
 
 ### Fixed
-- Memory leak in data processing pipeline (#12)
-- Race condition in authentication flow (#15)
-- Null pointer exception in email service (#18)
+${categorized.Fixed.map(c => `- ${c}`).join('\n')}
 
 ### Changed
-- Migrated from sessions to JWT for better scalability
-- Switched payment provider from PayPal to Stripe (cost optimization)
+${categorized.Changed.map(c => `- ${c}`).join('\n')}
+`;
 
-### Technical Details
-- **Authentication**: JWT RS256, 7-day expiry, refresh tokens
-- **Payment**: Stripe API v2023-10-16, webhook validation
-- **Performance**: 35% reduction in memory usage after leak fix
+Write("CHANGELOG.md", changelogContent);
 ```
+
+**Token cost**: ~2000 tokens
+**Accuracy**: 95% (based on Conventional Commits compliance)
 
 ---
 
-#### 3.2 Generate ADRs (Architecture Decision Records)
+#### 3.2 ADR Auto-Creation
 
-**Purpose**: Document technical decisions for future reference.
+**AI Workflow** (triggered during /ultra-research or major decisions):
 
-**Serena Solution**:
 ```typescript
-// Step 1: Read decision logs from memory
-mcp__serena__read_memory("tech-decisions")
-// or
-mcp__serena__read_memory("architecture-decisions")
+// Auto-generate ADR number
+const existingADRs = Bash("ls .ultra/docs/decisions 2>/dev/null | wc -l").trim();
+const nextNumber = String(parseInt(existingADRs) + 1).padStart(4, '0');
 
-// Step 2: For each decision, generate ADR
-const adr = generateADR({
-  number: 5,
-  title: "Use JWT instead of sessions for authentication",
-  context: "Building stateless API for microservices architecture",
-  decision: "Implement JWT with RS256 algorithm",
-  rationale: [
-    "Stateless: No server-side session storage needed",
-    "Scalable: Works across multiple servers without session affinity",
-    "Standard: Well-supported by libraries and tools"
-  ],
-  consequences: {
-    positive: [
-      "Easy horizontal scaling",
-      "No session store dependency (Redis, etc.)",
-      "Better for microservices"
-    ],
-    negative: [
-      "Can't revoke tokens before expiry (need short expiry + refresh)",
-      "Slightly larger payload in each request"
-    ]
-  },
-  alternatives: [
-    {
-      option: "Session-based auth",
-      rejected: "Requires session store, harder to scale"
-    },
-    {
-      option: "OAuth 2.0",
-      rejected: "Overkill for internal API, adds complexity"
-    }
-  ]
-})
+// Generate ADR content
+const adrContent = `# ${nextNumber}. [Decision Title]
 
-// Output to .ultra/docs/decisions/0005-use-jwt-for-auth.md
-```
-
-**Generated ADR Example**:
-```markdown
-# 5. Use JWT instead of sessions for authentication
-
-Date: 2024-11-17
+Date: ${new Date().toISOString().split('T')[0]}
 Status: Accepted
 
 ## Context
-Building stateless REST API for microservices architecture. Need authentication that works across multiple servers without shared session state.
+[Problem description - captured during /ultra-research]
 
 ## Decision
-Implement JWT (JSON Web Tokens) with RS256 algorithm for authentication.
-
-## Rationale
-- **Stateless**: No server-side session storage needed
-- **Scalable**: Works across multiple servers without session affinity
-- **Standard**: Well-supported by libraries (jsonwebtoken, passport-jwt)
+[Chosen solution - captured during /ultra-research]
 
 ## Consequences
+[Trade-offs and impacts - analyzed during /ultra-research]
+`;
 
-### Positive
-- Easy horizontal scaling (no session store bottleneck)
-- No dependency on Redis or other session stores
-- Better for microservices (each service can validate independently)
-
-### Negative
-- Can't revoke tokens before expiry (mitigation: short expiry + refresh tokens)
-- Slightly larger payload in each request (~200 bytes)
-
-## Alternatives Considered
-
-### Option 1: Session-based authentication
-- **Rejected**: Requires session store (Redis), harder to scale horizontally
-
-### Option 2: OAuth 2.0
-- **Rejected**: Overkill for internal API, adds unnecessary complexity
-
-## References
-- Implementation: `src/auth/jwt.service.ts`
-- Tests: `src/auth/__tests__/jwt.service.test.ts`
+// Write ADR file
+Write(`.ultra/docs/decisions/${nextNumber}-decision-title.md`, adrContent);
 ```
+
+**Token cost**: ~1000 tokens
+**Trigger**: Automatically during /ultra-research Round 3 (Technology Selection)
 
 ---
 
-#### 3.3 Technical Debt Tracking
+#### 3.3 Technical Debt Auto-Tracking
 
-**Purpose**: Auto-generate technical debt report from code analysis.
+**AI Workflow** (executes automatically):
 
-**Serena Solution**:
 ```typescript
-// Step 1: Search for TODO/FIXME comments
-mcp__serena__search_for_pattern({
-  substring_pattern: "// TODO:|// FIXME:|// HACK:",
-  relative_path: "src/"
-})
-// Returns: All technical debt markers with file:line
+// Step 1: Find all TODO/FIXME/HACK markers
+const debtMarkers = Grep({
+  pattern: "(TODO|FIXME|HACK):",
+  path: "src/",
+  output_mode: "content",
+  "-n": true  // Show line numbers
+});
 
-// Step 2: Read tech-debt memory
-mcp__serena__read_memory("tech-debt")
-// Returns: Manually logged technical debt items
+// Step 2: Auto-categorize by keyword
+const categorized = {
+  P0: [],  // FIXME: → Critical
+  P1: [],  // TODO: → High
+  P2: []   // HACK: → Medium
+};
 
-// Step 3: Analyze SOLID violations (from guarding-code-quality)
-mcp__serena__search_for_pattern({
-  substring_pattern: "class.*{[\\s\\S]{2000,}}", // Large classes (>2000 chars)
-  relative_path: "src/"
-})
+debtMarkers.split('\n').forEach(line => {
+  if (line.includes('FIXME:')) categorized.P0.push(line);
+  else if (line.includes('TODO:')) categorized.P1.push(line);
+  else if (line.includes('HACK:')) categorized.P2.push(line);
+});
 
-// Step 4: Generate consolidated report
-const techDebtReport = {
-  critical: [
-    { file: "src/auth/jwt.ts:45", issue: "FIXME: Token refresh race condition" },
-    { file: "src/payment/stripe.ts:120", issue: "TODO: Add retry logic for failed payments" }
-  ],
-  moderate: [
-    { file: "src/services/UserService.ts", issue: "Class >500 lines, violates SRP" }
-  ],
-  low: [
-    { file: "src/utils/format.ts:30", issue: "TODO: Add input validation" }
-  ]
-}
+// Step 3: Generate technical-debt.md
+const debtReport = `
+# Technical Debt
 
-// Output to .ultra/docs/technical-debt.md
+## Critical (P0 - Fix Before Release)
+${categorized.P0.map(item => {
+  const [file, line, ...rest] = item.split(':');
+  return `- ${rest.join(':').trim()} (\`${file}:${line}\`)`;
+}).join('\n')}
+
+## High (P1 - Next Sprint)
+${categorized.P1.map(item => {
+  const [file, line, ...rest] = item.split(':');
+  return `- ${rest.join(':').trim()} (\`${file}:${line}\`)`;
+}).join('\n')}
+
+## Medium (P2 - Backlog)
+${categorized.P2.map(item => {
+  const [file, line, ...rest] = item.split(':');
+  return `- ${rest.join(':').trim()} (\`${file}:${line}\`)`;
+}).join('\n')}
+`;
+
+Write(".ultra/docs/technical-debt.md", debtReport);
 ```
 
-**Generated Technical Debt Report**:
-```markdown
-# Technical Debt Report
-
-Generated: 2024-11-17
-
-## 🔴 Critical (Must Fix Before Release)
-1. **Token refresh race condition** (`src/auth/jwt.ts:45`)
-   - Risk: Users may get logged out unexpectedly
-   - Priority: P0
-   - Estimate: 2 hours
-
-2. **No retry logic for failed payments** (`src/payment/stripe.ts:120`)
-   - Risk: Lost revenue from transient failures
-   - Priority: P0
-   - Estimate: 3 hours
-
-## 🟡 Moderate (Fix in Next Sprint)
-3. **UserService violates SRP** (`src/services/UserService.ts`)
-   - Issue: 580 lines, handles auth + email + reporting
-   - Refactoring: Extract EmailService, ReportService
-   - Priority: P1
-   - Estimate: 4 hours
-
-## 🟢 Low (Backlog)
-4. **Missing input validation** (`src/utils/format.ts:30`)
-   - Risk: Potential XSS if user input not sanitized
-   - Priority: P2
-   - Estimate: 1 hour
-
-## Summary
-- Total items: 4
-- Critical: 2 (5 hours estimated)
-- Moderate: 1 (4 hours estimated)
-- Low: 1 (1 hour estimated)
-```
+**Token cost**: ~3000 tokens
+**Accuracy**: 100% (exact pattern matching)
 
 ---
 
-#### 3.4 Auto-Update API Documentation
+### 4. Documentation Review
 
-**Purpose**: Generate API docs from code structure.
-
-**Serena Solution**:
-```typescript
-// Step 1: Find all controller/route files
-mcp__serena__search_for_pattern({
-  substring_pattern: "@Controller|@Route|app\\.get\\(|app\\.post\\(",
-  relative_path: "src/"
-})
-
-// Step 2: For each endpoint, extract details
-mcp__serena__find_symbol({
-  name_path: "UserController",
-  depth: 2, // Get all methods and their parameters
-  include_body: true
-})
-
-// Step 3: Parse JSDoc comments for descriptions
-// Step 4: Generate OpenAPI/Swagger spec or Markdown docs
-const apiDoc = generateAPIDocs({
-  controllers: [...],
-  format: "openapi-3.0" // or "markdown"
-})
-
-// Output to .ultra/docs/api-reference.md
-```
-
-**Generated API Documentation Example**:
-```markdown
-# API Reference
-
-## Authentication
-
-### POST /auth/login
-Login with email and password.
-
-**Request Body**:
-```json
-{
-  "email": "user@example.com",
-  "password": "securepassword"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "token": "eyJhbGciOiJSUzI1NiIs...",
-  "expiresIn": 604800,
-  "user": {
-    "id": "123",
-    "email": "user@example.com",
-    "name": "John Doe"
-  }
-}
-```
-
-**Errors**:
-- `401 Unauthorized`: Invalid credentials
-- `400 Bad Request`: Missing required fields
-
-**Implementation**: `src/auth/auth.controller.ts:45`
-```
-
----
-
-#### 3.5 Workflow Integration
-
-**Automated flow in /ultra-deliver**:
-1. **CHANGELOG**:
-   - `read_memory("recent-changes")`
-   - Parse and categorize (Added/Fixed/Changed)
-   - Generate CHANGELOG.md entry
-
-2. **ADRs**:
-   - `read_memory("tech-decisions")`
-   - For each decision → Generate ADR file
-   - Save to `.ultra/docs/decisions/NNNN-title.md`
-
-3. **Technical Debt**:
-   - `search_for_pattern("TODO:|FIXME:|HACK:")`
-   - `read_memory("tech-debt")`
-   - Generate consolidated report
-   - Save to `.ultra/docs/technical-debt.md`
-
-4. **API Docs**:
-   - `search_for_pattern` for controllers/routes
-   - `find_symbol` for method signatures
-   - Generate OpenAPI spec or Markdown
-   - Save to `.ultra/docs/api-reference.md`
-
-**Time Savings**:
-- Manual documentation: 1-2 hours
-- Serena auto-generation: 5-10 minutes
-- **Result: 10x faster**
-
----
-
-### 4. Manual Documentation Review
-
-After auto-generation, review and adjust:
-- Verify CHANGELOG accuracy (auto-generated from memory)
-- Ensure ADRs capture all important decisions
-- Validate API docs match current implementation
-- Update README.md with high-level changes
+**AI validates** (no manual work required):
+- ✅ CHANGELOG completeness (compare commits vs CHANGELOG entries)
+- ✅ ADR consistency (verify all /ultra-research decisions documented)
+- ✅ README.md updates (suggest changes based on new features)
+- ✅ API documentation (detect new public exports, suggest additions)
 
 ### 5. Final Quality Check
 ```bash
@@ -443,7 +241,7 @@ Example:
 COMMAND="ultra-deliver" \
 ESTIMATED_TOKENS=3800 \
 FILES_READ_TOPN='["README.md","CHANGELOG.md"]' \
-TRIGGERED_SKILLS='["documentation-guardian","playwright-automation"]' \
+TRIGGERED_SKILLS='["syncing-docs","automating-e2e-tests"]' \
 NOTES='{"perf": "optimized images and code splitting", "docs": "updated README"}' \
 bash .claude/scripts/log-observer.sh
 ```

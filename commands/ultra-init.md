@@ -13,24 +13,68 @@ Initialize Ultra Builder Pro 4.0 project structure with native task management.
 ## Arguments
 
 - `$1`: Project name (if empty, use current directory name)
-- `$2`: Project type (web/api/cli/fullstack/other, if empty, ask user)
-- `$3`: Tech stack (optional)
+- `$2`: Project type (web/api/cli/fullstack/other, if empty, **auto-detect from dependencies**)
+- `$3`: Tech stack (if empty, **auto-detect from package files**)
 - `$4`: "git" to initialize git repo (optional)
 
 ## Pre-Execution Checks
 
 - Check if `.ultra/` exists → Ask to re-initialize (will overwrite)
 - Assess project state: git repo? Existing files?
-- Check `package.json` to infer project type
+- Auto-detect project type and tech stack from existing files
 
 ## Workflow
 
-### 1. Collect Project Information
+### 1. Collect Project Information (Smart Detection)
 
-- Project name ($1 or current directory)
-- Project type ($2 or prompt: "web/api/cli/fullstack/other")
-- Tech stack ($3 if provided)
-- Git initialization ($4 = "git")
+**Project name**: $1 or current directory name
+
+**Project type**: $2 or auto-detect:
+```javascript
+// 1. Check package.json (Node.js projects)
+if (dependencies['react'] || dependencies['vue'] || dependencies['next']) → type = "web"
+if (dependencies['express'] || dependencies['fastapi'] || dependencies['koa']) → type = "api"
+if (package.json has 'bin' field) → type = "cli"
+if (both frontend + backend dependencies exist) → type = "fullstack"
+
+// 2. Check Python projects
+if (requirements.txt exists):
+  if (flask or django or fastapi in requirements) → type = "api"
+  if (streamlit or gradio in requirements) → type = "web"
+
+// 3. Check Go projects
+if (go.mod exists):
+  if (gin or echo or fiber in go.mod) → type = "api"
+
+// 4. Check Rust projects
+if (Cargo.toml exists):
+  if ([dependencies] has actix-web or rocket) → type = "api"
+
+// 5. Fallback: Use AskUserQuestion with detected context
+if (no clear detection) → AskUserQuestion with hints from file structure
+```
+
+**Tech stack**: $3 or auto-detect:
+```javascript
+// Frontend detection
+if (dependencies['react'] && dependencies['typescript']) → "react-ts"
+if (dependencies['vue'] && dependencies['typescript']) → "vue-ts"
+if (dependencies['next']) → "next-ts"
+if (dependencies['svelte']) → "svelte-ts"
+
+// Backend detection
+if (dependencies['express'] && dependencies['typescript']) → "node-ts"
+if (requirements.txt + flask) → "python-flask"
+if (requirements.txt + fastapi) → "python-fastapi"
+if (go.mod exists) → "go"
+if (Cargo.toml exists) → "rust"
+
+// Fallback: "other" or ask user with detected hints
+```
+
+**Rationale**: "Infer the most useful likely action and proceed" (Claude 4.x Best Practices)
+
+**Git initialization**: $4 = "git"
 
 ### 2. Create Project Structure
 
@@ -89,16 +133,6 @@ Create `.ultra/config.json` (copied from `.claude/.ultra-template/config.json`):
       "archive_path": ".ultra/context-archive/"
     }
   },
-  "file_routing": {
-    "thresholds": {
-      "medium": 5000,
-      "large": 8000
-    },
-    "actions": {
-      "medium": "suggest_serena",
-      "large": "enforce_serena"
-    }
-  },
   "quality_gates": {
     "test_coverage": {
       "overall": 0.80,
@@ -153,7 +187,6 @@ Create `.ultra/config.json` (copied from `.claude/.ultra-template/config.json`):
   },
   "tools": {
     "mcp": {
-      "serena": true,
       "context7": true,
       "exa": true
     },
@@ -164,7 +197,6 @@ Create `.ultra/config.json` (copied from `.claude/.ultra-template/config.json`):
       "guarding-ui-design": true,
       "syncing-docs": true,
       "automating-e2e-tests": true,
-      "routing-serena-operations": true,
       "compressing-context": true,
       "guiding-workflow": true,
       "enforcing-workflow": true
