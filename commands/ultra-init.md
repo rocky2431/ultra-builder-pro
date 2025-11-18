@@ -21,41 +21,34 @@ Initialize Ultra Builder Pro 4.0 project structure with native task management.
 
 **Phase 0: Project State Detection** (NEW in 4.2)
 
-Execute智能检测，收集项目上下文信息：
+Detect project context before initialization:
 
-```javascript
-// 1. Check if .ultra/ already exists
-const hasUltraDir = exists('.ultra/config.json')
-let existingConfig = null
-if (hasUltraDir) {
-  existingConfig = JSON.parse(read('.ultra/config.json'))
-}
+1. **Check existing `.ultra/` directory**
+   - If exists → Trigger re-initialization flow
+   - Read existing config for comparison
 
-// 2. Check if project has code files (existing project vs empty directory)
-const isExistingProject = exists('package.json') || exists('requirements.txt') ||
-                          exists('go.mod') || exists('Cargo.toml') || exists('pom.xml')
+2. **Detect project code files**
+   - Node.js: `package.json`
+   - Python: `requirements.txt`, `pyproject.toml`
+   - Go: `go.mod`
+   - Rust: `Cargo.toml`
+   - Java: `pom.xml`, `build.gradle`
 
-// 3. Auto-detect project type and tech stack (5-layer waterfall)
-const detectionContext = {
-  projectType: null,        // "web", "api", "cli", "fullstack"
-  techStack: null,          // "react-ts", "vue-ts", "python-fastapi", etc.
-  multiTypes: [],           // ["web", "api"] for hybrid projects
-  frameworks: {
-    frontend: [],           // ["react@18.2.0", "typescript@5.0.0"]
-    backend: [],            // ["express@4.18.0"]
-    testing: [],            // ["jest@29.0.0", "playwright@1.40.0"]
-    buildTools: []          // ["vite@5.0.0"]
-  },
-  packageManager: null,     // "npm", "yarn", "pnpm", "pip", "go", "cargo"
-  hasTests: false,          // exists('tests/') || exists('__tests__/')
-  hasCI: false              // exists('.github/workflows/') || exists('.gitlab-ci.yml')
-}
-```
+3. **Auto-detect project type and tech stack**
+   - Frontend frameworks: React, Vue, Angular, Svelte
+   - Backend frameworks: Express, FastAPI, Django, Gin
+   - Testing: Jest, Playwright, Pytest
+   - Build tools: Vite, Webpack, esbuild
+   - Package managers: npm, yarn, pnpm, pip, go, cargo
 
-**Detection triggers interactive confirmation for**:
-- ✅ Existing projects (`isExistingProject = true`)
-- ✅ Re-initialization (`hasUltraDir = true`)
-- ⚠️  Optional: New projects (if `--interactive` flag provided)
+4. **Store detection results**
+   - Save to `config.project.detectionContext`
+   - Use in interactive confirmation (show detected values with labels)
+
+**Triggers interactive confirmation for**:
+- Existing projects with code files
+- Re-initialization scenarios
+- Optional: `--interactive` flag
 
 ## Workflow
 
@@ -112,140 +105,31 @@ if (Cargo.toml exists) → "rust"
 
 ### 1.5. Interactive Confirmation (NEW in 4.2)
 
-**Applies to**:
-- ✅ Existing projects (`isExistingProject = true`)
-- ✅ Re-initialization (`hasUltraDir = true`)
-- ⚠️  Optional: New projects with `--interactive` flag
+**Triggers for**:
+- Existing projects with code files
+- Re-initialization (`.ultra/` already exists)
+- Optional: `--interactive` flag for new projects
 
-**Question 1: Project Type** (if detection successful)
+**Process**:
 
-```typescript
-AskUserQuestion({
-  questions: [{
-    header: "项目类型",
-    question: "请选择项目类型（可多选，适用于混合项目如 Web + API）：",
-    multiSelect: true,  // ✅ Support multi-type projects
-    options: [
-      {
-        label: detectedType ? `${getTypeLabel(detectedType)} (原项目)` : "Web 应用",
-        description: detectedType
-          ? `检测到 ${detectionContext.frameworks.frontend.join(', ')}`
-          : "前端 Web 应用开发（React, Vue, Angular 等）"
-      },
-      {
-        label: "API 服务",
-        description: detectionContext.frameworks.backend.length > 0
-          ? `检测到 ${detectionContext.frameworks.backend.join(', ')}`
-          : "后端 API 开发（RESTful 或 GraphQL）"
-      },
-      {
-        label: "CLI 工具",
-        description: "命令行工具或脚本"
-      },
-      {
-        label: "全栈应用",
-        description: "前后端一体化项目"
-      }
-    ]
-  }]
-})
-```
+1. **Ask project type** (multiSelect: true for hybrid projects)
+   - Show detected types with "(detected)" label
+   - Allow multi-selection (e.g., Web + API)
+   - Options: Web, API, CLI, Fullstack, Other
 
-**Question 2: Tech Stack** (if detection successful)
+2. **Ask tech stack** (single selection)
+   - Show detected stack with "(detected)" label
+   - Options based on detected package files
+   - Fallback: Custom input
 
-```typescript
-AskUserQuestion({
-  questions: [{
-    header: "技术栈",
-    question: "请选择主要技术栈：",
-    multiSelect: false,
-    options: [
-      {
-        label: detectedStack ? `${detectedStack} (原项目)` : "React + TypeScript",
-        description: detectedStack
-          ? `检测到 ${detectionContext.frameworks.frontend.join(', ')}`
-          : "React 18+ 与 TypeScript 5+"
-      },
-      {
-        label: "Vue + TypeScript",
-        description: "Vue 3 + Composition API"
-      },
-      {
-        label: "Next.js",
-        description: "React 框架，内置 SSR/SSG"
-      },
-      {
-        label: "Python FastAPI",
-        description: "现代 Python API 框架"
-      },
-      {
-        label: "自定义",
-        description: "手动输入技术栈名称"
-      }
-    ]
-  }]
-})
-```
+3. **Ask re-initialization handling** (if `.ultra/` exists)
+   - Overwrite (backup to `.ultra/backup/`)
+   - Keep existing (update missing files only)
+   - Cancel
 
-**Question 3: Re-initialization Handling** (only if `hasUltraDir = true`)
+**Implementation Note**: Use AskUserQuestion tool with Chinese prompts generated at runtime. Store detection results in `config.project.detectionContext` for reference.
 
-```typescript
-AskUserQuestion({
-  questions: [{
-    header: "重新初始化",
-    question: "检测到已存在 .ultra/ 目录，请选择处理方式：",
-    multiSelect: false,
-    options: [
-      {
-        label: "覆盖现有配置",
-        description: "创建新配置，旧配置将备份到 .ultra/backup/"
-      },
-      {
-        label: "保留现有配置",
-        description: "仅更新缺失的文件和目录"
-      },
-      {
-        label: "取消初始化",
-        description: "退出 /ultra-init 命令"
-      }
-    ]
-  }]
-})
-```
-
-**Type Label Mapping**:
-```javascript
-function getTypeLabel(type) {
-  const labels = {
-    'web': 'Web 应用',
-    'api': 'API 服务',
-    'cli': 'CLI 工具',
-    'fullstack': '全栈应用',
-    'other': '其他'
-  }
-  return labels[type] || type
-}
-```
-
-**User Selection Processing**:
-```javascript
-// Parse user selections
-const selectedTypes = answers["项目类型"]  // ["Web 应用 (原项目)", "API 服务"]
-const selectedStack = answers["技术栈"]    // "React + TypeScript (原项目)"
-
-// Extract type codes (support multiple types)
-const projectTypes = []
-for (const label of selectedTypes) {
-  if (label.includes("Web 应用")) projectTypes.push("web")
-  if (label.includes("API 服务")) projectTypes.push("api")
-  if (label.includes("CLI 工具")) projectTypes.push("cli")
-  if (label.includes("全栈应用")) projectTypes.push("fullstack")
-}
-
-// Update config with confirmed selections
-config.project.type = projectTypes  // Array format for multi-type support
-config.project.stack = extractStackCode(selectedStack)
-```
+**Output Language**: All prompts in Chinese at runtime (not hardcoded in this file)
 
 ### 2. Create Project Structure
 
