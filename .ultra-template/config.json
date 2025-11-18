@@ -3,7 +3,7 @@
   "project": {
     "name": "",
     "type": [],
-    "stack": "",
+    "stack": [],
     "created": "",
     "detectionContext": {
       "frameworks": {
@@ -14,7 +14,9 @@
       },
       "packageManager": null,
       "hasTests": false,
-      "hasCI": false
+      "hasCI": false,
+      "hasGit": false,
+      "detectedStacks": []
     }
   },
   "structure": "specs",
@@ -78,15 +80,15 @@
   "paths": {
     "tasks": ".ultra/tasks/tasks.json",
     "specs": {
-      "product": "specs/product.md",
-      "architecture": "specs/architecture.md"
+      "product": ".ultra/specs/product.md",
+      "architecture": ".ultra/specs/architecture.md"
     },
     "docs_legacy": {
-      "prd": "docs/prd.md",
-      "tech": "docs/tech.md"
+      "prd": ".ultra/docs/prd.md",
+      "tech": ".ultra/docs/tech.md"
     },
     "research": ".ultra/docs/research/",
-    "decisions": "docs/decisions/",
+    "decisions": ".ultra/docs/decisions/",
     "context_archive": ".ultra/context-archive/",
     "changes": ".ultra/changes/"
   },

@@ -34,14 +34,19 @@ Detect project context before initialization:
    - Rust: `Cargo.toml`
    - Java: `pom.xml`, `build.gradle`
 
-3. **Auto-detect project type and tech stack**
+3. **Detect Git repository**
+   - Check if `.git/` directory exists
+   - Store result to `config.project.detectionContext.hasGit`
+   - Use in interactive confirmation (show different Git options based on detection)
+
+4. **Auto-detect project type and tech stack**
    - Frontend frameworks: React, Vue, Angular, Svelte
    - Backend frameworks: Express, FastAPI, Django, Gin
    - Testing: Jest, Playwright, Pytest
    - Build tools: Vite, Webpack, esbuild
    - Package managers: npm, yarn, pnpm, pip, go, cargo
 
-4. **Store detection results**
+5. **Store detection results**
    - Save to `config.project.detectionContext`
    - Use in interactive confirmation (show detected values with labels)
 
@@ -81,20 +86,28 @@ if (Cargo.toml exists):
 if (no clear detection) → AskUserQuestion with hints from file structure
 ```
 
-**Tech stack**: $3 or auto-detect:
+**Tech stack**: $3 or auto-detect (supports multiple stacks):
 ```javascript
 // Frontend detection
-if (dependencies['react'] && dependencies['typescript']) → "react-ts"
-if (dependencies['vue'] && dependencies['typescript']) → "vue-ts"
-if (dependencies['next']) → "next-ts"
-if (dependencies['svelte']) → "svelte-ts"
+if (dependencies['react'] && dependencies['typescript']) → "React + TypeScript"
+if (dependencies['vue'] && dependencies['typescript']) → "Vue + TypeScript"
+if (dependencies['next']) → "Next.js + TypeScript"
+if (dependencies['svelte']) → "Svelte + TypeScript"
 
-// Backend detection
-if (dependencies['express'] && dependencies['typescript']) → "node-ts"
-if (requirements.txt + flask) → "python-flask"
-if (requirements.txt + fastapi) → "python-fastapi"
-if (go.mod exists) → "go"
-if (Cargo.toml exists) → "rust"
+// Backend detection (can coexist with frontend)
+if (dependencies['express'] && dependencies['typescript']) → "Node.js + Express"
+if (requirements.txt + fastapi) → "Python + FastAPI"
+if (requirements.txt + flask) → "Python + Flask"
+if (go.mod + gin) → "Go + Gin"
+if (Cargo.toml + actix-web) → "Rust + Actix"
+
+// Database detection (can coexist with above)
+if (dependencies['pg'] || dependencies['postgres']) → "PostgreSQL"
+if (dependencies['mysql']) → "MySQL"
+if (dependencies['mongodb']) → "MongoDB"
+
+// Fullstack example
+if (React + Express + PostgreSQL all detected) → ["React + TypeScript", "Node.js + Express", "PostgreSQL"]
 
 // Fallback: "other" or ask user with detected hints
 ```
@@ -117,12 +130,26 @@ if (Cargo.toml exists) → "rust"
    - Allow multi-selection (e.g., Web + API)
    - Options: Web, API, CLI, Fullstack, Other
 
-2. **Ask tech stack** (single selection)
-   - Show detected stack with "(detected)" label
-   - Options based on detected package files
+2. **Ask tech stack** (multiSelect: true for fullstack projects)
+   - Show detected stacks with "(detected)" label
+   - Allow multi-selection (e.g., React + Node.js + PostgreSQL)
+   - Options based on detected package files grouped by layer
    - Fallback: Custom input
 
-3. **Ask re-initialization handling** (if `.ultra/` exists)
+3. **Ask Git initialization** (based on detection)
+
+   **If `.git/` detected** (hasGit: true):
+   - Options:
+     - "Keep existing Git repository" (default)
+     - "Reinitialize Git (backup to .git.backup)"
+     - "Don't use Git"
+
+   **If `.git/` NOT detected** (hasGit: false):
+   - Options:
+     - "Initialize Git repository"
+     - "Don't use Git"
+
+4. **Ask re-initialization handling** (if `.ultra/` exists)
    - Overwrite (backup to `.ultra/backup/`)
    - Keep existing (update missing files only)
    - Cancel
@@ -296,13 +323,18 @@ All files and directories are copied as-is from the template:
 **Backward Compatibility**:
 Old projects using `docs/prd.md` and `docs/tech.md` are still supported via config-based fallback in commands (no symlinks created)
 
-### 6. Git Integration (Optional)
+### 6. Git Integration (Based on User Choice)
 
-If `$4 = "git"`:
+**If user chose "Initialize Git repository"** or **"Reinitialize Git"**:
+- If reinitializing: Backup existing `.git/` to `.git.backup.{timestamp}`
 - Initialize repo: `git init`
-- Create `.gitignore` (exclude backups, secrets, build artifacts)
-- Create basic `README.md`
-- Suggest first commit
+- Create `.gitignore` (exclude .ultra/backups, secrets, build artifacts)
+- Create basic `README.md` (if not exists)
+- Suggest first commit: `git add . && git commit -m "feat: initialize Ultra Builder Pro 4.2"`
+
+**If user chose "Keep existing Git repository"** or **"Don't use Git"**:
+- Skip Git operations
+- Log decision to `config.project.detectionContext.hasGit`
 
 ### 7. Display Success Summary
 
