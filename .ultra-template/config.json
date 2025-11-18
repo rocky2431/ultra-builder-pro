@@ -1,10 +1,21 @@
 {
-  "version": "4.1",
+  "version": "4.2",
   "project": {
     "name": "",
-    "type": "",
+    "type": [],
     "stack": "",
-    "created": ""
+    "created": "",
+    "detectionContext": {
+      "frameworks": {
+        "frontend": [],
+        "backend": [],
+        "testing": [],
+        "buildTools": []
+      },
+      "packageManager": null,
+      "hasTests": false,
+      "hasCI": false
+    }
   },
   "structure": "specs",
 
@@ -20,17 +31,6 @@
       "trigger_task_count": 5,
       "target_ratio": 0.10,
       "archive_path": ".ultra/context-archive/"
-    }
-  },
-
-  "file_routing": {
-    "thresholds": {
-      "medium": 5000,
-      "large": 8000
-    },
-    "actions": {
-      "medium": "suggest_serena",
-      "large": "enforce_serena"
     }
   },
 
@@ -93,7 +93,6 @@
 
   "tools": {
     "mcp": {
-      "serena": true,
       "context7": true,
       "exa": true
     },
@@ -104,7 +103,6 @@
       "guarding-ui-design": true,
       "syncing-docs": true,
       "automating-e2e-tests": true,
-      "routing-serena-operations": true,
       "compressing-context": true,
       "guiding-workflow": true,
       "enforcing-workflow": true
