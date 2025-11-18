@@ -15,7 +15,6 @@
 
 **Additional Commands**:
 ```bash
-/ultra-refactor <operation> <target>  # Code refactoring with Serena MCP
 /ultra-think <problem>                # Deep analytical thinking
 /ultra-session-reset                  # Archive and reset session
 ```
@@ -40,13 +39,12 @@
 
 **Configuration categories**:
 1. **Context management** - Token limits, compression thresholds
-2. **File routing** - File size thresholds for Serena MCP routing
-3. **Quality gates** - Test coverage %, code quality metrics
-4. **Git workflow** - Branch naming patterns, commit conventions
-5. **Paths** - All project paths (tasks, specs, docs, archives)
+2. **Quality gates** - Test coverage %, code quality metrics
+3. **Git workflow** - Branch naming patterns, commit conventions
+4. **Paths** - All project paths (tasks, specs, docs, archives)
 
 **Runtime behavior**:
-- Skills (compressing-context, routing-serena-operations, guarding-test-coverage, guarding-code-quality) load thresholds from config at runtime
+- Skills (compressing-context, guarding-test-coverage, guarding-code-quality) load thresholds from config at runtime
 - Documentation may show example values (e.g., "≥80%"), but actual values come from config
 - Project templates in `.ultra-template/` include default config.json
 
@@ -56,9 +54,6 @@
   "context": {
     "total_limit": 200000,
     "thresholds": { "green": 0.60, "yellow": 0.70, "orange": 0.85 }
-  },
-  "file_routing": {
-    "thresholds": { "medium": 5000, "large": 8000 }
   },
   "quality_gates": {
     "test_coverage": { "overall": 0.80, "critical_paths": 1.00, "branch": 0.75 },
@@ -104,14 +99,23 @@
 
 ---
 
-## Interactive Workflow (Preferred Method)
+## Interactive Workflow (Automation-First with Strategic Questions)
 
-**Use AskUserQuestion tool when**:
-- ✅ User request is ambiguous → Ask for clarification
-- ✅ Multiple valid approaches exist → Present options (2-4 choices)
-- ✅ During /ultra-init → Confirm project type/stack
-- ✅ During /ultra-research → Technology selection decisions
-- ✅ During /ultra-dev → Implementation approach choices
+**Philosophy**: "By default, implement changes rather than only suggesting them. If the user's intent is unclear, infer the most useful likely action and proceed." (Claude 4.x Best Practices)
+
+**Use AskUserQuestion tool ONLY when**:
+- ✅ User request is **genuinely ambiguous** (cannot be inferred from context) → Ask for clarification
+- ✅ Multiple **equally valid** approaches exist with **significant trade-offs** → Present options (2-4 choices)
+- ✅ During /ultra-research → **Strategic** technology selection decisions (frameworks, architectures)
+- ✅ During /ultra-dev → **High-impact** implementation choices (breaking API changes, data migrations)
+
+**DO NOT use AskUserQuestion for**:
+- ❌ Project type/stack in /ultra-init → **Auto-detect from dependencies** (see smart detection logic)
+- ❌ Simple parameter choices → **Use smart defaults** with inference
+- ❌ Safe file operations → **Implement automatically** (create docs, compress context)
+- ❌ Documentation updates → **Auto-create in `.ultra/docs/`**
+- ❌ Context compression → **Auto-compress in Yellow/Orange zones**
+- ❌ Merged branch deletion → **Auto-delete with safety checks**
 
 **Key parameters**:
 - 1-4 questions per call
@@ -119,12 +123,19 @@
 - Use `multiSelect: true` for non-exclusive choices
 - Keep `header` concise (max 12 chars)
 
-**Example triggers**:
-- "Which state management?" → Present Redux/Zustand/Jotai options
-- "API or library project?" → Clarify during init
-- "Test framework?" → Offer Jest/Vitest/Playwright choices
+**Example triggers** (strategic decisions only):
+- "Which state management?" → Present Redux/Zustand/Jotai options (architectural decision)
+- "Monolith or microservices?" → Clarify system architecture strategy
+- "SQL or NoSQL?" → Database paradigm decision with trade-offs
+
+**Example NON-triggers** (auto-infer instead):
+- ~~"API or library project?"~~ → Auto-detect from package.json 'bin' field + dependencies
+- ~~"Test framework?"~~ → Auto-detect from existing test files or dependencies
+- ~~"Confirm file creation?"~~ → Auto-create in safe locations (`.ultra/docs/`)
 
 **Official docs**: https://docs.claude.com/tools/ask-user-question
+
+**Rationale**: Balance strategic input with autonomous execution following official guidance: "Infer the most useful likely action and proceed"
 
 ---
 
@@ -200,10 +211,10 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 
 ---
 
-## Skills System (10 Auto-Loaded)
+## Skills System (9 Auto-Loaded)
 
 **How it works** (official Claude Code):
-- All 10 skills in `~/.claude/skills/` auto-loaded
+- All 9 skills in `~/.claude/skills/` auto-loaded
 - Claude invokes based on description matching
 - No manual activation/deactivation
 
@@ -214,10 +225,16 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 4. `guarding-ui-design` - UI anti-patterns prevention + design guidance
 5. `syncing-docs` - Auto-sync docs (specs/architecture.md)
 6. `automating-e2e-tests` - E2E test code generation + browser automation
-7. `routing-serena-operations` - Intelligent Serena MCP routing (file size + operation type + project scale)
-8. `compressing-context` - Proactive context compression (20-30 tasks/session)
-9. `guiding-workflow` - Next-step suggestions based on project state
-10. `enforcing-workflow` - Enforces independent-branch workflow
+7. `compressing-context` - Proactive context compression (20-30 tasks/session)
+8. `guiding-workflow` - Next-step suggestions based on project state
+9. `enforcing-workflow` - Enforces independent-branch workflow
+
+**Skills Documentation Mode**: **Slim Mode** (recommended)
+- All Skills use minimal SKILL.md (<500 lines, average 79-284 lines)
+- Detailed documentation in separate `guidelines/` files
+- Progressive disclosure: Load main file first, reference detailed docs only when needed
+- Token efficiency: ~60% better than verbose mode
+- **See**: @config/ultra-skills-modes.md for complete mode comparison
 
 **Complete guide**: @config/ultra-skills-guide.md
 
@@ -227,28 +244,16 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 
 **Philosophy**: Built-in tools first, MCP when advantageous
 
-**Automatic file routing**: **routing-serena-operations** skill automatically detects large files:
-- < 5,000 lines: Use Read tool normally
-- 5,000-8,000 lines: Suggests Serena MCP (3 options provided)
-- > 8,000 lines: Blocks Read, enforces Serena MCP
-
 **Decision Tree**:
-1. Large file? → **routing-serena-operations** auto-routes to Serena MCP (60x efficiency)
-2. Can built-in tools handle it? → Use Read/Write/Edit/Grep/Glob/WebFetch
-3. Need semantic code ops (>100 files)? → Serena MCP
-4. Need specialized capability? → Context7/Exa MCP
+1. Can built-in tools handle it? → Use Read/Write/Edit/Grep/Glob/WebFetch
+2. Need official library documentation? → Context7 MCP
+3. Need code search or web research? → Exa MCP
 
-**Installed Servers** (3 total, verify via `claude mcp list`):
-- **serena**: Semantic layer infrastructure - Required for TDD REFACTOR, safe refactoring, knowledge management
+**Installed Servers** (2 total, verify via `claude mcp list`):
 - **context7**: Official library documentation - Primary choice for API docs
 - **exa**: AI semantic search - Intelligent code context + web search (supports Chinese)
 
-**Serena Quick Start**: @config/serena/quick-start.md
-
-**Complete guides**:
-- MCP decision tree: @config/ultra-mcp-guide.md
-- Serena workflows (7 phases): @config/serena/workflows.md
-- Serena reference (advanced): @config/serena/reference.md
+**Complete guide**: @config/ultra-mcp-guide.md
 
 ---
 
@@ -359,7 +364,7 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 - @guidelines/ultra-git-workflow.md - Branch naming, commits, safety rules
 
 **Configuration** (tools and systems):
-- @config/ultra-skills-guide.md - All 10 skills detailed reference
+- @config/ultra-skills-guide.md - All 9 skills detailed reference
 - @config/ultra-mcp-guide.md - MCP decision tree + usage patterns
 
 **Workflows** (processes and efficiency):

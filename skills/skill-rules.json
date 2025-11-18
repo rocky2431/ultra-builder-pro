@@ -1,0 +1,373 @@
+{
+  "version": "1.0",
+  "description": "Ultra Builder Pro 4.1 - Skill activation rules for automatic skill suggestions",
+  "skills": {
+    "guarding-code-quality": {
+      "type": "guardrail",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "SOLID/DRY/KISS/YAGNI principles enforcement",
+      "promptTriggers": {
+        "keywords": [
+          "code quality",
+          "SOLID",
+          "DRY",
+          "KISS",
+          "YAGNI",
+          "refactor",
+          "refactoring",
+          "clean code",
+          "code smell",
+          "best practices",
+          "design pattern",
+          "function too long",
+          "god class",
+          "duplicate code"
+        ],
+        "intentPatterns": [
+          "(check|review|improve|assess).*?(code quality|SOLID|DRY|KISS)",
+          "(refactor|clean|improve|optimize).*?code",
+          "(how to|best practice).*?(refactor|clean code|design)",
+          "function.*?(too long|too complex)",
+          "code.*?(smell|duplicate|repeated)"
+        ]
+      },
+      "fileTriggers": {
+        "pathPatterns": [
+          "**/*.ts",
+          "**/*.js",
+          "**/*.tsx",
+          "**/*.jsx",
+          "**/*.py",
+          "**/*.java",
+          "**/*.go",
+          "**/*.rs",
+          "**/*.rb",
+          "**/*.php",
+          "**/*.c",
+          "**/*.cpp"
+        ],
+        "pathExclusions": [
+          "**/*.test.*",
+          "**/*.spec.*",
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**"
+        ],
+        "contentPatterns": [
+          "function .{200,}",
+          "class .{500,}",
+          "export.*function",
+          "export.*class"
+        ]
+      }
+    },
+    "guarding-test-coverage": {
+      "type": "guardrail",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "Six-dimensional test coverage enforcement",
+      "promptTriggers": {
+        "keywords": [
+          "test",
+          "testing",
+          "test coverage",
+          "coverage",
+          "unit test",
+          "integration test",
+          "e2e test",
+          "test strategy",
+          "six-dimensional",
+          "functional test",
+          "boundary test",
+          "exception test",
+          "performance test",
+          "security test",
+          "compatibility test"
+        ],
+        "intentPatterns": [
+          "(write|add|create|implement).*?test",
+          "(check|verify|measure|improve).*?(coverage|test)",
+          "(how to|best practice).*?test",
+          "test.*?(functional|boundary|exception|performance|security|compatibility)"
+        ]
+      },
+      "fileTriggers": {
+        "pathPatterns": [
+          "**/*.test.ts",
+          "**/*.test.js",
+          "**/*.spec.ts",
+          "**/*.spec.js",
+          "**/*.test.tsx",
+          "**/*.spec.tsx",
+          "**/test/**",
+          "**/tests/**",
+          "**/__tests__/**"
+        ]
+      }
+    },
+    "guarding-git-safety": {
+      "type": "guardrail",
+      "enforcement": "block",
+      "priority": "critical",
+      "description": "Prevents dangerous git operations with tiered risk management",
+      "promptTriggers": {
+        "keywords": [
+          "git push --force",
+          "git push -f",
+          "force push",
+          "git reset --hard",
+          "hard reset",
+          "git rebase",
+          "rebase",
+          "git clean -fd",
+          "delete branch",
+          "git branch -D",
+          "destructive git"
+        ],
+        "intentPatterns": [
+          "git.*(force|--force|-f)",
+          "git.*reset.*(--hard|-h)",
+          "git.*rebase",
+          "git.*(clean|delete|remove).*branch",
+          "(force push|hard reset).*main"
+        ]
+      },
+      "blockMessage": "🔴 CRITICAL GIT OPERATION DETECTED\n\n⚠️ This operation may cause data loss!\n\n📋 REQUIRED ACTION:\n1. Use Skill tool: 'guarding-git-safety'\n2. Review tiered risk management guidelines\n3. Verify operation safety before proceeding\n\n💡 TIP: Check if branch is merged, shared, or protected"
+    },
+    "guarding-ui-design": {
+      "type": "guardrail",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "UI anti-patterns prevention and design guidance",
+      "promptTriggers": {
+        "keywords": [
+          "component",
+          "react component",
+          "UI",
+          "user interface",
+          "frontend",
+          "styling",
+          "design",
+          "layout",
+          "CSS",
+          "typography",
+          "color",
+          "spacing",
+          "design system",
+          "MUI",
+          "Material-UI",
+          "Ant Design",
+          "Chakra",
+          "Tailwind"
+        ],
+        "intentPatterns": [
+          "(create|add|build|implement).*?(component|UI|page|modal|dialog|form)",
+          "(style|design|layout).*?(component|UI|page)",
+          "(how to|best practice).*?(component|UI|design|styling)"
+        ]
+      },
+      "fileTriggers": {
+        "pathPatterns": [
+          "**/*.tsx",
+          "**/*.jsx",
+          "**/*.vue",
+          "**/*.css",
+          "**/*.scss",
+          "**/*.sass",
+          "**/*.less",
+          "**/components/**",
+          "**/pages/**",
+          "**/views/**"
+        ],
+        "pathExclusions": [
+          "**/*.test.tsx",
+          "**/*.test.jsx",
+          "**/*.spec.tsx",
+          "**/*.spec.jsx"
+        ],
+        "contentPatterns": [
+          "import.*React",
+          "export.*component",
+          "className=",
+          "styled\\(",
+          "@mui",
+          "chakra-ui"
+        ]
+      }
+    },
+    "syncing-docs": {
+      "type": "domain",
+      "enforcement": "suggest",
+      "priority": "medium",
+      "description": "Documentation synchronization and knowledge management",
+      "promptTriggers": {
+        "keywords": [
+          "documentation",
+          "docs",
+          "ADR",
+          "architecture decision",
+          "tech debt",
+          "technical debt",
+          "specs",
+          "specification",
+          "architecture doc",
+          "product doc",
+          "design doc",
+          "sync docs",
+          "update docs"
+        ],
+        "intentPatterns": [
+          "(create|write|update|sync).*?(doc|documentation|specs)",
+          "(add|create).*?ADR",
+          "(record|document).*?(decision|tech debt)",
+          "doc.*?(sync|update|outdated)"
+        ]
+      },
+      "fileTriggers": {
+        "pathPatterns": [
+          "specs/**/*.md",
+          ".ultra/docs/**/*.md",
+          "docs/**/*.md",
+          "**/README.md",
+          "**/CHANGELOG.md"
+        ]
+      }
+    },
+    "automating-e2e-tests": {
+      "type": "domain",
+      "enforcement": "suggest",
+      "priority": "high",
+      "description": "E2E testing automation with Playwright CLI",
+      "promptTriggers": {
+        "keywords": [
+          "E2E test",
+          "e2e test",
+          "end-to-end test",
+          "Playwright",
+          "browser automation",
+          "UI testing",
+          "integration testing",
+          "user flow",
+          "user journey",
+          "Core Web Vitals",
+          "LCP",
+          "INP",
+          "CLS",
+          "Lighthouse",
+          "performance testing"
+        ],
+        "intentPatterns": [
+          "(create|write|add).*?E2E.*?test",
+          "(test|automate).*?(user flow|user journey)",
+          "(measure|check|test).*?Core Web Vitals",
+          "Playwright.*?(test|automate)",
+          "(browser|UI).*?(automation|testing)"
+        ]
+      },
+      "fileTriggers": {
+        "pathPatterns": [
+          "**/e2e/**/*.spec.ts",
+          "**/e2e/**/*.test.ts",
+          "**/*.e2e.ts",
+          "**/playwright/**"
+        ]
+      }
+    },
+    "compressing-context": {
+      "type": "system",
+      "enforcement": "auto",
+      "priority": "critical",
+      "description": "Proactive context compression to prevent overflow",
+      "promptTriggers": {
+        "keywords": [
+          "context",
+          "token usage",
+          "compression",
+          "context overflow",
+          "out of context",
+          "token limit",
+          "compress session",
+          "archive session"
+        ],
+        "intentPatterns": [
+          "context.*(overflow|limit|full)",
+          "token.*(usage|limit|exceed)",
+          "(compress|archive).*?(context|session)"
+        ]
+      }
+    },
+    "guiding-workflow": {
+      "type": "system",
+      "enforcement": "auto",
+      "priority": "high",
+      "description": "Next-step workflow suggestions based on project state",
+      "promptTriggers": {
+        "keywords": [
+          "what's next",
+          "next step",
+          "what now",
+          "what should I do",
+          "workflow",
+          "next command",
+          "continue",
+          "proceed"
+        ],
+        "intentPatterns": [
+          "what.*?(next|now|should.*do)",
+          "next.*?(step|command|phase)",
+          "(how to|what to).*?(proceed|continue)"
+        ]
+      }
+    },
+    "enforcing-workflow": {
+      "type": "guardrail",
+      "enforcement": "block",
+      "priority": "critical",
+      "description": "Enforces mandatory independent-branch workflow",
+      "promptTriggers": {
+        "keywords": [
+          "git workflow",
+          "branch strategy",
+          "workflow strategy",
+          "unified branch",
+          "feature branch",
+          "batch merge",
+          "merge timing",
+          "workflow alternatives",
+          "workflow options",
+          "delay merge",
+          "freeze main"
+        ],
+        "intentPatterns": [
+          "(unified|single|one).*?branch.*?multiple.*?task",
+          "(delay|wait).*?merge.*?(until|complete)",
+          "batch.*?(merge|deployment)",
+          "workflow.*(option|alternative|choice)",
+          "freeze.*?main.*?branch"
+        ]
+      },
+      "blockMessage": "⚠️ WORKFLOW NON-NEGOTIABLE\n\n🚫 BLOCKED: Alternative workflow suggestion detected\n\nUltra Builder Pro uses MANDATORY workflow:\n- Each task = independent branch (feat/task-{id})\n- Complete → merge → delete\n- Main always deployable (for hotfixes)\n\n❌ FORBIDDEN:\n- Unified feature branches\n- Delay merges until complete\n- Freeze main branch\n\n📖 Reference: @guidelines/ultra-git-workflow.md\n\n使用 Skill 'enforcing-workflow' 了解详情"
+    }
+  },
+  "notes": {
+    "enforcement_types": {
+      "suggest": "Skill suggestion appears but doesn't block execution",
+      "block": "Requires skill to be used before proceeding (guardrail)",
+      "warn": "Shows warning but allows proceeding",
+      "auto": "Automatically executes without user confirmation"
+    },
+    "priority_levels": {
+      "critical": "Highest - Always trigger when matched",
+      "high": "Important - Trigger for most matches",
+      "medium": "Moderate - Trigger for clear matches",
+      "low": "Optional - Trigger only for explicit matches"
+    },
+    "customization": {
+      "pathPatterns": "Use glob patterns to match project structure",
+      "keywords": "Add domain-specific terms for your project",
+      "intentPatterns": "Use regex for flexible intent matching",
+      "contentPatterns": "Regex patterns to detect file content"
+    }
+  }
+}

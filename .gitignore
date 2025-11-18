@@ -89,3 +89,4 @@ templates/
 
 # Phase delivery reports (optional - commit if needed for documentation)
 # PHASE_*_DELIVERY_REPORT.md
+hooks/node_modules/
