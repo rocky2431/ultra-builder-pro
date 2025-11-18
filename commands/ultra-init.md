@@ -61,58 +61,29 @@ Detect project context before initialization:
 
 **Project name**: $1 or current directory name
 
-**Project type**: $2 or auto-detect:
-```javascript
-// 1. Check package.json (Node.js projects)
-if (dependencies['react'] || dependencies['vue'] || dependencies['next']) → type = "web"
-if (dependencies['express'] || dependencies['fastapi'] || dependencies['koa']) → type = "api"
-if (package.json has 'bin' field) → type = "cli"
-if (both frontend + backend dependencies exist) → type = "fullstack"
+**Project type**: $2 or auto-detect from existing files
 
-// 2. Check Python projects
-if (requirements.txt exists):
-  if (flask or django or fastapi in requirements) → type = "api"
-  if (streamlit or gradio in requirements) → type = "web"
+**Detection sources**:
+- Node.js: package.json dependencies (react/vue/next → web, express/koa → api, bin field → cli, hybrid → fullstack)
+- Python: requirements.txt (flask/django/fastapi → api, streamlit/gradio → web)
+- Go: go.mod (gin/echo/fiber → api)
+- Rust: Cargo.toml (actix-web/rocket → api)
+- Java: pom.xml / build.gradle dependencies
 
-// 3. Check Go projects
-if (go.mod exists):
-  if (gin or echo or fiber in go.mod) → type = "api"
-
-// 4. Check Rust projects
-if (Cargo.toml exists):
-  if ([dependencies] has actix-web or rocket) → type = "api"
-
-// 5. Fallback: Use AskUserQuestion with detected context
-if (no clear detection) → AskUserQuestion with hints from file structure
-```
-
-**Tech stack**: $3 or auto-detect (supports multiple stacks):
-```javascript
-// Frontend detection
-if (dependencies['react'] && dependencies['typescript']) → "React + TypeScript"
-if (dependencies['vue'] && dependencies['typescript']) → "Vue + TypeScript"
-if (dependencies['next']) → "Next.js + TypeScript"
-if (dependencies['svelte']) → "Svelte + TypeScript"
-
-// Backend detection (can coexist with frontend)
-if (dependencies['express'] && dependencies['typescript']) → "Node.js + Express"
-if (requirements.txt + fastapi) → "Python + FastAPI"
-if (requirements.txt + flask) → "Python + Flask"
-if (go.mod + gin) → "Go + Gin"
-if (Cargo.toml + actix-web) → "Rust + Actix"
-
-// Database detection (can coexist with above)
-if (dependencies['pg'] || dependencies['postgres']) → "PostgreSQL"
-if (dependencies['mysql']) → "MySQL"
-if (dependencies['mongodb']) → "MongoDB"
-
-// Fullstack example
-if (React + Express + PostgreSQL all detected) → ["React + TypeScript", "Node.js + Express", "PostgreSQL"]
-
-// Fallback: "other" or ask user with detected hints
-```
+**Fallback**: Use AskUserQuestion with detected context hints
 
 **Rationale**: "Infer the most useful likely action and proceed" (Claude 4.x Best Practices)
+
+**Tech stack**: $3 or auto-detect (supports multiple stacks for fullstack projects)
+
+**Detection by layer** (can coexist):
+- **Frontend**: React/Vue/Next.js/Svelte + TypeScript
+- **Backend**: Node.js/Python/Go/Rust + framework (Express/FastAPI/Gin/Actix)
+- **Database**: PostgreSQL/MySQL/MongoDB
+
+**Fullstack example**: `["React + TypeScript", "Node.js + Express", "PostgreSQL"]`
+
+**Fallback**: Use AskUserQuestion with multi-select support
 
 **Git initialization**: $4 = "git"
 
@@ -191,112 +162,21 @@ Create `.ultra/` by copying from template (`.claude/.ultra-template/`):
 ### 3. Initialize Configuration
 
 Create `.ultra/config.json` (copied from `.claude/.ultra-template/config.json`):
-```json
-{
-  "version": "4.2",
-  "project": {
-    "name": "[AUTO-FILLED]",
-    "type": ["[AUTO-FILLED]"],  // Array format for multi-type support (NEW in 4.2)
-    "stack": "[AUTO-FILLED]",
-    "created": "[AUTO-FILLED]",
-    "detectionContext": {       // NEW in 4.2: Store detection metadata
-      "frameworks": {
-        "frontend": [],
-        "backend": [],
-        "testing": [],
-        "buildTools": []
-      },
-      "packageManager": null,
-      "hasTests": false,
-      "hasCI": false
-    }
-  },
-  "structure": "specs",
-  "context": {
-    "total_limit": 200000,
-    "thresholds": {
-      "green": 0.60,
-      "yellow": 0.70,
-      "orange": 0.85,
-      "red": 0.95
-    },
-    "compression": {
-      "trigger_task_count": 5,
-      "target_ratio": 0.10,
-      "archive_path": ".ultra/context-archive/"
-    }
-  },
-  "quality_gates": {
-    "test_coverage": {
-      "overall": 0.80,
-      "critical_paths": 1.00,
-      "branch": 0.75,
-      "function": 0.85
-    },
-    "code_quality": {
-      "max_function_lines": 50,
-      "max_nesting_depth": 3,
-      "max_complexity": 10,
-      "max_duplication_lines": 3
-    },
-    "frontend": {
-      "core_web_vitals": {
-        "lcp_ms": 2500,
-        "inp_ms": 200,
-        "cls": 0.1
-      }
-    }
-  },
-  "git": {
-    "branch_patterns": {
-      "feature": "feat/task-{id}-{slug}",
-      "bugfix": "fix/bug-{id}-{slug}",
-      "refactor": "refactor/{slug}"
-    },
-    "commit": {
-      "convention": "conventional-commits",
-      "co_author": "Claude <noreply@anthropic.com>"
-    },
-    "workflow": {
-      "strategy": "independent",
-      "auto_branch_naming": true,
-      "merge_strategy": "no-ff"
-    }
-  },
-  "paths": {
-    "tasks": ".ultra/tasks/tasks.json",
-    "specs": {
-      "product": "specs/product.md",
-      "architecture": "specs/architecture.md"
-    },
-    "docs_legacy": {
-      "prd": "docs/prd.md",
-      "tech": "docs/tech.md"
-    },
-    "research": ".ultra/docs/research/",
-    "decisions": "docs/decisions/",
-    "context_archive": ".ultra/context-archive/",
-    "changes": ".ultra/changes/"
-  },
-  "tools": {
-    "mcp": {
-      "context7": true,
-      "exa": true
-    },
-    "skills": {
-      "guarding-code-quality": true,
-      "guarding-test-coverage": true,
-      "guarding-git-safety": true,
-      "guarding-ui-design": true,
-      "syncing-docs": true,
-      "automating-e2e-tests": true,
-      "compressing-context": true,
-      "guiding-workflow": true,
-      "enforcing-workflow": true
-    }
-  }
-}
-```
+
+**Key sections**:
+- `project`: Name, type (array for hybrid projects), stack (array for fullstack), creation timestamp, detection context
+- `context`: Token limits (200K), compression thresholds (green 60%, yellow 70%, orange 85%)
+- `quality_gates`: Test coverage (≥80%), code quality (max 50 lines/function, max 3 nesting), Core Web Vitals (LCP<2.5s)
+- `git`: Branch patterns (feat/task-{id}-{slug}), commit convention (conventional-commits), workflow strategy (independent)
+- `paths`: Specifications (.ultra/specs/), tasks, research, decisions, context archive
+- `tools`: MCP servers (context7, exa) and Skills enablement (9 skills)
+
+**Auto-filled placeholders**:
+- Project name, type, stack (from user input or detection)
+- Created timestamp
+- Detection context (frameworks, package manager, hasTests, hasCI, hasGit, detectedStacks)
+
+**Complete schema**: See `.ultra-template/config.json` for full configuration structure
 
 ### 4. Initialize Task System
 

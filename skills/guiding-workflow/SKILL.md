@@ -1,6 +1,6 @@
 ---
 name: guiding-workflow
-description: "Guides next workflow steps based on project state and Scenario B routing. TRIGGERS: After phase completion (/ultra-research, /ultra-plan, /ultra-dev, /ultra-test, /ultra-deliver), user asks 'what's next' or seems uncertain, detecting incomplete specs with [NEEDS CLARIFICATION]. ACTIONS: Detect filesystem state (specs/, tasks.json, git status), detect Scenario B project type (New Project/Incremental Feature/Tech Decision), suggest optimal next command with rationale. DO NOT TRIGGER: Mid-task execution, during active coding, user has clear next step."
+description: "Guides next workflow steps based on project state and Scenario B routing. TRIGGERS: After phase completion (/ultra-init, /ultra-research, /ultra-plan, /ultra-dev, /ultra-test, /ultra-deliver), user asks 'what's next' or seems uncertain, detecting incomplete specs with [NEEDS CLARIFICATION]. ACTIONS: Detect filesystem state (specs/, tasks.json, git status), detect Scenario B project type (New Project/Incremental Feature/Tech Decision), suggest optimal next command with rationale. DO NOT TRIGGER: Mid-task execution, during active coding, user has clear next step."
 allowed-tools: Read, Glob
 ---
 
@@ -10,10 +10,10 @@ allowed-tools: Read, Glob
 Suggest the next logical command using filesystem signals and Scenario B intelligent routing context.
 
 ## When
-- After a phase completes (research/plan/dev/test/deliver)
+- After a phase completes (init/research/plan/dev/test/deliver)
 - User asks for guidance or next steps
 - User seems uncertain after command completion
-- After /ultra-research completes (detect project type for tailored suggestions)
+- After /ultra-init or /ultra-research completes (detect project type for tailored suggestions)
 
 ## Do
 
