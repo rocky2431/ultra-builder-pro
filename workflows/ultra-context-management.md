@@ -245,13 +245,6 @@ Read("src/large-file.ts", offset=0, limit=1000)
 Read("src/large-file.ts", offset=1000, limit=1000)
 ```
 
-**4. Use Serena MCP for large codebases**:
-```typescript
-// ❌ Grep + Read multiple files manually
-// ✅ Use Serena for semantic search (more token-efficient)
-mcp__serena__find_symbol(name_path="processPayment", substring_matching=true)
-```
-
 ---
 
 ## Project Structure for Context Efficiency
@@ -295,14 +288,12 @@ mcp__serena__find_symbol(name_path="processPayment", substring_matching=true)
 
 ### Large File Intelligent Handling
 
-**routing-serena-operations** skill auto-detects large files (>5000 lines) and routes to Serena MCP for 60x efficiency.
 
 **Efficiency comparison**:
-- **Large files (>5K lines)**: Read fails (35K tokens) → Serena succeeds (500 tokens)
-- **Cross-file search**: Grep+Read (50K tokens) → Serena find_referencing_symbols (5K tokens)
+- **Large files (>5K lines)**: Read fails (35K tokens) → built-in tools succeeds (500 tokens)
+- **Cross-file search**: Grep+Read (50K tokens) → built-in tools find_referencing_symbols (5K tokens)
 - **Official docs**: WebFetch (15K tokens) → Context7 (5K tokens)
 
-**Complete guide**: @config/ultra-mcp-guide.md (routing-serena-operations integration, Serena workflows)
 
 ---
 
@@ -317,9 +308,8 @@ mcp__serena__find_symbol(name_path="processPayment", substring_matching=true)
 7. **Use structured notes** - Tables, checklists, bullet points
 8. **Monitor token usage** - context-overflow-handler provides alerts
 9. **Archive to files** - Move detailed info to .ultra/docs/
-10. **Use MCP strategically** - Serena for large codebases, Context7 for docs
+10. **Use MCP strategically** - built-in tools for large codebases, Context7 for docs
 11. **Trust compressing-context** - Accept compression after 5+ tasks for 2x session capacity
-12. **Trust routing-serena-operations** - Follow Serena MCP suggestions for 60x efficiency on large files
 
 ---
 

@@ -89,12 +89,50 @@ Fixes #234
 
 ## Git Safety Rules
 
-### Destructive Operations (Require User Confirmation)
+### Tiered Risk Management
 
-1. **Force push to main**: `git push --force origin main` - ALWAYS ask user first
-2. **Hard reset**: `git reset --hard HEAD~5` - Confirm data loss
-3. **Rebase shared branch**: `git rebase main` - Check if branch is shared
-4. **Delete remote branch**: `git push origin --delete feature` - Confirm deletion
+**Philosophy**: Balance safety with automation following Claude 4.x Best Practices: "Deliberately conservative approach **to prioritize safety**" - only for **truly dangerous** operations.
+
+#### **🔴 Critical Risk - ALWAYS Require Confirmation**
+
+1. **Force push to main/master**: `git push --force origin main` - ALWAYS ask user first
+2. **Force push to protected branches**: Any branch with protection rules
+3. **Delete unmerged branch**: Branch not merged to main - Confirm before deletion
+
+**Rationale**: These operations can cause permanent data loss or affect team members.
+
+#### **🟡 Medium Risk - Auto-Execute with Safety Checks**
+
+4. **Hard reset on feature branch**: Auto-execute if current branch is not main/master and not shared
+5. **Delete merged remote branch**: Auto-delete if already merged to main
+6. **Rebase feature branch**: Auto-execute if branch has single author only
+
+**Auto-execution logic**:
+```bash
+# Check if branch is merged (safe to delete)
+git branch -r --merged main | grep "origin/$BRANCH"
+  → If matched: Auto-delete (already in main)
+  → If not matched: Require confirmation
+
+# Check if branch is shared (safe to rebase)
+git log origin/$BRANCH --format="%an" | sort -u | wc -l
+  → If = 1: Auto-rebase (single author)
+  → If > 1: Require confirmation (multiple contributors)
+
+# Check if current branch is feature branch (safe to reset)
+git branch --show-current | grep -vE "^(main|master|develop|release/.*)$"
+  → If matched: Auto-reset (feature branch)
+  → If not matched: Require confirmation (protected branch)
+```
+
+**Rationale**: "Implement changes rather than only suggesting" when operation is safe and reversible.
+
+#### **🟢 Low Risk - Always Auto-Execute**
+
+- ✅ Git add, commit, push to feature branches
+- ✅ Create new branches
+- ✅ Git stash, checkout, diff, log
+- ✅ Delete local branches (easily recoverable)
 
 ### Standard Practices
 
@@ -222,7 +260,7 @@ git commit -m "fix: resolve merge conflict"
 
 ## Git Hooks
 
-Git hooks enforced by **git-workflow-guardian** skill:
+Git hooks enforced by **guarding-git-workflow** skill:
 - **Pre-commit**: Run linter, quick tests, check sensitive data
 - **Pre-push**: Run full test suite, check coverage, verify no direct push to main
 

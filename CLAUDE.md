@@ -42,7 +42,7 @@
 4. **Paths** - All project paths (tasks, specs, docs, archives)
 
 **Runtime behavior**:
-- Skills (compressing-context, quality-guardian) load thresholds from config at runtime
+- Skills (compressing-context, guarding-quality) load thresholds from config at runtime
 - Documentation may show example values (e.g., "≥80%"), but actual values come from config
 - Project templates in `.ultra-template/` include default config.json
 
@@ -161,7 +161,7 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 
 ## Core Development Principles
 
-**SOLID** (mandatory, enforced by quality-guardian):
+**SOLID** (mandatory, enforced by guarding-quality):
 - **S**: Single Responsibility - Functions <50 lines
 - **O**: Open-Closed - Extend through abstraction
 - **L**: Liskov Substitution - Subtypes substitutable
@@ -172,7 +172,7 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 
 **Philosophy**: User Value > Technical Showoff, Code Quality > Development Speed
 
-**Note**: Detailed SOLID examples and enforcement rules loaded by quality-guardian skill when triggered.
+**Note**: Detailed SOLID examples and enforcement rules loaded by guarding-quality skill when triggered.
 
 ---
 
@@ -187,7 +187,7 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 - ✅ Avoid default fonts (Inter/Roboto/Open Sans), use design tokens, prefer established UI libraries
 - ✅ Core Web Vitals: LCP<2.5s, INP<200ms, CLS<0.1
 
-**Six-Dimensional Test Coverage** (enforced by quality-guardian):
+**Six-Dimensional Test Coverage** (enforced by guarding-quality):
 1. **Functional** - Core business logic, happy paths
 2. **Boundary** - Edge cases (empty/max/min), null/undefined
 3. **Exception** - Error handling, invalid input
@@ -195,7 +195,7 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 5. **Security** - Input validation, SQL/XSS prevention
 6. **Compatibility** - Cross-browser, cross-platform
 
-**Note**: Complete quality standards, UI design constraints, and test strategy loaded by quality-guardian skill when triggered.
+**Note**: Complete quality standards, UI design constraints, and test strategy loaded by guarding-quality skill when triggered.
 
 ---
 
@@ -205,7 +205,7 @@ Ultra Builder Pro supports different project scenarios with tailored workflows:
 
 **Commit format**: Conventional Commits with co-authorship attribution
 
-**Safety rules** (quality-guardian enforced):
+**Safety rules** (guarding-git-workflow enforced):
 - ❌ Never force push to main/master
 - ✅ Always review changes before commit
 - ✅ Independent branches: Each task = one branch → merge → delete
@@ -218,7 +218,7 @@ main (always active, never frozen)
  └── feat/task-3-zzz (create → complete → merge → delete)
 ```
 
-**Note**: Complete git workflow details, dangerous operation detection, and tiered risk management loaded by quality-guardian skill when triggered.
+**Note**: Complete git workflow details, dangerous operation detection, and tiered risk management loaded by guarding-git-workflow skill when triggered.
 
 ---
 
@@ -370,8 +370,8 @@ main (always active, never frozen)
 ## Documentation Access
 
 **All detailed documentation is loaded on-demand by Skills**:
-- **quality-guardian** loads: `guidelines/ultra-solid-principles.md`, `guidelines/ultra-quality-standards.md` (code quality, testing, UI design)
-- **git-guardian** loads: `guidelines/ultra-git-workflow.md` (git safety, workflow enforcement)
+- **guarding-quality** loads: `guidelines/ultra-solid-principles.md`, `guidelines/ultra-quality-standards.md` (code quality, testing, UI design)
+- **guarding-git-workflow** loads: `guidelines/ultra-git-workflow.md` (git safety, workflow enforcement)
 - **MCP usage** reference: `config/ultra-mcp-guide.md` (when needed)
 - **Skills development** reference: `config/ultra-skills-guide.md`, `config/ultra-skills-modes.md` (when creating/modifying Skills)
 - **Workflow details** reference: `workflows/ultra-development-workflow.md`, `workflows/ultra-context-management.md` (when needed)

@@ -10,7 +10,7 @@
 
 - ✅ **Follow SOLID/DRY/KISS/YAGNI** - See `~/.claude/guidelines/solid-principles.md`
 - ✅ **All public functions must have clear comments** - JSDoc format with @param, @returns, @example
-- ✅ **Unit test coverage ≥80%** - Enforced by test-strategy-guardian skill
+- ✅ **Unit test coverage ≥80%** - Enforced by guarding-quality skill
 
 ### Code Smells Detection
 
@@ -44,7 +44,7 @@ Immediately fix when detected:
 
 ### UI Design Anti-Patterns (Enforced)
 
-**Enforced by ui-design-guardian skill**
+**Enforced by guarding-quality skill**
 
 - ❌ **Prohibited**: Default fonts (Inter, Roboto, Open Sans, Lato, system-ui)
 - ❌ **Prohibited**: Purple gradients on white backgrounds
@@ -55,7 +55,7 @@ Immediately fix when detected:
 
 ### Design Best Practices (Suggested)
 
-**Guided by ui-design-guardian skill**
+**Guided by guarding-quality skill**
 
 - ✅ **Typography**: 3x+ size jumps, high-contrast font pairing
 - ✅ **Color**: Design tokens, one dominant color with accents
@@ -93,7 +93,7 @@ Immediately fix when detected:
 
 ### Six-Dimensional Test Coverage
 
-**All six dimensions mandatory** - Enforced by test-strategy-guardian skill.
+**All six dimensions mandatory** - Enforced by guarding-quality skill.
 
 | Dimension | Focus |
 |-----------|-------|
@@ -122,10 +122,8 @@ Immediately fix when detected:
 
 ### Automated Enforcement
 
-- **code-quality-guardian** - SOLID/DRY/KISS/YAGNI violations
-- **test-strategy-guardian** - Six-dimensional coverage
-- **ui-design-guardian** - UI anti-patterns prevention + design guidance
-- **playwright-automation** - E2E testing + Core Web Vitals monitoring
+- **guarding-quality** - SOLID/DRY/KISS/YAGNI violations, six-dimensional coverage, UI anti-patterns prevention + design guidance
+- **automating-e2e-tests** - E2E testing + Core Web Vitals monitoring
 
 ### Manual Enforcement
 

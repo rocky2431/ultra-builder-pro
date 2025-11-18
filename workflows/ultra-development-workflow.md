@@ -219,7 +219,7 @@ git push origin --delete feat/task-{id}-{slug}
 ```
 Mark task as `completed` in tasks.json
 
-**Serena MCP** (for large codebases >100 files): find_symbol, find_referencing_symbols, rename_symbol
+**built-in tools** (for large codebases >100 files): find_symbol, find_referencing_symbols, rename_symbol
 
 **Next**: If more tasks → `/ultra-dev`, else → `/ultra-test`
 
@@ -262,7 +262,7 @@ lighthouse http://localhost:3000 --only-categories=performance --output=json
 
 2. **Security Audit**: Dependency vulnerability scan (`npm audit`, `pip-audit`), code review (SQL injection, XSS, hardcoded secrets), infrastructure (HTTPS, CORS, rate limiting)
 
-3. **Documentation Update**: README.md, CHANGELOG.md, ADRs to `.ultra/docs/decisions/`, technical debt recorded (via documentation-guardian skill)
+3. **Documentation Update**: README.md, CHANGELOG.md, ADRs to `.ultra/docs/decisions/`, technical debt recorded (via syncing-docs skill)
 
 4. **Deployment Preparation** - Pre-deployment checklist:
    - [ ] All tests passing
@@ -305,9 +305,8 @@ RED-GREEN-REFACTOR is mandatory. No shortcuts.
 
 ### 4. Let Skills Enforce Quality
 Auto-activated skills:
-- **code-quality-guardian** - During /ultra-dev
-- **test-strategy-guardian** - During /ultra-test
-- **documentation-guardian** - During /ultra-deliver
+- **guarding-quality** - During /ultra-dev and /ultra-test
+- **syncing-docs** - During /ultra-deliver
 - **guiding-workflow** - After each phase
 
 ---
@@ -317,11 +316,11 @@ Auto-activated skills:
 | Project Size | File Ops | Code Search | Refactoring | Perf Testing |
 |--------------|----------|-------------|-------------|--------------|
 | **Small (<50 files)** | Read/Write/Edit | Grep/Glob | Edit | Bash + Lighthouse |
-| **Large (>100 files)** | Read/Write/Edit | Serena find_symbol | Serena rename_symbol | Playwright + Lighthouse |
+| **Large (>100 files)** | Read/Write/Edit | built-in tools find_symbol | built-in tools rename_symbol | Playwright + Lighthouse |
 
 **MCP Decision Tree**:
 1. Can built-in tools handle it? → Use built-in
-2. Need semantic ops? → Use Serena MCP
+2. Need semantic ops? → Use built-in tools
 3. Need specialized capability? → Use appropriate MCP (Context7, Playwright, etc.)
 
 ---

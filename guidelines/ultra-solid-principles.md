@@ -6,7 +6,7 @@
 
 ## Overview
 
-SOLID principles are **mandatory**. Every code change must demonstrate adherence. Enforced by code-quality-guardian skill.
+SOLID principles are **mandatory**. Every code change must demonstrate adherence. Enforced by guarding-quality skill.
 
 ---
 
@@ -299,7 +299,7 @@ Test-First > Ship-Then-Test
 
 ## Enforcement
 
-- **code-quality-guardian** skill: Automatic detection
+- **guarding-quality** skill: Automatic detection
 - **Test coverage**: ≥80% (enforced)
 - **Refactoring**: Mandatory when violations found
 
