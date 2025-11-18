@@ -1,6 +1,6 @@
 ---
 name: guarding-test-coverage
-description: "Ensures comprehensive test coverage. TRIGGERS: Testing commands, completion reviews, or testing discussions. CHECKS: Six dimensions of coverage."
+description: "Ensures 6-dimensional test coverage (Functional, Boundary, Exception, Performance, Security, Compatibility). TRIGGERS: Running /ultra-test, executing test commands (npm test, pytest, go test), marking tasks complete, discussing test coverage or gaps. CHECKS: Overall ≥80%, critical paths 100%, branch ≥75%. DO NOT TRIGGER: For documentation updates, config changes without code, read-only file operations."
 allowed-tools: Read, Bash, Grep, Glob
 ---
 

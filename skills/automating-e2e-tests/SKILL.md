@@ -1,6 +1,6 @@
 ---
 name: automating-e2e-tests
-description: "Automates E2E testing with Playwright. TRIGGERS: When user mentions E2E testing, browser automation, or UI testing. DO NOT TRIGGER: For unit, API, or backend tests."
+description: "Automates E2E testing with Playwright CLI (not MCP). TRIGGERS: User mentions 'E2E test', 'browser automation', 'UI testing', 'Playwright', 'Core Web Vitals', 'LCP/INP/CLS measurement', running /ultra-test for frontend projects, discussing login flows/user journeys. ACTIONS: Generate Playwright test code (TypeScript), run via npx playwright test, measure Core Web Vitals with Lighthouse CLI. DO NOT TRIGGER: Unit tests (Jest/Vitest), API tests (curl/Postman), backend testing, performance tests without browser."
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 ---
 
@@ -76,7 +76,7 @@ test('user login flow', async ({ page }) => {
 - `expect(locator).toBeVisible()` - Assert visibility
 - `expect(locator).toContainText(text)` - Assert text content
 
-**For more patterns**: See `REFERENCE.md` (navigation, forms, multi-step flows, cross-browser, network interception, performance)
+**For more patterns**: Refer to Playwright official documentation for advanced scenarios (navigation, forms, multi-step flows, cross-browser, network interception)
 
 ---
 
@@ -163,7 +163,6 @@ cat lighthouse-report.json | jq '.audits | {
 # - Test results summary (passed/failed count)
 # - Failure details with file/line numbers
 # - Suggestions for fixing issues
-# See REFERENCE.md for detailed examples
 ```
 
 ---
@@ -179,8 +178,6 @@ cat lighthouse-report.json | jq '.audits | {
 **Issue: Need to debug**
 → Solution: `npx playwright test --debug`
 
-**For detailed troubleshooting**: See `REFERENCE.md`
-
 ---
 
 ## Key Reminders
@@ -191,7 +188,6 @@ cat lighthouse-report.json | jq '.audits | {
 4. **Use Lighthouse CLI for Core Web Vitals** (not Playwright)
 5. **Report in Chinese** (user-facing output)
 6. **Conversational approach**: Infer test requirements from user description
-7. **Reference detailed patterns**: Use REFERENCE.md for advanced scenarios
 
 ---
 

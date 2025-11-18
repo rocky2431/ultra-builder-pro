@@ -1,323 +1,269 @@
-# Git Workflow Guardian - Reference
+# Git Workflow - Complete Guide
 
-## Git Workflow Standards Source (Single Source of Truth)
-
-**All git workflow standards are defined in**:
-- **Branch Naming**: See `@guidelines/ultra-git-workflow.md` for conventions
-- **Commit Format**: See `@guidelines/ultra-git-workflow.md` for Conventional Commits standards
-- **Branch Strategy**: See `@guidelines/ultra-git-workflow.md` for feature/fix/hotfix workflows
-- **Git Configuration**: See `@guidelines/ultra-git-workflow.md` for setup commands
-
-This file only contains **danger detection algorithms and confirmation flows** and does NOT duplicate workflow standards.
+**Ultra Builder Pro 4.0** - Git workflow standards for version control and collaboration.
 
 ---
 
-## Dangerous Operations Detection
+## ⚠️ CRITICAL: Workflow is Non-Negotiable
 
-### Force Push
-```bash
-git push --force origin main
+**THERE IS ONLY ONE WORKFLOW - Independent Task Branches**
+
+```
+main (always active, never frozen)
+ ├── feat/task-1-xxx (create → complete → merge → delete)
+ ├── feat/task-2-yyy (create → complete → merge → delete)
+ └── feat/task-3-zzz (create → complete → merge → delete)
 ```
 
-**Risks**:
-- Overwrites remote history
-- Can cause data loss for collaborators
-- Difficult to recover
+**FORBIDDEN**: Unified/long-lived feature branches, freezing main, delaying merges, any "Option 1 vs Option 2"
 
-**Safe Alternatives**:
-```bash
-# Use force-with-lease (checks if remote changed)
-git push --force-with-lease origin feature-branch
-
-# Or rebase and create new commits
-git pull --rebase origin main
-git push origin feature-branch
-```
+**WHY**: Production projects MUST keep main branch deployable. Hotfixes cannot wait for 31 tasks to complete. Each task is independently reversible.
 
 ---
 
-### Hard Reset
-```bash
-git reset --hard HEAD~5
-```
+## Branch Naming Conventions
 
-**Risks**:
-- Permanently deletes uncommitted changes
-- Deletes specified commits from history
-- Cannot undo without reflog
+**Standard patterns**:
+- `feat/task-{id}-{description}` - Example: `feat/task-12-user-authentication`
+- `fix/bug-{id}-{description}` - Example: `fix/bug-34-memory-leak`
+- `refactor/{description}` - Example: `refactor/extract-validation-logic`
+- `docs/{description}` - Example: `docs/update-api-reference`
+- `test/{description}` - Example: `test/add-integration-tests`
 
-**Safe Alternatives**:
-```bash
-# Soft reset (keeps changes staged)
-git reset --soft HEAD~5
-
-# Mixed reset (keeps changes unstaged)
-git reset --mixed HEAD~5
-
-# Create backup branch first
-git branch backup-$(date +%Y%m%d-%H%M%S)
-git reset --hard HEAD~5
-```
+**Rules**: Lowercase, hyphens (kebab-case), 3-5 words, include task/bug ID when available
 
 ---
 
-### Interactive Rebase
-```bash
-git rebase -i HEAD~10
+## Commit Format (Conventional Commits)
+
+### Format
+```
+<type>: <description>
+
+[optional body]
+[optional footer]
 ```
 
-**Risks**:
-- Rewrites commit history
-- Can cause conflicts for collaborators
-- Risk of losing commits if done incorrectly
+### Types
 
-**Safe Practices**:
-```bash
-# Only rebase on local branches
-git checkout feature-branch
-git rebase -i main
+| Type | Description | Example |
+|------|-------------|---------|
+| **feat** | New feature | `feat: add user authentication with JWT` |
+| **fix** | Bug fix | `fix: resolve memory leak in data processing` |
+| **docs** | Documentation | `docs: update API documentation for v2.0` |
+| **style** | Code style (formatting, no logic change) | `style: fix indentation in auth module` |
+| **refactor** | Code refactoring (no feature/bug change) | `refactor: extract validation logic` |
+| **perf** | Performance improvements | `perf: optimize database query with indexing` |
+| **test** | Adding/updating tests | `test: add boundary tests for user registration` |
+| **chore** | Maintenance tasks | `chore: upgrade React to v18` |
 
-# Create backup first
-git branch backup-feature-branch
-git rebase -i main
+### Guidelines
+
+**Subject line**:
+- ✅ Start with lowercase type
+- ✅ Use imperative mood ("add" not "added")
+- ✅ No period at end
+- ✅ Keep under 50 characters
+
+**Body** (optional): Explain what and why, not how. Wrap at 72 characters.
+
+**Footer** (optional): Reference issues (`Closes #123`), breaking changes (`BREAKING CHANGE: description`)
+
+### Examples
+
+**Simple**:
+```
+feat: add password reset functionality
 ```
 
----
-
-### Clean Untracked Files
-```bash
-git clean -fd
+**With body and footer**:
 ```
+fix: resolve race condition in authentication
 
-**Risks**:
-- Permanently deletes untracked files
-- Cannot recover deleted files
-- May delete important local configs
+Added mutex lock to ensure atomic token refresh operations.
 
-**Safe Alternatives**:
-```bash
-# Dry run first (see what would be deleted)
-git clean -fd --dry-run
-
-# Interactive mode (confirm each file)
-git clean -fdi
-
-# Use gitignore or git stash instead
-echo "local-config.json" >> .gitignore
+Fixes #234
 ```
 
 ---
 
-## Confirmation Prompt Structure
+## Git Safety Rules
 
-**Note**: All examples below show structure in English. At runtime, output in Chinese per Language Protocol.
+### Tiered Risk Management
 
-### Template
+**Philosophy**: Balance safety with automation following Claude 4.x Best Practices: "Deliberately conservative approach **to prioritize safety**" - only for **truly dangerous** operations.
 
-```
-⚠️  Dangerous Operation Detected!
+#### **🔴 Critical Risk - ALWAYS Require Confirmation**
 
-Operation type: [Force Push | Hard Reset | Interactive Rebase | Clean]
-Impact scope: [Branch/file description]
-Risk level: [High | Medium | Low]
-Risk explanation: [Specific risk description]
+1. **Force push to main/master**: `git push --force origin main` - ALWAYS ask user first
+2. **Force push to protected branches**: Any branch with protection rules
+3. **Delete unmerged branch**: Branch not merged to main - Confirm before deletion
 
-Recommended actions:
-1. [Safe alternative 1]
-2. [Safe alternative 2]
+**Rationale**: These operations can cause permanent data loss or affect team members.
 
-To continue, enter: "continue"
-To cancel, enter: "cancel"
-```
+#### **🟡 Medium Risk - Auto-Execute with Safety Checks**
 
-### Example: Force Push Detection
+4. **Hard reset on feature branch**: Auto-execute if current branch is not main/master and not shared
+5. **Delete merged remote branch**: Auto-delete if already merged to main
+6. **Rebase feature branch**: Auto-execute if branch has single author only
 
-```
-⚠️  Dangerous Operation Detected!
-
-Operation type: Force Push
-Impact scope: origin/main branch
-Risk level: High
-Risk explanation:
-- Will overwrite remote repository history
-- May cause data loss for team members
-- Difficult to recover
-
-Recommended actions:
-1. Use git push --force-with-lease instead
-2. Create new branch to avoid overwriting main
-3. Communicate with team before force pushing
-
-To continue, enter: "continue"
-To cancel, enter: "cancel"
-```
-
-### Example: Hard Reset Detection
-
-```
-⚠️  Dangerous Operation Detected!
-
-Operation type: Hard Reset
-Impact scope: Last 5 commits
-Risk level: High
-Risk explanation:
-- Will permanently delete uncommitted changes
-- Will delete 5 commits from history
-- Cannot be undone (unless using reflog)
-
-Recommended actions:
-1. Use git reset --soft to preserve changes
-2. Create backup branch: git branch backup-$(date)
-3. Use git stash to save changes
-
-To continue, enter: "continue"
-To cancel, enter: "cancel"
-```
-
----
-
-## Smart Suggestions
-
-### Before Commit
-
-**Checks**:
-1. Staged changes review
-2. Commit message format
-3. File size check (no large binaries)
-4. Sensitive data check (no API keys, passwords)
-
-**Suggested Workflow**:
+**Auto-execution logic**:
 ```bash
-# Review staged changes
-git diff --staged
+# Check if branch is merged (safe to delete)
+git branch -r --merged main | grep "origin/$BRANCH"
+  → If matched: Auto-delete (already in main)
+  → If not matched: Require confirmation
 
-# Check for sensitive data
-git diff --staged | grep -E 'API_KEY|PASSWORD|SECRET'
+# Check if branch is shared (safe to rebase)
+git log origin/$BRANCH --format="%an" | sort -u | wc -l
+  → If = 1: Auto-rebase (single author)
+  → If > 1: Require confirmation (multiple contributors)
 
-# Commit with conventional format
-git commit -m "feat: add user authentication"
+# Check if current branch is feature branch (safe to reset)
+git branch --show-current | grep -vE "^(main|master|develop|release/.*)$"
+  → If matched: Auto-reset (feature branch)
+  → If not matched: Require confirmation (protected branch)
 ```
+
+**Rationale**: "Implement changes rather than only suggesting" when operation is safe and reversible.
+
+#### **🟢 Low Risk - Always Auto-Execute**
+
+- ✅ Git add, commit, push to feature branches
+- ✅ Create new branches
+- ✅ Git stash, checkout, diff, log
+- ✅ Delete local branches (easily recoverable)
+
+### Standard Practices
+
+- ✅ Always pull before push
+- ✅ Review changes with `git diff` and `git status`
+- ✅ Use `git stash` for incomplete work when switching branches
+- ✅ Create backup branch before risky operations: `git branch backup-$(date +%Y%m%d-%H%M%S)`
 
 ---
 
-### Before Push
+## Common Git Workflows
 
-**Checks**:
-1. Unpushed commits count
-2. Branch up-to-date with remote
-3. Tests passing (if applicable)
-
-**Suggested Workflow**:
+### Feature Development
 ```bash
-# Check unpushed commits
-git log origin/main..HEAD
-
-# Pull latest changes
-git pull origin main
-
-# Run tests
-npm test  # or pytest, go test, etc.
-
-# Push
-git push origin feature-branch
+git checkout -b feat/task-123-new-feature
+git add src/feature.ts
+git commit -m "feat: implement basic feature logic"
+git fetch origin && git rebase origin/main
+git push origin feat/task-123-new-feature
+# Create PR, merge, then:
+git checkout main && git pull origin main
+git branch -d feat/task-123-new-feature
 ```
 
----
-
-### Before Merge
-
-**Checks**:
-1. Merge conflicts
-2. Branch protection rules
-3. Required reviews
-
-**Suggested Workflow**:
+### Bug Fix
 ```bash
-# Check for conflicts
-git fetch origin
-git diff main...origin/main
-
-# Update local branch
-git checkout feature-branch
-git rebase main
-
-# Create pull request
-gh pr create --title "feat: add feature" --body "Description"
+git checkout main && git pull origin main
+git checkout -b fix/bug-456-memory-leak
+git add src/memory-management.ts
+git commit -m "fix: resolve memory leak in cache cleanup"
+git add tests/memory-management.test.ts
+git commit -m "test: add test for memory leak prevention"
+git push origin fix/bug-456-memory-leak
+# After merge, backport if needed:
+git checkout release/v1.0
+git cherry-pick <commit-hash>
+git push origin release/v1.0
 ```
 
----
-
-**Branch and commit standards**: See `@guidelines/ultra-git-workflow.md` for complete conventions.
-
----
-
-## Recovery Procedures
-
-### Recover Deleted Branch
-
+### Hotfix (Production Emergency)
 ```bash
-# Find deleted branch in reflog
-git reflog
-
-# Restore from reflog
-git checkout -b recovered-branch <commit-hash>
+git checkout -b hotfix/critical-security-fix v1.2.3
+git add src/security.ts
+git commit -m "fix: patch SQL injection vulnerability"
+npm test
+git checkout main && git merge --no-ff hotfix/critical-security-fix && git push origin main
+git checkout release/v1.2 && git merge --no-ff hotfix/critical-security-fix && git push origin release/v1.2
+git tag v1.2.4 && git push origin v1.2.4
+git branch -d hotfix/critical-security-fix
 ```
 
-### Recover After Hard Reset
+---
 
+## Git Configuration
+
+### User Configuration
 ```bash
-# Find lost commits in reflog
-git reflog
-
-# Reset to previous state
-git reset --hard <commit-hash>
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+git config --global init.defaultBranch main
+git config --global color.ui auto
+git config --global core.editor "code --wait"
+git config --global core.autocrlf input  # macOS/Linux
+git config --global core.autocrlf true   # Windows
 ```
 
-### Recover After Force Push
-
+### Useful Aliases
 ```bash
-# On affected user's machine
-git reflog
-git reset --hard <previous-commit-hash>
-git push --force-with-lease origin main
+git config --global alias.st status
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+git config --global alias.last "log -1 HEAD"
+git config --global alias.undo "reset HEAD~1 --soft"
+git config --global alias.amend "commit --amend --no-edit"
 ```
 
 ---
 
-## Best Practices
+## Best Practices Checklist
 
-1. **Never force push to main/master**
-   - Use feature branches
-   - Merge via pull requests
+### Before Committing
+- [ ] Run linter and tests
+- [ ] Review changes with `git diff`
+- [ ] Verify no sensitive data (API keys, passwords)
+- [ ] Ensure commit message follows convention
 
-2. **Always pull before push**
-   ```bash
-   git pull origin main
-   git push origin feature-branch
-   ```
+### Before Pushing
+- [ ] Pull latest changes from remote
+- [ ] Resolve conflicts
+- [ ] Run full test suite
+- [ ] Verify branch name follows convention
 
-3. **Create backup branches before risky operations**
-   ```bash
-   git branch backup-$(date +%Y%m%d-%H%M%S)
-   git rebase main
-   ```
-
-4. **Use --force-with-lease instead of --force**
-   ```bash
-   git push --force-with-lease origin feature-branch
-   ```
-
-5. **Review changes before commit**
-   ```bash
-   git diff --staged
-   git status
-   ```
+### Before Merging
+- [ ] Code review completed and approved
+- [ ] All CI/CD checks passing
+- [ ] Test coverage ≥80%
+- [ ] Documentation updated if needed
 
 ---
 
-**Remember**: Git safety is about prevention, not just recovery. Always think twice before destructive operations.
+## Troubleshooting
 
+**Accidentally committed to wrong branch**:
+```bash
+git log  # Find commit hash
+git checkout correct-branch && git cherry-pick <commit-hash>
+git checkout wrong-branch && git reset --hard HEAD~1
+```
+
+**Undo last commit** (keep changes):
+```bash
+git reset --soft HEAD~1
+```
+
+**Merge conflict**:
+```bash
+git status  # See conflicted files
+# Edit files to resolve conflicts (look for <<<<<<< HEAD markers)
+git add conflicted-file.ts
+git commit -m "fix: resolve merge conflict"
+```
 
 ---
 
-**OUTPUT: All examples show English templates. User messages output in Chinese at runtime; keep this file English-only.**
+## Git Hooks
+
+Git hooks enforced by **git-workflow-guardian** skill:
+- **Pre-commit**: Run linter, quick tests, check sensitive data
+- **Pre-push**: Run full test suite, check coverage, verify no direct push to main
+
+---
+
+**Remember**: Git is your safety net. Use it wisely and never fear experimenting—everything is recoverable.

@@ -1,6 +1,6 @@
 ---
 name: guarding-git-safety
-description: "Prevents dangerous git operations. TRIGGERS: Before force push, hard reset, or rebase commands. ACTIONS: Require confirmation for destructive operations on main branches."
+description: "Prevents dangerous git operations causing data loss. TRIGGERS: Detecting 'git push --force', 'git reset --hard', 'git rebase -i', 'git clean -fd', 'rm -rf .git' commands or discussing force operations on main/master branches. ACTIONS: Display risk warning, require explicit confirmation, suggest safe alternatives. DO NOT TRIGGER: For normal git add/commit/push, branch operations on feature branches, git status/log/diff."
 allowed-tools: Bash
 ---
 
@@ -20,13 +20,36 @@ allowed-tools: Bash
 - Before push: Check unpushed commits
 - Before merge: Check conflicts
 
-## Protection Workflow
+## Protection Workflow (Tiered Risk Management)
 
-When detecting dangerous commands:
+### 🔴 Critical Risk Operations - ALWAYS Require Confirmation
+When detecting these commands:
+- `git push --force origin main` (or master/develop)
+- `git push --force` to protected branches
+- `git push origin --delete <branch>` when branch not merged
+
+Action:
 1. Display confirmation prompt (in Chinese)
 2. Explain risks and suggest safe alternatives
 3. Require explicit "continue" confirmation
 4. Proceed only after user confirms
+
+### 🟡 Medium Risk Operations - Auto-Execute with Safety Checks
+When detecting these commands on **feature branches**:
+- `git reset --hard` (check: not on main/master)
+- `git rebase` (check: single author only)
+- `git push origin --delete <branch>` (check: already merged)
+
+Action:
+1. Verify safety conditions automatically
+2. If safe: Execute immediately, show summary
+3. If unsafe: Require confirmation (treat as Critical Risk)
+
+### 🟢 Low Risk Operations - Always Auto-Execute
+These commands never require confirmation:
+- `git add`, `git commit`, `git push` to feature branches
+- `git stash`, `git checkout`, `git diff`, `git log`
+- Create new branches, delete local branches
 
 ## Output Format
 
@@ -34,12 +57,10 @@ When detecting dangerous commands:
 - Provide: Risk level, affected scope, safe alternatives
 - Require: Explicit confirmation keyword
 
-## Complete Reference
+## Related Documentation
 
-**Detailed documentation**: `REFERENCE.md`
-- Dangerous operations analysis
-- Confirmation prompt templates
-- Smart suggestion workflows
+**Git workflow standards**: See `REFERENCE.md` for:
+- Branch naming conventions
 - Commit message standards
-- Branch strategy guide
+- Safe git operations
 - Recovery procedures

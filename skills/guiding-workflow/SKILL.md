@@ -1,6 +1,6 @@
 ---
 name: guiding-workflow
-description: "Guides next workflow steps. TRIGGERS: After phase completion or user asks what's next. ACTIONS: Detect project state, suggest next command."
+description: "Guides next workflow steps based on project state and Scenario B routing. TRIGGERS: After phase completion (/ultra-research, /ultra-plan, /ultra-dev, /ultra-test, /ultra-deliver), user asks 'what's next' or seems uncertain, detecting incomplete specs with [NEEDS CLARIFICATION]. ACTIONS: Detect filesystem state (specs/, tasks.json, git status), detect Scenario B project type (New Project/Incremental Feature/Tech Decision), suggest optimal next command with rationale. DO NOT TRIGGER: Mid-task execution, during active coding, user has clear next step."
 allowed-tools: Read, Glob
 ---
 

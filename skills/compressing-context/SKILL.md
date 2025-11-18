@@ -1,6 +1,6 @@
 ---
 name: compressing-context
-description: "Compresses context to prevent overflow. TRIGGERS: After completing multiple tasks, high token usage, or before critical operations. ACTIONS: Summarize completed tasks, archive details. BLOCKS: Further development without compression at critical thresholds."
+description: "Proactively compresses context to prevent overflow and enable 20-30 tasks/session. TRIGGERS: After completing 5+ tasks in /ultra-dev, token usage >120K/140K/170K, before /ultra-test or /ultra-deliver in long sessions. ACTIONS: Summarize completed tasks (15K→500 tokens), archive to .ultra/context-archive/, free 50-100K tokens. BLOCKS: /ultra-dev execution if token usage >170K without compression. DO NOT TRIGGER: Single task sessions, token usage <100K, documentation-only work."
 allowed-tools: Read, Write, TodoWrite
 ---
 
@@ -199,15 +199,15 @@ After:
 
 ### Yellow Zone ({green} - {yellow})
 - Status: Warning
-- Action: Suggest proactive compression
-- Message: Show compression benefits, wait for confirmation (Chinese output)
-- Wait for user confirmation
+- Action: **Auto-compress proactively** (no confirmation needed)
+- Message: Show compression summary after completion (Chinese output)
+- Rationale: "Implement changes rather than only suggesting" (Claude 4.x Best Practices)
 
 ### Orange Zone ({yellow} - {orange})
 - Status: Danger
-- Action: Strongly recommend compression
-- Message: Show critical warning, compression urgency (Chinese output)
-- Auto-compress if user continues with ultra-dev
+- Action: **Auto-compress immediately**
+- Message: Show compression summary after completion (Chinese output)
+- Block ultra-dev until compression completes
 
 ### Red Zone (> {orange})
 - Status: Critical
@@ -226,21 +226,22 @@ After:
 ### Output Examples
 
 **Yellow Zone ({green}-{yellow})**:
-- Show current token usage
-- Suggest compression with benefits
-- Wait for user confirmation
+- Detect threshold crossed
+- Execute compression automatically
+- Show completion summary with before/after stats
 
 **Red Zone (>{orange})**:
-- Show critical warning
-- Display compression plan
-- Enforce compression
+- Detect critical threshold
+- Block further ultra-dev commands
+- Execute compression immediately
+- Show completion summary
 
 **Compression Complete**:
 - Show before/after stats
 - Provide archive location (from config)
 - Show remaining capacity
 
-*Note: All outputs in Chinese at runtime. See REFERENCE.md for detailed examples.*
+**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
 
 ## Integration with Other Skills
 

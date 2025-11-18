@@ -1,6 +1,6 @@
 ---
 name: syncing-docs
-description: "Syncs documentation and manages knowledge. TRIGGERS: After research, feature completion, or architecture changes. ACTIONS: Suggest spec updates, propose ADRs, detect spec-code drift."
+description: "Syncs documentation and manages knowledge archival. TRIGGERS: After /ultra-research completion, feature completion, architecture changes, running /ultra-deliver, detecting [NEEDS CLARIFICATION] markers filled, major technology decisions. ACTIONS: Suggest update specs/product.md or specs/architecture.md, propose ADR creation in docs/decisions/, detect spec-code drift. DO NOT TRIGGER: Minor code changes, formatting edits, test-only changes, git operations without code impact."
 allowed-tools: Read, Write, Glob, Grep
 ---
 
@@ -42,14 +42,34 @@ Ensure documentation stays synchronized with code and decisions.
 - Recommend tech-debt entries when shortcuts taken
 - Suggest lessons-learned after major features
 
+### Auto-Create Documentation Files
+
+**Safe auto-creation** (no confirmation needed):
+- ADRs in `.ultra/docs/decisions/` (numbered sequentially ADR-001, ADR-002, etc.)
+- Tech debt entries in `.ultra/docs/tech-debt.md` (append mode)
+- Research reports in `.ultra/docs/research/` (timestamped filenames)
+
+**Auto-creation logic**:
+1. Check if file path is in `.ultra/docs/` → Safe to create
+2. Use template from `.ultra-template/docs/` if available
+3. Number ADRs sequentially by checking existing files
+4. Show creation summary after completion (Chinese output)
+
+**Rationale**: "Implement changes rather than only suggesting" (Claude 4.x Best Practices)
+
 ## Don't
-- Do not auto-create files without user confirmation
+- Do not create files outside `.ultra/docs/` directory without confirmation
+- Do not overwrite existing files without checking content similarity
 - Do not trigger on minor code changes
 - Do not force old projects to migrate to specs/ (suggest only)
 
 ## Outputs
 
-**Format** (Chinese at runtime):
+**Language**: Chinese (simplified) at runtime
+
+**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
+
+**Format**:
 - File path with clear indication (specs/ or docs/)
 - Reason for update (what changed)
 - Specific sections to update

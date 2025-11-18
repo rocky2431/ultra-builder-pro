@@ -30,7 +30,7 @@ Enforces quality across three dimensions:
 
 ### 1. Code Quality Check
 
-**Load**: `@guidelines/ultra-solid-principles.md` when violations detected
+**Load**: `REFERENCE.md` (Part 1: SOLID Principles) when violations detected
 
 **Check for**:
 - ❌ Functions >50 lines → Split
@@ -44,12 +44,12 @@ Enforces quality across three dimensions:
 ⚠️ 代码质量问题：
 1. getUserById() 超过 50 行（78 行）→ 拆分
 2. 重复代码 3 处 → 提取 handleApiError()
-参考：@guidelines/ultra-solid-principles.md
+参考：REFERENCE.md (Part 1: SOLID Principles)
 ```
 
 ### 2. Test Coverage Validation
 
-**Load**: `@guidelines/ultra-quality-standards.md#testing` when testing
+**Load**: `REFERENCE.md` (Part 2: Testing Quality Baseline) when testing
 
 **Enforce 6 Dimensions**:
 1. Functional, 2. Boundary, 3. Exception, 4. Performance, 5. Security, 6. Compatibility
@@ -60,12 +60,12 @@ Enforces quality across three dimensions:
 ```
 ⚠️ 测试覆盖率不足（73%，目标 ≥80%）：
 缺失: Performance 测试、Security SQL 注入验证
-参考：@guidelines/ultra-quality-standards.md
+参考：REFERENCE.md (Part 2: Testing Quality Baseline)
 ```
 
 ### 3. UI Design Constraints
 
-**Load**: `@guidelines/ultra-quality-standards.md#frontend` when editing UI
+**Load**: `REFERENCE.md` (Part 2: Frontend Quality Baseline) when editing UI
 
 **Enforced**:
 - ❌ Default fonts (Inter, Roboto, Open Sans)
@@ -80,7 +80,7 @@ Enforces quality across three dimensions:
 ⚠️ UI 设计约束：
 1. 硬编码颜色 '#3b82f6' → theme.colors.primary
 2. 默认字体 'Inter' → 使用自定义字体
-参考：@guidelines/ultra-quality-standards.md
+参考：REFERENCE.md (Part 2: Frontend Quality Baseline)
 ```
 
 ## Don't

@@ -1,6 +1,6 @@
 ---
 name: enforcing-workflow
-description: "Enforces independent-branch workflow. TRIGGERS: When discussing git branches or workflow strategy. BLOCKS: Unified branches or workflow alternatives. ENFORCES: One task per branch cycle."
+description: "Enforces mandatory independent-branch workflow (one-task-one-branch-merge-delete). TRIGGERS: Discussing git workflow/branch strategy, AI about to suggest workflow 'options' or 'choices', discussion involves multiple tasks and branch management, keywords 'unified branch', 'batch merge', 'workflow alternatives', 'delay merge until complete'. BLOCKS: Any suggestion of unified/long-lived branches, batch merge strategies, workflow alternatives. ENFORCES: Each task = independent branch (feat/task-{id}), complete → merge → delete, main always deployable. DO NOT TRIGGER: Simple branch naming questions, individual git commands, documenting current workflow."
 allowed-tools: Read
 ---
 
@@ -47,7 +47,7 @@ main (always active, never frozen)
 - Main branch always deployable (for hotfixes)
 - NO unified branches, NO batch merges, NO workflow choices
 
-**Reference**: `@guidelines/ultra-git-workflow.md` Section: "CRITICAL: Workflow is Non-Negotiable"
+**Reference**: `REFERENCE.md` Section: "CRITICAL: Workflow is Non-Negotiable"
 
 ## Do
 
@@ -79,7 +79,7 @@ Detected attempt to suggest alternative workflow. Ultra Builder Pro uses **manda
 Production requires main always deployable. Hotfixes cannot wait for 31 tasks to complete.
 Independent branches support parallel work and isolated rollbacks.
 
-Reference: @guidelines/ultra-git-workflow.md
+Reference: REFERENCE.md
 ```
 
 **OUTPUT: User messages in Chinese at runtime; keep this file English-only.**

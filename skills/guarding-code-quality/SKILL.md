@@ -1,6 +1,6 @@
 ---
 name: guarding-code-quality
-description: "Guards code quality principles. TRIGGERS: When editing code files or refactoring. ACTIONS: Flag violations, suggest improvements. DO NOT TRIGGER: For non-code edits."
+description: "Guards SOLID/DRY/KISS/YAGNI principles. TRIGGERS: When editing code files (.js/.ts/.jsx/.tsx/.py/.java/.go/.rs/.rb/.php/.c/.cpp) or discussing refactoring. ACTIONS: Flag violations (functions >50 lines, nesting >3, duplication >3 lines, magic numbers), suggest refactoring. DO NOT TRIGGER: For markdown files, JSON/YAML configs, documentation, test files discussion without code changes, git operations."
 allowed-tools: Read, Write, Edit, Grep
 ---
 
@@ -61,19 +61,9 @@ if (functionLines > maxLines) {
 - Refactoring suggestions with expected improvement
 - Language: Chinese (simplified) at runtime
 
-## Integration with /ultra-refactor
-
-**Role clarification**: This skill **detects** code quality violations; `/ultra-refactor` **executes** the fixes.
-
-**Workflow**:
-1. guarding-code-quality detects violations (e.g., "Function exceeds 50 lines, violates SRP")
-2. Suggests specific refactoring: "Consider `/ultra-refactor extract UserService/processPayment`"
-3. User runs `/ultra-refactor` command to execute the refactoring with Serena MCP
-
-**Why separate**: Detection (this skill) is passive and continuous; execution (/ultra-refactor) is active and requires user confirmation for safety.
-
 ## Tools
-- Grep for quick search; use Serena MCP only for cross-file refactors
+- Grep for quick search
+- Edit for refactoring suggestions
 
 ## Quality Grades
 - A (90-100): Excellent

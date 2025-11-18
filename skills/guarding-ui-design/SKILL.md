@@ -1,6 +1,6 @@
 ---
 name: guarding-ui-design
-description: "Prevents UI anti-patterns and guides design. TRIGGERS: When editing UI files or discussing styling. ENFORCES: Avoids default fonts and clichés. SUGGESTS: Design principles."
+description: "Prevents UI anti-patterns (distributional convergence) and guides design. TRIGGERS: Editing frontend files (.tsx/.jsx/.vue/.css/.scss/.sass/.less), discussing UI components/styling/design systems, creating new pages/components. ENFORCES: Avoid default fonts (Inter/Roboto/Open Sans/Lato), purple gradients, hard-coded colors. SUGGESTS: Design tokens, 3x+ typography jumps, established libraries (MUI/Ant Design/Chakra). DO NOT TRIGGER: Backend files (.py/.java/.go/.rs), API routes, database schemas, server configs, CLI tools."
 allowed-tools: Read, Edit, Write
 ---
 

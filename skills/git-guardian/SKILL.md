@@ -27,7 +27,7 @@ Enforces git safety and workflow across two dimensions:
 
 ### 1. Git Safety Prevention
 
-**Load**: `@guidelines/ultra-git-workflow.md#safety-rules` when git operations detected
+**Load**: `REFERENCE.md` (Git Safety Rules section) when git operations detected
 
 **Tiered Risk Management**:
 
@@ -57,12 +57,12 @@ Enforces git safety and workflow across two dimensions:
 ❌ 不要强制推送到 main
 ✅ 推送到功能分支: git push origin feat/task-123
 
-参考: @guidelines/ultra-git-workflow.md
+参考: REFERENCE.md (Git Safety Rules)
 ```
 
 ### 2. Workflow Enforcement
 
-**Load**: `@guidelines/ultra-git-workflow.md#workflow-mandatory` when discussing workflow
+**Load**: `REFERENCE.md` (Workflow is Non-Negotiable section) when discussing workflow
 
 **ENFORCE (mandatory)**:
 ```
@@ -98,7 +98,7 @@ main (always active, never frozen)
 feat/task-1 → merge → delete
 feat/task-2 → merge → delete
 
-参考: @guidelines/ultra-git-workflow.md
+参考: REFERENCE.md (Workflow is Non-Negotiable)
 ```
 
 ## Don't
