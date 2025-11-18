@@ -51,9 +51,7 @@
 4. **guarding-git-safety** - 危险 git 操作拦截
 
 **智能优化类**：
-5. **routing-serena-operations** - 大文件自动路由（>5000行，60x效率）
 6. **compressing-context** - 主动压缩上下文（20-30任务/会话）
-7. **routing-serena-operations** - 智能 Serena MCP 使用指导
 
 **辅助类**：
 8. **syncing-docs** - 文档自动同步（specs/architecture.md）
@@ -248,9 +246,10 @@ Round 4 (15min): 风险约束
 **监控命令**：`/ultra-status` - 任何时候查看进度 + 风险预警
 
 **额外命令**：
-- `/ultra-refactor <operation> <target>` - 代码重构（使用 Serena MCP）
 - `/ultra-think <问题描述>` - 深度分析思考（扩展推理）
 - `/ultra-session-reset` - 手动归档并重置会话
+
+**代码重构**: 使用内置工具（Read/Edit/Grep/Glob）或 built-in tools（大型项目）进行重构，详见 `@config/ultra-mcp-guide.md`
 
 ---
 
@@ -290,14 +289,13 @@ Round 4 (15min): 风险约束
    - 拦截：强制推送到 main/master、未经确认的破坏性操作
 
 **智能优化类**：
-5. **routing-serena-operations** - 智能路由到 Serena MCP（Serena 的一个入口场景）
    - 触发时机：Read/Edit/Write 操作前
    - 路由逻辑：
      * < 5,000 行：安全，使用 Read 工具
-     * 5,000-8,000 行：建议 Serena MCP（3种选项）
-     * \> 8,000 行：强制 Serena MCP（阻止 Read）
-   - **注意**：这是 Serena 的一个应用场景，而非核心价值
-   - **Serena 核心价值**：语义理解、安全重构、知识管理（见 MCP 章节）
+     * 5,000-8,000 行：建议 built-in tools（3种选项）
+     * \> 8,000 行：强制 built-in tools（阻止 Read）
+   - **注意**：这是 built-in tools 的一个应用场景，而非核心价值
+   - **built-in tools 核心价值**：语义理解、安全重构、知识管理（见 MCP 章节）
    - 效率提升：60x token 节省（35K → 500 tokens）
 
 6. **compressing-context** - 主动压缩上下文（20-30 任务/会话）
@@ -306,14 +304,12 @@ Round 4 (15min): 风险约束
    - 归档位置：`.ultra/context-archive/session-{timestamp}.md`
    - 效果：会话容量从 10-15 任务提升到 20-30 任务
 
-7. **routing-serena-operations** - 智能 Serena MCP 使用指导
    - 触发时机：讨论跨文件重构、大型代码库探索（>100文件或>1000行/文件）
    - 功能：
      * 任务分类（代码理解、跨文件重构、影响分析、知识管理）
      * 安全性强制（当需要语义操作时阻止不安全的文本操作）
-     * 生成明确的 Serena 命令示例（带参数说明）
+     * 生成明确的 built-in tools 命令示例（带参数说明）
      * 与内置工具对比（错误率、时间节省）
-   - 集成：与 routing-serena-operations 配合（文件大小路由）、与 /ultra-refactor 自动调用
 
 **辅助类**：
 8. **syncing-docs** - 文档自动同步（specs/architecture.md）
@@ -342,9 +338,9 @@ Round 4 (15min): 风险约束
 
 **已安装 MCP 工具（3个）**：
 
-1. **Serena** - **语义层基础设施（必需）**
+1. **built-in tools** - **语义层基础设施（必需）**
    - **核心定位**：提供内置工具无法实现的符号级代码操作能力
-   - **系统完整性**：无 Serena = 60% 功能，有 Serena = 100% 功能
+   - **系统完整性**：无 built-in tools = 60% 功能，有 built-in tools = 100% 功能
    - **核心能力**：
      * 语义理解：`get_symbols_overview`、`find_symbol`（理解代码结构）
      * 安全重构：`rename_symbol`（TDD REFACTOR 依赖，0% 错误率 vs Grep 30%）
@@ -474,13 +470,11 @@ Round 4 (15min): 风险约束
 "读取 src/largeComponent.tsx"
 # → Read 工具失败："Token limit exceeded"
 
-# ✅ 新方式（routing-serena-operations 自动介入）
 "读取 src/largeComponent.tsx"
 
-# routing-serena-operations 自动检测并提示：
 #
 # 文件大小检测：src/largeComponent.tsx 有 8000 行
-# ⚠️ 文件超大，自动使用 Serena MCP（60x 效率提升）
+# ⚠️ 文件超大，自动使用 built-in tools（60x 效率提升）
 #
 # 推荐方案：
 # 1️⃣ 获取文件概览（推荐）
@@ -502,15 +496,15 @@ Round 4 (15min): 风险约束
 #      relative_path: "src/largeComponent.tsx"
 #    })
 #
-# 是否使用 Serena MCP？
+# 是否使用 built-in tools？
 
 # 结果：零错误，60x token 节省，98% 成功率
 ```
 
 **效率对比**：
 - Read 工具：35,000 tokens（失败）
-- Serena 概览：500 tokens（成功）
-- Serena 符号：1,000 tokens（成功）
+- built-in tools 概览：500 tokens（成功）
+- built-in tools 符号：1,000 tokens（成功）
 - **效率提升**：35x - 60x
 
 **详细 TDD 流程**：`~/.claude/workflows/ultra-development-workflow.md`
@@ -525,15 +519,13 @@ Round 4 (15min): 风险约束
 
 | 4.0 名称 | 4.1 名称 | 状态 |
 |---------|---------|-----|
-| code-quality-guardian | **guarding-code-quality** | ✅ 重命名 |
-| test-strategy-guardian | **guarding-test-coverage** | ✅ 重命名 |
-| ui-design-guardian | **guarding-ui-design** | ✅ 重命名 |
-| git-workflow-guardian | **guarding-git-safety** | ✅ 重命名 |
-| file-size-advisor | **routing-serena-operations** | ✅ 重命名 |
+| guarding-quality | **guarding-code-quality** | ✅ 重命名 |
+| guarding-quality | **guarding-test-coverage** | ✅ 重命名 |
+| guarding-quality | **guarding-ui-design** | ✅ 重命名 |
+| guarding-git-workflow | **guarding-git-safety** | ✅ 重命名 |
 | compressing-context | **compressing-context** | ✅ 重命名 |
-| documentation-guardian | **syncing-docs** | ✅ 重命名 |
+| syncing-docs | **syncing-docs** | ✅ 重命名 |
 | playwright-automation | **automating-e2e-tests** | ✅ 重命名 |
-| routing-serena-operations | **routing-serena-operations** | ✅ 新增 |
 | guiding-workflow | **guiding-workflow** | ✅ 保留（恢复，支持 Scenario B）|
 | enforcing-workflow | **enforcing-workflow** | ✅ 保留（恢复，强制独立分支）|
 | file-operations-guardian | ~~已废弃~~ | ❌ 移除 |
@@ -614,11 +606,11 @@ if "[NEEDS CLARIFICATION]" in specs:
 **自动化脚本**（可选）：
 ```bash
 # 在项目中查找并替换旧 Skill 名称
-grep -r "code-quality-guardian" . | wc -l
+grep -r "guarding-quality" . | wc -l
 # 如果有结果，手动替换为 guarding-code-quality
 
 # 或使用 sed（谨慎）
-find . -type f -exec sed -i '' 's/code-quality-guardian/guarding-code-quality/g' {} +
+find . -type f -exec sed -i '' 's/guarding-quality/guarding-code-quality/g' {} +
 ```
 
 **影响范围**：
@@ -722,7 +714,7 @@ grep -E "@(guidelines|workflows|config)" ~/.claude/CLAUDE.md
 **MCP 使用模板**：
 - Context7: "使用 Context7 获取 [库名] 的 [主题] 文档"
 - Exa: "使用 Exa 搜索 [关键词]"
-- Serena: "使用 Serena 获取 [文件路径] 的符号概览"
+- built-in tools: "使用 built-in tools 获取 [文件路径] 的符号概览"
 
 **详细指南**：`~/.claude/config/ultra-mcp-guide.md`
 
@@ -757,11 +749,10 @@ grep -E "@(guidelines|workflows|config)" ~/.claude/CLAUDE.md
 
 **症状**：使用 Read 工具读取 >5000 行文件时报错
 
-**自动解决**：**routing-serena-operations** skill 自动介入
 - 检测阈值：
   - < 5,000 行：安全，使用 Read 工具
-  - 5,000-8,000 行：建议 Serena MCP（3 种选项）
-  - \> 8,000 行：强制 Serena MCP（阻止 Read）
+  - 5,000-8,000 行：建议 built-in tools（3 种选项）
+  - \> 8,000 行：强制 built-in tools（阻止 Read）
 
 **效果**：成功率从 60% 提升到 98%，token 节省 60x
 
@@ -769,7 +760,7 @@ grep -E "@(guidelines|workflows|config)" ~/.claude/CLAUDE.md
 ```
 文件大小检测：src/largeFile.ts 有 6,500 行
 
-⚠️ 文件较大，建议使用 Serena MCP 以获得更好的性能（60x 效率提升）
+⚠️ 文件较大，建议使用 built-in tools 以获得更好的性能（60x 效率提升）
 
 推荐方案：
 1️⃣ 获取文件概览（推荐）
@@ -781,7 +772,7 @@ grep -E "@(guidelines|workflows|config)" ~/.claude/CLAUDE.md
 2️⃣ 查找特定符号 [...]
 3️⃣ 搜索模式 [...]
 
-是否使用 Serena MCP？
+是否使用 built-in tools？
 ```
 
 **完整指南**：`~/.claude/workflows/ultra-context-management.md`
@@ -815,7 +806,6 @@ grep -E "@(guidelines|workflows|config)" ~/.claude/CLAUDE.md
 - `ultra-test.md` - 六维测试 + Core Web Vitals
 - `ultra-deliver.md` - 部署优化 + 安全审计
 - `ultra-status.md` - 进度监控 + 风险预警
-- `ultra-refactor.md` - 代码重构（Serena MCP）
 - `ultra-think.md` - 深度分析思考
 - `ultra-session-reset.md` - 会话归档重置
 
@@ -874,11 +864,11 @@ grep -E "@(guidelines|workflows|config)" ~/.claude/CLAUDE.md
 **学习目标**：
 - ✅ 架构设计（ADR 决策记录）
 - ✅ 性能优化（Core Web Vitals、数据库优化）
-- ✅ 理解 MCP 工具高效使用（Serena 大型代码库重构）
+- ✅ 理解 MCP 工具高效使用（built-in tools 大型代码库重构）
 
 **关键里程碑**：
 1. 设计并实施微服务架构（使用 `/ultra-think` 深度分析）
-2. 使用 Serena MCP 重构 >10,000 行代码库
+2. 使用 built-in tools 重构 >10,000 行代码库
 3. 性能优化使响应时间降低 50%+
 
 ---
@@ -889,9 +879,8 @@ grep -E "@(guidelines|workflows|config)" ~/.claude/CLAUDE.md
 
 1. **工作流是线性的**：init → **research (mandatory)** → plan → dev → test → deliver
 2. **research 不可跳过**：8.3x ROI，70分钟投资避免10+小时返工
-3. **10 Skills 100% ultra-**：命名统一，自动守护质量
+3. **9 Skills 100% ultra-**：命名统一，自动守护质量
 4. **MCP 工具需要明确指示**："使用 [工具名] 做 [事情]"
-5. **大文件和上下文自动优化**：routing-serena-operations + compressing-context
 
 ---
 

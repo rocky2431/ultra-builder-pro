@@ -16,7 +16,7 @@ Skills.mode controls how Skills documentation is structured. Two modes are suppo
 
 **System default**: `slim`
 
-All 10 Skills in Ultra Builder Pro 4.0 are currently configured in **slim mode**:
+All 9 Skills in Ultra Builder Pro 4.0 are currently configured in **slim mode**:
 - Average SKILL.md size: 20-94 lines
 - External references: Used via `@import` pattern or reference links
 - Token efficiency: ~60% better than verbose mode
@@ -223,17 +223,17 @@ For project-specific override, add to `.ultra/config.json`:
 
 ## Current Skills Status
 
-All 10 Skills in Ultra Builder Pro 4.0 are in **slim mode**:
+All 9 Skills in Ultra Builder Pro 4.0 are in **slim mode**:
 
 | Skill Name | Lines | Mode | Token Efficiency |
 |------------|-------|------|------------------|
 | file-operations-guardian | 25 | Slim | ✅ Optimal |
-| code-quality-guardian | 52 | Slim | ✅ Optimal |
-| git-workflow-guardian | 57 | Slim | ✅ Optimal |
-| ui-design-guardian | 94 | Slim | ✅ Good |
+| guarding-quality | 52 | Slim | ✅ Optimal |
+| guarding-git-workflow | 57 | Slim | ✅ Optimal |
+| guarding-quality | 94 | Slim | ✅ Good |
 | enforcing-workflow | 48 | Slim | ✅ Optimal |
-| documentation-guardian | 24 | Slim | ✅ Optimal |
-| test-strategy-guardian | 24 | Slim | ✅ Optimal |
+| syncing-docs | 24 | Slim | ✅ Optimal |
+| guarding-quality | 24 | Slim | ✅ Optimal |
 | context-overflow-handler | 24 | Slim | ✅ Optimal |
 | playwright-automation | 203 | Slim | ✅ Good |
 | guiding-workflow | 20 | Slim | ✅ Optimal |
