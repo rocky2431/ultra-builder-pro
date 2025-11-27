@@ -29,7 +29,7 @@ Ultra-Research is **the most critical phase** in the development workflow. It tr
 3. **Tech Decision** - Tech evaluation only (15 min)
 4. **Custom Flow** - User selects specific rounds
 
-**Detailed routing logic**: See [Project Types Guide](../config/research/project-types.md)
+**Detailed routing logic**: See `@config/research/project-types.md`
 
 ---
 
@@ -54,29 +54,387 @@ Step 6: Round Satisfaction Rating (1-5 score)
 
 **4-Round Process** (each uses 6-step cycle):
 
-1. **Round 1: Problem Discovery** (20-25 min)
-   - Clarify: Target users, core pain points, success criteria
-   - Analyze: 6D problem analysis (Technical/Business/Team/Ecosystem/Strategic/Meta)
-   - Validate: Problem understanding accuracy check
-   - Output: `specs/product.md` Section 1-2
+**IMPORTANT**: Each round MUST follow the 6-step cycle EXACTLY. DO NOT skip steps or optimize. DO NOT output final results until all steps complete.
 
-2. **Round 2: Solution Exploration** (20-25 min)
-   - Clarify: Feature priorities, key user scenarios
-   - Analyze: Generate user stories with 6D analysis
-   - Validate: User story coverage and priority check
-   - Output: `specs/product.md` Section 3-5
+---
 
-3. **Round 3: Technology Selection** (15-20 min)
-   - Clarify: Tech stack constraints, team skills, performance requirements
-   - Analyze: 6D tech comparison (use Context7/Exa MCP for research)
-   - Validate: Tech solution selection and trade-offs confirmation
-   - Output: `specs/architecture.md`
+### Round 1: Problem Discovery (20-25 min)
 
-4. **Round 4: Risk & Constraints** (15-20 min)
-   - Clarify: Critical risks from user perspective
-   - Analyze: Risk identification and mitigation strategies
-   - Validate: Risk priority and mitigation feasibility check
-   - Output: Risk section in specs, research reports
+**MANDATORY EXECUTION SEQUENCE - Follow EXACTLY**:
+
+#### Step 1: Requirement Clarification (MUST DO FIRST)
+
+**HYBRID MODEL: Core Questions (Standardized) + Extension Questions (Dynamic)**
+
+##### Part A: Core Questions (Standardized)
+
+Load **Core Questions 1-5** from `@config/research/interaction-points-core.md`:
+1. Target User Type (B2C/B2B/Internal/B2D)
+2. Core Pain Point (Performance/Usability/Features/Cost/Reliability)
+3. Success Metrics (User Growth/Performance/Business/Quality/Cost)
+4. Project Scale (Small/Medium/Large/Very Large)
+5. Time Constraints (Urgent/Normal/Flexible/Long-term)
+
+Use AskUserQuestion tool for each core question.
+
+##### Part B: Extension Questions (Dynamic Generation)
+
+**Claude MUST generate 1-2 context-specific questions** based on:
+- User's project description from Phase 0
+- Detected keywords (e.g., "healthcare" → compliance, "startup" → team size, "fintech" → security)
+- Project type selected in Phase 0
+
+**Generation Guidelines**:
+1. Format: 2-4 options per question, header ≤12 chars, label + description for each option
+2. Validate before use: header.length ≤12, options 2-4, all options have label + description
+3. If validation fails → retry (max 2 times) → fallback to core questions only
+4. Domain Examples:
+   - Healthcare: "合规要求？" (header: "Compliance", options: HIPAA/GDPR/Local/None)
+   - Fintech: "监管要求？" (header: "Regulation", options: SEC/MAS/Local/None)
+   - Startup: "团队规模？" (header: "Team Size", options: 1-3/4-10/11-50/50+)
+   - Enterprise: "集成需求？" (header: "Integration", options: ERP/CRM/Legacy/None)
+
+**DO NOT proceed to Step 2 until ALL questions (core + extension) are answered.**
+
+#### Step 2: Deep Analysis (MUST DO SECOND)
+
+Invoke `/ultra-think` with user input from Step 1:
+
+```
+SlashCommand: /ultra-think "Analyze problem for [project_name] with context:
+- Target users: [from_step1]
+- Pain points: [from_step1]
+- Success criteria: [from_step1]
+
+Perform 6D analysis (Technical, Business, Team, Ecosystem, Strategic, Meta)"
+```
+
+**DO NOT proceed to Step 3 until /ultra-think completes and returns structured analysis.**
+
+#### Step 3: Analysis Validation (MUST DO THIRD)
+
+Present analysis **summary** (NOT full 6D output) to user and use AskUserQuestion for validation:
+
+```
+Show: 2-3 key findings from Step 2
+Ask: "Does this analysis align with your understanding?"
+Options: Satisfied / Needs Adjustment / Critical Miss
+```
+
+**DO NOT proceed to Step 4 until user validation is collected.**
+
+#### Step 4: Iteration Decision (MUST DO FOURTH)
+
+Based on Step 3 response:
+- If "Satisfied" → Proceed to Step 5
+- If "Needs Adjustment" → Collect feedback → Back to Step 2 (max 2 iterations)
+- If "Critical Miss" → Back to Step 1
+
+**DO NOT proceed to Step 5 without handling iteration properly.**
+
+#### Step 5: Generate Spec Content (MUST DO FIFTH)
+
+Use Edit tool to update `.ultra/specs/product.md`:
+
+```
+Target sections:
+- Section 1: Problem Statement (extract from Step 2 analysis)
+- Section 2: Target Users (extract from Step 1 + Step 2)
+
+MUST use Edit tool with specific old_string and new_string
+DO NOT overwrite entire file
+```
+
+Save research report to `.ultra/docs/research/problem-analysis-{date}.md`
+
+**DO NOT proceed to Step 6 until files are written and verified.**
+
+#### Step 6: Round Satisfaction Rating (MUST DO LAST)
+
+Use AskUserQuestion to collect rating:
+
+```
+Question: "Rate your satisfaction with Round 1 (Problem Discovery)"
+Options: 5/4/3/2/1 stars
+If rating < 4: Collect improvement suggestions
+```
+
+Record to `.ultra/docs/research/metadata.json` (partial, will complete after all rounds)
+
+**DO NOT proceed to Round 2 until rating is collected.**
+
+---
+
+### Round 2: Solution Exploration (20-25 min)
+
+**MANDATORY EXECUTION SEQUENCE - Follow EXACTLY**:
+
+#### Step 1: Requirement Clarification (MUST DO FIRST)
+
+**HYBRID MODEL: Core Questions (Standardized) + Extension Questions (Dynamic)**
+
+##### Part A: Core Questions (Standardized)
+
+Load **Core Questions 6-8** from `@config/research/interaction-points-core.md`:
+6. MVP Feature Scope (Core Functionality/User Management/Data Management/Integration/Analytics)
+7. Non-Functional Requirements Priority (Performance/Security/Scalability/Reliability/Accessibility)
+8. User Scenario Count (1-3/4-6/7-10/10+ scenarios)
+
+Use AskUserQuestion tool for each core question.
+
+##### Part B: Extension Questions (Dynamic Generation)
+
+**Claude MUST generate 1-2 context-specific questions** based on:
+- User's answers from Round 1 (pain points, scale, timeline)
+- Project type characteristics
+- Domain-specific considerations
+
+**Generation Guidelines**:
+1. Format: 2-4 options per question, header ≤12 chars, label + description for each option
+2. Validate before use: header.length ≤12, options 2-4, all options have label + description
+3. If validation fails → retry (max 2 times) → fallback to core questions only
+4. Domain Examples:
+   - High Scale Projects: "数据量级？" (header: "Data Volume", options: <1TB/1-10TB/10-100TB/>100TB)
+   - Real-time Apps: "延迟要求？" (header: "Latency", options: <50ms/50-200ms/200-500ms/>500ms)
+   - Multi-tenant SaaS: "租户隔离？" (header: "Isolation", options: Schema/Database/App-level/Physical)
+   - Mobile First: "离线支持？" (header: "Offline", options: Full/Partial/Read-only/None)
+
+**DO NOT proceed to Step 2 until ALL questions (core + extension) are answered.**
+
+#### Step 2: Deep Analysis (MUST DO SECOND)
+
+Invoke `/ultra-think` with user input + Round 1 context:
+
+```
+SlashCommand: /ultra-think "Generate user stories for [project_name] based on:
+- MVP features: [from_step1]
+- Key scenarios: [from_step1]
+- NFRs: [from_step1]
+- Problem context: [from_round1]
+
+Perform 6D solution analysis and generate prioritized user stories"
+```
+
+**DO NOT proceed to Step 3 until /ultra-think completes.**
+
+#### Step 3: Analysis Validation (MUST DO THIRD)
+
+Present user stories summary and use AskUserQuestion:
+
+```
+Show: Generated user stories (titles only, not full descriptions)
+Ask: "Do these user stories cover your expected functionality?"
+Options: Satisfied / Needs Adjustment / Critical Miss
+```
+
+**DO NOT proceed to Step 4 until user validation is collected.**
+
+#### Step 4: Iteration Decision (MUST DO FOURTH)
+
+Based on Step 3 response (same logic as Round 1)
+
+#### Step 5: Generate Spec Content (MUST DO FIFTH)
+
+Use Edit tool to **append** to `.ultra/specs/product.md`:
+
+```
+Target sections:
+- Section 3: User Stories (from Step 2 analysis)
+- Section 4: Functional Requirements (derived from stories)
+- Section 5: Non-Functional Requirements (from Step 1)
+
+MUST use Edit tool to append, NOT overwrite Round 1 content
+```
+
+Save research report to `.ultra/docs/research/solution-exploration-{date}.md`
+
+**DO NOT proceed to Step 6 until files are updated.**
+
+#### Step 6: Round Satisfaction Rating (MUST DO LAST)
+
+Collect rating for Round 2 (same process as Round 1)
+
+---
+
+### Round 3: Technology Selection (15-20 min)
+
+**MANDATORY EXECUTION SEQUENCE - Follow EXACTLY**:
+
+#### Step 1: Requirement Clarification (MUST DO FIRST)
+
+**HYBRID MODEL: Core Questions (Standardized) + Extension Questions (Dynamic)**
+
+##### Part A: Core Questions (Standardized)
+
+Load **Core Questions 9-11** from `@config/research/interaction-points-core.md`:
+9. Technology Stack Constraints (Specific language/framework/cloud/database/No constraints)
+10. Team Skills (Frontend/Backend/DevOps/Database/Beginner)
+11. Performance Requirements (Low Latency/High Throughput/Core Web Vitals/Cost Efficiency/Standard)
+
+Use AskUserQuestion tool for each core question.
+
+##### Part B: Extension Questions (Dynamic Generation)
+
+**Claude MUST generate 1-2 context-specific questions** based on:
+- Project scale and performance needs from Round 1
+- MVP features and NFRs from Round 2
+- Domain-specific technology considerations
+
+**Generation Guidelines**:
+1. Format: 2-4 options per question, header ≤12 chars, label + description for each option
+2. Validate before use: header.length ≤12, options 2-4, all options have label + description
+3. If validation fails → retry (max 2 times) → fallback to core questions only
+4. Domain Examples:
+   - AI/ML Projects: "模型部署？" (header: "Deployment", options: Cloud API/Self-hosted/Edge/Hybrid)
+   - Blockchain: "共识机制？" (header: "Consensus", options: PoW/PoS/PoA/BFT)
+   - Video Streaming: "编码方案？" (header: "Codec", options: H.264/H.265/VP9/AV1)
+   - IoT: "通信协议？" (header: "Protocol", options: MQTT/CoAP/HTTP/WebSocket)
+
+**DO NOT proceed to Step 2 until ALL questions (core + extension) are answered.**
+
+#### Step 2: Deep Analysis (MUST DO SECOND)
+
+Invoke `/ultra-think` with MCP tool usage:
+
+```
+SlashCommand: /ultra-think "Evaluate technology stack for [project_name]:
+- Requirements from Round 1-2
+- Tech constraints: [from_step1]
+- Team skills: [from_step1]
+- Performance needs: [from_step1]
+
+Use Context7 MCP for official docs, Exa MCP for code examples.
+Perform 6D tech comparison (pros/cons/trade-offs)"
+```
+
+**DO NOT proceed to Step 3 until /ultra-think completes.**
+
+#### Step 3: Analysis Validation (MUST DO THIRD)
+
+Present technology recommendations summary:
+
+```
+Show: Recommended stack with top 3 pros and top 3 trade-offs
+Ask: "Do you agree with the recommended technology stack?"
+Options: Satisfied / Needs Adjustment / Critical Miss
+```
+
+**DO NOT proceed to Step 4 until user validation is collected.**
+
+#### Step 4: Iteration Decision (MUST DO FOURTH)
+
+Based on Step 3 response (same logic as Round 1)
+
+#### Step 5: Generate Spec Content (MUST DO FIFTH)
+
+Use Write tool to create `.ultra/specs/architecture.md`:
+
+```
+Target content:
+- Tech stack with rationale
+- Architecture decisions (justified with 6D analysis)
+- Trade-offs and mitigation strategies
+
+MUST create new file (Round 3 is first time writing architecture.md)
+```
+
+Save research report to `.ultra/docs/research/tech-evaluation-{date}.md`
+
+**DO NOT proceed to Step 6 until files are created.**
+
+#### Step 6: Round Satisfaction Rating (MUST DO LAST)
+
+Collect rating for Round 3 (same process as Round 1)
+
+---
+
+### Round 4: Risk & Constraints (15-20 min)
+
+**MANDATORY EXECUTION SEQUENCE - Follow EXACTLY**:
+
+#### Step 1: Requirement Clarification (MUST DO FIRST)
+
+**HYBRID MODEL: Core Questions (Standardized) + Extension Questions (Dynamic)**
+
+##### Part A: Core Questions (Standardized)
+
+Load **Core Questions 12-13** from `@config/research/interaction-points-core.md`:
+12. Critical Risks (Technical Complexity/Time Constraints/Budget/Scalability/Security/Vendor Lock-in)
+13. Hard Constraints (Fixed Deadline/Fixed Budget/Compliance/Technology Restrictions/Team Size)
+
+Use AskUserQuestion tool for each core question.
+
+##### Part B: Extension Questions (Dynamic Generation)
+
+**Claude MUST generate 1-2 context-specific questions** based on:
+- Identified risks and constraints from previous rounds
+- Project timeline and budget implications
+- Domain-specific regulatory or operational constraints
+
+**Generation Guidelines**:
+1. Format: 2-4 options per question, header ≤12 chars, label + description for each option
+2. Validate before use: header.length ≤12, options 2-4, all options have label + description
+3. If validation fails → retry (max 2 times) → fallback to core questions only
+4. Domain Examples:
+   - Regulated Industries: "审计频率？" (header: "Audit Freq", options: Monthly/Quarterly/Yearly/None)
+   - Global Projects: "时区支持？" (header: "Time Zones", options: Single/Regional/Global/24/7)
+   - Open Source: "许可限制？" (header: "License", options: MIT/Apache/GPL/Proprietary)
+   - Critical Systems: "故障容忍？" (header: "Fault", options: Zero-downtime/Hot-standby/Cold-standby/Best-effort)
+
+**DO NOT proceed to Step 2 until ALL questions (core + extension) are answered.**
+
+#### Step 2: Deep Analysis (MUST DO SECOND)
+
+Invoke `/ultra-think` with full project context:
+
+```
+SlashCommand: /ultra-think "Identify risks and constraints for [project_name]:
+- User concerns: [from_step1]
+- Hard constraints: [from_step1]
+- Complete context from Round 1-3
+
+Perform 6D risk analysis with mitigation strategies"
+```
+
+**DO NOT proceed to Step 3 until /ultra-think completes.**
+
+#### Step 3: Analysis Validation (MUST DO THIRD)
+
+Present risk assessment summary:
+
+```
+Show: Top 5 risks with mitigation strategies
+Ask: "Do these risks and mitigation strategies address your concerns?"
+Options: Satisfied / Needs Adjustment / Critical Miss
+```
+
+**DO NOT proceed to Step 4 until user validation is collected.**
+
+#### Step 4: Iteration Decision (MUST DO FOURTH)
+
+Based on Step 3 response (same logic as Round 1)
+
+#### Step 5: Generate Spec Content (MUST DO FIFTH)
+
+Use Edit tool to **append** risk sections:
+
+```
+Update:
+- .ultra/specs/product.md (add Risk Management section)
+- .ultra/specs/architecture.md (add Technical Risks section)
+
+MUST use Edit tool to append to existing content
+```
+
+Save research report to `.ultra/docs/research/risk-assessment-{date}.md`
+
+**DO NOT proceed to Step 6 until files are updated.**
+
+#### Step 6: Round Satisfaction Rating (MUST DO LAST)
+
+Collect rating for Round 4 (same process as Round 1)
+
+---
 
 **Final Validation**: Overall quality check (1-5 rating), improvement suggestions collection
 
@@ -86,7 +444,7 @@ Step 6: Round Satisfaction Rating (1-5 score)
 - ✅ Research reports: `.ultra/docs/research/` (4 reports + metadata.json)
 - ✅ Quality metrics: Round satisfaction scores, overall rating, iteration count
 
-**Detailed interactive questions**: See [Interactive Points Design](../config/research/interaction-points.md)
+**Detailed interactive questions**: See `@config/research/interaction-points.md`
 
 ---
 
@@ -98,7 +456,7 @@ Step 6: Round Satisfaction Rating (1-5 score)
 
 **Process**: Single-round 6D comparison, auto-update architecture.md
 
-**Detailed workflow**: See [Mode 2 Focused Guide](../config/research/mode-2-focused.md)
+**Detailed workflow**: See `@config/research/mode-2-focused.md`
 
 ---
 
@@ -189,7 +547,7 @@ Trigger guiding-workflow → Suggest /ultra-plan
 
 ### Post-Research Actions
 
-1. **Validate spec completeness**: See [Output Templates](../config/research/output-templates.md)
+1. **Validate spec completeness**: See `@config/research/output-templates.md`
 
 2. **Save research reports**:
    - Problem analysis → `.ultra/docs/research/problem-analysis-{date}.md`
@@ -238,30 +596,18 @@ Trigger guiding-workflow → Suggest /ultra-plan
 2. **Overall Satisfaction Gate**: Final rating ≥4 stars (if <4, suggest improvements)
 3. **Metadata Recording Gate**: All quality metrics saved to `.ultra/docs/research/metadata.json`
 
-**Quality Metrics Collected**:
-```json
-{
-  "projectType": "New Project | Incremental Feature | Tech Decision | Custom",
-  "roundsExecuted": [1, 2, 3, 4],
-  "roundSatisfaction": {
-    "round1": 4.5,
-    "round2": 5.0,
-    "round3": 4.0,
-    "round4": 4.5
-  },
-  "iterationCounts": {
-    "round1": 1,
-    "round2": 0,
-    "round3": 2,
-    "round4": 1
-  },
-  "overallSatisfaction": 4.5,
-  "totalDuration": "85 minutes",
-  "improvementSuggestions": [
-    "Round 3 tech options could include more detail on performance benchmarks"
-  ]
-}
-```
+**Quality Metrics**: Automatically saved to `.ultra/docs/research/metadata.json`
+
+**Collected data**:
+- Project type and rounds executed
+- Round satisfaction scores (1-5 stars per round)
+- Iteration counts (number of retries per round)
+- Overall satisfaction rating and total duration
+- Improvement suggestions from user
+
+**Example**: `{"overallSatisfaction": 4.5, "roundSatisfaction": {"round1": 4.5, ...}, "totalDuration": "85 minutes"}`
+
+**Complete schema**: See `@config/research/metadata-schema.md`
 
 **Escalation Policy**:
 - If round rating <3: Offer to restart round with different approach
@@ -283,7 +629,7 @@ Trigger guiding-workflow → Suggest /ultra-plan
 - `specs/architecture.md` (Tech Stack with rationale)
 - `.ultra/docs/research/*.md` (4 research reports)
 
-**Detailed templates**: See [Output Templates Guide](../config/research/output-templates.md)
+**Detailed templates**: See `@config/research/output-templates.md`
 
 ---
 

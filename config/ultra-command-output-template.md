@@ -54,7 +54,6 @@ All commands should follow this 6-section template (adapt sections as needed):
 | ultra-test | 🧪 | Comprehensive Testing |
 | ultra-deliver | 🚀 | Deployment Preparation |
 | ultra-status | 📊 | Progress Monitoring |
-| ultra-refactor | ♻️ | Code Refactoring |
 | ultra-think | 🤔 | Deep Thinking |
 | ultra-session-reset | 🔄 | Session Reset |
 

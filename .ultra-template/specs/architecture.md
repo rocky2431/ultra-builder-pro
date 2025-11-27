@@ -2,101 +2,186 @@
 
 > **Purpose**: This document defines HOW the system is built, based on requirements in `product.md`.
 
-## System Overview
+## 1. System Overview
 
-[NEEDS CLARIFICATION]
-- High-level description of system architecture
-- Key components and their relationships
-- Data flow overview
+### 1.1 Architecture Vision
 
-## Architecture Principles
+[NEEDS CLARIFICATION - High-level description of system architecture and design philosophy]
 
-Inherited from `constitution.md`:
+**Guiding questions**:
+- What architectural style? (Monolithic, Microservices, Serverless, Event-Driven)
+- What are the key quality attributes? (Scalability, Maintainability, Performance)
+- How does the architecture support business goals?
+
+### 1.2 Key Components
+
+[NEEDS CLARIFICATION - Identify major system components and their relationships]
+
+**Example format**:
+- **Component 1**: [Name and primary responsibility]
+- **Component 2**: [Name and primary responsibility]
+- **Component 3**: [Name and primary responsibility]
+
+### 1.3 Data Flow Overview
+
+[NEEDS CLARIFICATION - Describe how data flows through the system]
+
+**Example format**:
+- **Input**: [Where data enters the system]
+- **Processing**: [Key transformations and business logic]
+- **Storage**: [Where and how data is persisted]
+- **Output**: [How data is presented or exported]
+
+---
+
+## 2. Architecture Principles
+
+**Inherited from `.ultra/constitution.md`**:
 - Specification-Driven
 - Test-First Development
 - Minimal Abstraction
 - Anti-Future-Proofing
-- [Add project-specific principles]
 
-## Technology Stack
+**Project-Specific Principles**:
 
-### Frontend (if applicable)
+[NEEDS CLARIFICATION - Add project-specific architecture principles]
 
-**Decision**: [Framework/Library chosen]
+**Example format**:
+1. **[Principle Name]**: [Description and rationale]
+2. **[Principle Name]**: [Description and rationale]
+
+---
+
+## 3. Technology Stack
+
+### 3.1 Frontend Stack (if applicable)
+
+#### 3.1.1 Framework Selection
+
+**Decision**: [NEEDS CLARIFICATION - Framework/Library chosen]
 
 **Rationale**:
 - **Traces to**: [Link to specific requirement in product.md]
-- **Team expertise**: [Team's familiarity with chosen technology]
-- **Performance**: [How it meets performance requirements]
+- **Team Expertise**: [Team's familiarity with chosen technology]
+- **Performance**: [How it meets performance requirements from product.md#5.1]
 - **Ecosystem**: [Community support and library availability]
+- **Learning Curve**: [Onboarding time for new team members]
 
-**Technical Details**:
-- **Framework**: [Chosen framework with version]
-- **State Management**: [Solution chosen and why]
-- **Styling**: [Approach selected]
-- **Build Tool**: [Tooling selected]
+#### 3.1.2 Technical Details
 
-### Backend (if applicable)
+[NEEDS CLARIFICATION - Specific technology choices and versions]
 
-**Decision**: [Technology chosen]
+**Example format**:
+- **Framework**: [e.g., React 18.3, Vue 3.4, Next.js 14]
+- **State Management**: [e.g., Zustand, Redux Toolkit, Jotai]
+- **Styling**: [e.g., Tailwind CSS, CSS Modules, Styled Components]
+- **Build Tool**: [e.g., Vite, Webpack, Turbopack]
+- **Testing**: [e.g., Vitest, Jest, Playwright]
+
+---
+
+### 3.2 Backend Stack (if applicable)
+
+#### 3.2.1 Runtime & Framework Selection
+
+**Decision**: [NEEDS CLARIFICATION - Technology chosen]
 
 **Rationale**:
 - **Traces to**: [Link to specific requirement in product.md]
-- **Workload type**: [I/O-bound, CPU-bound, or mixed]
-- **Performance**: [How it meets performance requirements]
-- **Team expertise**: [Team's familiarity with chosen technology]
+- **Workload Type**: [I/O-bound, CPU-bound, or mixed]
+- **Performance**: [How it meets throughput/latency requirements from product.md#5.1]
+- **Team Expertise**: [Team's familiarity with chosen technology]
+- **Ecosystem**: [Available libraries and community support]
 
-**Technical Details**:
-- **Runtime**: [Chosen runtime environment with version]
-- **Framework**: [Framework selected and why]
-- **API Style**: [REST/GraphQL/gRPC chosen based on use case]
-- **Database Driver**: [Client library selected]
+#### 3.2.2 Technical Details
 
-### Smart Contracts (if applicable)
+[NEEDS CLARIFICATION - Specific technology choices and versions]
 
-**Decision**: [Blockchain platform]
+**Example format**:
+- **Runtime**: [e.g., Node.js 20 LTS, Python 3.12, Go 1.22]
+- **Framework**: [e.g., Express, FastAPI, Gin, Django]
+- **API Style**: [REST, GraphQL, gRPC, tRPC]
+- **Database Driver**: [e.g., Prisma, SQLAlchemy, GORM]
+- **Authentication**: [e.g., Passport.js, Auth0, Clerk]
+
+---
+
+### 3.3 Smart Contract Stack (if applicable)
+
+#### 3.3.1 Blockchain Platform Selection
+
+**Decision**: [NEEDS CLARIFICATION - Blockchain platform chosen]
 
 **Rationale**:
 - **Traces to**: [Link to specific requirement in product.md]
 - **VM Compatibility**: [EVM-compatible, Non-EVM, or other]
 - **Performance**: [Transaction speed and gas fee requirements]
 - **Ecosystem**: [Developer tooling and community support]
+- **Security**: [Audit tools and security track record]
 
-**Technical Details**:
-- **Platform**: [Chosen blockchain platform]
-- **Language**: [Smart contract programming language]
-- **Patterns**: [Design patterns used - upgradeable, factory, access control, etc.]
+#### 3.3.2 Technical Details
 
-### Database
+[NEEDS CLARIFICATION - Smart contract technology choices]
 
-**Decision**: [Database chosen]
+**Example format**:
+- **Platform**: [e.g., Ethereum, Polygon, Solana, Base]
+- **Language**: [e.g., Solidity, Vyper, Rust]
+- **Framework**: [e.g., Hardhat, Foundry, Anchor]
+- **Patterns**: [Upgradeable, Factory, Access Control, Proxy]
+- **Libraries**: [OpenZeppelin, Solmate]
+
+---
+
+### 3.4 Database Stack
+
+#### 3.4.1 Database Selection
+
+**Decision**: [NEEDS CLARIFICATION - Database chosen]
 
 **Rationale**:
 - **Traces to**: [Link to specific requirement in product.md]
-- **Data model**: [Description of data structure]
-- **Scalability**: [How it meets scalability requirements]
+- **Data Model**: [Relational, Document, Graph, Key-Value, Time-Series]
+- **Scalability**: [How it meets growth requirements from product.md#5.3]
 - **Consistency**: [ACID requirements or eventual consistency needs]
+- **Query Patterns**: [How it supports application query patterns]
 
-**Technical Details**:
-- **Type**: [Relational, Document, Key-Value, Graph, Time-series]
-- **Product**: [Specific database product chosen]
-- **Version**: [Version selected]
-- **Deployment**: [Managed service or self-hosted]
+#### 3.4.2 Technical Details
 
-### Infrastructure
+[NEEDS CLARIFICATION - Database technology choices]
 
-**Decision**: [Deployment platform]
+**Example format**:
+- **Type**: [Relational, Document, Key-Value, Graph, Time-Series]
+- **Product**: [e.g., PostgreSQL 16, MongoDB 7, Redis 7]
+- **Version**: [Specific version chosen]
+- **Deployment**: [Managed service (AWS RDS, MongoDB Atlas) or self-hosted]
+- **Backup Strategy**: [Automated backups, point-in-time recovery]
+
+---
+
+### 3.5 Infrastructure Stack
+
+#### 3.5.1 Deployment Platform Selection
+
+**Decision**: [NEEDS CLARIFICATION - Deployment platform chosen]
 
 **Rationale**:
-- **Traces to**: [Link to specific NFR in product.md]
-- **Scalability**: [Auto-scaling requirements]
-- **Reliability**: [Uptime requirements]
-- **Budget**: [Cost considerations]
+- **Traces to**: [Link to specific NFR in product.md#5]
+- **Scalability**: [Auto-scaling requirements from product.md#5.3]
+- **Reliability**: [Uptime requirements from product.md#5.4]
+- **Budget**: [Cost considerations from product.md#6.2]
+- **Vendor Lock-in**: [Multi-cloud strategy or vendor-specific services]
 
-**Technical Details**:
-- **Platform**: [Cloud provider or hosting solution]
-- **Containerization**: [Container technology and orchestration]
-- **CI/CD**: [Automation tooling selected]
+#### 3.5.2 Technical Details
+
+[NEEDS CLARIFICATION - Infrastructure technology choices]
+
+**Example format**:
+- **Platform**: [e.g., AWS, GCP, Azure, Vercel, Railway]
+- **Containerization**: [e.g., Docker, Podman]
+- **Orchestration**: [e.g., Kubernetes, ECS, Cloud Run]
+- **CI/CD**: [e.g., GitHub Actions, GitLab CI, CircleCI]
+- **Monitoring**: [e.g., Datadog, New Relic, Sentry, Prometheus]
+- **CDN**: [e.g., Cloudflare, AWS CloudFront, Vercel Edge]
 
 ## Component Architecture
 
@@ -379,11 +464,30 @@ All major decisions documented as ADRs in `.ultra/docs/decisions/`:
 2. ADR-002: Database Choice
 3. ADR-003: [Add as you make decisions]
 
-## Open Questions
+## 12. Open Questions
 
-[NEEDS CLARIFICATION]
-- Question 1: [Unresolved technical question]
-- Question 2: [Alternative approaches to evaluate]
+### 12.1 Technical Uncertainties
+
+[NEEDS CLARIFICATION - Unresolved technical questions requiring investigation]
+
+**Example format**:
+1. **Question**: [Technical question needing resolution]
+   - **Impacts**: [What decisions depend on this answer?]
+   - **Research needed**: [What investigation is required?]
+   - **Deadline**: [When do we need an answer?]
+
+2. **Question**: [Another technical question]
+   [Continue...]
+
+### 12.2 Alternative Approaches Under Evaluation
+
+[NEEDS CLARIFICATION - Technology or design alternatives being considered]
+
+**Example format**:
+- **Option A vs Option B**: [Comparison context]
+  - **Trade-offs**: [Pros and cons of each]
+  - **Decision criteria**: [How will we decide?]
+  - **Timeline**: [When will decision be made?]
 
 ---
 

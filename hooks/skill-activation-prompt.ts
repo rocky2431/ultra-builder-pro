@@ -31,6 +31,15 @@ interface RecentFile {
   timestamp: string;
 }
 
+interface SkillTriggerLog {
+  timestamp: string;
+  skill: string;
+  matchReason: string;
+  enforcement: string;
+  priority: string;
+  promptPreview: string;
+}
+
 /**
  * Load skill rules from skill-rules.json
  */
@@ -51,6 +60,38 @@ function loadSkillRules(): SkillRules {
   } catch (error) {
     console.error(`⚠️ Error loading skill-rules.json: ${error}`);
     return { version: '1.0', description: '', skills: {} };
+  }
+}
+
+/**
+ * Log skill trigger event for debugging and optimization
+ */
+function logSkillTrigger(logs: SkillTriggerLog[]): void {
+  if (logs.length === 0) return;
+
+  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const claudeDir = projectDir.endsWith('.claude') ? projectDir : path.join(projectDir, '.claude');
+  const logsDir = path.join(claudeDir, 'logs');
+  const logFile = path.join(logsDir, 'skill-triggers.jsonl');
+
+  try {
+    // Ensure logs directory exists
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+
+    // Append logs as JSONL (one JSON object per line)
+    const logEntries = logs.map(log => JSON.stringify(log)).join('\n') + '\n';
+    fs.appendFileSync(logFile, logEntries);
+
+    // Rotate log file if > 1MB
+    const stats = fs.statSync(logFile);
+    if (stats.size > 1024 * 1024) {
+      const archivePath = path.join(logsDir, `skill-triggers-${Date.now()}.jsonl`);
+      fs.renameSync(logFile, archivePath);
+    }
+  } catch (error) {
+    // Silent fail - logging should not block execution
   }
 }
 
@@ -132,10 +173,12 @@ function matchFilePatterns(files: string[], patterns: string[], exclusions?: str
 /**
  * Analyze prompt and recent files to determine which skills to suggest
  */
-function analyzeAndSuggestSkills(prompt: string): string[] {
+function analyzeAndSuggestSkills(prompt: string): { skills: string[], logs: SkillTriggerLog[] } {
   const rules = loadSkillRules();
   const recentFiles = getRecentFiles();
-  const matchedSkills: Array<{name: string, priority: string, enforcement: string}> = [];
+  const matchedSkills: Array<{name: string, priority: string, enforcement: string, matchReason: string}> = [];
+  const timestamp = new Date().toISOString();
+  const promptPreview = prompt.length > 100 ? prompt.substring(0, 100) + '...' : prompt;
 
   for (const [skillName, rule] of Object.entries(rules.skills)) {
     let matched = false;
@@ -146,13 +189,13 @@ function analyzeAndSuggestSkills(prompt: string): string[] {
       if (rule.promptTriggers.keywords &&
           matchKeywords(prompt, rule.promptTriggers.keywords)) {
         matched = true;
-        matchReason = 'keyword match';
+        matchReason = 'keyword';
       }
 
       if (rule.promptTriggers.intentPatterns &&
           matchIntentPatterns(prompt, rule.promptTriggers.intentPatterns)) {
         matched = true;
-        matchReason = 'intent pattern match';
+        matchReason = matchReason ? `${matchReason}+intent` : 'intent';
       }
     }
 
@@ -164,7 +207,7 @@ function analyzeAndSuggestSkills(prompt: string): string[] {
         rule.fileTriggers.pathExclusions
       )) {
         matched = true;
-        matchReason = matchReason ? `${matchReason} + file context` : 'file context';
+        matchReason = matchReason ? `${matchReason}+file` : 'file';
       }
     }
 
@@ -172,7 +215,8 @@ function analyzeAndSuggestSkills(prompt: string): string[] {
       matchedSkills.push({
         name: skillName,
         priority: rule.priority,
-        enforcement: rule.enforcement
+        enforcement: rule.enforcement,
+        matchReason
       });
     }
   }
@@ -198,7 +242,17 @@ function analyzeAndSuggestSkills(prompt: string): string[] {
     return (enforcementOrder[b.enforcement] || 0) - (enforcementOrder[a.enforcement] || 0);
   });
 
-  return matchedSkills.map(s => s.name);
+  // Generate log entries
+  const logs: SkillTriggerLog[] = matchedSkills.map(s => ({
+    timestamp,
+    skill: s.name,
+    matchReason: s.matchReason,
+    enforcement: s.enforcement,
+    priority: s.priority,
+    promptPreview
+  }));
+
+  return { skills: matchedSkills.map(s => s.name), logs };
 }
 
 /**
@@ -260,8 +314,11 @@ function main() {
       process.exit(0);
     }
 
-    // Analyze and get matched skills
-    const matchedSkills = analyzeAndSuggestSkills(userPrompt);
+    // Analyze and get matched skills with logs
+    const { skills: matchedSkills, logs } = analyzeAndSuggestSkills(userPrompt);
+
+    // Log skill triggers for debugging and optimization
+    logSkillTrigger(logs);
 
     // Generate and output reminder if skills matched
     if (matchedSkills.length > 0) {
