@@ -1,295 +1,238 @@
-# Ultra Builder Pro 系统优化计划
+# Claude Code 最新能力对标分析
 
-> **基于 Anthropic 官方最佳实践的深度对标分析**
->
-> 参考文章:
-> 1. Effective Harnesses for Long-Running Agents
-> 2. Effective Context Engineering for AI Agents
-> 3. Claude Think Tool
-> 4. Contextual Retrieval
+> **基于 code.claude.com/docs 官方文档的系统评估**
 
 ---
 
-## 用户确认决策
+## 一、当前系统符合度评估
 
-| 决策项 | 用户选择 |
-|--------|---------|
-| **实施范围** | P0 + P1 + P2 (全部三个阶段) |
-| **优化策略** | 平衡优化 (节省 Token 同时保持文档清晰度) |
-| **兼容性** | 需要向后兼容 (新字段可选，旧项目正常运行) |
+### 高度符合 (✅)
 
----
+| 官方特性 | 当前实现 | 符合度 |
+|---------|---------|--------|
+| **Skills 系统** | `skills/*/SKILL.md` 格式正确（name, description, allowed-tools）| 100% |
+| **Subagents** | `~/.claude/agents/*.md` 格式正确（name, description, tools, model）| 100% |
+| **Hooks** | `settings.json` 已配置 UserPromptSubmit + PostToolUse | 100% |
+| **Settings 层次** | 使用 `settings.json` + `settings.local.json` | 95% |
+| **Memory 层次** | `~/.claude/CLAUDE.md` 用户级配置 | 90% |
+| **MCP 集成** | context7 + exa servers 已配置 | 100% |
+| **Slash Commands** | `commands/*.md` 目录结构正确 | 100% |
+| **Permissions** | `permissions.allow` 已配置工具列表 | 90% |
 
-## 一、差距总结
-
-### 1.1 Long-Running Agents (会话状态管理)
-
-| 最佳实践 | 当前状态 | 差距 |
-|---------|---------|------|
-| session-index.json 会话索引 | ❌ 缺失 | 无法快速恢复上次会话 |
-| feature_list.json 功能验证 | ❌ 缺失 | 无 pass/fail 状态追踪 |
-| claude-progress.txt 进度日志 | ⚠️ 仅 tasks.json | 缺少实时进度日志 |
-| 自动会话恢复 | ❌ 仅手动 | 启动时不自动加载上下文 |
-| 增量 git 提交追踪 | ✅ 已实现 | - |
-
-### 1.2 Context Engineering (上下文工程)
-
-| 最佳实践 | 当前状态 | 差距 |
-|---------|---------|------|
-| 工具描述 80-150 chars | ⚠️ 平均 258 chars | 超出 50% |
-| 渐进式披露 | ✅ 90% 符合 | CLAUDE.md 过密 |
-| Token 优化 | ⚠️ 75% 符合 | 可节省 20-25% |
-| 规则重复控制 | ⚠️ 30-40% 重复 | skill-rules.json 臃肿 |
-| MCP 显式激活 | ✅ 100% 符合 | - |
-
-### 1.3 Think Tool (深度推理)
-
-| 最佳实践 | 当前状态 | 差距 |
-|---------|---------|------|
-| 思考过程存档 | ❌ 仅最终输出 | 缺少 thinking-sessions/ |
-| 决策链路审计 | ❌ 缺失 | 无 decision-audit.json |
-| 动态 token 分配 | ❌ 固定 16K | 无复杂度适配 |
-| 合规验证流程 | ⚠️ 仅用户确认 | 缺少政策检查清单 |
-
-### 1.4 Contextual Retrieval (上下文检索)
-
-| 最佳实践 | 当前状态 | 评估 |
-|---------|---------|------|
-| 混合检索策略 | ✅ 95% 符合 | 多层规则匹配 |
-| 语义增强 | ⚠️ MCP 可用 | 未深度集成 |
-| RAG 集成 | N/A | 当前无需求 |
+**当前符合度**: ~95%
 
 ---
 
-## 二、当前系统评分
+## 二、优化空间分析
 
-| 维度 | 得分 | 评价 |
-|------|------|------|
-| 上下文压缩 | 95% | 四级阈值管理，97% 压缩率 |
-| 会话归档 | 80% | 有存储，缺索引 |
-| 任务管理 | 90% | 完整生命周期 |
-| 自动恢复 | 30% | 仅手动 |
-| Token 优化 | 75% | 可减少 20-25% |
-| Think 集成 | 70% | 6D 框架完整，存档不足 |
-| **综合** | **73%** | 架构优秀，关键机制缺失 |
+### 2.1 Memory @import 语法（官方新特性）
 
----
+**官方能力**: CLAUDE.md 支持 `@path/to/import` 语法，递归导入最多 5 层
 
-## 三、优化方案
+**当前状态**: ❌ 未使用
 
-### Phase 1: 会话状态增强 (P0 - 关键)
-
-#### 1.1 添加 session-index.json
-
-**文件**: `.ultra/context-archive/session-index.json`
-
-```json
-{
-  "version": "1.0",
-  "lastSession": "session-2025-12-07T10-30-00",
-  "sessions": [
-    {
-      "id": "session-2025-12-07T10-30-00",
-      "timestamp": "2025-12-07T10:30:00Z",
-      "tasksCompleted": [1, 2, 3, 4, 5],
-      "tokensCompressed": 75000,
-      "keyDecisions": ["JWT", "PostgreSQL"],
-      "nextTask": 6,
-      "resumeContext": "继续 Task #6: 支付集成"
-    }
-  ]
-}
+**优化方案**:
+```markdown
+# CLAUDE.md (精简主文件)
+@config/core-workflow.md
+@config/quality-standards.md
+@guidelines/development-principles.md
 ```
 
-**修改文件**:
-- `skills/compressing-context/SKILL.md` - 压缩时更新索引
-- `.ultra-template/context-archive/` - 添加模板
-
-#### 1.2 添加 feature-status.json
-
-**文件**: `.ultra/docs/feature-status.json`
-
-```json
-{
-  "version": "1.0",
-  "features": [
-    {
-      "id": "feat-auth",
-      "name": "User Authentication",
-      "status": "pass",
-      "taskId": 1,
-      "testedAt": "2025-12-07T10:30:00Z",
-      "commit": "abc123"
-    }
-  ]
-}
-```
-
-**修改文件**:
-- `commands/ultra-test.md` - 测试后更新状态
-- `commands/ultra-dev.md` - 任务完成时记录
-
-#### 1.3 添加自动恢复引导
-
-**修改**: `skills/guiding-workflow/SKILL.md`
-
-新增 Phase 0:
-1. 检测 session-index.json
-2. 显示上次会话摘要
-3. 建议恢复点或新任务
+**收益**: 模块化管理，按需加载，减少主文件体积
 
 ---
 
-### Phase 2: Token 优化 (P1 - 重要)
+### 2.2 Permissions Deny 配置
 
-#### 2.1 精简工具描述
+**官方能力**: `permissions.deny` 可保护敏感文件
 
-**当前**: 平均 258 chars
-**目标**: 120-150 chars
+**当前状态**: ❌ 未配置 deny 规则
 
-**修改文件**:
-- `skills/*/SKILL.md` - 精简 description 字段
-- 移除触发规则说明（已在 skill-rules.json）
-
-**示例**:
-```yaml
-# Before (408 chars)
-description: "Automates E2E testing with Playwright CLI (not MCP). TRIGGERS: User mentions 'E2E test', 'browser automation'..."
-
-# After (130 chars)
-description: "Generate and run E2E tests with Playwright CLI. Covers Core Web Vitals measurement."
-```
-
-**预计节省**: 100-150 tokens
-
-#### 2.2 压缩 CLAUDE.md
-
-**当前**: 384 行
-**目标**: 250 行
-
-**策略**:
-- 移除详细示例 → 链接到文档
-- 精简 MCP 说明 → 仅保留决策树
-- 压缩 Skills 列表 → 表格概览
-
-**预计节省**: 150-200 tokens
-
-#### 2.3 优化 skill-rules.json
-
-**当前**: 237 行，30-40% 规则重复
-**目标**: 150 行，共享规则定义
-
-**策略**:
+**优化方案**:
 ```json
 {
-  "sharedPatterns": {
-    "codeFiles": "**/*.{ts,js,tsx,jsx,py}",
-    "uiFiles": "**/*.{tsx,jsx,vue,css,scss}"
-  },
-  "rules": {
-    "code-editing": {
-      "files": "$codeFiles",
-      "skills": ["guarding-quality"]
-    }
+  "permissions": {
+    "allow": [...],
+    "deny": [
+      "Read(./.env)",
+      "Read(./secrets/**)",
+      "Read(./**/credentials*)",
+      "Bash(curl:*--data*)"
+    ]
   }
 }
 ```
 
-**预计节省**: 400-600 tokens
+**收益**: 防止意外读取敏感文件
 
 ---
 
-### Phase 3: Think Tool 增强 (P2 - 增强)
+### 2.3 CLAUDE.local.md 本地记忆
 
-#### 3.1 思考会话存档
+**官方能力**: `./CLAUDE.local.md` 用于个人项目偏好，自动加入 .gitignore
 
-**新增目录**: `.ultra/thinking-sessions/`
+**当前状态**: ❌ 未使用
 
-```
-thinking-sessions/
-├─ session-{date}-{round}.md
-└─ session-index.json
-```
+**优化方案**: 在 .ultra-template 中添加 CLAUDE.local.md 模板
 
-**修改文件**:
-- `commands/ultra-research.md` - Step 5 添加存档
-- `commands/max-think.md` - 添加可选存档
+**收益**: 个人偏好与团队配置分离
 
-#### 3.2 决策审计日志
+---
 
-**新增文件**: `.ultra/docs/decision-audit.json`
+### 2.4 Sandbox 模式
 
+**官方能力**:
 ```json
 {
-  "decisions": [
-    {
-      "id": "tech-selection-nextjs",
-      "decision": "选择 Next.js",
-      "alternatives": ["Remix", "SvelteKit"],
-      "reasoning": ["6D score: 8.5/10", "team familiarity"],
-      "confidence": 0.95,
-      "timestamp": "2025-12-07T10:30:00Z"
-    }
-  ]
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  }
 }
 ```
 
-**修改文件**:
-- `commands/ultra-research.md` - Round 3 记录决策
+**当前状态**: ❌ 未启用
 
-#### 3.3 动态思考 token 分配
+**优化方案**: 可选启用，适用于高安全性场景
 
-**修改**: `commands/max-think.md`
-
-根据复杂度调整:
-- 简单问题: 8K tokens
-- 中等问题: 16K tokens (默认)
-- 复杂问题: 24K tokens
+**收益**: 文件系统/网络隔离，更安全的自主执行
 
 ---
 
-## 四、实施优先级
+### 2.5 skill-rules.json 冗余性
 
-| 阶段 | 内容 | 预计节省 | 工时 |
-|------|------|---------|------|
-| **P0** | session-index + feature-status + 自动恢复 | 提升恢复效率 80% | 3-4h |
-| **P1** | 工具描述 + CLAUDE.md + rules 优化 | 650-950 tokens | 2-3h |
-| **P2** | thinking-sessions + decision-audit | 可追溯性 +40% | 2-3h |
+**官方机制**: Skills 通过 SKILL.md 的 `description` 字段触发，Claude 自主判断何时使用
 
-**总预计**: 7-10 小时，Token 节省 20-25%
+**当前状态**: ⚠️ 额外维护 `skill-rules.json` 做触发规则
 
----
+**分析**:
+- 官方不需要额外的 rules 文件
+- 当前 hooks 系统已可以实现相同功能
+- skill-rules.json 是历史遗留，可考虑简化或删除
 
-## 五、关键文件清单
-
-| 文件 | 修改类型 | 优先级 |
-|------|----------|--------|
-| `skills/compressing-context/SKILL.md` | 扩展 | P0 |
-| `skills/guiding-workflow/SKILL.md` | 扩展 | P0 |
-| `.ultra-template/context-archive/` | 新增模板 | P0 |
-| `commands/ultra-test.md` | 扩展 | P0 |
-| `commands/ultra-dev.md` | 扩展 | P0 |
-| `CLAUDE.md` | 压缩 | P1 |
-| `skills/skill-rules.json` | 优化 | P1 |
-| `skills/*/SKILL.md` (6个) | 精简 | P1 |
-| `commands/ultra-research.md` | 扩展 | P2 |
-| `commands/max-think.md` | 扩展 | P2 |
+**建议**: 保留用于 hooks 集成，但可进一步精简
 
 ---
 
-## 六、风险评估
+### 2.6 Quick Memory Entry
 
-| 风险 | 缓解措施 |
-|------|----------|
-| session-index 损坏 | JSON 写入前验证 + 备份 |
-| Token 优化过度 | 保留核心信息，仅移除冗余 |
-| 向后兼容 | 新字段设为可选，旧项目正常运行 |
+**官方能力**: 输入 `#` 开头快速添加记忆
+
+**当前状态**: ✅ 已内置于 Claude Code
+
+**无需修改**
 
 ---
 
-## 七、成功指标
+### 2.7 Checkpointing 系统
 
-- [ ] 会话恢复时间 < 30 秒（vs 当前 2-3 分钟手动）
-- [ ] 启动 Token 减少 20%（~3-4K tokens）
-- [ ] 功能验证状态 100% 可追踪
-- [ ] 思考过程 100% 可存档
+**官方能力**: 自动追踪编辑，支持 `/rewind` 回滚
+
+**当前状态**: ✅ 已内置于 Claude Code
+
+**无需修改**
+
+---
+
+## 三、优化优先级
+
+| 优先级 | 优化项 | 工作量 | 收益 |
+|--------|--------|--------|------|
+| **P0** | permissions.deny 敏感文件保护 | 低 | 高 (安全) |
+| **P1** | @import 语法模块化 CLAUDE.md | 中 | 中 (可维护性) |
+| **P2** | CLAUDE.local.md 模板 | 低 | 低 (规范性) |
+| **P3** | Sandbox 可选配置 | 低 | 中 (安全) |
+| **P4** | skill-rules.json 清理 | 中 | 低 (简化) |
+
+---
+
+## 四、实施方案
+
+### Phase 1: 安全增强 (P0)
+
+**修改文件**: `~/.claude/settings.json`
+
+```json
+{
+  "permissions": {
+    "allow": [...],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./**/credentials*)",
+      "Read(./**/*secret*)",
+      "Read(./**/*password*)"
+    ]
+  }
+}
+```
+
+### Phase 2: Memory 模块化 (P1)
+
+**策略**: 将 CLAUDE.md 拆分，使用 @import 引用
+
+```
+~/.claude/
+├── CLAUDE.md           # 精简主文件 (~50行)
+├── config/
+│   ├── workflow.md     # 工作流配置
+│   ├── quality.md      # 质量标准
+│   └── mcp-guide.md    # MCP 使用指南
+└── guidelines/
+    ├── development.md  # 开发原则
+    └── git-workflow.md # Git 工作流
+```
+
+**CLAUDE.md 新格式**:
+```markdown
+# Ultra Builder Pro 4.1
+
+@config/workflow.md
+@config/quality.md
+@guidelines/development.md
+```
+
+### Phase 3: 模板增强 (P2)
+
+**新增文件**: `.ultra-template/CLAUDE.local.md`
+
+```markdown
+# Local Project Preferences
+
+Personal settings not shared with team.
+This file is auto-added to .gitignore.
+
+## My Preferences
+- [Add personal notes here]
+```
+
+### Phase 4: Sandbox 可选 (P3)
+
+**修改**: `settings.json` 添加可选 sandbox 配置
+
+```json
+{
+  "sandbox": {
+    "enabled": false,
+    "_comment": "Set to true for sandboxed bash execution"
+  }
+}
+```
+
+---
+
+## 五、结论
+
+**当前系统状态**: 高度符合 Claude Code 官方规范 (~95%)
+
+**关键发现**:
+1. Skills、Subagents、Hooks、Commands 均符合官方标准
+2. 主要优化空间在安全配置（permissions.deny）和模块化（@import）
+3. skill-rules.json 是自定义扩展，非必需但可保留
+
+**建议优先级**:
+1. 立即实施: permissions.deny 敏感文件保护
+2. 近期优化: @import 语法模块化
+3. 可选增强: Sandbox、CLAUDE.local.md

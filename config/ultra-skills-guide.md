@@ -1,6 +1,6 @@
 # Skills System - Complete Guide
 
-**Ultra Builder Pro 4.0** - Automated quality enforcement through model-invoked skills.
+**Ultra Builder Pro 4.1** - Automated quality enforcement through model-invoked skills.
 
 ---
 
@@ -40,342 +40,171 @@ allowed-tools: Tool1, Tool2   # Optional: restrict tool access
 
 ---
 
-## Available Skills (9 total)
+## Available Skills (6 total)
 
-### 1. guarding-code-quality
+### 1. guarding-quality
 
-**Description**: "Detects code quality violations (SOLID, DRY, KISS, YAGNI) when writing or editing code. Provides refactoring suggestions and quality feedback."
+**Description**: "Enforces code quality (SOLID), test coverage, and UI design standards."
 
 **Purpose**:
 - Real-time SOLID/DRY/KISS/YAGNI violation detection
-- Suggests refactoring opportunities
-- Enforces quality standards before commit
+- Enforce 6-dimensional test coverage (≥80%)
+- UI design anti-pattern prevention
 
 **Auto-triggers when**:
-- Editing code files (`.js`, `.ts`, `.py`, `.java`, `.go`, etc.)
-- Creating new functions/classes
-- PR reviews
+- Editing code files (`.ts`, `.js`, `.tsx`, `.jsx`, `.py`, `.go`, `.java`, `.vue`)
+- Editing UI files (`.css`, `.scss`, `.styled.ts`)
+- Discussing quality, refactoring, testing, coverage
+- Running /ultra-test or marking tasks complete
 
 **Key checks**:
-- Single Responsibility (functions >50 lines)
-- DRY violations (duplicate code >3 lines)
-- Complexity >10
-- Magic numbers
-- Code smells
+- Functions >50 lines → Split
+- Nesting depth >3 → Refactor
+- Duplicate code >3 lines → Extract
+- Magic numbers → Named constants
+- Test coverage ≥80%, critical paths 100%
+- UI: Avoid default fonts, hard-coded colors
 
-**Location**: `~/.claude/skills/guarding-code-quality/SKILL.md`
+**Location**: `~/.claude/skills/guarding-quality/SKILL.md`
 
 ---
 
-### 2. guarding-git-safety
+### 2. guarding-git-workflow
 
-**Description**: "Prevents dangerous git operations (force push, hard reset, rebase) that could cause data loss. Requires confirmation before destructive commands on main branches."
+**Description**: "Enforces git safety and independent-branch workflow. Blocks dangerous operations."
 
 **Purpose**:
-- Prevents accidental data loss
-- Enforces safe git practices
-- Requires user confirmation for dangerous operations
+- Prevent dangerous git operations (force push, hard reset)
+- Enforce mandatory independent-branch workflow
+- Require confirmation for destructive commands
 
 **Auto-triggers when**:
-- About to run `git push --force`
-- About to run `git reset --hard`
-- About to run `git rebase` on shared branches
-- About to delete remote branches
+- Git operations: commit, push, branch, merge, rebase, reset, delete
+- Discussing git workflow, branch strategy, or merge timing
+- Keywords: "force push", "rebase", "reset --hard", "unified branch"
 
-**Blocked operations** (require confirmation):
-- Force push to main/master
-- Hard reset
-- Rebasing shared branches
-- Deleting remote branches
+**Risk levels**:
+- 🔴 **Critical**: Force push to main, hard reset on shared branches → BLOCK
+- 🟡 **Medium**: Rebase shared branches, delete remote branches → Confirm
+- 🟢 **Low**: Normal commit/push → Allow with reminder
 
-**Location**: `~/.claude/skills/guarding-git-safety/SKILL.md`
+**Workflow enforced**:
+```
+main (always active, never frozen)
+ ├── feat/task-1 (create → complete → merge → delete)
+ ├── feat/task-2 (create → complete → merge → delete)
+ └── feat/task-3 (create → complete → merge → delete)
+```
+
+**Location**: `~/.claude/skills/guarding-git-workflow/SKILL.md`
 
 ---
 
-### 3. guarding-ui-design
+### 3. compressing-context
 
-**Description**: "Prevents UI anti-patterns and suggests design improvements. TRIGGERS: When editing .tsx/.jsx/.vue/.css/.scss files or discussing UI/styling. ENFORCES: Avoids default fonts and clichés. SUGGESTS: Design principles (typography, color, motion, backgrounds). OUTPUT: User messages in Chinese at runtime; keep this file English-only."
+**Description**: "Compresses context to prevent overflow. Archives completed tasks, enables 20-30 tasks/session."
 
 **Purpose**:
-- Prevent distributional convergence ("AI slop" appearance)
-- Guide toward cohesive, maintainable aesthetics
-- Support multiple design systems (Material Design, Tailwind, Chakra UI, etc.)
+- Prevent context overflow during long sessions
+- Archive completed tasks to `.ultra/context-archive/`
+- Enable 20-30 tasks per session (vs 10-15 without)
 
 **Auto-triggers when**:
-- Editing UI files (`.tsx`, `.jsx`, `.vue`, `.css`, `.scss`)
-- Discussing UI components or styling
-- Creating new frontend components
+- After 5+ tasks completed
+- Token usage >120K (Yellow zone)
+- Token usage >140K (Orange zone)
+- Before /ultra-test or /ultra-deliver
 
-**Enforced (hard constraints)**:
-- Avoid default fonts (Inter, Roboto, Open Sans, Lato, system-ui)
-- Avoid purple gradients on white backgrounds
-- Avoid hard-coded colors (use design tokens/CSS variables)
-- Avoid inconsistent spacing
+**Thresholds** (from `.ultra/config.json`):
+- <120K: Safe (Green)
+- 120-140K: Suggest compression (Yellow)
+- 140-170K: Enforce compression (Orange)
+- >170K: BLOCK ultra-dev (Red)
 
-**Suggested (directional guidance)**:
-- Typography: 3x+ size jumps, high-contrast font pairing
-- Color: Design tokens, one dominant color with accents
-- Motion: CSS-only first, orchestrated page load animations
-- Design systems: Support Material Design, Tailwind, Chakra UI, Ant Design, custom
-- Component libraries: MUI, Ant Design, Chakra, Radix, shadcn/ui
-- Accessibility: WCAG 2.1 AA compliance
-
-**Location**: `~/.claude/skills/guarding-ui-design/SKILL.md`
-
----
-
-### 4. automating-e2e-tests
-
-**Description**: "E2E test code generation via Playwright CLI. Auto-activates when keywords 'E2E test', 'browser automation', or 'Playwright' are mentioned."
-
-**Purpose**: Generate Playwright test code (TypeScript), run via `npx playwright test`
-
-**Auto-triggers when**: Keywords "E2E test", "browser automation", "Playwright" mentioned
-
-**Capabilities**:
-- Generates Playwright test code (TypeScript)
-- Runs tests via Bash: `npx playwright test`
-- Returns results in Chinese
-
-**Token Cost**: ~100 tokens (frontmatter only, loads on-demand)
-
-**Complete reference**: `~/.claude/skills/automating-e2e-tests/REFERENCE.md`
-
-**Location**: `~/.claude/skills/automating-e2e-tests/SKILL.md`
-
----
-
-### 5. syncing-docs
-
-**Description**: "Auto-syncs documentation and manages knowledge archival. TRIGGERS when completing features, running /ultra-deliver, discussing documentation, or making architecture changes."
-
-**Purpose**:
-- Ensure documentation stays synchronized
-- Archive important decisions
-- Track technical debt
-
-**Auto-triggers when**:
-- Feature completion
-- Running /ultra-deliver
-- Discussing documentation
-- Making architecture changes
-
-**Actions**:
-- Suggest updating README/API docs
-- Archive decisions to `.ultra/docs/decisions/`
-- Record technical debt
-- Capture lessons learned
-
-**Templates provided**:
-- Decision logs (ADRs)
-- Technical debt tracking
-- Lessons learned format
-
-**Location**: `~/.claude/skills/syncing-docs/SKILL.md`
-
----
-
-### 6. guarding-test-coverage
-
-**Description**: "Ensures comprehensive 6-dimensional test coverage. TRIGGERS when running /ultra-test, discussing testing/coverage, or marking features complete. BLOCKS task completion until all 6 dimensions covered."
-
-**Purpose**:
-- Enforce 6-dimensional test coverage
-- Ensure 80% coverage minimum
-- Block completion if tests insufficient
-
-**Auto-triggers when**:
-- Running /ultra-test
-- Discussing testing or coverage
-- Marking features as complete
-- Before merging to main
-
-**Six dimensions enforced**:
-1. Functional (core logic)
-2. Boundary (edge cases)
-3. Exception (error handling)
-4. Performance (load tests)
-5. Security (input validation, injection prevention)
-6. Compatibility (cross-browser, cross-platform)
-
-**Coverage requirements**:
-- Overall: ≥80%
-- Critical paths: 100%
-- Branch coverage: ≥75%
-
-**Location**: `~/.claude/skills/guarding-test-coverage/SKILL.md`
-
----
-
-### 7. compressing-context
-
-**Description**: "Proactively compresses context to prevent overflow. TRIGGERS: After 5+ tasks, OR token usage >120K. ACTIONS: Summarize completed tasks (15K→500 tokens), archive to .ultra/context-archive/. BLOCKS: ultra-dev if >170K without compression."
-
-**Purpose**: Prevent context overflow, enable 20-30 tasks/session (vs 10-15 without)
-
-**Auto-triggers when**: 5+ completed tasks, token usage >120K/140K/170K, before ultra-test/deliver
-
-**Key thresholds**:
-- <120K: Safe
-- 120-140K: Suggest compression
-- 140-170K: Strongly recommend
-- >170K: BLOCK ultra-dev, ENFORCE compression
-
-**Result**: 40-60% token savings, 50-100K freed per compression
+**Compression ratio**: 40-60% (typical), 50-100K tokens freed per compression
 
 **Location**: `~/.claude/skills/compressing-context/SKILL.md`
 
 ---
 
-### 8. guiding-workflow
+### 4. guiding-workflow
 
-**Description**: "Guides next steps based on project state and Scenario B routing. TRIGGERS: After phase completion or user asks 'what's next'. ACTIONS: Detect research/plan/dev/test status via filesystem, detect Scenario B project type from ultra-research output, suggest the next /ultra-* command. OUTPUT: User messages in Chinese at runtime; keep this file English-only."
+**Description**: "Guides next workflow steps based on project state. Suggests optimal commands with rationale."
 
 **Purpose**:
-- Suggest the next logical command based on project state
-- Detect project state via filesystem signals
-- Support Scenario B intelligent routing (adapt suggestions based on project type)
-- Prevent workflow skipping by proactive guidance
+- Suggest next logical command based on filesystem state
+- Support Scenario B intelligent routing
+- Enable session recovery via session-index.json
 
 **Auto-triggers when**:
-- After a phase completes (research, plan, dev, test, deliver)
-- User asks for guidance or next steps
-- User seems uncertain after command completion
-- After /ultra-research completes (detect project type for tailored suggestions)
+- After phase completion (init/research/plan/dev/test/deliver)
+- User asks "what's next" or seems uncertain
+- After /ultra-init or /ultra-research completes
 
 **State detection** (filesystem-based):
-- Specification files: `specs/product.md`, `specs/architecture.md` (or old format: `.ultra/docs/prd.md`, `.ultra/docs/tech.md`)
-- Research files: `.ultra/docs/research/*.md`
-- Task plan: `.ultra/tasks/tasks.json`
+- Spec files: `specs/product.md`, `specs/architecture.md`
+- Research: `.ultra/docs/research/*.md`
+- Tasks: `.ultra/tasks/tasks.json`
 - Code changes: `git status`
-- Test files: `*.test.*`, `*.spec.*`
-- Active changes: `.ultra/changes/task-*/`
 
-**Scenario B integration** (NEW):
-
-Detects project type from recent /ultra-research execution and adapts next-step suggestions accordingly.
-
-**Detection mechanism**:
-1. Reads latest research report in `.ultra/docs/research/`
-2. Identifies project type keywords in report metadata or content
-3. Maps to one of 4 project types: New Project, Incremental Feature, Tech Decision, Custom Flow
-
-**Project type routing**:
-
-| Project Type | Detected Keywords | Next-Step Strategy |
-|--------------|-------------------|-------------------|
-| **New Project** | "New Project" | Suggest `/ultra-plan` after all 4 rounds complete |
-| **Incremental Feature** | "Incremental Feature" | Suggest `/ultra-plan` after Round 2-3 complete |
-| **Tech Decision** | "Tech Decision" | Suggest validating choice or proceeding to implementation |
-| **Custom Flow** | "Custom" | Suggest next step based on user-selected rounds completed |
-
-**Suggestion examples** (Chinese output at runtime):
-
-**After New Project research** (4 rounds complete):
-```
-Current status:
-- ✅ Research complete (4-round full process)
-- ✅ specs/product.md 100% complete
-- ✅ specs/architecture.md 100% complete
-
-Suggested next step: /ultra-plan
-Rationale: Specifications complete, can start task planning
-```
-
-**After Incremental Feature research** (2 rounds complete):
-```
-Current status:
-- ✅ Solution exploration complete (Round 2)
-- ✅ Technology selection complete (Round 3)
-- ✅ specs/product.md partially complete
-
-Suggested next step: /ultra-plan
-Rationale: Incremental feature requirements clear, can plan implementation tasks
-```
-
-**After Tech Decision research** (1 round complete):
-```
-Current status:
-- ✅ Technology selection complete (Round 3)
-- ✅ specs/architecture.md updated
-
-Suggested next step: /ultra-plan or direct implementation
-Rationale: Tech stack determined, can plan implementation tasks
-```
-
-**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
-
-**Integration with ultra-research**:
-- ultra-research saves project type to research report metadata
-- guiding-workflow reads metadata when triggered
-- Adapts suggestions to match user's chosen research flow
-- Prevents suggesting skipped rounds (e.g., don't suggest Round 1 for Incremental Feature)
-
-**Output format** (in Chinese at runtime):
-- Current project state summary (bullet points)
-- Next step recommendation with clear rationale
-- Optional: Alternative paths if multiple valid next steps
+**Scenario B routing**:
+- New Project → Full 4-round research
+- Incremental Feature → Skip to solution exploration
+- Tech Decision → Focus on tech validation
 
 **Location**: `~/.claude/skills/guiding-workflow/SKILL.md`
 
 ---
 
-### 9. enforcing-workflow
+### 5. automating-e2e-tests
 
-**Description**: "Enforces mandatory independent-branch workflow. TRIGGERS when discussing git branches, workflow strategy, or task management. BLOCKS any suggestion of unified/long-lived branches or workflow 'options'. ENFORCES one-task-one-branch-merge-delete cycle. OUTPUT: User messages in Chinese at runtime; keep this file English-only."
+**Description**: "Generate and run E2E tests with Playwright CLI. Measures Core Web Vitals via Lighthouse."
 
 **Purpose**:
-- Prevent AI from suggesting alternative workflows that violate mandatory strategy
-- Enforce independent-branch workflow (one-task-one-branch-merge-delete)
-- Block unified/batch branch strategies
-- Ensure main branch stays deployable for hotfixes
+- Generate Playwright test code (TypeScript)
+- Run tests via `npx playwright test`
+- Measure Core Web Vitals with Lighthouse CLI
 
 **Auto-triggers when**:
-- Discussing git workflow or branch strategy
-- AI is about to suggest workflow "options" or "choices"
-- Discussion involves multiple tasks and branch management
-- Keywords: "unified", "batch", "option", "workflow choice", "merge timing"
+- Keywords: "E2E test", "browser automation", "Playwright"
+- Keywords: "Core Web Vitals", "LCP", "INP", "CLS"
+- Running /ultra-test for frontend projects
 
-**Enforcement rules**:
+**Core principle**: Use Playwright CLI via Bash (not MCP)
+- Token savings: ~98.7% vs Playwright MCP
+- Functionality: 100% equivalent
 
-**IMMEDIATELY BLOCK if AI attempts to**:
-- Present workflow alternatives ("Option 1 vs Option 2", "Workflow A vs Workflow B")
-- Suggest unified/long-lived branches for multiple tasks
-- Recommend delaying merges until "all tasks complete"
-- Suggest freezing main branch for batch deployment
-- Propose "feature branch with multiple tasks"
+**Core Web Vitals targets**:
+- LCP < 2.5s
+- INP < 200ms
+- CLS < 0.1
 
-**ENFORCE mandatory workflow**:
-```
-main (always active, never frozen)
- ├── feat/task-1-xxx (create → complete → merge → delete)
- ├── feat/task-2-yyy (create → complete → merge → delete)
- └── feat/task-3-zzz (create → complete → merge → delete)
-```
+**Location**: `~/.claude/skills/automating-e2e-tests/SKILL.md`
 
-**Rules**:
-- Each task = independent branch (`feat/task-{id}-{description}`)
-- Complete task → merge to main → delete branch
-- Main branch always deployable (for hotfixes)
-- NO unified branches, NO batch merges, NO workflow choices
+---
 
-**Rationale** (why mandatory):
-1. **Production Reality**: Hotfixes cannot wait for feature completion
-2. **Parallel Work**: Multiple developers work independently
-3. **Isolated Rollbacks**: Problematic features can be reverted independently
-4. **Continuous Deployment**: Main always deployable enables CD/CD
-5. **Code Review**: Smaller, focused PRs are easier to review
+### 6. syncing-docs
 
-**Output format**:
-- Warning header (⚠️ Workflow Non-Negotiable Reminder)
-- Explanation of mandatory workflow
-- Forbidden patterns list
+**Description**: "Syncs documentation with code changes. Updates specs/, proposes ADRs, detects spec-code drift."
 
-**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
-- Rationale
-- Reference to documentation
+**Purpose**:
+- Ensure documentation stays synchronized with code
+- Detect spec-code drift
+- Auto-create ADRs for major decisions
 
-**Location**: `~/.claude/skills/enforcing-workflow/SKILL.md`
+**Auto-triggers when**:
+- After /ultra-research completion
+- Feature completion
+- Architecture changes
+- /ultra-deliver execution
+
+**Actions**:
+- Suggest updates to specs/product.md or specs/architecture.md
+- Create ADRs in `.ultra/docs/decisions/`
+- Detect [NEEDS CLARIFICATION] markers
+- Flag outdated documentation
+
+**Location**: `~/.claude/skills/syncing-docs/SKILL.md`
 
 ---
 
@@ -395,26 +224,6 @@ Based on official Claude Code best practices:
 3. **Include examples**: Mention specific scenarios
    - "USE WHEN: User completes research/plan/dev/test"
 
----
-
-## Skills Modes
-
-Ultra Builder Pro supports two documentation styles for Skills. Choose based on token budget and precision needs.
-
-### 1) Slim Mode (recommended)
-- Keep `SKILL.md` minimal: Purpose, When, Do, Don't, Outputs
-- Include negative triggers (what NOT to trigger on) to reduce false positives
-- Move detailed rules/examples to `guidelines/` and reference via `@import` when needed
-- Benefits: Lower steady-state token footprint; fewer misfires
-
-### 2) Verbose Mode
-- Self-contained `SKILL.md` with detailed rules and examples
-- Higher token cost; useful for teams without separate guidelines
-
-Default: `skills.mode = "slim"` (see CLAUDE.md Project Config Overrides). Keep all `SKILL.md` files English-only; at runtime, user-visible messages should be in Chinese (simplified).
-
-**Complete configuration guide**: `@config/ultra-skills-modes.md` for migration, best practices, and token efficiency comparison
-
 4. **Third person**: Write in third person for clarity
    - Good: "Detects code quality violations"
    - Bad: "I detect code quality violations"
@@ -431,6 +240,24 @@ Based on official best practices:
 3. **Chinese for user-facing output**: As per Language Protocol
 4. **Progressive disclosure**: Reference detailed docs externally
 5. **Concrete examples**: Show input/output patterns
+
+---
+
+## Skills Modes
+
+Ultra Builder Pro supports two documentation styles for Skills:
+
+### 1) Slim Mode (recommended)
+- Keep `SKILL.md` minimal: Purpose, When, Do, Don't, Outputs
+- Include negative triggers (what NOT to trigger on) to reduce false positives
+- Move detailed rules/examples to `REFERENCE.md` and load on-demand
+- Benefits: Lower steady-state token footprint; fewer misfires
+
+### 2) Verbose Mode
+- Self-contained `SKILL.md` with detailed rules and examples
+- Higher token cost; useful for teams without separate guidelines
+
+Default: `skills.mode = "slim"`. Keep all `SKILL.md` files English-only; at runtime, user-visible messages should be in Chinese (simplified).
 
 ---
 
@@ -487,17 +314,24 @@ Based on official best practices:
 - Skills overview: https://docs.claude.com/en/docs/agents-and-tools/agent-skills/skills-overview
 - Best practices: https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices
 
-### Example Skill Structure
+### Current Skill Structure
 
 ```
 ~/.claude/skills/
-├── guarding-code-quality/
-│   ├── SKILL.md              # Main skill file (<500 lines)
-│   ├── reference.md          # Detailed reference (optional)
-│   └── examples.md           # Code examples (optional)
+├── guarding-quality/
+│   ├── SKILL.md              # Main skill file
+│   └── REFERENCE.md          # Detailed guidelines
 ├── guarding-git-workflow/
+│   ├── SKILL.md
+│   └── REFERENCE.md
+├── compressing-context/
 │   └── SKILL.md
-└── [... 7 more skills]
+├── guiding-workflow/
+│   └── SKILL.md
+├── automating-e2e-tests/
+│   └── SKILL.md
+└── syncing-docs/
+    └── SKILL.md
 ```
 
 ---

@@ -339,22 +339,47 @@ Immediately fix when detected:
 
 **Mandatory for frontend projects only** (React, Vue, Angular, etc.)
 
+#### Recommended Component Libraries
+
+**Primary (use first)**:
+- **shadcn/ui** - Beautiful, accessible, copy-paste components
+- **Galaxy UI** - Modern, animated component collection
+- **React Bits** - Unique, creative UI components
+
+**Alternatives**:
+- Magic UI, Aceternity UI (advanced animations)
+- Radix UI (headless, accessible primitives)
+- Framer Motion (complex animations)
+
+**Avoid**: Generic Bootstrap, default Material UI without customization
+
 #### UI Design Anti-Patterns (Enforced)
 
-- ❌ **Prohibited**: Default fonts (Inter, Roboto, Open Sans, Lato, system-ui)
+- ❌ **Prohibited**: Default fonts (Inter, Roboto, Open Sans, Lato, Arial, system-ui)
 - ❌ **Prohibited**: Purple gradients on white backgrounds
 - ❌ **Prohibited**: Hard-coded colors (use design tokens/CSS variables)
 - ❌ **Prohibited**: Inconsistent spacing (use theme spacing multiples)
+- ❌ **Prohibited**: Cookie-cutter layouts without context-specific character
+- ❌ **Prohibited**: Converging on common font choices (Space Grotesk) across projects
 
 **Rationale**: Prevents distributional convergence ("AI slop" appearance)
 
+#### Design Thinking (Before Coding)
+
+Commit to a **BOLD aesthetic direction**:
+- **Purpose**: What problem does this interface solve? Who uses it?
+- **Tone**: Pick an extreme - brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel, industrial/utilitarian
+- **Differentiation**: What makes this UNFORGETTABLE?
+
+**CRITICAL**: Bold maximalism and refined minimalism both work - the key is **intentionality**, not intensity.
+
 #### Design Best Practices (Suggested)
 
-- ✅ **Typography**: 3x+ size jumps, high-contrast font pairing
-- ✅ **Color**: Design tokens, one dominant color with accents
-- ✅ **Motion**: CSS-only first, orchestrated page load animations
-- ✅ **Component Libraries**: Prefer established libraries (MUI, Ant Design, Chakra, Radix, shadcn/ui)
-- ✅ **Design Systems**: Support multiple (Material Design, Tailwind, Chakra UI, Ant Design, custom)
+- ✅ **Typography**: Distinctive font choices (avoid generic), 3x+ size jumps, pair display font with refined body font
+- ✅ **Color**: CSS variables, dominant colors with sharp accents (not timid even palettes)
+- ✅ **Motion**: CSS-only first, orchestrated page load with staggered reveals, scroll-triggering, surprising hover states
+- ✅ **Spatial Composition**: Unexpected layouts, asymmetry, overlap, diagonal flow, grid-breaking elements
+- ✅ **Backgrounds**: Atmosphere and depth (gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, grain overlays)
 
 #### Internationalization
 

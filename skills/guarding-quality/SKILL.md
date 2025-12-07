@@ -67,19 +67,28 @@ Enforces quality across three dimensions:
 
 **Load**: `REFERENCE.md` (Part 2: Frontend Quality Baseline) when editing UI
 
+**Component Libraries** (recommended):
+- ✅ shadcn/ui, Galaxy UI, React Bits (primary)
+- ❌ Generic Bootstrap, default MUI without customization
+
 **Enforced**:
-- ❌ Default fonts (Inter, Roboto, Open Sans)
+- ❌ Default fonts (Inter, Roboto, Open Sans, Arial)
 - ❌ Hard-coded colors → Use design tokens
+- ❌ Purple gradients on white backgrounds
+- ❌ Cookie-cutter layouts
 
 **Suggested**:
-- ✅ Typography: 3x+ size jumps
-- ✅ Component libraries: MUI, Ant Design, Chakra
+- ✅ Bold aesthetic direction (minimal/maximal/retro/brutalist...)
+- ✅ Distinctive typography, 3x+ size jumps
+- ✅ Orchestrated motion, scroll-triggered animations
+- ✅ Atmospheric backgrounds (gradients, textures, overlays)
 
 **Output** (Chinese):
 ```
 ⚠️ UI 设计约束：
 1. 硬编码颜色 '#3b82f6' → theme.colors.primary
-2. 默认字体 'Inter' → 使用自定义字体
+2. 默认字体 'Inter' → 使用个性化字体
+3. 推荐组件库：shadcn/ui, Galaxy UI, React Bits
 参考：REFERENCE.md (Part 2: Frontend Quality Baseline)
 ```
 

@@ -1,5 +1,19 @@
 # Ultra Builder Pro 4.1
 
+Always respond in Chinese-simplified
+
+---
+
+## Modular References
+
+@config/ultra-skills-guide.md
+@config/ultra-mcp-guide.md
+@guidelines/ultra-quality-standards.md
+@guidelines/ultra-git-workflow.md
+@guidelines/ultra-solid-principles.md
+
+---
+
 ## Quick Start
 
 | Command | Purpose |
