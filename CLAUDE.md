@@ -202,13 +202,32 @@ Auto-delegated for complex tasks:
 
 ---
 
-## Extended Thinking
+## Extended Thinking & Deep Analysis
 
-**Default**: `MAX_THINKING_TOKENS = "16000"`
+### Thinking Modes 
 
-Adjust: 24k-30k for complex reasoning, 8k-10k for simple tasks.
+**ultrathink (Claude Native)**:
+- Keyword triggers: `ultrathink`, `think harder`, `think intensely`
+- Token budget: 31,999 tokens (maximum reasoning depth)
+- Output form: Free-form, no fixed structure
+- Use cases: Exploratory thinking, open-ended analysis
 
-Override: `MAX_THINKING_TOKENS=30000 claude`
+**/max-think (Ultra Builder Pro Custom)**:
+- Command format: `/max-think "problem description"`
+- Token budget: Dynamic 8K-32K (complexity-based)
+- Output form: 6-dimensional structured analysis framework
+- Use cases: Tech selection, architecture decisions, strategic planning
+
+**Combined Usage**:
+```bash
+ultrathink /max-think "Complex problem"
+# Effect: Maximum reasoning depth + Structured framework
+```
+
+**Token Configuration**:
+- Default: `MAX_THINKING_TOKENS = "16000"`
+- Adjust: 24k-30k for complex reasoning, 8k-10k for simple tasks
+- Override: `MAX_THINKING_TOKENS=30000 claude`
 
 ---
 

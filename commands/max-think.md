@@ -1,5 +1,5 @@
 ---
-description: Deep analytical thinking for complex problems using extended reasoning
+description: 6-dimensional structured analysis framework (Technical, Business, Team, Ecosystem, Strategic, Meta) for complex decision-making and technology selection
 argument-hint: <problem-description>
 allowed-tools: Read, Grep, Glob, Bash, Task, WebFetch, WebSearch, TodoWrite
 ---
