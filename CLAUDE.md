@@ -11,6 +11,7 @@ Always respond in Chinese-simplified
 @guidelines/ultra-quality-standards.md
 @guidelines/ultra-git-workflow.md
 @guidelines/ultra-solid-principles.md
+@guidelines/ultra-testing-philosophy.md
 
 ---
 
@@ -140,12 +141,15 @@ main ── feat/task-1 (create → complete → merge → delete)
 
 ## Skills System
 
-6 auto-loaded Skills in `~/.claude/skills/`:
+8 auto-loaded Skills in `~/.claude/skills/`:
 
 | Type | Skills |
 |------|--------|
-| **Guardrails** | guarding-quality, guarding-git-workflow |
-| **Functional** | syncing-docs, automating-e2e-tests, compressing-context, guiding-workflow |
+| **Guardrails** | guarding-quality, guarding-test-quality, guarding-git-workflow |
+| **Sync** | syncing-docs, syncing-status |
+| **Functional** | automating-e2e-tests, compressing-context, guiding-workflow |
+
+**Test Quality**: guarding-test-quality enforces TAS ≥70% (blocks fake tests).
 
 Trigger rules in `skill-rules.json`. Slim mode documentation (<500 lines per Skill).
 
