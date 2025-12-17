@@ -398,6 +398,29 @@ Commit to a **BOLD aesthetic direction**:
 
 ### Testing Quality Baseline
 
+#### Test Authenticity Score (TAS) - NEW
+
+**Delegated to**: `guarding-test-quality` skill
+
+This skill detects fake/useless tests through static analysis. Key metrics:
+
+| Component | Weight | Pass Threshold |
+|-----------|--------|----------------|
+| Mock Ratio | 25% | ≤50% internal mocks |
+| Assertion Quality | 35% | >50% behavioral assertions |
+| Real Execution | 25% | >50% real code paths |
+| Pattern Compliance | 15% | 0 critical anti-patterns |
+
+**Grade Thresholds**:
+- A (85-100): ✅ High quality tests
+- B (70-84): ✅ Pass with minor issues
+- C (50-69): ❌ **BLOCKED** - Needs improvement
+- D/F (<50): ❌ **BLOCKED** - Fake tests detected
+
+**Reference**: `guidelines/ultra-testing-philosophy.md` for anti-pattern examples and fixes
+
+---
+
 #### Realistic Test Execution
 
 - ✅ Execute tests 100% realistically

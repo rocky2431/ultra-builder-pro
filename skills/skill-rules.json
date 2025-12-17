@@ -85,6 +85,21 @@
       "fileTriggers": {
         "pathPatterns": [".ultra/tasks/tasks.json", ".ultra/docs/feature-status.json"]
       }
+    },
+    "guarding-test-quality": {
+      "type": "guardrail",
+      "enforcement": "block",
+      "priority": "critical",
+      "description": "Detects fake/useless tests through TAS (Test Authenticity Score) analysis",
+      "promptTriggers": {
+        "keywords": ["test quality", "TAS score", "mock ratio", "fake tests", "tautology", "assertion count", "over-mocking"],
+        "intentPatterns": ["(check|analyze).*?test.*?quality", "(fake|useless).*?test", "TAS.*?(score|analysis)", "mock.*?ratio"]
+      },
+      "fileTriggers": {
+        "pathPatterns": ["**/*.test.ts", "**/*.spec.ts", "**/*.test.js", "**/*.spec.js"],
+        "pathExclusions": ["**/node_modules/**", "**/dist/**"]
+      },
+      "blockMessage": "TEST QUALITY GUARDIAN: TAS analysis required before task completion. Tests with TAS <70% will block completion."
     }
   }
 }

@@ -40,7 +40,7 @@ allowed-tools: Tool1, Tool2   # Optional: restrict tool access
 
 ---
 
-## Available Skills (6 total)
+## Available Skills (8 total)
 
 ### 1. guarding-quality
 
@@ -208,6 +208,71 @@ main (always active, never frozen)
 
 ---
 
+### 7. guarding-test-quality (NEW)
+
+**Description**: "Detects fake/useless tests through static analysis. TRIGGERS when: running /ultra-test, editing test files, marking tasks complete."
+
+**Purpose**:
+- Calculate Test Authenticity Score (TAS)
+- Detect fake tests (tautologies, empty tests, over-mocking)
+- Block task completion when TAS < 70%
+
+**Auto-triggers when**:
+- Running `/ultra-test`
+- Editing test files (`*.test.ts`, `*.spec.ts`, `*.test.js`, `*.spec.js`)
+- Marking tasks as complete
+- Keywords: "test quality", "TAS score", "mock ratio", "fake tests"
+
+**TAS Components**:
+| Component | Weight |
+|-----------|--------|
+| Mock Ratio | 25% |
+| Assertion Quality | 35% |
+| Real Execution | 25% |
+| Pattern Compliance | 15% |
+
+**Grade Thresholds**:
+- A (85-100): ✅ High quality
+- B (70-84): ✅ Pass with warnings
+- C (50-69): ❌ **BLOCKED**
+- D/F (<50): ❌ **BLOCKED** - Fake tests detected
+
+**Relationship to guarding-quality**:
+- guarding-quality: Checks coverage **quantity** (≥80%)
+- guarding-test-quality: Checks coverage **quality** (TAS ≥70%)
+
+**Location**: `~/.claude/skills/guarding-test-quality/SKILL.md`
+
+---
+
+### 8. syncing-status
+
+**Description**: "Syncs feature-status.json with task completion. TRIGGERS when: /ultra-dev completes task, /ultra-test finishes, /ultra-status runs."
+
+**Purpose**:
+- Track feature implementation status
+- Record test results per feature
+- Enable feature-level traceability
+
+**Auto-triggers when**:
+- `/ultra-dev` marks task as "completed"
+- `/ultra-test` execution completes (pass or fail)
+- `/ultra-status` runs (consistency validation)
+- Keywords: "task completed", "tests pass", "feature status"
+
+**Status Mapping**:
+| Condition | Status |
+|-----------|--------|
+| Task completed, not tested | "pending" |
+| All tests pass + coverage ≥80% | "pass" |
+| Any test fails OR coverage <80% | "fail" |
+
+**Output File**: `.ultra/docs/feature-status.json`
+
+**Location**: `~/.claude/skills/syncing-status/SKILL.md`
+
+---
+
 ## Skills Best Practices
 
 ### Writing Effective Skill Descriptions
@@ -324,13 +389,17 @@ Default: `skills.mode = "slim"`. Keep all `SKILL.md` files English-only; at runt
 ├── guarding-git-workflow/
 │   ├── SKILL.md
 │   └── REFERENCE.md
+├── guarding-test-quality/    # NEW - TAS detection
+│   └── SKILL.md
 ├── compressing-context/
 │   └── SKILL.md
 ├── guiding-workflow/
 │   └── SKILL.md
 ├── automating-e2e-tests/
 │   └── SKILL.md
-└── syncing-docs/
+├── syncing-docs/
+│   └── SKILL.md
+└── syncing-status/           # NEW - Feature status sync
     └── SKILL.md
 ```
 

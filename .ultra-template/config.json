@@ -55,6 +55,17 @@
         "inp_ms": 200,
         "cls": 0.1
       }
+    },
+    "test_authenticity": {
+      "min_tas": 70,
+      "max_mock_ratio": 0.5,
+      "min_assertions_per_test": 1,
+      "block_grade": "C",
+      "critical_patterns": {
+        "tautology": true,
+        "empty_test": true,
+        "internal_mock_abuse": true
+      }
     }
   },
 
@@ -101,6 +112,7 @@
     "skills": {
       "guarding-code-quality": true,
       "guarding-test-coverage": true,
+      "guarding-test-quality": true,
       "guarding-git-safety": true,
       "guarding-ui-design": true,
       "syncing-docs": true,

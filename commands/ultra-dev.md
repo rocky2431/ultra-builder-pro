@@ -13,7 +13,14 @@ Execute development tasks using TDD workflow with native task management.
 ## Arguments
 
 - `$1`: Task ID (if empty, auto-select next pending task)
-- `$ARGUMENTS`: Check for "no-branch" or "skip-tests" flags
+
+## Bypass Flags (REMOVED)
+
+**The following flags have been REMOVED to enforce quality**:
+- ~~`no-branch`~~ - Independent branches are mandatory
+- ~~`skip-tests`~~ - TDD workflow is mandatory
+
+See `guidelines/ultra-testing-philosophy.md` for testing philosophy.
 
 ## Pre-Execution Checks
 
@@ -110,13 +117,30 @@ mkdir -p .ultra/changes/task-{id}/specs
 - Update task status in `tasks.json`
 - Add implementation notes
 
-### 5. Quality Gates
+### 5. Quality Gates (6 Mandatory)
 
-All must pass before marking complete:
-- ✅ All tests passing
-- ✅ Code quality checks (SOLID/DRY/KISS/YAGNI)
-- ✅ 6-dimensional test coverage
-- ✅ Documentation updated
+**⚠️ ALL gates must pass before marking task complete. No exceptions.**
+
+| Gate | Requirement | Verification |
+|------|-------------|--------------|
+| **G1** | Tests pass | `npm test` exit code 0 |
+| **G2** | Coverage ≥80% | `npm test -- --coverage` |
+| **G3** | TDD phases verified | RED→GREEN→REFACTOR completed |
+| **G4** | No tautologies | No `expect(true).toBe(true)` patterns |
+| **G5** | No skipped tests | Max 1 `.skip()` allowed |
+| **G6** | 6D coverage | All dimensions tested |
+
+**Test Authenticity Score (TAS)**:
+- `guarding-test-quality` skill auto-calculates TAS
+- **TAS ≥70% required** (Grade A/B pass, Grade C/D/F blocked)
+- Components: Mock Ratio (25%), Assertion Quality (35%), Real Execution (25%), Pattern Compliance (15%)
+
+**Blocking Conditions**:
+- ❌ TAS < 70% → Task cannot complete
+- ❌ Critical anti-patterns (tautology, empty tests) → Task cannot complete
+- ❌ Zero assertions in test file → Task cannot complete
+
+**Reference**: `guidelines/ultra-testing-philosophy.md` for anti-pattern examples
 
 ### 6. Merge to Main & Clean Up
 

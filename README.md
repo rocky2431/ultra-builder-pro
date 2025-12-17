@@ -2,15 +2,15 @@
 
 <div align="center">
 
-**Version 4.1.2 (Production Ready)**
+**Version 4.1.3 (Production Ready)**
 
 *Production-Grade AI-Powered Development System for Claude Code*
 
 ---
 
-[![Version](https://img.shields.io/badge/version-4.1.2-blue)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.1.3-blue)](docs/CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](tests/verify-documentation-consistency.sh)
-[![Skills](https://img.shields.io/badge/skills-6-orange)](config/ultra-skills-guide.md)
+[![Skills](https://img.shields.io/badge/skills-8-orange)](config/ultra-skills-guide.md)
 [![Official Compliance](https://img.shields.io/badge/official-compliant-brightgreen)](https://docs.claude.com/claude-code)
 
 </div>
@@ -34,6 +34,34 @@ claude
 ```
 
 **Installation Time**: < 1 minute
+
+---
+
+## What's New in 4.1.3
+
+### 1. Anti-Fake-Test System (TAS)
+
+- **Test Authenticity Score (TAS)**: Static analysis system to detect fake/useless tests
+- **New Skill**: `guarding-test-quality` - Detects tautologies, empty tests, over-mocking
+- **Quality Gate**: TAS ≥70% required for task completion (Grade A/B pass, C/D/F blocked)
+- **10 Anti-Patterns**: Documented with BAD/GOOD code examples
+
+### 2. Skills Expansion (6 → 8)
+
+- **guarding-test-quality**: TAS calculation, fake test detection
+- **syncing-status**: Feature status tracking (task completion + test results)
+
+### 3. TDD Workflow Hardening
+
+- **Removed**: All bypass options (skip-tests, no-branch, skip-refactor)
+- **Added**: State machine validation (RED → GREEN → REFACTOR → COMMIT)
+- **Added**: 6 mandatory quality gates (G1-G6)
+
+### 4. Testing Philosophy Documentation
+
+- **New File**: `guidelines/ultra-testing-philosophy.md`
+- **Core Principle**: "Test Behavior, Not Implementation"
+- **Mock Policy**: Clear boundary definitions (External=YES, Internal=NO)
 
 ---
 
@@ -79,7 +107,7 @@ Ultra Builder Pro 4.1 is a **complete AI-powered development workflow system** d
 ### Core Features
 
 - **Structured 7-Phase Workflow**: Standardized development process
-- **6 Automated Skills**: Real-time quality guards with auto-activation
+- **8 Automated Skills**: Real-time quality guards with auto-activation
 - **Modular Documentation**: On-demand loading
 - **Specialized Tools**: 4 Expert Agents + 2 MCP servers
 - **Token Efficient**: Optimized for minimal context usage
@@ -113,10 +141,11 @@ Ultra Builder Pro 4.1.2
 ├── guidelines/                        # Development guidelines
 │   ├── ultra-solid-principles.md      # SOLID/DRY/KISS/YAGNI
 │   ├── ultra-quality-standards.md     # Quality baselines
-│   └── ultra-git-workflow.md          # Git workflow
+│   ├── ultra-git-workflow.md          # Git workflow
+│   └── ultra-testing-philosophy.md    # Testing philosophy + anti-patterns (NEW)
 │
 ├── config/                            # Tool configuration
-│   ├── ultra-skills-guide.md          # 6 Skills guide
+│   ├── ultra-skills-guide.md          # 8 Skills guide
 │   ├── ultra-mcp-guide.md             # MCP decision tree
 │   └── research/                      # Research modes (4 files)
 │       ├── interaction-points-core.md # Core questions
@@ -128,10 +157,12 @@ Ultra Builder Pro 4.1.2
 │   ├── ultra-development-workflow.md  # 7-phase complete flow
 │   └── ultra-context-management.md    # Token optimization
 │
-├── skills/                            # 6 Automated Skills (gerund naming)
-│   ├── guarding-quality/              # Code + Test + UI (merged)
-│   ├── guarding-git-workflow/         # Git + Workflow (merged)
+├── skills/                            # 8 Automated Skills (gerund naming)
+│   ├── guarding-quality/              # Code + 6D coverage + UI
+│   ├── guarding-test-quality/         # TAS + fake test detection (NEW)
+│   ├── guarding-git-workflow/         # Git safety + workflow
 │   ├── syncing-docs/                  # Documentation sync
+│   ├── syncing-status/                # Feature status tracking (NEW)
 │   ├── automating-e2e-tests/          # E2E automation
 │   ├── compressing-context/           # Context compression
 │   ├── guiding-workflow/              # Workflow guidance
@@ -221,15 +252,17 @@ Ultra Builder Pro 4.1.2
 
 ---
 
-## 6 Automated Skills
+## 8 Automated Skills
 
 ### Skills Overview
 
 | Skill | Trigger | Function |
 |-------|---------|----------|
-| **guarding-quality** | Edit code/tests/UI | SOLID + 6D testing + UI design |
+| **guarding-quality** | Edit code/tests/UI | SOLID + 6D coverage + UI design |
+| **guarding-test-quality** | Edit test files | TAS calculation + fake test detection |
 | **guarding-git-workflow** | Git operations | Git safety + workflow enforcement |
 | **syncing-docs** | Feature completion | Documentation sync reminders |
+| **syncing-status** | Task/test completion | Feature status tracking |
 | **automating-e2e-tests** | Playwright mention | E2E test code generation |
 | **compressing-context** | >120K tokens | Proactive context compression |
 | **guiding-workflow** | Phase completion | Next-step suggestions |
@@ -339,12 +372,12 @@ cp -r Ultra-Builder-Pro-4.1/* ~/.claude/
 ### Verification
 
 ```bash
-# Check Skills (should be 6)
-ls ~/.claude/skills/ | grep -v "skill-rules\|DEPRECATION" | wc -l
+# Check Skills (should be 8)
+ls ~/.claude/skills/ | grep -v "skill-rules\|DEPRECATION\|\.DS_Store" | wc -l
 
 # Check gerund naming
 ls ~/.claude/skills/
-# Expected: All end with -ing
+# Expected: All end with -ing (guarding-*, syncing-*, automating-*, compressing-*, guiding-*)
 
 # Start Claude Code
 claude
@@ -354,6 +387,14 @@ claude
 ---
 
 ## Version History
+
+### v4.1.3 (2025-12-17) - Anti-Fake-Test System
+
+- **TAS System**: Test Authenticity Score for fake test detection
+- **Skills Expansion**: 6 → 8 Skills (+guarding-test-quality, +syncing-status)
+- **TDD Hardening**: Removed all bypass options, added state machine validation
+- **Testing Philosophy**: New guidelines with 10 anti-patterns and examples
+- **Quality Gates**: 6 mandatory gates (G1-G6) with TAS ≥70% requirement
 
 ### v4.1.2 (2025-12-07) - Security & Design Enhancement
 
@@ -420,10 +461,11 @@ cat ~/.claude/logs/skill-triggers.jsonl | jq -r '.skill' | sort | uniq -c
 
 ### Reference
 
-- **[Skills Guide](config/ultra-skills-guide.md)** - All 6 Skills detailed
+- **[Skills Guide](config/ultra-skills-guide.md)** - All 8 Skills detailed
 - **[MCP Guide](config/ultra-mcp-guide.md)** - MCP decision tree
 - **[SOLID Principles](guidelines/ultra-solid-principles.md)** - Code quality
 - **[Git Workflow](guidelines/ultra-git-workflow.md)** - Branching strategy
+- **[Testing Philosophy](guidelines/ultra-testing-philosophy.md)** - Anti-patterns + TAS
 
 ---
 
@@ -436,7 +478,7 @@ cat ~/.claude/logs/skill-triggers.jsonl | jq -r '.skill' | sort | uniq -c
 
 <div align="center">
 
-**Ultra Builder Pro 4.1.2** - Production-Grade Claude Code Development System
+**Ultra Builder Pro 4.1.3** - Production-Grade Claude Code Development System
 
 *Every line of code, rigorously crafted*
 

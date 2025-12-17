@@ -82,6 +82,36 @@ Immediately fix when detected:
 
 ## Testing Quality Baseline
 
+### Core Philosophy
+
+> "The more your tests resemble the way your software is used, the more confidence they can give you."
+> — Testing Library Philosophy
+
+**Test Behavior, Not Implementation** - Focus on outcomes, not mechanics.
+
+**Reference**: `guidelines/ultra-testing-philosophy.md` for complete philosophy and 10 anti-patterns.
+
+---
+
+### Test Authenticity Score (TAS) - NEW
+
+**Enforced by**: `guarding-test-quality` skill
+
+| Gate | Requirement | Action |
+|------|-------------|--------|
+| TAS Score | ≥70% | Pass (Grade A/B) |
+| TAS Score | <70% | **BLOCKED** (Grade C/D/F) |
+| Tautologies | 0 | Pass |
+| Empty Tests | 0 | Pass |
+| Mock Ratio | ≤50% | Pass |
+
+**Anti-Patterns Detected** (Critical):
+- `expect(true).toBe(true)` → Automatic F grade
+- Empty test body `it('...', () => {})` → Automatic F grade
+- Over-mocking internal modules → TAS penalty
+
+---
+
 ### Realistic Test Execution
 
 - ✅ Execute tests 100% realistically
@@ -123,6 +153,7 @@ Immediately fix when detected:
 ### Automated Enforcement
 
 - **guarding-quality** - SOLID/DRY/KISS/YAGNI violations, six-dimensional coverage, UI anti-patterns prevention + design guidance
+- **guarding-test-quality** (NEW) - TAS calculation, fake test detection, anti-pattern scanning
 - **automating-e2e-tests** - E2E testing + Core Web Vitals monitoring
 
 ### Manual Enforcement
@@ -135,6 +166,8 @@ Immediately fix when detected:
 
 - ❌ Code quality violations → Task cannot be marked complete
 - ❌ Test coverage <80% → PR blocked
+- ❌ **TAS <70%** → Task cannot be marked complete (NEW)
+- ❌ **Tautology/empty tests detected** → Task cannot be marked complete (NEW)
 - ❌ Core Web Vitals failing → Deployment blocked
 - ❌ Security issues → Immediate rollback and fix
 
@@ -145,6 +178,7 @@ Immediately fix when detected:
 | Metric | Target | Current | Trend |
 |--------|--------|---------|-------|
 | Test Coverage | ≥80% | _Track_ | _Monitor_ |
+| **TAS Score** | **≥70%** | _Track_ | _Monitor_ |
 | Code Smells | 0 | _Track_ | _Monitor_ |
 | LCP | <2.5s | _Measure_ | _Monitor_ |
 | INP | <200ms | _Measure_ | _Monitor_ |

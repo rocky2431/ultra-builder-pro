@@ -56,6 +56,10 @@ Code quality warning including:
 
 **Requirements**: Overall ≥80%, Critical paths 100%, Branch ≥75%
 
+**⚠️ Test Quality Delegation**:
+- Coverage **quantity** (≥80%): Handled HERE
+- Coverage **quality** (TAS ≥70%): Delegated to `guarding-test-quality` skill
+
 **Output** (Chinese at runtime):
 ```
 Test coverage warning including:

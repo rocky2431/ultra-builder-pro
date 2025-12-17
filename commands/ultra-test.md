@@ -18,6 +18,74 @@ Execute comprehensive testing with six-dimensional coverage and Core Web Vitals 
 
 ## Workflow
 
+### 0. Test Authenticity Analysis (TAS)
+
+**⚠️ MANDATORY: Execute BEFORE running tests to detect fake tests early.**
+
+**Auto-triggered by**: `guarding-test-quality` skill
+
+**Analysis Process**:
+1. **Scan test files**: `**/*.test.ts`, `**/*.spec.ts`, `**/*.test.js`, `**/*.spec.js`
+2. **Calculate TAS** for each file (4 components):
+
+| Component | Weight | Detection |
+|-----------|--------|-----------|
+| Mock Ratio | 25% | Internal mocks (`jest.mock('../')`) vs total imports |
+| Assertion Quality | 35% | Behavioral (`toBe`, `toEqual`) vs mock-only (`toHaveBeenCalled`) |
+| Real Execution | 25% | Real code lines vs mock-driven lines |
+| Pattern Compliance | 15% | 100 - (anti-patterns × 15) |
+
+3. **Grade each file**:
+   - A (85-100): ✅ High quality
+   - B (70-84): ✅ Pass with minor issues
+   - C (50-69): ❌ **BLOCKED** - Needs improvement
+   - D/F (<50): ❌ **BLOCKED** - Fake tests detected
+
+**Anti-Pattern Detection** (Critical):
+```regex
+# Tautology tests (CRITICAL - automatic F grade)
+expect\((true|false|1|0)\)\.toBe\((true|false|1|0)\)
+
+# Empty test body (CRITICAL)
+it\([^)]+,\s*(async\s*)?\(\)\s*=>\s*\{\s*\}\)
+
+# Over-mocking internal modules (WARNING)
+jest\.mock\(['"]\.\./
+vi\.mock\(['"]\.\./
+
+# Mock-only assertions (WARNING)
+\.toHaveBeenCalled\(\)(?!With)
+```
+
+**Output** (Chinese at runtime):
+```
+📊 Test Authenticity Analysis Report
+===================================
+Project TAS: 78% (Grade: B)
+
+Files Analyzed: 15
+- A Grade (85+): 8 files
+- B Grade (70-84): 5 files
+- C Grade (50-69): 2 files ❌ BLOCKED
+- D/F Grade (<50): 0 files
+
+Issues Found:
+- src/services/auth.test.ts: TAS 62% (C)
+  - Issue: 8 internal module mocks, only 2 behavioral assertions
+  - Recommendation: Remove internal mocks, test real AuthService
+
+Quality Gate: ❌ BLOCKED (2 files below 70%)
+```
+
+**Blocking Conditions**:
+- ❌ Any file TAS < 70% → Tests BLOCKED
+- ❌ Tautology detected (`expect(true).toBe(true)`) → Tests BLOCKED
+- ❌ Empty test body detected → Tests BLOCKED
+
+**Reference**: `guidelines/ultra-testing-philosophy.md` for anti-pattern examples and fixes
+
+---
+
 ### 1. Design Test Strategy
 
 Design comprehensive strategy covering all six dimensions:
@@ -217,21 +285,35 @@ If feature-status.json update fails:
 
 ## Quality Gates (All Must Pass)
 
+### Test Authenticity (NEW - Mandatory)
+- ✅ **TAS ≥70%** for ALL test files (Grade A/B pass)
+- ✅ **No tautologies** (`expect(true).toBe(true)` = instant fail)
+- ✅ **No empty tests** (test body must have assertions)
+- ✅ **Mock ratio ≤50%** (internal modules should NOT be mocked)
+
+### Coverage & Execution
 - ✅ Unit coverage ≥80%
 - ✅ All E2E tests pass
-- ✅ **Frontend only**: Core Web Vitals:
-  - LCP (Largest Contentful Paint) <2.5s
-  - INP (Interaction to Next Paint) <200ms
-  - CLS (Cumulative Layout Shift) <0.1
+- ✅ All 6 dimensions covered (Functional, Boundary, Exception, Performance, Security, Compatibility)
+
+### Frontend Only (Core Web Vitals)
+- ✅ LCP (Largest Contentful Paint) <2.5s
+- ✅ INP (Interaction to Next Paint) <200ms
+- ✅ CLS (Cumulative Layout Shift) <0.1
+
+### Security
 - ✅ No critical security issues
 
-**Reference**: `@guidelines/ultra-quality-standards.md` for detailed requirements
+**References**:
+- `@guidelines/ultra-quality-standards.md` - Detailed requirements
+- `@guidelines/ultra-testing-philosophy.md` - Anti-pattern examples
 
 ## Integration
 
 - **Skills**:
+  - **guarding-test-quality** (NEW - TAS analysis, anti-pattern detection)
   - guarding-quality (six-dimensional coverage enforcement)
-  - playwright-skill (E2E testing, auto-activates on keywords)
+  - automating-e2e-tests (E2E testing, auto-activates on keywords)
 - **Next**: `/ultra-deliver` for deployment prep
 
 ## Output Format
