@@ -208,9 +208,9 @@ main (always active, never frozen)
 
 ---
 
-### 7. guarding-test-quality (NEW)
+### 7. guarding-test-quality
 
-**Description**: "Detects fake/useless tests through static analysis. TRIGGERS when: running /ultra-test, editing test files, marking tasks complete."
+**Description**: "TRIGGERS when: running /ultra-test, editing test files (*.test.ts/*.spec.ts/*.test.js/*.spec.js), marking tasks complete with tests, keywords 'test quality'/'TAS score'/'mock ratio'/'fake tests'/'assertion count'/'over-mocking'. Detects fake/useless tests through TAS analysis. DO NOT trigger for: reading test files for understanding, non-test code."
 
 **Purpose**:
 - Calculate Test Authenticity Score (TAS)
@@ -247,7 +247,7 @@ main (always active, never frozen)
 
 ### 8. syncing-status
 
-**Description**: "Syncs feature-status.json with task completion. TRIGGERS when: /ultra-dev completes task, /ultra-test finishes, /ultra-status runs."
+**Description**: "TRIGGERS when: /ultra-dev marks task as 'completed', /ultra-test execution completes (pass or fail), /ultra-status runs, keywords 'task completed'/'tests pass'/'tests fail'/'coverage'/'feature status'. Syncs feature-status.json with task completion and test results. DO NOT trigger for: task creation, documentation-only changes."
 
 **Purpose**:
 - Track feature implementation status

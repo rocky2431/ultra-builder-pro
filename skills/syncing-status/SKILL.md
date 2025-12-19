@@ -1,6 +1,6 @@
 ---
 name: syncing-status
-description: "Syncs feature-status.json with task completion. TRIGGERS when: /ultra-dev completes task, /ultra-test finishes, /ultra-status runs. Keywords: task completed, tests pass, tests fail, coverage, feature status."
+description: "TRIGGERS when: /ultra-dev marks task as 'completed', /ultra-test execution completes (pass or fail), /ultra-status runs, keywords 'task completed'/'tests pass'/'tests fail'/'coverage'/'feature status'. Syncs feature-status.json with task completion and test results. DO NOT trigger for: task creation, documentation-only changes, non-task discussions."
 allowed-tools: Read, Write, Glob
 ---
 

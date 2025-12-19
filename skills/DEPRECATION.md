@@ -95,9 +95,9 @@ To comply with official Claude Code best practices (gerund naming: verb + -ing):
    - `quality-guardian` → `guarding-quality` (renamed)
    - `git-guardian` → `guarding-git-workflow` (renamed)
 
-2. **In Hooks/skill-rules.json**: Update Skill names if referenced
+2. **In custom workflows**: Update Skill invocations
 
-3. **In custom workflows**: Update Skill invocations
+> **Note (v4.1.4)**: `skill-rules.json` has been removed. Skills now use native description matching - no external rules file needed.
 
 ---
 

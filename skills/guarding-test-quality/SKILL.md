@@ -1,6 +1,6 @@
 ---
 name: guarding-test-quality
-description: "Detects fake/useless tests through static analysis. TRIGGERS when: running /ultra-test, editing test files, marking tasks complete. Keywords: test quality, TAS score, mock ratio, fake tests, assertion count."
+description: "TRIGGERS when: running /ultra-test, editing test files (*.test.ts/*.spec.ts/*.test.js/*.spec.js), marking tasks complete with tests, keywords 'test quality'/'TAS score'/'mock ratio'/'fake tests'/'assertion count'/'over-mocking'. Detects fake/useless tests through TAS (Test Authenticity Score) analysis. DO NOT trigger for: reading test files for understanding, documentation-only changes, non-test code."
 allowed-tools: Read, Grep, Glob
 ---
 
