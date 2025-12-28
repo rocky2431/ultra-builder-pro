@@ -1,10 +1,9 @@
 ---
 name: syncing-status
-description: "Maintains feature-status.json with task completion and test results. Activates when tasks complete, tests run, or /ultra-status executes."
-allowed-tools: Read, Write, Glob
+description: "Maintains feature-status.json with task completion and test results. This skill activates when tasks complete, tests run, or /ultra-status executes."
 ---
 
-# Status Guardian
+# Status Synchronization
 
 Keeps feature status accurate and current.
 
@@ -16,11 +15,43 @@ This skill activates when:
 - `/ultra-status` runs
 - Discussions about task or feature status
 
-## Status Tracking
+## Resources
+
+| Resource | Purpose |
+|----------|---------|
+| `scripts/status_sync.py` | Manage status entries |
+
+## Status Management
+
+### Record Task Completion
+
+```bash
+python scripts/status_sync.py record <task-id> --name "Task name" --commit abc123 --branch feat/task-1
+```
+
+### Record Test Result
+
+```bash
+python scripts/status_sync.py test <task-id> --status pass --coverage 85
+```
+
+### Check Consistency
+
+```bash
+python scripts/status_sync.py check
+```
+
+### Generate Report
+
+```bash
+python scripts/status_sync.py report
+```
+
+## Status File Structure
+
+Location: `.ultra/docs/feature-status.json`
 
 ### On Task Completion
-
-Record completion in `.ultra/docs/feature-status.json`:
 
 ```json
 {
@@ -36,8 +67,6 @@ Record completion in `.ultra/docs/feature-status.json`:
 
 ### On Test Completion
 
-Update entry with test results:
-
 ```json
 {
   "status": "pass",
@@ -51,14 +80,18 @@ Update entry with test results:
 }
 ```
 
-Status values:
-- `pass` - Tests pass and coverage ≥80%
-- `fail` - Tests fail or coverage below threshold
-- `pending` - Implemented but not yet tested
+## Status Values
 
-### Consistency Check
+| Status | Meaning |
+|--------|---------|
+| `pass` | Tests pass, coverage ≥80% |
+| `fail` | Tests fail or coverage below threshold |
+| `pending` | Implemented but not yet tested |
+
+## Consistency Checks
 
 When `/ultra-status` runs:
+
 1. Compare tasks.json completed tasks with feature-status entries
 2. Identify gaps (completed tasks without status entries)
 3. Flag stale entries (pending > 24 hours)
@@ -67,6 +100,7 @@ When `/ultra-status` runs:
 ## Error Handling
 
 If status update fails:
+
 1. Log warning to `.ultra/docs/status-sync.log`
 2. Continue with task completion (status is informational)
 3. Auto-repair on next `/ultra-status` run

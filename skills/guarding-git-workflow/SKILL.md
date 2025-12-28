@@ -1,7 +1,6 @@
 ---
 name: guarding-git-workflow
-description: "Ensures safe git operations and consistent branch workflow. Activates during git commands (commit, push, merge, rebase, reset), branch strategy discussions, or workflow planning."
-allowed-tools: Read, Grep
+description: "Ensures safe git operations and consistent branch workflow. This skill activates during git commands (commit, push, merge, rebase, reset), branch strategy discussions, or workflow planning."
 ---
 
 # Git Workflow Guardian
@@ -14,6 +13,13 @@ This skill activates during:
 - Git operations: commit, push, branch, merge, rebase, reset
 - Branch strategy or workflow discussions
 - Merge timing decisions
+
+## Resources
+
+| Resource | Purpose |
+|----------|---------|
+| `scripts/git_safety_check.py` | Analyze git commands for risk |
+| `REFERENCE.md` | Detailed branch strategies and conventions |
 
 ## Safe Git Workflow
 
@@ -28,55 +34,78 @@ main (always deployable)
  └── feat/task-3 → complete → merge → delete
 ```
 
-**Why this works:**
+**Benefits:**
 - Main stays deployable for hotfixes
 - Each task independently reversible
 - Clean git history
 
-### Operation Risk Levels
+### Branch Naming Convention
 
-**High-risk operations** require user confirmation before proceeding:
+```
+feat/task-{id}-{slug}     # New feature
+fix/bug-{id}-{slug}       # Bug fix
+refactor/{slug}           # Refactoring
+```
 
-| Operation | Risk | User Confirmation Required |
-|-----------|------|---------------------------|
-| `git push --force origin main` | Data loss on shared branch | Yes - explain impact first |
-| `git reset --hard` on main | Loses uncommitted work | Yes - suggest stash alternative |
-| `git rebase` on pushed branch | Rewrites shared history | Yes - explain downstream impact |
-| Deleting remote branches | Permanent removal | Yes - confirm branch name |
+### Operation Risk Assessment
 
-**Standard operations** proceed with helpful context:
+Before executing git operations, assess risk level:
+
+**High-risk (require user confirmation):**
+
+| Operation | Risk | Action |
+|-----------|------|--------|
+| `git push --force origin main` | Data loss | Explain impact, suggest `--force-with-lease` |
+| `git reset --hard` on main | Loses work | Suggest stash first |
+| `git rebase` on pushed branch | Rewrites history | Explain downstream impact |
+| Deleting remote branches | Permanent | Confirm branch name |
+
+**Standard operations (provide context):**
 
 | Operation | Guidance |
 |-----------|----------|
-| Normal commit/push | Confirm conventional commit format |
-| Local branch creation | Suggest naming: `feat/task-{id}-{slug}` |
-| Merge to main | Remind: delete branch after merge |
+| Normal commit/push | Verify conventional commit format |
+| Local branch creation | Suggest naming convention |
+| Merge to main | Remind to delete branch after |
 
-### Example Interaction
+### Safety Check Script
 
-When user requests `git push --force origin main`:
+Run before high-risk operations:
+
+```bash
+python scripts/git_safety_check.py "git push --force origin main"
+python scripts/git_safety_check.py --analyze-repo
+```
+
+## Commit Convention
+
+Follow Conventional Commits format:
 
 ```
-这个操作会重写 main 分支的共享历史记录，可能影响其他开发者的工作。
+<type>(<scope>): <description>
 
-建议替代方案：
-1. 使用 `git push --force-with-lease` (更安全的强制推送)
-2. 创建新分支保存当前更改
-3. 与团队沟通后再执行
+[optional body]
 
-是否继续执行强制推送？
+[optional footer]
+```
+
+**Types:** feat, fix, docs, style, refactor, test, chore
+
+**Co-author footer:**
+```
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ## Workflow Guidance
 
-When discussing branch strategies, guide toward independent branches:
+When discussing branch strategies, recommend independent branches:
 
-**Recommended pattern:**
+**Pattern:**
 ```
 每个任务独立分支 → 完成即合并 → 合并后删除
 ```
 
-**Why independent branches:**
+**Rationale:**
 - Smaller, focused code reviews
 - Faster feedback loops
 - Easier rollback if issues found
@@ -85,9 +114,20 @@ When discussing branch strategies, guide toward independent branches:
 ## Output Format
 
 Provide context in Chinese at runtime:
-- Risk level indication for operations
-- Clear explanation of potential impact
-- Alternative approaches when safer options exist
-- Confirmation prompts for high-risk operations
+
+```
+Git 操作检查
+========================
+
+风险等级：{level}
+操作：{command}
+
+{warnings if any}
+
+建议：
+- {recommendations}
+
+========================
+```
 
 **Tone:** Informative and helpful, not alarming

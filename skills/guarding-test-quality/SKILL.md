@@ -1,7 +1,6 @@
 ---
 name: guarding-test-quality
-description: "Validates test authenticity using TAS (Test Authenticity Score). Activates during /ultra-test, test file edits (*.test.ts, *.spec.ts), or task completion with tests."
-allowed-tools: Read, Grep, Glob
+description: "Validates test authenticity using TAS (Test Authenticity Score). This skill activates during /ultra-test, test file edits (*.test.ts, *.spec.ts), or task completion with tests."
 ---
 
 # Test Quality Guardian
@@ -15,11 +14,46 @@ This skill activates during:
 - Test file modifications (*.test.ts, *.spec.ts, *.test.js, *.spec.js)
 - Task completion that includes tests
 
-## What Good Tests Look Like
+## Resources
+
+| Resource | Purpose |
+|----------|---------|
+| `scripts/tas_analyzer.py` | Calculate TAS scores |
+| `REFERENCE.md` | Detailed test patterns and examples |
+
+## TAS Analysis
+
+Run the analyzer to evaluate test quality:
+
+```bash
+python scripts/tas_analyzer.py <test-file>
+python scripts/tas_analyzer.py src/  # All tests
+python scripts/tas_analyzer.py --summary  # Summary only
+```
+
+## TAS Score Components
+
+| Component | Weight | High Score | Low Score |
+|-----------|--------|------------|-----------|
+| Mock Ratio | 25% | <30% internal mocks | >50% internal mocks |
+| Assertion Quality | 35% | Behavioral assertions | Mock-only assertions |
+| Real Execution | 25% | >60% real code paths | <30% real code |
+| Pattern Quality | 15% | Clean test structure | Anti-patterns present |
+
+## Grade Thresholds
+
+| Grade | Score | Status |
+|-------|-------|--------|
+| A | 85-100% | Excellent - production ready |
+| B | 70-84% | Good - minor improvements |
+| C | 50-69% | Needs improvement |
+| D/F | <50% | Significant issues |
+
+## Good Test Characteristics
 
 ### Behavioral Assertions
 
-Tests verify outcomes, not implementation details:
+Tests verify outcomes, not implementation:
 
 ```typescript
 // Good: Tests actual behavior
@@ -36,84 +70,56 @@ describe('PaymentService', () => {
 });
 ```
 
-**Characteristics:**
-- Asserts on return values and state changes
-- Uses real internal code, mocks only external boundaries
-- Each test has meaningful assertions
-
 ### Appropriate Mocking
 
-Mock external boundaries, use real implementations for internal code:
+Mock external boundaries only:
 
-| External (mock these) | Internal (use real) |
-|-----------------------|---------------------|
-| HTTP clients (axios, fetch) | Your services (`../services/`) |
-| Databases | Your utilities (`../utils/`) |
+| External (mock) | Internal (use real) |
+|-----------------|---------------------|
+| HTTP clients | Your services |
+| Databases | Your utilities |
 | Third-party SDKs | Business logic |
 | File system | Custom hooks |
 
-### TAS Score Components
+## Anti-Patterns to Detect
 
-| Component | Weight | High Score | Low Score |
-|-----------|--------|------------|-----------|
-| Mock Ratio | 25% | <30% internal mocks | >50% internal mocks |
-| Assertion Quality | 35% | Behavioral assertions | Mock-only assertions |
-| Real Execution | 25% | >60% real code paths | <30% real code |
-| Pattern Quality | 15% | Clean test structure | Anti-patterns present |
-
-### Grade Thresholds
-
-| Grade | Score | Status |
-|-------|-------|--------|
-| A | 85-100% | Excellent |
-| B | 70-84% | Good |
-| C | 50-69% | Needs improvement |
-| D/F | <50% | Significant issues |
-
-## Quality Checks
-
-When analyzing tests, look for these patterns:
-
-### Pattern 1: Tautology Tests
+### 1. Tautology Tests
 
 ```typescript
-// Issue: Always passes regardless of code behavior
+// Always passes
 expect(true).toBe(true);
-expect(1).toBe(1);
 ```
 
-**Better approach:** Assert on actual function outputs
+**Fix:** Assert on actual function outputs
 
-### Pattern 2: Empty Test Bodies
+### 2. Empty Test Bodies
 
 ```typescript
-// Issue: No assertions
 it('should process payment', () => {
   // empty
 });
 ```
 
-**Better approach:** Add behavioral assertions
+**Fix:** Add behavioral assertions
 
-### Pattern 3: Mock-Only Assertions
+### 3. Mock-Only Assertions
 
 ```typescript
-// Issue: Only verifies mock was called, not outcome
+// Only verifies call, not outcome
 expect(mockService.process).toHaveBeenCalled();
-// Missing: expect(result).toBe(expectedValue);
 ```
 
-**Better approach:** Combine call verification with outcome assertions
+**Fix:** Add outcome assertions
 
-### Pattern 4: Over-Mocking Internal Code
+### 4. Over-Mocking
 
 ```typescript
-// Issue: Mocking your own modules
+// Mocking internal modules
 jest.mock('../services/UserService');
 jest.mock('../utils/validator');
 ```
 
-**Better approach:** Use real implementations, mock only external APIs
+**Fix:** Use real implementations
 
 ## Output Format
 
@@ -130,9 +136,9 @@ Provide analysis in Chinese at runtime:
 - 平均断言数：{avg} 个/测试
 - Mock 比例：{ratio}%
 
-{发现的具体问题和改进建议}
+{发现的问题和改进建议}
 
 ========================
 ```
 
-**Tone:** Constructive and educational, focused on improvement
+**Tone:** Constructive, educational, improvement-focused

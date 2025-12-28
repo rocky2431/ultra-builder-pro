@@ -1,10 +1,9 @@
 ---
 name: syncing-docs
-description: "Keeps documentation synchronized with code and decisions. Activates after /ultra-research, feature completion, architecture changes, or /ultra-deliver."
-allowed-tools: Read, Write, Glob, Grep
+description: "Keeps documentation synchronized with code and decisions. This skill activates after /ultra-research, feature completion, architecture changes, or /ultra-deliver."
 ---
 
-# Documentation Guardian
+# Documentation Synchronization
 
 Ensures documentation reflects current reality.
 
@@ -16,6 +15,34 @@ This skill activates during:
 - Architecture changes
 - /ultra-deliver execution
 - Documentation-related discussions
+
+## Resources
+
+| Resource | Purpose |
+|----------|---------|
+| `scripts/doc_sync.py` | Check and manage documentation |
+| `templates/adr-template.md` | ADR creation template |
+
+## Documentation Management
+
+### Check for Drift
+
+```bash
+python scripts/doc_sync.py check
+```
+
+### Create New ADR
+
+```bash
+python scripts/doc_sync.py create-adr <number> <title>
+python scripts/doc_sync.py create-adr 5 "Use PostgreSQL for primary database"
+```
+
+### List All ADRs
+
+```bash
+python scripts/doc_sync.py list-adrs
+```
 
 ## Documentation Locations
 
@@ -38,7 +65,7 @@ This skill activates during:
 When research introduces new information:
 - Update relevant specification file with findings
 - Create ADR if major decision made
-- Flag `[NEEDS CLARIFICATION]` markers for unresolved items
+- Flag `[NEEDS CLARIFICATION]` for unresolved items
 
 ### After Feature Completion
 
@@ -68,12 +95,13 @@ Accepted
 
 **Auto-create in:** `.ultra/docs/decisions/ADR-{number}-{slug}.md`
 
-### Spec-Code Drift Detection
+## Drift Detection
 
 Look for misalignment:
 - Features in code not documented in specs
 - Specs describing features not yet implemented
 - Architecture docs not matching actual structure
+- Stale markers: `[NEEDS CLARIFICATION]`, `[TODO]`, `[TBD]`
 
 ## Safe Auto-Creation
 

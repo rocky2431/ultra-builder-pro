@@ -1,10 +1,9 @@
 ---
 name: guarding-quality
-description: "Validates code quality across SOLID principles, test coverage, and UI design. Activates when editing code files (*.ts, *.js, *.py, *.go), UI files (*.css, *.scss), or discussing refactoring and quality."
-allowed-tools: Read, Grep
+description: "Validates code quality across SOLID principles, test coverage, and UI design. This skill activates when editing code files (*.ts, *.js, *.py, *.go), UI files (*.css, *.scss), or discussing refactoring and quality."
 ---
 
-# Quality Guardian
+# Code Quality Guardian
 
 Ensures production-grade code quality across three dimensions.
 
@@ -16,17 +15,44 @@ This skill activates when:
 - Discussing quality, refactoring, or testing
 - Running /ultra-test or completing tasks
 
+## Resources
+
+| Resource | Purpose |
+|----------|---------|
+| `scripts/quality_analyzer.py` | Analyze code metrics |
+| `REFERENCE.md` | Detailed patterns and examples |
+
+## Quality Analysis
+
+Run the analyzer to evaluate code quality:
+
+```bash
+python scripts/quality_analyzer.py <file>
+python scripts/quality_analyzer.py src/  # All files
+python scripts/quality_analyzer.py --summary  # Summary only
+```
+
+## Quality Thresholds
+
+| Metric | Limit |
+|--------|-------|
+| Function lines | ≤50 |
+| Nesting depth | ≤3 |
+| Complexity | ≤10 |
+| Duplicate lines | ≤3 |
+
 ## Code Quality Standards
 
 ### Function Design
 
 Well-designed functions are:
+
 - **Focused**: ≤50 lines, single responsibility
 - **Shallow**: ≤3 levels of nesting
 - **Simple**: ≤10 cyclomatic complexity
-- **Unique**: ≤3 duplicate lines
+- **Unique**: No duplicate blocks
 
-**Example of good structure:**
+**Good structure example:**
 
 ```typescript
 // Focused: does one thing well
@@ -44,15 +70,15 @@ function validateOrder(order: Order): ValidatedOrder {
 }
 ```
 
-### SOLID Principles in Practice
+### SOLID Principles
 
-| Principle | What It Looks Like |
-|-----------|-------------------|
+| Principle | Application |
+|-----------|-------------|
 | Single Responsibility | One reason to change per class/function |
-| Open-Closed | Extend via abstraction, stable core code |
+| Open-Closed | Extend via abstraction, stable core |
 | Liskov Substitution | Subtypes work wherever parent works |
 | Interface Segregation | Small, focused interfaces |
-| Dependency Inversion | Depend on abstractions, inject dependencies |
+| Dependency Inversion | Depend on abstractions, inject deps |
 
 ### Configuration Values
 
@@ -62,8 +88,6 @@ Use named constants and environment variables:
 // Good: Configurable, self-documenting
 const MAX_RETRY_ATTEMPTS = 3;
 const API_TIMEOUT_MS = parseInt(process.env.API_TIMEOUT || '5000');
-
-// Instead of magic numbers in code
 ```
 
 ## Test Coverage Standards
@@ -74,19 +98,20 @@ const API_TIMEOUT_MS = parseInt(process.env.API_TIMEOUT || '5000');
 | Critical paths | 100% |
 | Branch coverage | ≥75% |
 
-**Six testing dimensions:**
-1. Functional - Does it work correctly?
-2. Boundary - Edge cases handled?
-3. Exception - Errors handled gracefully?
-4. Performance - Meets speed requirements?
-5. Security - Protected against attacks?
-6. Compatibility - Works across environments?
+### Six Testing Dimensions
+
+1. **Functional** - Does it work correctly?
+2. **Boundary** - Edge cases handled?
+3. **Exception** - Errors handled gracefully?
+4. **Performance** - Meets speed requirements?
+5. **Security** - Protected against attacks?
+6. **Compatibility** - Works across environments?
 
 ## UI Design Quality
 
-### Component Libraries
+### Recommended Component Libraries
 
-Recommended for distinctive design:
+For distinctive design:
 - shadcn/ui, Galaxy UI, React Bits
 
 ### Design Tokens
@@ -94,7 +119,6 @@ Recommended for distinctive design:
 Use tokens for consistent theming:
 
 ```typescript
-// Good: Uses design system
 const Card = styled.div`
   background: var(--color-surface);
   border-radius: var(--radius-md);
@@ -104,7 +128,6 @@ const Card = styled.div`
 
 ### Visual Distinctiveness
 
-Consider:
 - Bold typography with clear hierarchy
 - Intentional color palette
 - Consistent spacing system
