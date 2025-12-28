@@ -1,106 +1,123 @@
 ---
 name: guarding-test-quality
-description: "TRIGGERS when: running /ultra-test, editing test files (*.test.ts/*.spec.ts/*.test.js/*.spec.js), marking tasks complete with tests, keywords 'test quality'/'TAS score'/'mock ratio'/'fake tests'/'assertion count'/'over-mocking'. Detects fake/useless tests through TAS (Test Authenticity Score) analysis. DO NOT trigger for: reading test files for understanding, documentation-only changes, non-test code."
+description: "Validates test authenticity using TAS (Test Authenticity Score). Activates during /ultra-test, test file edits (*.test.ts, *.spec.ts), or task completion with tests."
 allowed-tools: Read, Grep, Glob
 ---
 
 # Test Quality Guardian
 
-Detect and prevent fake tests that achieve coverage without testing real behavior.
+Ensures tests verify real behavior, not just achieve coverage numbers.
 
-## When Triggered
+## Activation Context
 
+This skill activates during:
 - `/ultra-test` execution
 - Test file modifications (*.test.ts, *.spec.ts, *.test.js, *.spec.js)
-- Task completion with tests
-- Keywords: "test quality", "TAS score", "mock ratio", "fake tests"
+- Task completion that includes tests
 
-## Core Validations
+## What Good Tests Look Like
 
-**When this skill activates, you MUST check for these issues. If any critical issue is found, report it to the user and block task completion.**
+### Behavioral Assertions
 
-### Critical Issue 1: Tautology Tests
+Tests verify outcomes, not implementation details:
 
-**What to search for**: Patterns like `expect(true).toBe(true)` or `expect(1).toBe(1)` that always pass regardless of code behavior.
+```typescript
+// Good: Tests actual behavior
+describe('PaymentService', () => {
+  it('confirms successful payment with transaction ID', async () => {
+    const gateway = createMockGateway({ willSucceed: true });
+    const service = new PaymentService(gateway);
 
-**How to detect**: Use Grep to search test files for:
-- `expect(true).toBe(true)` or `expect(false).toBe(false)`
-- `expect(1).toBe(1)` or any literal compared to itself
+    const result = await service.process(validOrder);
 
-**If found**:
-- Report: "❌ 检测到恒真测试：{file}:{line}"
-- Impact: TAS 自动判定 F 级
-- Block task completion
+    expect(result.status).toBe('confirmed');
+    expect(result.transactionId).toMatch(/^txn_/);
+  });
+});
+```
 
-### Critical Issue 2: Empty Test Bodies
+**Characteristics:**
+- Asserts on return values and state changes
+- Uses real internal code, mocks only external boundaries
+- Each test has meaningful assertions
 
-**What to search for**: Test cases with no assertions inside.
+### Appropriate Mocking
 
-**How to detect**: Use Grep to find `it('...', () => {})` or `test('...', () => {})` with empty bodies.
+Mock external boundaries, use real implementations for internal code:
 
-**If found**:
-- Report: "❌ 检测到空测试体：{file}:{line}"
-- Impact: TAS 自动判定 F 级
-- Block task completion
+| External (mock these) | Internal (use real) |
+|-----------------------|---------------------|
+| HTTP clients (axios, fetch) | Your services (`../services/`) |
+| Databases | Your utilities (`../utils/`) |
+| Third-party SDKs | Business logic |
+| File system | Custom hooks |
 
-### Critical Issue 3: Zero Assertions
+### TAS Score Components
 
-**What to search for**: Test files that have `it()` or `test()` blocks but no `expect()` calls.
-
-**How to detect**: Count `it(`/`test(` occurrences vs `expect(` occurrences. If tests > 0 but expects = 0, flag.
-
-**If found**:
-- Report: "❌ 测试文件无断言：{file}"
-- Block task completion
-
-### Critical Issue 4: Assertion Reduction Without Spec Change
-
-**What to check**: When test files are modified, compare assertion count before and after. If assertions reduced by >30%, verify that specification was also modified.
-
-**Why this matters**: Reducing tests without changing specs indicates test weakening to pass quality gates, not legitimate requirement changes.
-
-**If found**:
-- Report: "❌ 断言减少 {percentage}% 但规范未变更"
-- Solution: "先更新 specs/ 或恢复被删除的断言"
-- Block task completion
-
----
-
-## TAS Calculation
-
-### Component Weights
-
-| Component | Weight | Good Score | Poor Score |
-|-----------|--------|------------|------------|
+| Component | Weight | High Score | Low Score |
+|-----------|--------|------------|-----------|
 | Mock Ratio | 25% | <30% internal mocks | >50% internal mocks |
-| Assertion Quality | 35% | >80% behavioral | <50% behavioral |
-| Real Execution | 25% | >60% real code | <30% real code |
-| Pattern Compliance | 15% | No anti-patterns | Multiple anti-patterns |
-
-### Mock Classification
-
-**External (OK to mock)**: HTTP clients (axios, fetch), databases, third-party SDKs, file system
-
-**Internal (Should NOT mock)**: Your own modules (`../services/`, `../utils/`), business logic, custom hooks
-
-### Assertion Classification
-
-**Behavioral (Good)**: `.toBe()`, `.toEqual()`, `.toContain()`, `.toThrow()`, Testing Library queries
-
-**Mock-Only (Problematic)**: `.toHaveBeenCalled()` alone, `.toHaveBeenCalledTimes()` alone
+| Assertion Quality | 35% | Behavioral assertions | Mock-only assertions |
+| Real Execution | 25% | >60% real code paths | <30% real code |
+| Pattern Quality | 15% | Clean test structure | Anti-patterns present |
 
 ### Grade Thresholds
 
-| Grade | Score | Action |
+| Grade | Score | Status |
 |-------|-------|--------|
-| A | 85-100% | Pass |
-| B | 70-84% | Pass with notes |
-| C | 50-69% | **BLOCKED** |
-| D/F | <50% | **BLOCKED** |
+| A | 85-100% | Excellent |
+| B | 70-84% | Good |
+| C | 50-69% | Needs improvement |
+| D/F | <50% | Significant issues |
 
----
+## Quality Checks
 
-## Output Format (Chinese)
+When analyzing tests, look for these patterns:
+
+### Pattern 1: Tautology Tests
+
+```typescript
+// Issue: Always passes regardless of code behavior
+expect(true).toBe(true);
+expect(1).toBe(1);
+```
+
+**Better approach:** Assert on actual function outputs
+
+### Pattern 2: Empty Test Bodies
+
+```typescript
+// Issue: No assertions
+it('should process payment', () => {
+  // empty
+});
+```
+
+**Better approach:** Add behavioral assertions
+
+### Pattern 3: Mock-Only Assertions
+
+```typescript
+// Issue: Only verifies mock was called, not outcome
+expect(mockService.process).toHaveBeenCalled();
+// Missing: expect(result).toBe(expectedValue);
+```
+
+**Better approach:** Combine call verification with outcome assertions
+
+### Pattern 4: Over-Mocking Internal Code
+
+```typescript
+// Issue: Mocking your own modules
+jest.mock('../services/UserService');
+jest.mock('../utils/validator');
+```
+
+**Better approach:** Use real implementations, mock only external APIs
+
+## Output Format
+
+Provide analysis in Chinese at runtime:
 
 ```
 📊 测试质量分析报告
@@ -108,33 +125,14 @@ Detect and prevent fake tests that achieve coverage without testing real behavio
 
 项目 TAS 分数：{score}% (等级：{grade})
 
-📁 分析文件：{count} 个
-├── A 级：{a_count} 个 ✅
-├── B 级：{b_count} 个 ✅
-├── C 级：{c_count} 个 ❌ (阻断)
-└── D/F 级：{df_count} 个 ❌ (阻断)
+分析摘要：
+- 测试文件：{count} 个
+- 平均断言数：{avg} 个/测试
+- Mock 比例：{ratio}%
 
-发现的问题：
-{issue_list}
+{发现的具体问题和改进建议}
 
 ========================
-质量门禁结果：{PASS ✅ | BLOCKED ❌}
 ```
 
----
-
-## Don't
-
-- Do not trigger for non-test files
-- Do not block for Grade B (only C/D/F)
-- Do not count external module mocks as violations
-- Do not flag integration tests with real database
-
----
-
-## Reference
-
-See `REFERENCE.md` for:
-- Testing philosophy details
-- 10 anti-pattern examples with fixes
-- Mock boundary definitions
+**Tone:** Constructive and educational, focused on improvement

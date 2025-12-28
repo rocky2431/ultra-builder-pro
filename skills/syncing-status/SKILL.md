@@ -1,88 +1,90 @@
 ---
 name: syncing-status
-description: "TRIGGERS when: /ultra-dev marks task as 'completed', /ultra-test execution completes (pass or fail), /ultra-status runs, keywords 'task completed'/'tests pass'/'tests fail'/'coverage'/'feature status'. Syncs feature-status.json with task completion and test results. DO NOT trigger for: task creation, documentation-only changes, non-task discussions."
+description: "Maintains feature-status.json with task completion and test results. Activates when tasks complete, tests run, or /ultra-status executes."
 allowed-tools: Read, Write, Glob
 ---
 
-# Feature Status Guardian
+# Status Guardian
 
-## Purpose
-Ensure feature-status.json accurately reflects task completion and test results.
+Keeps feature status accurate and current.
 
-## When
-**Auto-triggers when**:
-- /ultra-dev marks any task as "completed"
-- /ultra-test execution completes (pass or fail)
-- /ultra-status runs (for consistency validation)
-- Keywords: "task completed", "tests pass", "tests fail", "coverage", "feature status"
+## Activation Context
 
-**Do NOT trigger for**:
-- Task creation (only completion)
-- Documentation-only changes
-- Non-task related discussions
+This skill activates when:
+- `/ultra-dev` marks a task as completed
+- `/ultra-test` finishes (pass or fail)
+- `/ultra-status` runs
+- Discussions about task or feature status
 
-## Do
+## Status Tracking
 
-### 1. On Task Completion (/ultra-dev)
-1. Read .ultra/tasks/tasks.json
-2. Find newly completed task (status changed to "completed")
-3. Read .ultra/docs/feature-status.json
-4. Create entry if missing:
-   ```json
-   {
-     "id": "feat-{taskId}",
-     "name": "{taskTitle}",
-     "status": "pending",
-     "taskId": "{taskId}",
-     "implementedAt": "{ISO timestamp}",
-     "commit": "{git commit hash}",
-     "branch": "{branch name}"
-   }
-   ```
-5. Write back to feature-status.json
-6. Output: Status recorded message (Chinese at runtime)
+### On Task Completion
 
-### 2. On Test Completion (/ultra-test)
-1. Read test results (coverage percentage, pass/fail)
-2. Read feature-status.json
-3. Find entry by taskId
-4. Update entry:
-   - status: "pass" (all tests pass + coverage ≥80%) or "fail"
-   - testedAt: "{ISO timestamp}"
-   - coverage: {percentage}
-   - coreWebVitals: {lcp, inp, cls} (frontend only)
-5. Write back to feature-status.json
-6. Output: Test status updated message (Chinese at runtime)
+Record completion in `.ultra/docs/feature-status.json`:
 
-### 3. Consistency Check (/ultra-status)
-1. Read tasks.json → get all completed tasks
-2. Read feature-status.json → get all entries
-3. Compare and identify gaps:
-   - Tasks completed but no feature-status entry
-   - Entries with stale/missing data (pending > 24 hours)
-4. Report gaps: List missing entries and stale entries (Chinese at runtime)
-5. Offer auto-fix option: create missing entries with status "unknown"
+```json
+{
+  "id": "feat-{taskId}",
+  "name": "{task title}",
+  "status": "pending",
+  "taskId": "{taskId}",
+  "implementedAt": "{ISO timestamp}",
+  "commit": "{git commit hash}",
+  "branch": "{branch name}"
+}
+```
 
-## Don't
-- Do not create entries for non-completed tasks
-- Do not overwrite existing pass/fail status without new test run
-- Do not block task completion if status update fails (log warning instead)
-- Do not trigger on task creation (only completion)
+### On Test Completion
 
-## Outputs
+Update entry with test results:
 
-**Language**: Chinese (simplified) at runtime
+```json
+{
+  "status": "pass",
+  "testedAt": "{ISO timestamp}",
+  "coverage": 85,
+  "coreWebVitals": {
+    "lcp": 2100,
+    "inp": 150,
+    "cls": 0.05
+  }
+}
+```
 
-**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
+Status values:
+- `pass` - Tests pass and coverage ≥80%
+- `fail` - Tests fail or coverage below threshold
+- `pending` - Implemented but not yet tested
 
-**Format**:
-- Clear status indicators (✅ ⚠️)
-- Feature ID and task mapping
-- Coverage and test results when available
+### Consistency Check
 
-**Failure Handling**:
-If feature-status.json update fails:
-1. Display warning (Chinese at runtime)
-2. Log error to .ultra/docs/status-sync.log
-3. Continue with task completion (do not block)
-4. Auto-fix on next /ultra-status run
+When `/ultra-status` runs:
+1. Compare tasks.json completed tasks with feature-status entries
+2. Identify gaps (completed tasks without status entries)
+3. Flag stale entries (pending > 24 hours)
+4. Offer to create missing entries
+
+## Error Handling
+
+If status update fails:
+1. Log warning to `.ultra/docs/status-sync.log`
+2. Continue with task completion (status is informational)
+3. Auto-repair on next `/ultra-status` run
+
+## Output Format
+
+Provide updates in Chinese at runtime:
+
+```
+状态同步
+========================
+
+✅ Task #{id} 状态已记录
+   - 实现时间：{timestamp}
+   - 提交：{commit hash}
+   - 分支：{branch}
+
+========================
+```
+
+**Tone:** Concise, informational

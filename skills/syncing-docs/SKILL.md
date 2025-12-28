@@ -1,89 +1,104 @@
 ---
 name: syncing-docs
-description: "TRIGGERS when: /ultra-research completion (check specs/), feature completion, architecture changes, /ultra-deliver execution, keywords 'documentation'/'ADR'/'architecture decision'/'specs'/'sync docs'. Updates specs/product.md and specs/architecture.md, proposes ADRs, detects spec-code drift. DO NOT trigger for: minor code changes, non-documentation requests."
+description: "Keeps documentation synchronized with code and decisions. Activates after /ultra-research, feature completion, architecture changes, or /ultra-deliver."
 allowed-tools: Read, Write, Glob, Grep
 ---
 
 # Documentation Guardian
 
-## Purpose
-Ensure documentation stays synchronized with code and decisions.
+Ensures documentation reflects current reality.
 
-## When
-- After /ultra-research completion (CRITICAL - check specs/)
-- Feature completion (check spec-code consistency)
-- Architecture changes (check specs/architecture.md)
-- /ultra-deliver execution (final sync check)
+## Activation Context
 
-## Do
+This skill activates during:
+- After /ultra-research completion
+- Feature completion
+- Architecture changes
+- /ultra-deliver execution
+- Documentation-related discussions
 
-### File Detection (Backward Compatible)
-- Check if specs/product.md exists → Use specs/ (new projects)
-- Fallback to docs/prd.md if specs/ doesn't exist (old projects)
-- Check if specs/architecture.md exists → Use specs/ (new projects)
-- Fallback to docs/tech.md if specs/ doesn't exist (old projects)
+## Documentation Locations
 
-### Post-Research Checks
-1. Does research introduce new requirements?
-   - New projects: Suggest update to specs/product.md
-   - Old projects: Suggest update to docs/prd.md
-2. Does research affect technology choices?
-   - New projects: Suggest update to specs/architecture.md
-   - Old projects: Suggest update to docs/tech.md
-3. Is this a major decision? Suggest ADR creation in docs/decisions/
+**New projects (specs/):**
+- `specs/product.md` - Product requirements
+- `specs/architecture.md` - Technical decisions
+
+**Legacy projects (docs/):**
+- `docs/prd.md` - Product requirements
+- `docs/tech.md` - Technical decisions
+
+**Always:**
+- `.ultra/docs/decisions/` - ADRs (Architecture Decision Records)
+- `.ultra/docs/research/` - Research reports
+
+## Synchronization Tasks
+
+### After Research
+
+When research introduces new information:
+- Update relevant specification file with findings
+- Create ADR if major decision made
+- Flag `[NEEDS CLARIFICATION]` markers for unresolved items
+
+### After Feature Completion
+
+Check alignment between:
+- User stories in specs/product.md and implemented features
+- Architecture in specs/architecture.md and actual code structure
+
+### ADR Creation
+
+Create ADRs for significant decisions:
+
+```markdown
+# ADR-{number}: {Title}
+
+## Status
+Accepted
+
+## Context
+{What situation led to this decision}
+
+## Decision
+{What we decided to do}
+
+## Consequences
+{What this means going forward}
+```
+
+**Auto-create in:** `.ultra/docs/decisions/ADR-{number}-{slug}.md`
 
 ### Spec-Code Drift Detection
-- Compare specs/product.md user stories with implemented features
-- Check if architecture.md matches actual code structure
-- Flag [NEEDS CLARIFICATION] markers that remain unfilled
 
-### General Documentation
-- Detect outdated docs (README/API docs)
-- Recommend tech-debt entries when shortcuts taken
-- Suggest lessons-learned after major features
+Look for misalignment:
+- Features in code not documented in specs
+- Specs describing features not yet implemented
+- Architecture docs not matching actual structure
 
-### Auto-Create Documentation Files
+## Safe Auto-Creation
 
-**Safe auto-creation** (no confirmation needed):
-- ADRs in `.ultra/docs/decisions/` (numbered sequentially ADR-001, ADR-002, etc.)
-- Tech debt entries in `.ultra/docs/tech-debt.md` (append mode)
-- Research reports in `.ultra/docs/research/` (timestamped filenames)
+Create these files automatically:
+- ADRs in `.ultra/docs/decisions/`
+- Tech debt entries in `.ultra/docs/tech-debt.md`
+- Research reports in `.ultra/docs/research/`
 
-**Auto-creation logic**:
-1. Check if file path is in `.ultra/docs/` → Safe to create
-2. Use template from `.ultra-template/docs/` if available
-3. Number ADRs sequentially by checking existing files
-4. Show creation summary after completion (Chinese output)
+Number ADRs sequentially (ADR-001, ADR-002, etc.)
 
-**Rationale**: "Implement changes rather than only suggesting" (Claude 4.x Best Practices)
+## Output Format
 
-## Don't
-- Do not create files outside `.ultra/docs/` directory without confirmation
-- Do not overwrite existing files without checking content similarity
-- Do not trigger on minor code changes
-- Do not force old projects to migrate to specs/ (suggest only)
+Provide updates in Chinese at runtime:
 
-## Outputs
+```
+文档同步检查
+========================
 
-**Language**: Chinese (simplified) at runtime
+发现：
+- {具体发现或建议}
 
-**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
+建议更新：
+- {文件路径}: {需要更新的内容}
 
-**Format**:
-- File path with clear indication (specs/ or docs/)
-- Reason for update (what changed)
-- Specific sections to update
-- ADR template if needed
+========================
+```
 
-**Content to convey**:
-- Technology selection changed → Suggest update specs/architecture.md Technology Stack section
-- Research found new requirements → Suggest add user stories to specs/product.md
-- Major architecture decision → Suggest create ADR in docs/decisions/
-- Detected old project structure → Suggest update docs/prd.md or consider migrating to specs/
-
-## Migration Suggestion (Optional)
-
-When detecting old projects without specs/:
-- Suggest (don't force) migration to spec-driven structure
-- Convey: Old doc structure detected, consider migrating to new specs/ system
-- Only suggest once per session
+**Tone:** Helpful, proactive

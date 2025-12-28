@@ -1,113 +1,129 @@
 ---
 name: guarding-quality
-description: "TRIGGERS when: editing code files (*.ts/*.js/*.tsx/*.jsx/*.py/*.go/*.vue), editing UI files (*.css/*.scss/*.styled.ts), discussing SOLID/DRY/KISS/YAGNI/refactor/test coverage/code quality, running /ultra-test, marking tasks complete. Enforces code quality standards and UI design constraints. DO NOT trigger for: git operations, documentation-only changes."
+description: "Validates code quality across SOLID principles, test coverage, and UI design. Activates when editing code files (*.ts, *.js, *.py, *.go), UI files (*.css, *.scss), or discussing refactoring and quality."
 allowed-tools: Read, Grep
 ---
 
 # Quality Guardian
 
-## Purpose
+Ensures production-grade code quality across three dimensions.
 
-Enforces quality across three dimensions:
-1. **Code Quality** - SOLID/DRY/KISS/YAGNI principles
-2. **Test Coverage** - 6-dimensional testing strategy
-3. **UI Design** - Anti-pattern prevention and design guidance
+## Activation Context
 
-## When
-
-**Auto-triggers when**:
-- Editing code files (*.ts, *.js, *.tsx, *.jsx, *.py, *.go, *.java, *.vue)
+This skill activates when:
+- Editing code files (*.ts, *.js, *.tsx, *.jsx, *.py, *.go, *.vue)
 - Editing UI files (*.css, *.scss, *.styled.ts)
-- Discussing quality, refactoring, testing, coverage
-- Running /ultra-test or marking tasks complete
+- Discussing quality, refactoring, or testing
+- Running /ultra-test or completing tasks
 
-**Do NOT trigger for**:
-- Git operations (handled by git-guardian)
-- Documentation-only changes
-- Trivial formatting
+## Code Quality Standards
 
-## Do
+### Function Design
 
-### 1. Code Quality Check
+Well-designed functions are:
+- **Focused**: ≤50 lines, single responsibility
+- **Shallow**: ≤3 levels of nesting
+- **Simple**: ≤10 cyclomatic complexity
+- **Unique**: ≤3 duplicate lines
 
-**Load**: `REFERENCE.md` (Part 1: SOLID Principles) when violations detected
+**Example of good structure:**
 
-**Check for**:
-- ❌ Functions >50 lines → Split
-- ❌ Nesting depth >3 → Refactor
-- ❌ Duplicate code >3 lines → Extract
-- ❌ Magic numbers → Named constants
-- ❌ SOLID violations
+```typescript
+// Focused: does one thing well
+async function processOrder(order: Order): Promise<OrderResult> {
+  const validated = validateOrder(order);
+  const payment = await chargePayment(validated);
+  return createConfirmation(validated, payment);
+}
 
-**Output** (Chinese at runtime):
-```
-Code quality warning including:
-- Specific violations (function name, line count, issue type)
-- Actionable fix recommendations
-- Reference to REFERENCE.md section
-```
-
-### 2. Test Coverage Validation
-
-**Load**: `REFERENCE.md` (Part 2: Testing Quality Baseline) when testing
-
-**Enforce 6 Dimensions**:
-1. Functional, 2. Boundary, 3. Exception, 4. Performance, 5. Security, 6. Compatibility
-
-**Requirements**: Overall ≥80%, Critical paths 100%, Branch ≥75%
-
-**⚠️ Test Quality Delegation**:
-- Coverage **quantity** (≥80%): Handled HERE
-- Coverage **quality** (TAS ≥70%): Delegated to `guarding-test-quality` skill
-
-**Output** (Chinese at runtime):
-```
-Test coverage warning including:
-- Current coverage vs target (e.g., 73% vs ≥80%)
-- Missing test dimensions
-- Reference to REFERENCE.md section
+// Each sub-function also focused
+function validateOrder(order: Order): ValidatedOrder {
+  if (!order.items.length) throw new ValidationError('Empty order');
+  if (!order.customer) throw new ValidationError('Missing customer');
+  return { ...order, validatedAt: new Date() };
+}
 ```
 
-### 3. UI Design Constraints
+### SOLID Principles in Practice
 
-**Load**: `REFERENCE.md` (Part 2: Frontend Quality Baseline) when editing UI
+| Principle | What It Looks Like |
+|-----------|-------------------|
+| Single Responsibility | One reason to change per class/function |
+| Open-Closed | Extend via abstraction, stable core code |
+| Liskov Substitution | Subtypes work wherever parent works |
+| Interface Segregation | Small, focused interfaces |
+| Dependency Inversion | Depend on abstractions, inject dependencies |
 
-**Component Libraries** (recommended):
-- ✅ shadcn/ui, Galaxy UI, React Bits (primary)
-- ❌ Generic Bootstrap, default MUI without customization
+### Configuration Values
 
-**Enforced**:
-- ❌ Default fonts (Inter, Roboto, Open Sans, Arial)
-- ❌ Hard-coded colors → Use design tokens
-- ❌ Purple gradients on white backgrounds
-- ❌ Cookie-cutter layouts
+Use named constants and environment variables:
 
-**Suggested**:
-- ✅ Bold aesthetic direction (minimal/maximal/retro/brutalist...)
-- ✅ Distinctive typography, 3x+ size jumps
-- ✅ Orchestrated motion, scroll-triggered animations
-- ✅ Atmospheric backgrounds (gradients, textures, overlays)
+```typescript
+// Good: Configurable, self-documenting
+const MAX_RETRY_ATTEMPTS = 3;
+const API_TIMEOUT_MS = parseInt(process.env.API_TIMEOUT || '5000');
 
-**Output** (Chinese at runtime):
-```
-UI design constraint warning including:
-- Hard-coded values detected → design token alternatives
-- Default fonts detected → personalized font recommendations
-- Component library suggestions
-- Reference to REFERENCE.md section
+// Instead of magic numbers in code
 ```
 
-## Don't
+## Test Coverage Standards
 
-- ❌ Trigger for git operations
-- ❌ Trigger for documentation-only changes
+| Scope | Target |
+|-------|--------|
+| Overall | ≥80% |
+| Critical paths | 100% |
+| Branch coverage | ≥75% |
 
-## Outputs
+**Six testing dimensions:**
+1. Functional - Does it work correctly?
+2. Boundary - Edge cases handled?
+3. Exception - Errors handled gracefully?
+4. Performance - Meets speed requirements?
+5. Security - Protected against attacks?
+6. Compatibility - Works across environments?
 
-**OUTPUT: User messages in Chinese at runtime; keep this file English-only.**
+## UI Design Quality
 
-Format: ⚠️ + brief summary + actionable recommendations + guideline reference
+### Component Libraries
 
----
+Recommended for distinctive design:
+- shadcn/ui, Galaxy UI, React Bits
 
-**Token Efficiency**: ~200 tokens (vs 450 for 3 separate Skills). Loads guidelines on-demand.
+### Design Tokens
+
+Use tokens for consistent theming:
+
+```typescript
+// Good: Uses design system
+const Card = styled.div`
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+`;
+```
+
+### Visual Distinctiveness
+
+Consider:
+- Bold typography with clear hierarchy
+- Intentional color palette
+- Consistent spacing system
+- Purposeful motion/animation
+
+## Output Format
+
+Provide guidance in Chinese at runtime:
+
+```
+代码质量检查
+========================
+
+检查结果：
+- {具体发现}
+- {改进建议}
+
+参考：REFERENCE.md {section}
+========================
+```
+
+**Tone:** Constructive, specific, actionable
