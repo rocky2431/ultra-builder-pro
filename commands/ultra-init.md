@@ -1,5 +1,5 @@
 ---
-description: Initialize Ultra Builder Pro 4.0 project with native task management
+description: Initialize Ultra Builder Pro 4.3 project with native task management
 argument-hint: <name> <type> <stack> [git]
 allowed-tools: Read, Write, Bash, TodoWrite, Grep, Glob
 ---
@@ -8,7 +8,7 @@ allowed-tools: Read, Write, Bash, TodoWrite, Grep, Glob
 
 ## Purpose
 
-Initialize Ultra Builder Pro 4.0 project structure with native task management.
+Initialize Ultra Builder Pro 4.3 project structure with native task management and Dual-Engine support.
 
 ## Arguments
 

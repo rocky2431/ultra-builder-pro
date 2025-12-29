@@ -10,7 +10,7 @@
 
 [![Version](https://img.shields.io/badge/version-4.3.0-blue)](docs/CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](tests/verify-documentation-consistency.sh)
-[![Skills](https://img.shields.io/badge/skills-13-orange)](config/ultra-skills-guide.md)
+[![Skills](https://img.shields.io/badge/skills-14-orange)](config/ultra-skills-guide.md)
 [![Dual-Engine](https://img.shields.io/badge/dual--engine-Claude%20%2B%20Codex-purple)](skills/codex-reviewer/SKILL.md)
 [![Official Compliance](https://img.shields.io/badge/official-100%25%20native-brightgreen)](https://docs.claude.com/claude-code)
 
@@ -72,13 +72,14 @@ Claude Code (Primary)          Codex (Reviewer)
 | **Test Generation** | Codex generates comprehensive tests with 6D coverage |
 | **Doc Collaboration** | Claude drafts → Codex reviews/enhances → Claude finalizes |
 
-### New Codex Skills (10 → 13)
+### New Codex Skills (10 → 14)
 
 | Skill | Trigger | Function |
 |-------|---------|----------|
 | **codex-reviewer** | Edit/Write on code files | 100-point code review with 4 dimensions |
-| **codex-test-gen** | Coverage gaps detected | 6-dimensional test generation |
+| **codex-test-gen** | Coverage gaps detected | 6-dimensional test generation with TAS |
 | **codex-doc-reviewer** | Documentation updates | Review + enhancement with examples |
+| **codex-research-gen** | /ultra-research, technology decisions | Evidence-based research with 90%+ confidence |
 
 ### New Hook: Codex Review Trigger
 
@@ -131,7 +132,7 @@ Ultra Builder Pro 4.3 is a **dual-engine AI-powered development workflow system*
 
 - **Dual-Engine Collaboration**: Claude Code (dev) + Codex (review/test/docs)
 - **Structured 7-Phase Workflow**: Standardized development process
-- **13 Automated Skills**: Quality guards + domain expertise + **Codex integration**
+- **14 Automated Skills**: Quality guards + domain expertise + **Codex integration**
 - **4 Expert Agents**: Specialized sub-agents for research, architecture, QA, performance
 - **Stuck Detection**: Automatic role swap when blocked
 - **2 MCP Integrations**: Context7 (docs) + Exa (code search)
@@ -141,7 +142,7 @@ Ultra Builder Pro 4.3 is a **dual-engine AI-powered development workflow system*
 
 | Metric | Before | After | Improvement |
 |--------|--------|-------|-------------|
-| **Skills Count** | 10 | 13 | **+30%** (Codex skills) |
+| **Skills Count** | 10 | 14 | **+40%** (Codex skills) |
 | **Code Review** | Manual | Automated (Codex) | **100% coverage** |
 | **Test Generation** | Claude only | Claude + Codex | **6D coverage** |
 | **Doc Quality** | Single pass | Dual-engine review | **Enhanced** |
@@ -169,7 +170,7 @@ Ultra Builder Pro 4.3.0 (Dual-Engine)
 │   ├── post-tool-use-tracker.sh       # File modification tracker
 │   └── codex-review-trigger.sh        # 🆕 Codex review auto-trigger
 │
-├── skills/                            # 13 Automated Skills (native + Codex)
+├── skills/                            # 14 Automated Skills (native + Codex)
 │   ├── skill-rules.json               # Command-skill bindings + dualEngineConfig
 │   │
 │   │   # Guard Skills (Quality Enforcement)
@@ -191,7 +192,8 @@ Ultra Builder Pro 4.3.0 (Dual-Engine)
 │   │   # 🆕 Codex Skills (Dual-Engine)
 │   ├── codex-reviewer/                # Code review (100-point scoring)
 │   ├── codex-test-gen/                # Test generation (6D coverage)
-│   └── codex-doc-reviewer/            # Doc review + enhancement
+│   ├── codex-doc-reviewer/            # Doc review + enhancement
+│   └── codex-research-gen/            # Research with 90%+ confidence
 │
 ├── agents/                            # 4 Expert agents (Anthropic-compliant)
 │   ├── ultra-research-agent.md        # Technical research (sonnet)
@@ -278,7 +280,7 @@ Ultra Builder Pro 4.3.0 (Dual-Engine)
 
 ---
 
-## 13 Automated Skills
+## 14 Automated Skills
 
 ### Guard Skills (Quality Enforcement)
 
@@ -312,6 +314,7 @@ Ultra Builder Pro 4.3.0 (Dual-Engine)
 | **codex-reviewer** | Edit/Write on code files | 100-point code review (correctness, security, performance, maintainability) |
 | **codex-test-gen** | Coverage < 80% or gaps detected | 6-dimensional test generation with TAS validation |
 | **codex-doc-reviewer** | Documentation updates | Review + enhancement (examples, FAQ, best practices) |
+| **codex-research-gen** | /ultra-research, tech decisions | Evidence-based research with 90%+ confidence requirement |
 
 ### Command-Skill Binding (Hook-Based Auto-Activation)
 
@@ -337,7 +340,7 @@ Claude + Codex follow skill specifications
 | `/ultra-test` | guarding-test-quality, guarding-quality, **codex-test-gen** |
 | `/ultra-deliver` | syncing-docs, syncing-status, guarding-quality, **codex-doc-reviewer** |
 | `/ultra-status` | syncing-status, guiding-workflow |
-| `/ultra-research` | syncing-docs, guiding-workflow |
+| `/ultra-research` | syncing-docs, guiding-workflow, **codex-research-gen** |
 | `/ultra-plan` | guarding-quality |
 | `/ultra-think` | guiding-workflow |
 
@@ -446,7 +449,7 @@ claude
 ### v4.3.0 (2025-12-30) - Dual-Engine Collaborative Development 🚀
 
 - **Claude Code + Codex**: Dual-engine collaboration system
-- **3 New Codex Skills**: codex-reviewer, codex-test-gen, codex-doc-reviewer
+- **4 New Codex Skills**: codex-reviewer, codex-test-gen, codex-doc-reviewer, codex-research-gen
 - **Codex Review Hook**: Auto-trigger after Edit/Write on code files
 - **Stuck Detection**: Auto role swap when same error repeated 3 times
 - **100-Point Scoring**: Codex code review with 4-dimensional analysis
@@ -512,7 +515,7 @@ claude
 
 ### Reference
 
-- **[Skills Guide](config/ultra-skills-guide.md)** - All 10 Skills detailed
+- **[Skills Guide](config/ultra-skills-guide.md)** - All 14 Skills detailed
 - **[MCP Guide](config/ultra-mcp-guide.md)** - MCP decision tree
 - **[SOLID Principles](guidelines/ultra-solid-principles.md)** - Code quality
 - **[Testing Philosophy](guidelines/ultra-testing-philosophy.md)** - Anti-patterns + TAS
