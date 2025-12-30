@@ -90,7 +90,7 @@ If project average TAS < 50%:
   See skills/codex-test-gen/SKILL.md for detailed requirements.
 ```
 
-**Reference**: `guidelines/ultra-testing-philosophy.md` for anti-pattern examples and fixes
+**Reference**: `skills/guarding-test-quality/SKILL.md` for anti-pattern examples and fixes
 
 ---
 
@@ -152,7 +152,7 @@ EOF
 Design comprehensive strategy covering all six dimensions:
 **Functional, Boundary, Exception, Performance, Security, Compatibility**
 
-**Reference**: See `guidelines/ultra-quality-standards.md#six-dimensional-test-coverage` for complete details.
+**Reference**: See `skills/guarding-quality/SKILL.md` for complete details.
 
 ### 2. Execute Tests
 
@@ -366,8 +366,8 @@ If feature-status.json update fails:
 - ✅ No critical security issues
 
 **References**:
-- `@guidelines/ultra-quality-standards.md` - Detailed requirements
-- `@guidelines/ultra-testing-philosophy.md` - Anti-pattern examples
+- `@skills/guarding-quality/SKILL.md` - Detailed requirements
+- `@skills/guarding-test-quality/SKILL.md` - Anti-pattern examples
 
 ## Integration
 
@@ -375,7 +375,6 @@ If feature-status.json update fails:
   - Guards: **guarding-test-quality** (TAS analysis), guarding-quality (6D coverage)
   - Sync: **syncing-status** (feature-status.json), **syncing-docs** (CLAUDE.md)
   - Codex: **codex-test-gen** (test generation/review)
-  - E2E: automating-e2e-tests (auto-activates on keywords)
 - **Dual-Engine**: Claude Code (test design) + Codex (test generation/review)
 - **Output files**:
   - `.ultra/docs/feature-status.json` (test results)
@@ -393,5 +392,5 @@ If feature-status.json update fails:
 
 ## References
 
-- @guidelines/ultra-quality-standards.md - Complete testing standards
+- @skills/guarding-quality/SKILL.md - Complete testing standards
 - @config/ultra-mcp-guide.md - Testing tools and strategy guide

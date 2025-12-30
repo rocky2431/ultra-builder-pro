@@ -210,12 +210,6 @@ Ultra Builder Pro 4.3.0 (Dual-Engine)
 │   ├── ultra-status.md                # /ultra-status
 │   └── ultra-think.md                 # /ultra-think
 │
-├── guidelines/                        # Development guidelines
-│   ├── ultra-solid-principles.md      # SOLID/DRY/KISS/YAGNI
-│   ├── ultra-quality-standards.md     # Quality baselines
-│   ├── ultra-git-workflow.md          # Git workflow
-│   └── ultra-testing-philosophy.md    # Testing philosophy
-│
 ├── config/                            # Tool configuration
 │   ├── ultra-skills-guide.md          # Skills guide
 │   ├── ultra-mcp-guide.md             # MCP decision tree
@@ -514,10 +508,10 @@ claude
 
 ### Reference
 
-- **[Skills Guide](config/ultra-skills-guide.md)** - All 14 Skills detailed
+- **[Skills Guide](config/ultra-skills-guide.md)** - All Skills detailed
 - **[MCP Guide](config/ultra-mcp-guide.md)** - MCP decision tree
-- **[SOLID Principles](guidelines/ultra-solid-principles.md)** - Code quality
-- **[Testing Philosophy](guidelines/ultra-testing-philosophy.md)** - Anti-patterns + TAS
+- **[Code Quality](skills/guarding-quality/SKILL.md)** - SOLID/DRY/KISS/YAGNI + 6D Testing
+- **[Test Quality](skills/guarding-test-quality/SKILL.md)** - Anti-patterns + TAS
 
 ---
 

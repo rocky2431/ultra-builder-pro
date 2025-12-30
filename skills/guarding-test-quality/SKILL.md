@@ -121,6 +121,74 @@ jest.mock('../utils/validator');
 
 **Fix:** Use real implementations
 
+### 5. Testing Implementation Details
+
+```typescript
+// BAD: Tests internal state, not behavior
+it('should set isLoading to true when fetching', () => {
+  const component = mount(<UserList />)
+  component.instance().fetchUsers()
+  expect(component.state('isLoading')).toBe(true)
+})
+```
+
+**Fix:** Test what user sees, not internal state
+
+### 6. Snapshot Overuse
+
+```typescript
+// BAD: 500+ line snapshots never reviewed
+it('should render correctly', () => {
+  const { container } = render(<ComplexDashboard data={mockData} />)
+  expect(container).toMatchSnapshot()
+})
+```
+
+**Fix:** Use specific behavioral assertions instead
+
+### 7. Testing Private Methods
+
+```typescript
+// BAD: Accessing private implementation
+it('should hash password internally', () => {
+  // @ts-ignore - accessing private method
+  const hash = service._hashPassword('password123')
+})
+```
+
+**Fix:** Test through public interface only
+
+### 8. Coupling to CSS Selectors
+
+```typescript
+// BAD: Breaks on CSS changes
+await userEvent.click(document.querySelector('.btn-primary.submit-form'))
+expect(document.querySelector('.error-container > .error-text')).toHaveTextContent('Required')
+```
+
+**Fix:** Use accessible queries (getByRole, getByLabelText)
+
+### 9. Test Interdependence
+
+```typescript
+// BAD: Tests depend on shared mutable state
+let userId: string
+it('should create user', async () => { userId = (await createUser()).id })
+it('should update user', async () => { await updateUser(userId, {...}) })
+```
+
+**Fix:** Each test self-contained with own setup
+
+### 10. Hardcoded Waits
+
+```typescript
+// BAD: Magic number, slow, flaky
+await new Promise(resolve => setTimeout(resolve, 2000))
+expect(screen.getByText('Success')).toBeInTheDocument()
+```
+
+**Fix:** Use `findBy*` queries that wait dynamically
+
 ## Output Format
 
 Provide analysis in Chinese at runtime:
