@@ -1,9 +1,6 @@
 ---
 name: codex-test-gen
-description: Codex test generation agent - generates production-grade tests with 6-dimensional coverage, enforcing real implementation without TODO/mock/demo patterns
-backend: codex
-trigger: auto
-priority: critical
+description: "Generates production-grade tests with 6-dimensional coverage (functional, boundary, exception, performance, security, compatibility). This skill enforces real implementation without TODO/mock/demo patterns and calculates TAS scores."
 ---
 
 # Codex Test Generator

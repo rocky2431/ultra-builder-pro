@@ -1,9 +1,6 @@
 ---
 name: codex-reviewer
-description: Codex code review agent - triggers after Claude Code development to provide independent quality feedback with 100-point scoring
-backend: codex
-trigger: auto
-priority: critical
+description: "Provides independent code review after Claude Code implementations. This skill acts as a second pair of eyes with 100-point scoring across correctness, security, performance, and maintainability dimensions."
 ---
 
 # Codex Code Reviewer

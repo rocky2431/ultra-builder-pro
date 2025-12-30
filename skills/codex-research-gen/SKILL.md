@@ -1,9 +1,6 @@
 ---
 name: codex-research-gen
-description: Codex research enhancement agent - generates high-confidence (90%+) technical research with evidence-based analysis, production-grade specifications, and actionable recommendations
-backend: codex
-trigger: auto
-priority: high
+description: "Enhances technical research with evidence-based analysis and 90%+ confidence ratings. This skill generates production-grade specifications, verifies claims against sources, and provides actionable implementation guidance."
 ---
 
 # Codex Research Generator

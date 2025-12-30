@@ -1,9 +1,6 @@
 ---
 name: codex-doc-reviewer
-description: Codex documentation review and enhancement agent - reviews Claude Code documentation for technical accuracy, completeness, and adds practical examples
-backend: codex
-trigger: suggest
-priority: medium
+description: "Reviews and enhances documentation for technical accuracy, completeness, and practicality. This skill adds production-grade code examples, FAQ sections, best practices, and troubleshooting guides."
 ---
 
 # Codex Document Reviewer
