@@ -129,7 +129,7 @@ Suggest next optimal task based on:
 - **Input**: `.ultra/tasks/tasks.json` (native task management)
 - **Output**: Console report or exported markdown
 - **Timing**: Run frequently (daily standup, before /ultra-dev)
-- **Skills**: guiding-workflow (auto-triggers after status check)
+- **Skills**: guiding-workflow (auto-triggers after status check), syncing-status (consistency check)
 
 ## Benefits
 
