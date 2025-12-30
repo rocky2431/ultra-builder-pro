@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "project": "",
+  "createdAt": "",
+  "completedAt": null,
+  "rounds": {
+    "round1": {
+      "name": "Problem Discovery",
+      "status": "pending",
+      "rating": null,
+      "confidence": null,
+      "iterations": 0,
+      "completedAt": null
+    },
+    "round2": {
+      "name": "Solution Exploration",
+      "status": "pending",
+      "rating": null,
+      "confidence": null,
+      "iterations": 0,
+      "completedAt": null
+    },
+    "round3": {
+      "name": "Technology Selection",
+      "status": "pending",
+      "rating": null,
+      "confidence": null,
+      "iterations": 0,
+      "completedAt": null
+    },
+    "round4": {
+      "name": "Risk & Constraints",
+      "status": "pending",
+      "rating": null,
+      "confidence": null,
+      "iterations": 0,
+      "completedAt": null
+    }
+  },
+  "quality": {
+    "overallRating": null,
+    "overallConfidence": null,
+    "specsComplete": false,
+    "allRoundsAboveThreshold": false
+  },
+  "reports": []
+}

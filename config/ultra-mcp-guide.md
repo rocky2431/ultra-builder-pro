@@ -1,6 +1,6 @@
 # MCP Complete Guide
 
-**Ultra Builder Pro 4.1** - Model Context Protocol servers for specialized capabilities.
+**Ultra Builder Pro 4.3** - Model Context Protocol servers for specialized capabilities.
 
 ---
 
@@ -102,7 +102,7 @@ Based on `claude mcp list`:
 ### Official Library Documentation (React, Vue, TypeScript, etc.)?
 **→ Use Context7 MCP**
 
-- **Tool**: `resolve-library-id` → `get-library-docs`
+- **Tool**: `resolve-library-id` → `query-docs`
 - **Example**: "Use Context7 to get React hooks documentation"
 - **Best for**: Framework APIs, library references, version-specific docs
 
@@ -162,29 +162,28 @@ mcp__context7__resolve-library-id(libraryName="react")
 // Returns: "/facebook/react" (Context7 ID)
 ```
 
-#### `mcp__context7__get-library-docs`
+#### `mcp__context7__query-docs`
 Get official documentation for a library.
 
 **Usage Pattern**:
 ```typescript
 // Step 2: Get docs with Context7 ID
-mcp__context7__get-library-docs(
-  context7CompatibleLibraryID="/facebook/react",
-  topic="hooks",              // Optional: focus on specific topic
-  tokens=5000                 // Optional: max tokens (default 5000)
-)
+mcp__context7__query-docs({
+  libraryId: "/facebook/react",
+  query: "hooks usage examples"
+})
 
 // Version-specific docs
-mcp__context7__get-library-docs(
-  context7CompatibleLibraryID="/vercel/next.js/v14.3.0-canary.87",
-  topic="routing"
-)
+mcp__context7__query-docs({
+  libraryId: "/vercel/next.js/v14.3.0-canary.87",
+  query: "routing configuration"
+})
 ```
 
 **Complete Workflow**:
 ```
 1. resolve-library-id("react") → "/facebook/react"
-2. get-library-docs("/facebook/react", topic="hooks")
+2. query-docs({ libraryId: "/facebook/react", query: "hooks" })
 3. Use documentation to implement feature
 ```
 
