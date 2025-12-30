@@ -54,8 +54,7 @@ All commands should follow this 6-section template (adapt sections as needed):
 | ultra-test | 🧪 | Comprehensive Testing |
 | ultra-deliver | 🚀 | Deployment Preparation |
 | ultra-status | 📊 | Progress Monitoring |
-| max-think | 🤔 | Deep Thinking |
-| ultra-session-reset | 🔄 | Session Reset |
+| ultra-think | 🤔 | Deep Thinking |
 
 ---
 
@@ -81,19 +80,20 @@ All commands should follow this 6-section template (adapt sections as needed):
 
 ✅ Project Structure Created
    - .ultra/ directory created
+   - specs/ subdirectory (product.md, architecture.md)
    - tasks/ subdirectory (tasks.json)
-   - docs/ subdirectory (prd.md, tech.md, research/, decisions/)
-   - context-archive/ subdirectory
-   - config.json configuration file
+   - docs/ subdirectory (research/, decisions/)
+   - CLAUDE.md created at project root
 
 ✅ Template Files Copied
-   - ultra-quality-rules.yaml → .ultra/
-   - tasks.json template → .ultra/tasks/
-   - Configuration template → .ultra/config.json
+   - specs/product.md → Product specification template
+   - specs/architecture.md → Architecture design template
+   - tasks/tasks.json → Task management
+   - CLAUDE.md → Project context for Claude Code
 
 ✅ Git Repository Initialized (if selected)
    - git init completed
-   - .gitignore created
+   - .gitignore created (excludes CLAUDE.local.md)
    - Initial commit completed
 
 ========================
@@ -104,8 +104,8 @@ All commands should follow this 6-section template (adapt sections as needed):
    - Directory: ./my-app
 
 🚀 Next Steps
-   - Run /ultra-research for technical investigation (if needed)
-   - Or run /ultra-plan to start task planning
+   - Run /ultra-research to complete specifications (RECOMMENDED)
+   - Then run /ultra-plan to generate task breakdown
 ```
 
 ### ultra-research

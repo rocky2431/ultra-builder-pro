@@ -36,11 +36,11 @@
 
 ## 2. Architecture Principles
 
-**Inherited from `.ultra/constitution.md`**:
-- Specification-Driven
-- Test-First Development
-- Minimal Abstraction
-- Anti-Future-Proofing
+**Core Principles**:
+- Specification-Driven: specs/ is the source of truth
+- Test-First Development: RED → GREEN → REFACTOR
+- Minimal Abstraction: Avoid premature optimization
+- YAGNI: Build only what's needed now
 
 **Project-Specific Principles**:
 

@@ -1,6 +1,6 @@
 # Quality Standards - Complete Baselines
 
-**Ultra Builder Pro 4.0** - All baselines are **non-negotiable**. Violations block task completion.
+**Ultra Builder Pro 4.3** - All baselines are **non-negotiable**. Violations block task completion.
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### Core Requirements
 
-- ✅ **Follow SOLID/DRY/KISS/YAGNI** - See `~/.claude/guidelines/solid-principles.md`
+- ✅ **Follow SOLID/DRY/KISS/YAGNI** - Core principles for clean code
 - ✅ **All public functions must have clear comments** - JSDoc format with @param, @returns, @example
 - ✅ **Unit test coverage ≥80%** - Enforced by guarding-quality skill
 
@@ -153,8 +153,7 @@ Immediately fix when detected:
 ### Automated Enforcement
 
 - **guarding-quality** - SOLID/DRY/KISS/YAGNI violations, six-dimensional coverage, UI anti-patterns prevention + design guidance
-- **guarding-test-quality** (NEW) - TAS calculation, fake test detection, anti-pattern scanning
-- **automating-e2e-tests** - E2E testing + Core Web Vitals monitoring
+- **guarding-test-quality** - TAS calculation, fake test detection, anti-pattern scanning
 
 ### Manual Enforcement
 
