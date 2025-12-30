@@ -354,38 +354,26 @@ function generateSkillReminder(
   const otherSkills = skills.filter(s => !commandBoundSkills.includes(s));
 
   if (otherSkills.length > 0) {
-    const high = otherSkills.filter(s => rules.skills[s]?.priority === 'high');
-    const others = otherSkills.filter(s => rules.skills[s]?.priority !== 'high');
+    // Separate auto vs suggest enforcement
+    const autoSkills = otherSkills.filter(s => rules.skills[s]?.enforcement === 'auto');
+    const suggestSkills = otherSkills.filter(s => rules.skills[s]?.enforcement !== 'auto');
 
-    if (message === '') {
-      message += '\n📚 SKILL SUGGESTIONS\n\n';
-    } else {
-      message += '📚 **额外建议的技能**:\n\n';
+    // Auto enforcement skills - MUST USE
+    if (autoSkills.length > 0) {
+      if (message === '') {
+        message += '\n⚡ USING SKILLS: ';
+      } else {
+        message += '⚡ USING: ';
+      }
+      message += autoSkills.join(', ') + '\n';
+      message += '📌 You MUST invoke these skills using the Skill tool before responding.\n';
     }
 
-    if (high.length > 0) {
-      message += '🟡 **High Priority** (建议使用):\n';
-      high.forEach(skill => {
-        const desc = rules.skills[skill]?.description || '';
-        message += `  - **${skill}**: ${desc}\n`;
-      });
-      message += '\n';
-    }
-
-    if (others.length > 0) {
-      message += '🔵 **Optional** (可选):\n';
-      others.forEach(skill => {
-        const desc = rules.skills[skill]?.description || '';
-        message += `  - **${skill}**: ${desc}\n`;
-      });
-      message += '\n';
+    // Suggest enforcement skills - optional
+    if (suggestSkills.length > 0) {
+      message += '\n💡 Optional: ' + suggestSkills.join(', ') + '\n';
     }
   }
-
-  if (!commandBoundSkills.length) {
-    message += '💡 **使用方式**: 使用 Skill 工具调用相应的 Skill\n';
-  }
-  message += '📖 **配置位置**: .claude/skills/skill-rules.json\n';
 
   return message;
 }
