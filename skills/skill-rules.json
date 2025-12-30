@@ -209,7 +209,7 @@
       "priority": "high",
       "description": "Frontend development - React/Vue/Next.js patterns",
       "promptTriggers": {
-        "keywords": ["React", "Vue", "Next.js", "component", "组件", "UI", "界面", "CSS", "样式", "frontend", "前端", "页面"],
+        "keywords": ["frontend", "前端", "React", "Vue", "Next.js", "Nuxt", "Svelte", "component", "组件", "UI", "界面", "CSS", "样式", "页面", "布局", "响应式", "Tailwind", "Sass", "Less"],
         "intentPatterns": ["(build|create|fix|构建|创建|修复).*(component|组件|页面|界面)"]
       },
       "fileTriggers": {
@@ -253,7 +253,7 @@
       "priority": "high",
       "description": "Backend development - API/database/security",
       "promptTriggers": {
-        "keywords": ["API", "接口", "REST", "GraphQL", "database", "数据库", "server", "服务器", "auth", "认证", "鉴权", "backend", "后端"],
+        "keywords": ["backend", "后端", "API", "接口", "REST", "GraphQL", "gRPC", "database", "数据库", "server", "服务器", "服务端", "auth", "认证", "鉴权", "登录", "权限", "中间件", "微服务"],
         "intentPatterns": ["(create|build|fix|创建|构建|修复).*(api|接口|服务)"]
       },
       "fileTriggers": {
@@ -307,7 +307,7 @@
       "priority": "high",
       "description": "Smart contract development - EVM/Solana/security audit",
       "promptTriggers": {
-        "keywords": ["contract", "合约", "智能合约", "solidity", "ERC", "web3", "blockchain", "区块链", "链上"],
+        "keywords": ["contract", "合约", "智能合约", "solidity", "ERC", "web3", "blockchain", "区块链", "链上", "DeFi", "NFT", "代币", "钱包", "Foundry", "Hardhat", "ethers", "wagmi"],
         "intentPatterns": ["(write|audit|deploy|编写|审计|部署).*(contract|合约)"]
       },
       "fileTriggers": {
