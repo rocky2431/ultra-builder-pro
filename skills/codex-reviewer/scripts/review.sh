@@ -119,7 +119,8 @@ EOF
 echo "🔍 Codex Code Review: $FILE_PATH"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-RESULT=$(timeout "$TIMEOUT" codex -q --json "$REVIEW_PROMPT" 2>&1) || {
+# Use codex exec for non-interactive execution (official syntax)
+RESULT=$(timeout "$TIMEOUT" codex exec --json "$REVIEW_PROMPT" 2>&1) || {
   echo "⚠️ Codex review timed out or failed"
   exit 1
 }

@@ -130,7 +130,8 @@ EOF
 echo "📄 Codex Documentation Review: $DOC_FILE"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-RESULT=$(timeout "$TIMEOUT" codex -q --json "$REVIEW_PROMPT" 2>&1) || {
+# Use codex exec for non-interactive execution (official syntax)
+RESULT=$(timeout "$TIMEOUT" codex exec --json "$REVIEW_PROMPT" 2>&1) || {
   echo "⚠️ Codex review timed out or failed"
   exit 1
 }
@@ -170,7 +171,8 @@ Output the enhanced complete document.
 EOF
 )
 
-  ENHANCED=$(timeout "$TIMEOUT" codex -q "$ENHANCE_PROMPT" 2>&1) || {
+  # Use codex exec for non-interactive execution (official syntax)
+  ENHANCED=$(timeout "$TIMEOUT" codex exec "$ENHANCE_PROMPT" 2>&1) || {
     echo "⚠️ Enhancement generation failed"
   }
 

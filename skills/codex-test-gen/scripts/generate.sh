@@ -114,7 +114,8 @@ echo "Target: $OUTPUT_FILE"
 echo "Min TAS: $MIN_TAS%, Min Coverage: $MIN_COVERAGE%"
 echo ""
 
-RESULT=$(timeout "$TIMEOUT" codex -q "$GEN_PROMPT" 2>&1) || {
+# Use codex exec for non-interactive execution (official syntax)
+RESULT=$(timeout "$TIMEOUT" codex exec "$GEN_PROMPT" 2>&1) || {
   echo "⚠️ Codex test generation timed out or failed"
   exit 1
 }

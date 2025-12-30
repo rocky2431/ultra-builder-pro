@@ -164,7 +164,8 @@ echo ""
 echo "Generating research report..."
 echo ""
 
-RESULT=$(timeout "$TIMEOUT" codex -q "$RESEARCH_PROMPT" 2>&1) || {
+# Use codex exec for non-interactive execution (official syntax)
+RESULT=$(timeout "$TIMEOUT" codex exec "$RESEARCH_PROMPT" 2>&1) || {
   echo "⚠️ Codex research generation timed out or failed"
   exit 1
 }
