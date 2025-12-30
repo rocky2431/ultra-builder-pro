@@ -8,7 +8,7 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-4.3.4-blue)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.3.4-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](tests/verify-documentation-consistency.sh)
 [![Skills](https://img.shields.io/badge/skills-14-orange)](skills/)
 [![Dual-Engine](https://img.shields.io/badge/dual--engine-Claude%20%2B%20Codex-purple)](skills/codex-reviewer/SKILL.md)
@@ -372,9 +372,6 @@ Ultra Builder Pro 4.3.2 (Dual-Engine)
 ├── config/                            # Tool configuration
 │   ├── ultra-mcp-guide.md             # MCP decision tree
 │   └── research/                      # Research templates
-│
-├── docs/                              # Documentation
-│   └── CHANGELOG.md                   # Version history
 │
 └── .ultra-template/                   # Project template
     ├── constitution.md                # Project principles
