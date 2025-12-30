@@ -36,7 +36,6 @@ Detect project context before initialization:
 
 3. **Detect Git repository**
    - Check if `.git/` directory exists
-   - Store result to `config.project.detectionContext.hasGit`
    - Use in interactive confirmation (show different Git options based on detection)
 
 4. **Auto-detect project type and tech stack**
@@ -46,9 +45,8 @@ Detect project context before initialization:
    - Build tools: Vite, Webpack, esbuild
    - Package managers: npm, yarn, pnpm, pip, go, cargo
 
-5. **Store detection results**
-   - Save to `config.project.detectionContext`
-   - Use in interactive confirmation (show detected values with labels)
+5. **Use detection results in interactive confirmation**
+   - Show detected values with labels
 
 **Triggers interactive confirmation for**:
 - Existing projects with code files
@@ -125,17 +123,13 @@ Detect project context before initialization:
    - Keep existing (update missing files only)
    - Cancel
 
-**Implementation Note**: Use AskUserQuestion tool with Chinese prompts generated at runtime. Store detection results in `config.project.detectionContext` for reference.
+**Implementation Note**: Use AskUserQuestion tool with Chinese prompts generated at runtime.
 
 **Output Language**: All prompts in Chinese at runtime (not hardcoded in this file)
 
 ### 2. Create Project Structure
 
 Create `.ultra/` by copying from template (`.claude/.ultra-template/`):
-
-**Core Files**:
-- `config.json` - Project configuration (single source of truth)
-- `constitution.md` - Project principles & development standards
 
 **Specification-Driven Structure**:
 - `specs/` - Specification source of truth
@@ -159,51 +153,24 @@ Create `.ultra/` by copying from template (`.claude/.ultra-template/`):
 
 **Note**: Old projects using `docs/prd.md` and `docs/tech.md` are supported via fallback mechanism in commands
 
-### 3. Initialize Configuration
-
-Create `.ultra/config.json` (copied from `.claude/.ultra-template/config.json`):
-
-**Key sections**:
-- `project`: Name, type (array for hybrid projects), stack (array for fullstack), creation timestamp, detection context
-- `context`: Token limits (200K), compression thresholds (green 60%, yellow 70%, orange 85%)
-- `quality_gates`: Test coverage (≥80%), code quality (max 50 lines/function, max 3 nesting), Core Web Vitals (LCP<2.5s)
-- `git`: Branch patterns (feat/task-{id}-{slug}), commit convention (conventional-commits), workflow strategy (independent)
-- `paths`: Specifications (.ultra/specs/), tasks, research, decisions, context archive
-- `tools`: MCP servers (context7, exa) and Skills enablement (9 skills)
-
-**Auto-filled placeholders**:
-- Project name, type, stack (from user input or detection)
-- Created timestamp
-- Detection context (frameworks, package manager, hasTests, hasCI, hasGit, detectedStacks)
-
-**Complete schema**: See `.ultra-template/config.json` for full configuration structure
-
-### 4. Initialize Task System
+### 3. Initialize Task System
 
 Create `.ultra/tasks/tasks.json`:
 - Empty tasks array
 - Metadata (version, project name, created timestamp)
 - Stats initialization (total: 0, completed: 0)
 
-### 5. Copy All Template Files
+### 4. Copy All Template Files
 
 **Simply copy entire `.claude/.ultra-template/` directory to project's `.ultra/`**:
 
 All files and directories are copied as-is from the template:
-- Core files: `config.json`, `constitution.md`
 - Specs: `specs/product.md`, `specs/architecture.md`, subdirectories
 - Tasks: `tasks/tasks.json`
 - Docs: `docs/decisions/`, `docs/research/`
 - Additional: `changes/`, `context-archive/`
 
-**Auto-fill placeholders**:
-- Update `config.json` with actual project name, type, stack, created date
-- Update `constitution.md` with "Last Updated" timestamp
-
-**Backward Compatibility**:
-Old projects using `docs/prd.md` and `docs/tech.md` are still supported via config-based fallback in commands (no symlinks created)
-
-### 6. Git Integration (Based on User Choice)
+### 5. Git Integration (Based on User Choice)
 
 **If user chose "Initialize Git repository"** or **"Reinitialize Git"**:
 - If reinitializing: Backup existing `.git/` to `.git.backup.{timestamp}`
@@ -214,13 +181,12 @@ Old projects using `docs/prd.md` and `docs/tech.md` are still supported via conf
 
 **If user chose "Keep existing Git repository"** or **"Don't use Git"**:
 - Skip Git operations
-- Log decision to `config.project.detectionContext.hasGit`
 
-### 7. Display Success Summary
+### 6. Display Success Summary
 
 Show in Chinese:
 - Directories created (specs/, changes/, tasks/, docs/)
-- Configuration files generated (config.json, constitution.md)
+- Template files copied
 - Task system initialized (tasks.json)
 - Specification templates ready (product.md, architecture.md with [NEEDS CLARIFICATION] markers)
 
@@ -300,10 +266,6 @@ Generate task breakdown from complete specifications:
 ### Step 3: Run `/ultra-dev` to Start Development
 
 TDD workflow with quality gates and automatic git integration.
-
-### Optional: Customize `.ultra/constitution.md`
-
-Review and adjust the 9 core principles for your project.
 
 **Specification-Driven Workflow**:
 - `specs/product.md` - WHAT to build (completed in research)
