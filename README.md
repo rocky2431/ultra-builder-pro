@@ -133,7 +133,7 @@ Ultra Builder Pro 4.3 is a **dual-engine AI-powered development workflow system*
 - **Dual-Engine Collaboration**: Claude Code (dev) + Codex (review/test/docs)
 - **Structured 7-Phase Workflow**: Standardized development process
 - **14 Automated Skills**: Quality guards + domain expertise + **Codex integration**
-- **4 Expert Agents**: Specialized sub-agents for research, architecture, QA, performance
+- **2 Expert Agents**: Specialized sub-agents for architecture and performance
 - **Stuck Detection**: Automatic role swap when blocked
 - **2 MCP Integrations**: Context7 (docs) + Exa (code search)
 - **Bilingual Support**: Chinese output, English system files
@@ -195,11 +195,10 @@ Ultra Builder Pro 4.3.0 (Dual-Engine)
 │   ├── codex-doc-reviewer/            # Doc review + enhancement
 │   └── codex-research-gen/            # Research with 90%+ confidence
 │
-├── agents/                            # 4 Expert agents (Anthropic-compliant)
-│   ├── ultra-research-agent.md        # Technical research (sonnet)
+├── agents/                            # 2 Expert agents (Anthropic-compliant)
 │   ├── ultra-architect-agent.md       # Architecture design (opus)
-│   ├── ultra-performance-agent.md     # Performance optimization (sonnet)
-│   └── ultra-qa-agent.md              # Test strategy (opus)
+│   └── ultra-performance-agent.md     # Performance optimization (sonnet)
+│   # Note: Research/QA → Codex Skills (codex-research-gen, codex-test-gen)
 │
 ├── commands/                          # 8 Workflow commands (Dual-Engine enhanced)
 │   ├── ultra-init.md                  # /ultra-init
@@ -364,16 +363,16 @@ Tracks error history for stuck detection
 
 ---
 
-## 4 Expert Agents
+## 2 Expert Agents
 
-| Agent | Model | Purpose |
-|-------|-------|---------|
-| **ultra-research-agent** | sonnet | Technical research with evidence-based analysis |
-| **ultra-architect-agent** | opus | System design with SOLID compliance scoring |
-| **ultra-qa-agent** | opus | Test strategy with six-dimensional coverage |
-| **ultra-performance-agent** | sonnet | Core Web Vitals optimization |
+| Agent | Model | Purpose | Trigger |
+|-------|-------|---------|---------|
+| **ultra-architect-agent** | opus | System design with SOLID compliance scoring | complexity ≥ 7 |
+| **ultra-performance-agent** | sonnet | Core Web Vitals optimization | /ultra-deliver |
 
-Agents are auto-delegated by Claude Code when specialized expertise is needed.
+> **Note**: Research and QA functions now handled by Codex Skills:
+> - `codex-research-gen` replaces ultra-research-agent (90%+ confidence)
+> - `codex-test-gen` replaces ultra-qa-agent (6D coverage + TAS validation)
 
 ---
 

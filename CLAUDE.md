@@ -386,12 +386,12 @@ git branch -d <branch>                           # Cleanup
 
 ## Agents (Auto-Delegated)
 
-| Agent | Use Case |
-|-------|----------|
-| ultra-research-agent | Tech comparisons, risk assessment |
-| ultra-architect-agent | System design, SOLID analysis |
-| ultra-qa-agent | Test strategy, coverage planning |
-| ultra-performance-agent | Core Web Vitals optimization |
+| Agent | Use Case | Trigger |
+|-------|----------|---------|
+| ultra-architect-agent | System design, SOLID analysis | complexity ≥ 7 |
+| ultra-performance-agent | Core Web Vitals optimization | /ultra-deliver |
+
+> **Note**: Research and QA functions now handled by Codex Skills (codex-research-gen, codex-test-gen)
 
 ---
 

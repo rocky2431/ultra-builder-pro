@@ -288,10 +288,10 @@ MAX_THINKING_TOKENS=30000 /ultra-think "your complex problem"
 - Validate technical approaches
 - Compare community opinions
 
-**Task (ultra-research-agent)**:
+**Codex Research (codex-research-gen)**:
 - Complex technology comparison needed
 - Multi-source validation required
-- Systematic research with 6-dimensional analysis
+- Systematic research with 90%+ confidence requirement
 
 **TodoWrite**:
 - Break down implementation into tasks

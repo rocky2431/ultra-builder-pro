@@ -129,7 +129,7 @@ Output comparison matrix with:
 EOF
 ```
 
-Delegate to ultra-research-agent for deep technical analysis.
+Delegate to codex-research-gen skill for deep technical analysis with 90%+ confidence requirement.
 
 ---
 
