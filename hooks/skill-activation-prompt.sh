@@ -4,9 +4,23 @@
 
 cd "$(dirname "$0")"
 
-# Debug: Log environment variables (remove after debugging)
-# echo "[DEBUG] CLAUDE_PROJECT_DIR=$CLAUDE_PROJECT_DIR" >> /tmp/skill-hook-debug.log
-# echo "[DEBUG] CLAUDE_USER_PROMPT=${CLAUDE_USER_PROMPT:0:50}..." >> /tmp/skill-hook-debug.log
+# Read JSON input from stdin
+INPUT_JSON=$(cat)
+
+# Extract prompt from JSON using jq
+USER_PROMPT=$(echo "$INPUT_JSON" | jq -r '.prompt // empty' 2>/dev/null)
+
+# Debug logging (uncomment to enable)
+# echo "[DEBUG $(date '+%H:%M:%S')] DIR=$CLAUDE_PROJECT_DIR" >> /tmp/skill-hook-debug.log
+# echo "[DEBUG $(date '+%H:%M:%S')] PROMPT=$USER_PROMPT" >> /tmp/skill-hook-debug.log
+
+# Exit if no prompt
+if [ -z "$USER_PROMPT" ]; then
+  exit 0
+fi
+
+# Export for TypeScript
+export CLAUDE_USER_PROMPT="$USER_PROMPT"
 
 # Fallback: If CLAUDE_PROJECT_DIR is not set, try to detect it
 if [ -z "$CLAUDE_PROJECT_DIR" ]; then
