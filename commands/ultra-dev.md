@@ -211,6 +211,9 @@ Stuck:   Claude → fail(x3) → Codex fix → Claude review → pass
 8. Delete branch: `git branch -d feat/task-{id}-{slug}`
 9. Update task status to `"completed"` in tasks.json
 10. Mark completion in `.ultra/changes/task-{id}/proposal.md` (add Status section)
+11. **Update project context** (via syncing skills):
+    - `syncing-status`: Record to `.ultra/docs/feature-status.json` (commit, branch, timestamp)
+    - `syncing-docs`: Update CLAUDE.md "Current Focus" with next pending task
 
 **Conflict resolution**: If rebase has conflicts, resolve them before merging. Never merge unresolved conflicts.
 
@@ -226,9 +229,17 @@ Display completion message in Chinese including:
 
 ## Integration
 
-- **Skills activated**: guarding-quality, guarding-git-workflow, guarding-test-quality, **codex-reviewer**
+- **Skills activated**:
+  - Guards: guarding-quality, guarding-git-workflow, guarding-test-quality
+  - Sync: **syncing-docs** (CLAUDE.md), **syncing-status** (feature-status.json)
+  - Codex: codex-reviewer
 - **Dual-Engine**: Claude Code (primary) + Codex (reviewer)
 - **Agents available**: ultra-architect-agent (for complexity >= 7)
+- **Output files**:
+  - `.ultra/tasks/tasks.json` (status update)
+  - `.ultra/changes/task-{id}/proposal.md` (completion record)
+  - `.ultra/docs/feature-status.json` (implementation tracking)
+  - `CLAUDE.md` (current focus update)
 - **Next command**: `/ultra-test` or `/ultra-dev [next-task-id]`
 
 ## Usage
