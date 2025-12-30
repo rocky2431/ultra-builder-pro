@@ -1,13 +1,159 @@
 {
-  "version": 1,
+  "version": 2,
   "plugins": {
-    "frontend-design@claude-code-plugins": {
-      "version": "1.0.0",
-      "installedAt": "2025-11-18T10:46:43.996Z",
-      "lastUpdated": "2025-11-18T10:46:43.996Z",
-      "installPath": "/Users/rocky243/.claude/plugins/marketplaces/claude-code-plugins/plugins/frontend-design",
-      "gitCommitSha": "c508e59e8a9f8ea9cfe88c5a586ee3ebda1c6e25",
-      "isLocal": true
-    }
+    "typescript-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/typescript-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-27T05:59:13.689Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "0bdc788e9ae31fd8fb54a12a0138a3702206bca2",
+        "isLocal": true
+      }
+    ],
+    "pyright-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/pyright-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-27T05:59:36.275Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "0bdc788e9ae31fd8fb54a12a0138a3702206bca2",
+        "isLocal": true
+      }
+    ],
+    "superpowers@superpowers-marketplace": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/superpowers-marketplace/superpowers/4.0.3",
+        "version": "4.0.3",
+        "installedAt": "2025-12-29T21:00:08.839Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "b9e16498b9b6b06defa34cf0d6d345cd2c13ad31",
+        "isLocal": false
+      }
+    ],
+    "feature-dev@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/feature-dev/6d3752c000e2",
+        "version": "6d3752c000e2",
+        "installedAt": "2025-12-29T21:03:37.064Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "document-skills@anthropic-agent-skills": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/anthropic-agent-skills/document-skills/unknown",
+        "version": "unknown",
+        "installedAt": "2025-12-29T21:20:51.924Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "gopls-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/gopls-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-29T21:23:00.490Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "rust-analyzer-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/rust-analyzer-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-29T21:23:00.513Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "csharp-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/csharp-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-29T21:23:00.529Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "php-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/php-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-29T21:23:00.542Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "swift-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/swift-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-29T21:23:00.554Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "jdtls-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/jdtls-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-29T21:23:00.565Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "clangd-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/clangd-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-29T21:23:00.576Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "lua-lsp@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/claude-plugins-official/lua-lsp/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2025-12-29T21:23:00.588Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ],
+    "claude-mem@thedotmack": [
+      {
+        "scope": "user",
+        "installPath": "/Users/rocky243/.claude/plugins/cache/thedotmack/claude-mem/8.2.8",
+        "version": "8.2.8",
+        "installedAt": "2025-12-29T21:50:34.555Z",
+        "lastUpdated": "2025-12-30T11:19:08.213Z",
+        "gitCommitSha": "fe42ea1aa1dff1d74aaa8267e6c3eaa5563c49e5",
+        "isLocal": true
+      }
+    ]
   }
 }

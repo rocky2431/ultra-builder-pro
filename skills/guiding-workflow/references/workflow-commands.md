@@ -11,7 +11,7 @@
 | Test | `/ultra-test` | Quality validation |
 | Deliver | `/ultra-deliver` | Deployment prep |
 | Status | `/ultra-status` | Progress report |
-| Analyze | `/max-think` | Deep 6D analysis |
+| Analyze | `/ultra-think` | Deep 6D analysis |
 
 ## Workflow Sequence
 
@@ -136,7 +136,7 @@
 
 ---
 
-### 8. /max-think
+### 8. /ultra-think
 
 **When to use:**
 - Complex decisions

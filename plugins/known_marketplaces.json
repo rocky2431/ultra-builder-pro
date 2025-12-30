@@ -5,6 +5,46 @@
       "repo": "anthropics/claude-code"
     },
     "installLocation": "/Users/rocky243/.claude/plugins/marketplaces/claude-code-plugins",
-    "lastUpdated": "2025-11-18T08:23:42.787Z"
+    "lastUpdated": "2025-12-30T11:19:07.869Z"
+  },
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/Users/rocky243/.claude/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2025-12-30T11:26:24.635Z"
+  },
+  "thedotmack": {
+    "source": {
+      "source": "github",
+      "repo": "thedotmack/claude-mem"
+    },
+    "installLocation": "/Users/rocky243/.claude/plugins/marketplaces/thedotmack",
+    "lastUpdated": "2025-12-29T21:49:33.645Z"
+  },
+  "claude-code-templates": {
+    "source": {
+      "source": "git",
+      "url": "https://github.com/davila7/claude-code-templates.git"
+    },
+    "installLocation": "/Users/rocky243/.claude/plugins/marketplaces/claude-code-templates",
+    "lastUpdated": "2025-12-29T21:22:20.755Z"
+  },
+  "superpowers-marketplace": {
+    "source": {
+      "source": "github",
+      "repo": "obra/superpowers-marketplace"
+    },
+    "installLocation": "/Users/rocky243/.claude/plugins/marketplaces/superpowers-marketplace",
+    "lastUpdated": "2025-12-29T20:58:18.061Z"
+  },
+  "anthropic-agent-skills": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/skills"
+    },
+    "installLocation": "/Users/rocky243/.claude/plugins/marketplaces/anthropic-agent-skills",
+    "lastUpdated": "2025-12-29T21:18:31.421Z"
   }
 }

@@ -26,18 +26,18 @@ Every research round follows this exact 6-step cycle. Do not skip steps.
 
 ## Step 2: Deep Analysis
 
-**Action**: Invoke `/max-think` with collected context.
+**Action**: Invoke `/ultra-think` with collected context.
 
 **Prompt Template**:
 ```
-/max-think "[Round-specific analysis task] for [project_name]:
+/ultra-think "[Round-specific analysis task] for [project_name]:
 - Context from Step 1: [user_answers]
 - Previous rounds context: [if applicable]
 
 Perform 6D analysis (Technical, Business, Team, Ecosystem, Strategic, Meta)"
 ```
 
-**Gate**: Do not proceed until /max-think completes with structured output.
+**Gate**: Do not proceed until /ultra-think completes with structured output.
 
 ---
 
