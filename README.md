@@ -2,13 +2,13 @@
 
 <div align="center">
 
-**Version 4.3.2 (Dual-Engine Collaborative Development)**
+**Version 4.3.3 (Bilingual Trigger Support)**
 
 *Production-Grade AI-Powered Development System for Claude Code + Codex*
 
 ---
 
-[![Version](https://img.shields.io/badge/version-4.3.2-blue)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.3.3-blue)](docs/CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](tests/verify-documentation-consistency.sh)
 [![Skills](https://img.shields.io/badge/skills-14-orange)](config/ultra-skills-guide.md)
 [![Dual-Engine](https://img.shields.io/badge/dual--engine-Claude%20%2B%20Codex-purple)](skills/codex-reviewer/SKILL.md)
@@ -35,6 +35,68 @@ claude
 ```
 
 **Installation Time**: < 1 minute
+
+---
+
+## What's New in 4.3.3
+
+### 🌐 Bilingual Trigger Support (中英文触发)
+
+All 14 skills now support **Chinese keyword triggers**:
+
+| Skill | English | 中文 |
+|-------|---------|------|
+| **frontend** | frontend, React, component | 前端, 组件, 界面, 页面 |
+| **backend** | backend, API, database | 后端, 接口, 数据库, 服务端 |
+| **smart-contract** | contract, solidity, web3 | 合约, 智能合约, 区块链, DeFi |
+| **guarding-quality** | refactor, code review | 重构, 代码审查, 质量 |
+| **guarding-test-quality** | test, coverage, TAS | 测试, 覆盖率, 单元测试 |
+| **guarding-git-workflow** | commit, push, merge | 提交, 推送, 合并, 分支 |
+| **ultra-think** | trade-off, should we | 深度分析, 技术选型, 权衡 |
+
+**Example Triggers:**
+
+```bash
+# These now trigger the same skills:
+"帮我写个前端组件"     → frontend skill ✅
+"Help me write a component" → frontend skill ✅
+
+"后端接口设计"         → backend skill ✅
+"Design backend API"   → backend skill ✅
+
+"智能合约安全审计"     → smart-contract skill ✅
+"Smart contract audit" → smart-contract skill ✅
+```
+
+### 📋 Detailed Skill Configs
+
+Each skill now includes specialized configuration with Chinese translations:
+
+| Skill | Config | Key Settings |
+|-------|--------|--------------|
+| **guarding-quality** | `qualityConfig` | SOLID原则, 函数≤50行, 嵌套≤3层, 圈复杂度≤10 |
+| **guarding-test-quality** | `testConfig` | TAS≥70%, 覆盖率≥80%, Mock比例≤30% |
+| **guarding-git-workflow** | `gitConfig` | 危险命令拦截, Conventional Commits |
+| **frontend** | `frontendConfig` | Core Web Vitals, WCAG 2.1 AA, 反模式列表 |
+| **backend** | `backendConfig` | OWASP安全检查, 输入验证, N+1预防 |
+| **smart-contract** | `contractConfig` | 7项安全检查, Fuzz测试, 不变量测试 |
+| **ultra-think** | `analysisConfig` | 6D分析框架, 3-5个方案, 魔鬼代言人 |
+
+### 🧠 Ultra-Think Skill (6D Analysis)
+
+New dedicated skill for deep analysis:
+
+```bash
+/ultra-think "微服务还是单体架构?"
+```
+
+**6 Dimensions Analyzed:**
+1. Technical (技术) - Architecture, scalability, security
+2. Business (业务) - Cost, ROI, time-to-market
+3. Team (团队) - Learning curve, velocity impact
+4. Ecosystem (生态) - Community, library support
+5. Strategic (战略) - Long-term sustainability
+6. Meta (元层面) - Assumptions, paradigm shifts
 
 ---
 
@@ -365,6 +427,24 @@ Claude + Codex follow skill specifications
 
 Skills also activate via keyword/file triggers for non-command contexts.
 
+**Bilingual Keyword Support:**
+
+Skills can now be triggered in both English and Chinese:
+
+```
+User: "帮我重构这段代码"
+       ↓
+Hook detects "重构" keyword
+       ↓
+guarding-quality skill activated ✅
+
+User: "前端性能优化"
+       ↓
+Hook detects "前端" keyword
+       ↓
+frontend skill activated ✅
+```
+
 ### PostToolUse Hook: Codex Review Trigger
 
 After Edit/Write on code files (`.ts`, `.tsx`, `.js`, `.py`, `.go`, etc.):
@@ -473,6 +553,15 @@ claude
 
 ## Version History
 
+### v4.3.3 (2025-12-30) - Bilingual Trigger Support 🌐
+
+- **Chinese Keywords**: All 14 skills now support Chinese keyword triggers
+- **Ultra-Think Skill**: New skill with 6D analysis framework configuration
+- **Detailed Configs**: Added `qualityConfig`, `testConfig`, `gitConfig`, etc. to each skill
+- **Chinese Translations**: All config descriptions have `_zh` translations
+- **Domain Keywords**: frontend/backend/smart-contract trigger with single keywords (前端/后端/合约)
+- **Intent Patterns**: Bilingual regex patterns for natural language matching
+
 ### v4.3.2 (2025-12-30) - Codex CLI Integration & Official Standards 🚀
 
 - **Codex CLI Fix**: Corrected syntax from `codex -q` to official `codex exec`
@@ -567,7 +656,7 @@ claude
 
 <div align="center">
 
-**Ultra Builder Pro 4.3.2** - Dual-Engine Collaborative Development System
+**Ultra Builder Pro 4.3.3** - Dual-Engine Collaborative Development System
 
 *Claude Code + Codex: Truth over comfort. Precision over confidence.*
 
