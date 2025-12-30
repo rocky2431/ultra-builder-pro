@@ -2,13 +2,13 @@
 
 <div align="center">
 
-**Version 4.3.0 (Dual-Engine Collaborative Development)**
+**Version 4.3.2 (Dual-Engine Collaborative Development)**
 
 *Production-Grade AI-Powered Development System for Claude Code + Codex*
 
 ---
 
-[![Version](https://img.shields.io/badge/version-4.3.0-blue)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.3.2-blue)](docs/CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](tests/verify-documentation-consistency.sh)
 [![Skills](https://img.shields.io/badge/skills-14-orange)](config/ultra-skills-guide.md)
 [![Dual-Engine](https://img.shields.io/badge/dual--engine-Claude%20%2B%20Codex-purple)](skills/codex-reviewer/SKILL.md)
@@ -38,7 +38,7 @@ claude
 
 ---
 
-## What's New in 4.3.0
+## What's New in 4.3.2
 
 ### 🚀 Dual-Engine Collaborative Development
 
@@ -92,8 +92,30 @@ codex-review-trigger.sh activates
        ↓
 Outputs: "🔍 CODEX REVIEW TRIGGERED"
        ↓
-Suggests: `codex -q "Review {file} for bugs and security"`
+Auto-executes: scripts/review.sh (if CODEX_AUTO_REVIEW=true)
+       ↓
+Or suggests: `codex exec --json "Review {file}"`
 ```
+
+### Codex CLI Integration (Official Syntax)
+
+```bash
+# Non-interactive execution (scripts use this)
+codex exec --json "Review this code for bugs..."
+codex exec "Generate tests for this file..."
+
+# Enable auto-review after every Edit/Write
+export CODEX_AUTO_REVIEW=true
+```
+
+Each Codex skill now includes executable scripts:
+
+| Skill | Script | Usage |
+|-------|--------|-------|
+| codex-reviewer | `scripts/review.sh` | `./scripts/review.sh path/to/file.ts` |
+| codex-test-gen | `scripts/generate.sh` | `./scripts/generate.sh src/service.ts` |
+| codex-doc-reviewer | `scripts/review-docs.sh` | `./scripts/review-docs.sh docs/api.md --enhance` |
+| codex-research-gen | `scripts/research.sh` | `./scripts/research.sh "React vs Vue"` |
 
 ### Stuck Detection & Role Swap
 
@@ -153,7 +175,7 @@ Ultra Builder Pro 4.3 is a **dual-engine AI-powered development workflow system*
 ## System Architecture
 
 ```
-Ultra Builder Pro 4.3.0 (Dual-Engine)
+Ultra Builder Pro 4.3.2 (Dual-Engine)
 │
 ├── CLAUDE.md                          # Single source of truth (config + principles)
 │
@@ -189,11 +211,15 @@ Ultra Builder Pro 4.3.0 (Dual-Engine)
 │   ├── smart-contract/                # Solidity + Foundry patterns
 │   ├── skill-creator/                 # Guide for creating skills
 │   │
-│   │   # 🆕 Codex Skills (Dual-Engine)
+│   │   # 🆕 Codex Skills (Dual-Engine) - with scripts/
 │   ├── codex-reviewer/                # Code review (100-point scoring)
+│   │   └── scripts/review.sh          # CLI execution script
 │   ├── codex-test-gen/                # Test generation (6D coverage)
+│   │   └── scripts/generate.sh        # CLI execution script
 │   ├── codex-doc-reviewer/            # Doc review + enhancement
+│   │   └── scripts/review-docs.sh     # CLI execution script
 │   └── codex-research-gen/            # Research with 90%+ confidence
+│       └── scripts/research.sh        # CLI execution script
 │
 ├── agents/                            # 2 Expert agents (Anthropic-compliant)
 │   ├── ultra-architect-agent.md       # Architecture design (opus)
@@ -348,12 +374,20 @@ codex-review-trigger.sh
        ↓
 Detects code file modification
        ↓
-Outputs: "🔍 CODEX REVIEW TRIGGERED"
-       ↓
-Suggests: codex -q "Review {file} for bugs and security"
+CODEX_AUTO_REVIEW=true?
+       ├─ Yes → Auto-execute scripts/review.sh (background)
+       └─ No  → Output reminder with command
        ↓
 Tracks error history for stuck detection
 ```
+
+**Environment Variables:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CODEX_AUTO_REVIEW` | `false` | Enable automatic review after Edit/Write |
+| `CODEX_MIN_SCORE` | `80` | Minimum score to pass review |
+| `CODEX_TIMEOUT` | `120` | Timeout in seconds |
 
 ---
 
@@ -439,7 +473,16 @@ claude
 
 ## Version History
 
-### v4.3.0 (2025-12-30) - Dual-Engine Collaborative Development 🚀
+### v4.3.2 (2025-12-30) - Codex CLI Integration & Official Standards 🚀
+
+- **Codex CLI Fix**: Corrected syntax from `codex -q` to official `codex exec`
+- **scripts/ Directory**: Each Codex skill now has executable scripts per skill-creator standard
+- **Auto-Review Toggle**: `CODEX_AUTO_REVIEW=true` enables automatic review after Edit/Write
+- **SKILL.md Optimization**: Aligned with official skill-creator standards (third-person descriptions)
+- **Guidelines Consolidation**: Merged guidelines/ into skills/ (single source of truth)
+- **Hook Enhancement**: codex-review-trigger.sh supports auto-execution mode
+
+### v4.3.0 (2025-12-30) - Dual-Engine Collaborative Development
 
 - **Claude Code + Codex**: Dual-engine collaboration system
 - **4 New Codex Skills**: codex-reviewer, codex-test-gen, codex-doc-reviewer, codex-research-gen
@@ -524,7 +567,7 @@ claude
 
 <div align="center">
 
-**Ultra Builder Pro 4.3.0** - Dual-Engine Collaborative Development System
+**Ultra Builder Pro 4.3.2** - Dual-Engine Collaborative Development System
 
 *Claude Code + Codex: Truth over comfort. Precision over confidence.*
 
