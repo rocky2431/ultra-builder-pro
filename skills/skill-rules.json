@@ -1,6 +1,6 @@
 {
-  "version": "4.3.1",
-  "description": "UltraBuild Pro 4.3 Skill Auto-Trigger Rules - Dual-Engine Collaborative Edition",
+  "version": "4.3.2",
+  "description": "UltraBuild Pro 4.3.2 Skill Auto-Trigger Rules - Priority Stack + Behavioral Directives Edition",
   "dualEngineConfig": {
     "enabled": true,
     "primaryBackend": "claude",
