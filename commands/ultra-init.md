@@ -162,22 +162,30 @@ Create `.ultra/tasks/tasks.json`:
 
 ### 4. Copy All Template Files
 
-**Simply copy entire `.claude/.ultra-template/` directory to project's `.ultra/`**:
+**Copy `.claude/.ultra-template/` contents:**
 
-All files and directories are copied as-is from the template:
+**To `.ultra/` directory:**
 - Specs: `specs/product.md`, `specs/architecture.md`, subdirectories
 - Tasks: `tasks/tasks.json`
 - Docs: `docs/decisions/`, `docs/research/`
-- Additional: `changes/`, `context-archive/`
+- Additional: `changes/`, `context-archive/`, `thinking-sessions/`
+
+**To project root:**
+- `CLAUDE.md` - Project-level context file (Claude Code auto-reads this)
+
+**Note**: CLAUDE.md contains placeholder text until /ultra-research completes
 
 ### 5. Git Integration (Based on User Choice)
 
 **If user chose "Initialize Git repository"** or **"Reinitialize Git"**:
 - If reinitializing: Backup existing `.git/` to `.git.backup.{timestamp}`
 - Initialize repo: `git init`
-- Create `.gitignore` (exclude .ultra/backups, secrets, build artifacts)
+- Create `.gitignore`:
+  - Exclude `.ultra/backups`, `.ultra/context-archive/`
+  - Exclude `CLAUDE.local.md` (personal config, not shared)
+  - Exclude secrets, build artifacts
 - Create basic `README.md` (if not exists)
-- Suggest first commit: `git add . && git commit -m "feat: initialize Ultra Builder Pro 4.2"`
+- Suggest first commit: `git add . && git commit -m "feat: initialize Ultra Builder Pro 4.3"`
 
 **If user chose "Keep existing Git repository"** or **"Don't use Git"**:
 - Skip Git operations
@@ -189,6 +197,7 @@ Show in Chinese:
 - Template files copied
 - Task system initialized (tasks.json)
 - Specification templates ready (product.md, architecture.md with [NEEDS CLARIFICATION] markers)
+- **CLAUDE.md created** (placeholder, completed after /ultra-research)
 
 **CRITICAL NEXT STEP - Research Phase (DO NOT SKIP)**:
 

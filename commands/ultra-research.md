@@ -166,6 +166,30 @@ Delegate to codex-research-gen skill for deep technical analysis with 90%+ confi
 - ✅ Overall rating ≥4 stars, no round <3 stars
 - ✅ **All recommendations have 90%+ confidence**
 - ✅ **All code examples are production-ready**
+- ✅ **Project-level CLAUDE.md generated** (NEW)
+
+---
+
+## Final Step: Generate Project CLAUDE.md
+
+**After all rounds complete, generate project-level CLAUDE.md:**
+
+1. **Read source files**:
+   - `specs/product.md` → Project Overview
+   - `specs/architecture.md` → Tech Stack, Development Rules
+   - `.ultra/docs/research/*` → Known Risks
+   - `.ultra/tasks/tasks.json` → Current Focus
+
+2. **Generate CLAUDE.md** at project root:
+   - Use template from syncing-docs skill
+   - Limit to ~500 words
+   - Include generation timestamp
+
+3. **Verify .gitignore**:
+   - Ensure `CLAUDE.local.md` is ignored (personal config)
+   - `CLAUDE.md` should be committed (shared context)
+
+**Purpose**: Claude Code automatically reads project-level CLAUDE.md, providing consistent project context for every conversation.
 
 ---
 
@@ -177,16 +201,18 @@ Delegate to codex-research-gen skill for deep technical analysis with 90%+ confi
 | `specs/architecture.md` | Tech stack with rationale |
 | `.ultra/docs/research/*.md` | Round-specific analysis reports |
 | `.ultra/docs/research/metadata.json` | Quality metrics + confidence scores |
+| **`CLAUDE.md` (project root)** | Project context for Claude Code (NEW) |
 
 ---
 
 ## Integration
 
-- **Skills**: codex-research-gen (research enhancement)
+- **Skills**: codex-research-gen (research enhancement), **syncing-docs (CLAUDE.md generation)**
 - **Think**: Each round invokes /ultra-think for 6D analysis
 - **MCP**: Round 3 uses Context7 (docs) + Exa (code examples)
 - **Dual-Engine**: Claude Code (questions) + Codex (verification)
 - **Next**: guiding-workflow suggests /ultra-plan when complete
+- **Output**: syncing-docs generates project CLAUDE.md on completion
 
 ---
 
