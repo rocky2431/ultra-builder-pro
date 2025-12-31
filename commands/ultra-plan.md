@@ -103,65 +103,84 @@ ELSE:
 
 **Output**: Cached analysis for use in task generation
 
-### 3. Task Generation (AI-Optimized)
+### 3. Task Generation (Split Architecture)
 
-**Core principle**: Each task must be **self-contained** - AI can execute without reading external specs.
+**Core principle**: Separate metadata (JSON) from context (Markdown) for better maintainability.
 
-**Task structure**:
-
-| Field | Purpose | Required |
-|-------|---------|----------|
-| `id`, `title` | Identification | Yes |
-| `type` | architecture / feature / bugfix | Yes |
-| `priority`, `complexity` | Planning | Yes |
-| `dependencies` | Execution order | Yes |
-| `context` | WHAT + WHY (business value) | Yes (new) |
-| `implementation` | WHERE + HOW (technical guidance) | Yes (new) |
-| `acceptance` | DONE criteria (executable tests) | Yes (new) |
-| `trace_to` | Spec linkage for human review | Yes (new) |
-
-**context object**:
-```json
-{
-  "what": "Clear description of what to build/change",
-  "why": "Business value linking to Persona + Scenario from specs",
-  "constraints": ["Specific technical or business constraints"]
-}
+**Output structure**:
+```
+.ultra/tasks/
+├── tasks.json           # Lightweight registry (metadata only)
+└── contexts/
+    ├── task-1.md        # Full context for task 1
+    ├── task-2.md        # Full context for task 2
+    └── ...
 ```
 
-**implementation object** (auto-generated from codebase analysis):
-```json
-{
-  "target_files": [
-    "src/api/auth/login.ts (create)",
-    "src/api/auth/index.ts (modify: add route)"
-  ],
-  "patterns": "Follow existing pattern in src/api/users/",
-  "tech_notes": "Use jsonwebtoken@9.x, bcrypt for password hashing"
-}
+**tasks.json** (lightweight - only metadata):
+
+| Field | Purpose |
+|-------|---------|
+| `id`, `title` | Identification |
+| `type` | architecture / feature / bugfix |
+| `priority`, `complexity` | Planning |
+| `status` | pending / in_progress / completed / blocked |
+| `dependencies` | Execution order |
+| `estimated_days` | Effort estimate |
+| `context_file` | Path to context MD file |
+| `trace_to` | Spec linkage for human review |
+
+**task-{id}.md** (full context - human readable):
+
+```markdown
+# Task {id}: {title}
+
+> **Status**: pending | **Priority**: P0 | **Complexity**: 4
+
+## Context
+**What**: [Clear description]
+**Why**: [Business value + Persona/Scenario link]
+**Constraints**:
+- [Constraint 1]
+- [Constraint 2]
+
+## Implementation
+**Target Files**:
+- `path/to/file.ts` (create)
+- `path/to/existing.ts` (modify: description)
+
+**Pattern**: [Reference to existing code]
+**Tech Notes**: [Framework/library guidance]
+
+## Acceptance
+**Tests**:
+- [ ] `test command`
+- [ ] Pass: [scenario description]
+
+**Verification**:
+\`\`\`bash
+curl -X POST localhost:3000/api/example
+\`\`\`
+
+## Trace
+**Source**: `.ultra/specs/product.md#section-id`
+
+## Change Log
+| Date | Change | Reason |
+|------|--------|--------|
 ```
 
-**acceptance object**:
-```json
-{
-  "tests": [
-    "npm test -- --grep 'auth/login'",
-    "Pass: valid credentials → 200 + JWT token",
-    "Pass: invalid password → 401"
-  ],
-  "verification": "curl -X POST localhost:3000/api/auth/login -d '{...}'"
-}
-```
+**Benefits of split architecture**:
+- tasks.json stays small (~2KB vs ~50KB)
+- Context files are human-editable Markdown
+- Git diff shows only changed task files
+- Parallel development without merge conflicts
+- AI reads only current task context (token efficient)
 
 **Task granularity guideline**:
 - Ideal complexity: 3-5 (completable in one session)
 - Too large (>6): Break down using ultra-architect-agent
 - Too small (<3): Merge with related tasks
-
-**trace_to generation**:
-- Product tasks: `.ultra/specs/product.md#section-id` (§1-3 Personas/Scenarios, §4-5 Features)
-- Architecture tasks: `.ultra/specs/architecture.md#section-id` (§1-6 Design, §7-12 Quality/Deployment)
-- Old projects: Omit trace_to field (backward compatibility)
 
 ### 4. Dependency Analysis
 
@@ -170,9 +189,14 @@ ELSE:
 - Order tasks topologically
 - Identify parallel opportunities
 
-### 5. Save Tasks
+### 5. Save Tasks (Split Output)
 
-Save to `.ultra/tasks/tasks.json`:
+**Step 1**: Create contexts directory (if not exists):
+```bash
+mkdir -p .ultra/tasks/contexts
+```
+
+**Step 2**: Save lightweight tasks.json:
 ```json
 {
   "version": "4.4",
@@ -187,39 +211,57 @@ Save to `.ultra/tasks/tasks.json`:
       "status": "pending",
       "dependencies": [],
       "estimated_days": 2,
-
-      "context": {
-        "what": "Create POST /api/auth/login endpoint with JWT token generation",
-        "why": "Users need secure authentication to access protected resources (Persona: Developer, Scenario: Daily Login)",
-        "constraints": ["Use bcrypt for password", "JWT expires in 24h", "401 on failure without details"]
-      },
-
-      "implementation": {
-        "target_files": [
-          "src/api/auth/login.ts (create)",
-          "src/api/auth/index.ts (modify: add route)",
-          "src/types/auth.ts (create)"
-        ],
-        "patterns": "Follow src/api/users/ endpoint pattern",
-        "tech_notes": "Express.js + jsonwebtoken + bcrypt"
-      },
-
-      "acceptance": {
-        "tests": [
-          "npm test -- --grep 'POST /api/auth/login'",
-          "Pass: valid credentials → 200 + token",
-          "Pass: invalid password → 401"
-        ],
-        "verification": "curl -X POST localhost:3000/api/auth/login -d '{\"email\":\"test@example.com\",\"password\":\"test\"}'"
-      },
-
+      "context_file": "contexts/task-1.md",
       "trace_to": ".ultra/specs/product.md#user-authentication"
     }
   ]
 }
 ```
 
-**Backward compatibility**: `context`, `implementation`, `acceptance` are optional for old projects
+**Step 3**: Generate context file for each task (`.ultra/tasks/contexts/task-{id}.md`):
+```markdown
+# Task 1: Implement JWT login endpoint
+
+> **Status**: pending | **Priority**: P0 | **Complexity**: 4
+
+## Context
+**What**: Create POST /api/auth/login endpoint with JWT token generation
+**Why**: Users need secure authentication (Persona: Developer, Scenario: Daily Login)
+**Constraints**:
+- Use bcrypt for password verification
+- JWT expires in 24h
+- Return 401 on failure without exposing details
+
+## Implementation
+**Target Files**:
+- `src/api/auth/login.ts` (create)
+- `src/api/auth/index.ts` (modify: add route)
+- `src/types/auth.ts` (create)
+
+**Pattern**: Follow existing endpoint pattern in `src/api/users/`
+**Tech Notes**: Express.js + jsonwebtoken + bcrypt
+
+## Acceptance
+**Tests**:
+- [ ] `npm test -- --grep 'POST /api/auth/login'`
+- [ ] Pass: valid credentials → 200 + token
+- [ ] Pass: invalid password → 401
+
+**Verification**:
+\`\`\`bash
+curl -X POST localhost:3000/api/auth/login -d '{"email":"test@example.com","password":"test"}'
+\`\`\`
+
+## Trace
+**Source**: `.ultra/specs/product.md#user-authentication`
+
+## Change Log
+| Date | Change | Reason |
+|------|--------|--------|
+| {date} | Initial creation | Generated by /ultra-plan |
+```
+
+**Backward compatibility**: Old projects without `context_file` field still work (ultra-dev reads embedded context or trace_to)
 
 ### 6. Update Project Context
 

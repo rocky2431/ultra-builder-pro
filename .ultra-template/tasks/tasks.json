@@ -16,7 +16,7 @@
     "totalEstimatedDays": 0
   },
   "_schema": {
-    "_comment": "Task schema reference - delete this section in actual use",
+    "_comment": "Lightweight task registry - full context in contexts/task-{id}.md",
     "task_example": {
       "id": "1",
       "title": "Action verb + specific target",
@@ -26,29 +26,7 @@
       "status": "pending|in_progress|completed|blocked",
       "dependencies": ["task_id"],
       "estimated_days": 2,
-
-      "context": {
-        "what": "Clear description of what to build/change",
-        "why": "Business value and user benefit (link to Persona/Scenario)",
-        "constraints": ["Technical or business constraints"]
-      },
-
-      "implementation": {
-        "target_files": [
-          "path/to/file.ts (create|modify|delete)"
-        ],
-        "patterns": "Reference to existing code patterns to follow",
-        "tech_notes": "Framework/library specific guidance"
-      },
-
-      "acceptance": {
-        "tests": [
-          "Test command or description",
-          "Expected pass: scenario description"
-        ],
-        "verification": "Manual verification command if applicable"
-      },
-
+      "context_file": "contexts/task-1.md",
       "trace_to": ".ultra/specs/product.md#section-id"
     }
   }
