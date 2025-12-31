@@ -6,25 +6,17 @@ allowed-tools: TodoWrite, Bash, Read, Write, Task, Grep, Glob
 
 # /ultra-test
 
-## Purpose
-
 Pre-delivery quality audit. Validates test health, coverage gaps, E2E functionality, performance, and security.
 
-**Note**: This is NOT for running unit tests (that's `/ultra-dev` Step 3-4). This is for auditing overall project quality before `/ultra-deliver`.
+**Note**: This is NOT for running unit tests (that's `/ultra-dev`). This is for auditing overall project quality before `/ultra-deliver`.
 
 ---
 
-## Pre-Execution Checks
+## Pre-Execution
 
-1. **Detect project type** (for test command reference):
-   - Node.js: `package.json` → read `scripts.test`
-   - Python: `pyproject.toml` or `pytest.ini` → pytest
-   - Go: `go.mod` → `go test`
-   - Rust: `Cargo.toml` → `cargo test`
-
-2. **Check prerequisites**:
-   - At least one task completed in `.ultra/tasks/tasks.json`
-   - Test files exist (`**/*.test.*` or `**/*.spec.*` or `**/test_*.py`)
+1. Detect project type from config files (package.json, Cargo.toml, go.mod, pyproject.toml, etc.)
+2. Verify at least one task completed in `.ultra/tasks/tasks.json`
+3. Verify test files exist
 
 ---
 
@@ -34,137 +26,76 @@ Pre-delivery quality audit. Validates test health, coverage gaps, E2E functional
 
 **Purpose**: Detect fake/meaningless tests before they waste CI time.
 
-**Scan patterns** (auto-detect based on project type):
-- TypeScript/JavaScript: `**/*.test.ts`, `**/*.spec.ts`, `**/*.test.js`, `**/*.spec.js`
-- Python: `**/test_*.py`, `**/*_test.py`
-- Go: `**/*_test.go`
+**What to detect**:
+1. **Tautology**: Assertions that always pass (e.g., `assert True`, `expect(true).toBe(true)`)
+2. **Empty test**: Test functions with no logic inside
+3. **Core logic mock**: Mocking domain/core/services code (violates test authenticity)
 
-**Detection Rules** (auto-detect based on project type):
-
-**JavaScript/TypeScript (Jest/Vitest)**:
-| Pattern | Severity | Regex |
-|---------|----------|-------|
-| Tautology | CRITICAL | `expect\((true\|false\|1\|0)\)\.toBe\(\1\)` |
-| Empty test | CRITICAL | `(it\|test)\([^)]+,\s*\(\)\s*=>\s*\{\s*\}\)` |
-| Core logic mock | CRITICAL | `(mock\|jest\.mock)\(['"]\.\/(domain\|core\|services)/` |
-
-**Python (pytest)**:
-| Pattern | Severity | Regex |
-|---------|----------|-------|
-| Tautology | CRITICAL | `assert\s+(True\|False\|1\|0)\s*$` |
-| Empty test | CRITICAL | `def test_\w+\([^)]*\):\s*(pass\|\.\.\.)\s*$` |
-| Core logic mock | CRITICAL | `@patch\(['"](domain\|core\|services)` |
-
-**Go**:
-| Pattern | Severity | Regex |
-|---------|----------|-------|
-| Empty test | CRITICAL | `func Test\w+\(t \*testing\.T\)\s*\{\s*\}` |
-| No assertion | WARNING | Test function without `t.Error`/`t.Fatal`/`t.Assert` |
-
-**Process**:
-1. Use Grep to scan test files for each pattern
-2. Count matches per pattern
-3. Report findings
+**How**:
+1. Identify test file patterns for detected language
+2. Construct appropriate regex for each anti-pattern
+3. Use Grep to scan and count matches
 
 **Result**:
-- ❌ **BLOCKED**: Any CRITICAL pattern found → must fix before delivery
-- ⚠️ **WARNING**: Only WARNING patterns found → can proceed with note
-- ✅ **PASS**: No anti-patterns detected
+- ❌ BLOCKED: Any critical anti-pattern found
+- ⚠️ WARNING: Minor issues found
+- ✅ PASS: No anti-patterns
 
 ---
 
 ### Step 2: Coverage Gap Analysis
 
-**Purpose**: Find untested code that coverage % misses.
+**Purpose**: Find exported functions/classes not referenced in any test file.
 
-**Process** (auto-detect based on project type):
-
-1. Find all exported symbols:
-   - **JS/TS**: `export (function|const|class) (\w+)`
-   - **Python**: `def (\w+)` (public functions, not starting with `_`)
-   - **Go**: `func ([A-Z]\w+)` (uppercase = exported)
-
-2. Search for each symbol in test files
+**What to do**:
+1. Find all exported/public symbols in source code
+2. Search for each symbol name in test files
 3. Report symbols with 0 test references
 
 **Output**: `.ultra/docs/test-coverage-gaps.md`
 
-```markdown
-# Test Coverage Gaps Report
-
-## Summary
-- Exported Symbols: 45
-- Untested: 8
-- Symbol Coverage: 82%
-
-## Untested Functions
-- ❌ `deleteUser` (src/services/user.ts) - HIGH priority
-- ❌ `validateInput` (src/utils/validation.ts) - MEDIUM priority
-```
+**Priority**:
+- HIGH: Core business logic untested
+- MEDIUM: Utility functions untested
+- LOW: Config/constants untested
 
 ---
 
-### Step 3: E2E Testing (if applicable)
+### Step 3: E2E Testing
 
-**Trigger**: Project has frontend or web application
+**Trigger**: Project has web UI or API endpoints
 
 **Method**: Claude Code native Chrome capability (`mcp__claude-in-chrome__*`)
 
-**Process**:
-1. Start dev server (auto-detect):
-   - **Node.js**: Read `scripts.dev` or `scripts.start` from `package.json`
-   - **Python**: Check for `manage.py runserver`, `flask run`, `uvicorn`
-   - **Go**: Check for `main.go` with HTTP server
-2. Navigate to key pages
-3. Verify critical elements render (`read_page`, `find`)
-4. Check for console errors (`read_console_messages`)
-5. Test primary user flows (form submission, navigation, etc.)
-6. Take screenshots for verification (`computer` action=screenshot)
+**What to do**:
+1. Start dev server (detect start command from project config)
+2. Navigate to key pages/endpoints
+3. Verify elements render correctly
+4. Check for console errors
+5. Test primary user flows
 
 **Result**:
-- ✅ **PASS**: All pages load, no console errors, flows complete
-- ❌ **BLOCKED**: Critical pages fail to load or major console errors
+- ✅ PASS: All pages load, no errors, flows complete
+- ❌ BLOCKED: Critical pages fail or major errors
 
 ---
 
-### Step 4: Performance Testing (frontend only)
+### Step 4: Performance Testing
 
-**Trigger**: Project has frontend (React/Vue/Next.js/etc.)
+**Trigger**: Project has frontend
 
-**Core Web Vitals targets**:
+**What to measure** (Core Web Vitals):
+- LCP (Largest Contentful Paint): <2.5s
+- INP (Interaction to Next Paint): <200ms
+- CLS (Cumulative Layout Shift): <0.1
 
-| Metric | Target | Tool |
-|--------|--------|------|
-| LCP (Largest Contentful Paint) | <2.5s | Lighthouse |
-| INP (Interaction to Next Paint) | <200ms | Lighthouse |
-| CLS (Cumulative Layout Shift) | <0.1 | Lighthouse |
-
-**Process**:
-1. Detect dev server (reuse Step 3 detection)
-2. Start dev server if not running
-3. Run Lighthouse on detected URL
-4. Parse results and compare against targets
+**How**: Run Lighthouse on dev server URL
 
 ---
 
 ### Step 5: Security Audit
 
-**Process**:
-1. Run dependency audit
-2. Check for known vulnerabilities
-3. Report findings
-
-**Auto-detect commands**:
-```bash
-# Node.js
-npm audit --json
-
-# Python
-pip-audit --format json
-
-# Go
-govulncheck ./...
-```
+**What to do**: Run dependency vulnerability scan using project's package manager audit command.
 
 **Severity handling**:
 - Critical/High: ❌ BLOCKED
@@ -179,7 +110,7 @@ All must pass for `/ultra-deliver`:
 
 | Gate | Requirement |
 |------|-------------|
-| Anti-Pattern | No CRITICAL patterns detected |
+| Anti-Pattern | No critical patterns detected |
 | Coverage Gaps | No HIGH priority untested functions |
 | E2E | All tests pass (if applicable) |
 | Performance | Core Web Vitals pass (if frontend) |
@@ -189,58 +120,7 @@ All must pass for `/ultra-deliver`:
 
 ## Output
 
-**Quality Audit Report** (Chinese at runtime):
-
-```
-🧪 Quality Audit Report
-========================
-
-📊 Anti-Pattern Detection: ✅ PASS
-   - 15 test files scanned
-   - 0 CRITICAL patterns
-   - 1 WARNING (no assertion in 1 test)
-
-📈 Coverage Gaps: 3 untested functions ⚠️
-   - HIGH: 1 (deleteUser)
-   - MEDIUM: 2
-
-🌐 E2E Tests: 12/12 passed ✅
-   - Method: Playwright
-
-⚡ Performance:
-   - LCP: 1.8s ✅
-   - INP: 150ms ✅
-   - CLS: 0.05 ✅
-
-🔒 Security: 0 critical, 2 medium ⚠️
-
-Overall: ⚠️ PASS with warnings
-Action: Fix coverage gaps before /ultra-deliver
-```
-
----
-
-## Integration
-
-- **Prerequisites**: At least one task completed via `/ultra-dev`
-- **Input**: Test files, source code, package configs
-- **Output**:
-  - `.ultra/docs/test-coverage-gaps.md`
-  - Quality report (terminal)
-- **Next**: `/ultra-deliver` (if all gates pass)
-
----
-
-## Comparison with /ultra-dev
-
-| Aspect | /ultra-dev | /ultra-test |
-|--------|------------|-------------|
-| When | Per task | Before delivery |
-| Focus | TDD for single task | Project-wide audit |
-| Unit tests | Run & write | Detect anti-patterns |
-| E2E | ❌ | ✅ (Chrome MCP) |
-| Performance | ❌ | ✅ (Lighthouse) |
-| Security | ❌ | ✅ (Dependency audit) |
+Display Quality Audit Report in Chinese.
 
 ---
 
