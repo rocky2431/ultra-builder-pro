@@ -120,6 +120,36 @@ All must pass for `/ultra-deliver`:
 
 ## Output
 
+### 1. Persist Results
+
+Write `.ultra/test-report.json`:
+
+```json
+{
+  "timestamp": "2025-01-01T03:00:00Z",
+  "git_commit": "abc123",
+  "passed": false,
+  "run_count": 1,
+  "gates": {
+    "anti_pattern": { "passed": true, "critical": 0, "warning": 1 },
+    "coverage_gaps": { "passed": false, "high": 2, "medium": 3 },
+    "e2e": { "passed": true, "skipped": false },
+    "performance": { "passed": true, "lcp": 1.8, "inp": 150, "cls": 0.05 },
+    "security": { "passed": true, "critical": 0, "high": 0, "medium": 2 }
+  },
+  "blocking_issues": [
+    "Coverage Gap: deleteUser (src/services/user.ts) - HIGH"
+  ]
+}
+```
+
+**Rules**:
+- If file exists, increment `run_count`
+- `passed` = all gates passed
+- `blocking_issues` = list of reasons for failure
+
+### 2. Display Report
+
 Display Quality Audit Report in Chinese.
 
 ---

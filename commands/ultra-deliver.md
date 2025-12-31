@@ -16,16 +16,12 @@ Prepare for delivery with performance optimization, security audit, and document
 
 ### Validation 1: /ultra-test Passed
 
-Verify `/ultra-test` was run and all gates passed:
-- No CRITICAL anti-patterns detected
-- No HIGH priority coverage gaps
-- E2E tests pass (if applicable)
-- Core Web Vitals pass (if frontend)
-- No critical/high security vulnerabilities
+Read `.ultra/test-report.json` and verify:
+- File exists (if not: "❌ Run /ultra-test first")
+- `passed` is `true` (if not: show `blocking_issues` and block)
+- `git_commit` matches current HEAD (if not: "⚠️ Code changed since last test, re-run /ultra-test")
 
-If not run or failed:
-- Report: "❌ Run /ultra-test first"
-- Block delivery
+If validation fails, block delivery.
 
 ### Validation 2: No Uncommitted Changes
 
@@ -37,14 +33,11 @@ If unclean:
 
 ### Validation 3: Specs Up-to-Date
 
-Verify specs/ reflects current state (Dual-Write Mode ensures this during development).
+Run `git diff .ultra/specs/` to check for uncommitted spec changes.
 
-Check `.ultra/tasks/contexts/task-*.md` Change Log sections for any untracked spec updates.
-
-If inconsistency found:
-- Report: "⚠️ Context files reference spec changes not reflected in specs/"
-- List affected sections
-- Ask user to verify
+If changes found:
+- Report: "⚠️ Uncommitted spec changes"
+- Ask user to commit or discard
 
 ---
 
@@ -59,53 +52,25 @@ Task(subagent_type="ultra-performance-agent",
      prompt="Analyze and optimize performance. Focus on Core Web Vitals (LCP<2.5s, INP<200ms, CLS<0.1) and bottleneck identification.")
 ```
 
-### Step 2: Verify Security (from /ultra-test)
+### Step 2: Verify Security
 
-Security audit was performed in `/ultra-test`. Review results and ensure no blockers remain.
+Security results already in `.ultra/test-report.json` (validated in Pre-Delivery).
 
-If new dependencies added after `/ultra-test`:
-- Re-run security check (auto-detect package manager)
-- Block if critical/high issues found
+If `git_commit` mismatch detected, Validation 1 already blocked.
 
 ### Step 3: Documentation Update
-
-**Step 3.1: Draft Documentation**
 
 **CHANGELOG.md**:
 1. Run `git log --oneline` since last release tag
 2. Categorize by Conventional Commit prefix (feat→Added, fix→Fixed, etc.)
 3. Update CHANGELOG.md with new version section
 
-**Technical Debt**:
-1. Use Grep to find TODO/FIXME/HACK markers in code
-2. Generate `.ultra/docs/technical-debt.md` with categorized items
+**Technical Debt** (optional):
+1. Use Grep to find TODO/FIXME/HACK markers
+2. Generate `.ultra/docs/technical-debt.md`
 
-**API Documentation / README updates**:
-1. Draft based on code changes
-2. Include basic usage examples
-
-**Step 3.2: Review Documentation**
-
-Check for:
-1. Technical accuracy (code examples work)
-2. Completeness (all APIs documented)
-3. Clarity (no ambiguity)
-4. Practical examples
-
-**Step 3.3: Enhance Documentation**
-
-Add:
-1. More code examples (covering edge cases)
-2. FAQ section (common questions)
-3. Best practices
-4. Troubleshooting guide
-5. Migration notes (if applicable)
-
-**Step 3.4: Final Review**
-
-- Ensure consistent style and tone
-- Verify accuracy
-- Final approval before commit
+**README** (if API changed):
+1. Update usage examples to reflect changes
 
 ### Step 4: Production Build
 
