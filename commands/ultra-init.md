@@ -164,7 +164,7 @@ Create `.ultra/tasks/tasks.json`:
 **To `.ultra/` directory:**
 - Specs: `.ultra/specs/product.md`, `.ultra/specs/architecture.md`, subdirectories
 - Tasks: `.ultra/tasks/tasks.json`
-- Docs: `.ultra/docs/decisions/`, `.ultra/docs/research/`
+- Docs: `.ultra/docs/research/`
 - Additional: `.ultra/changes/`
 
 **To project root:**

@@ -454,14 +454,6 @@ See `.ultra/config.json` for all coverage targets:
 - Resource limits: [CPU, Memory]
 - Auto-scaling triggers: [CPU >70%, Memory >80%]
 
-## Architecture Decisions
-
-All major decisions documented as ADRs in `.ultra/docs/decisions/`:
-
-1. ADR-001: Technology Stack Selection
-2. ADR-002: Database Choice
-3. ADR-003: [Add as you make decisions]
-
 ## 12. Open Questions
 
 ### 12.1 Technical Uncertainties
