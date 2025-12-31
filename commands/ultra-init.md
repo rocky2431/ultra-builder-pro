@@ -147,7 +147,6 @@ Create `.ultra/` by copying from template (`.claude/.ultra-template/`):
 
 **Additional Directories**:
 - `changes/` - Feature proposals (OpenSpec pattern)
-- `context-archive/` - Compressed context sessions
 
 **Template Source**: All files copied from `.claude/.ultra-template/`
 
@@ -168,7 +167,7 @@ Create `.ultra/tasks/tasks.json`:
 - Specs: `specs/product.md`, `specs/architecture.md`, subdirectories
 - Tasks: `tasks/tasks.json`
 - Docs: `docs/decisions/`, `docs/research/`
-- Additional: `changes/`, `context-archive/`, `thinking-sessions/`
+- Additional: `changes/`, `thinking-sessions/`
 
 **To project root:**
 - `CLAUDE.md` - Project-level context file (Claude Code auto-reads this)
@@ -181,7 +180,7 @@ Create `.ultra/tasks/tasks.json`:
 - If reinitializing: Backup existing `.git/` to `.git.backup.{timestamp}`
 - Initialize repo: `git init`
 - Create `.gitignore`:
-  - Exclude `.ultra/backups`, `.ultra/context-archive/`
+  - Exclude `.ultra/backups`
   - Exclude `CLAUDE.local.md` (personal config, not shared)
   - Exclude secrets, build artifacts
 - Create basic `README.md` (if not exists)

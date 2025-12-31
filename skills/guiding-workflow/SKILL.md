@@ -13,7 +13,6 @@ This skill activates when:
 - A workflow phase completes (init, research, plan, dev, test, deliver)
 - User asks "what's next?" or similar
 - User seems uncertain after command completion
-- Session recovery detected
 
 ## Resources
 
@@ -54,30 +53,6 @@ Based on detected state:
 | Tasks planned | `/ultra-dev` | Start implementation |
 | Tasks complete | `/ultra-test` | Quality validation |
 | Tests pass | `/ultra-deliver` | Prepare deployment |
-
-## Session Recovery
-
-When `.ultra/context-archive/session-index.json` exists:
-
-1. Read last session information
-2. Display recovery summary
-3. Offer options: Resume / Start Fresh / View History
-
-**Recovery output format:**
-
-```
-========================
-检测到会话恢复
-========================
-上次会话：{timestamp}
-已完成任务：{count} 个
-关键决策：{decisions}
-
-恢复点：Task #{nextTask}
-
-建议：继续执行 /ultra-dev Task #{nextTask}
-========================
-```
 
 ## Project Type Adaptation
 
