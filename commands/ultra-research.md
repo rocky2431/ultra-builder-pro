@@ -1,12 +1,12 @@
 ---
-description: Think-Driven Interactive Discovery - Deep research with 6-dimensional analysis and Dual-Engine collaboration
+description: Think-Driven Interactive Discovery - Deep research with 6-dimensional analysis
 argument-hint: [topic]
 allowed-tools: TodoWrite, Task, Read, Write, WebSearch, WebFetch, Grep, Glob
 ---
 
 # Ultra Research
 
-Transform vague ideas into complete specifications through progressive interactive discovery with **Dual-Engine collaboration** (Claude Code + Codex).
+Transform vague ideas into complete specifications through progressive interactive discovery.
 
 **Philosophy**: Research is collaborative. Each decision validated with user before proceeding. All findings must have 90%+ confidence.
 
@@ -35,21 +35,19 @@ Use AskUserQuestion to determine research scope:
 
 ---
 
-## Dual-Engine Research Flow
+## Research Flow
 
 ```
-Claude Code initiates research
+Initiate research
         ↓
-Claude Code gathers context & asks questions
+Gather context & ask questions
         ↓
-Codex deepens research (codex-research-gen)
-        - Verifies claims against official sources
-        - Adds production-ready examples
-        - Rates confidence levels (must be 90%+)
+Deep analysis with verification
+        - Verify claims against official sources
+        - Add production-ready examples
+        - Rate confidence levels (must be 90%+)
         ↓
-Claude Code reviews Codex findings
-        ↓
-Combined high-confidence output
+High-confidence output
         ↓
 Write to specs/
 ```
@@ -66,7 +64,7 @@ Write to specs/
 
 **When**: After /ultra-init, specs need clarification
 
-**Structure**: 4 rounds, each following 6-step cycle with Codex enhancement
+**Structure**: 4 rounds, each following 6-step cycle
 
 ### 6-Step Cycle (Every Round)
 
@@ -75,10 +73,6 @@ See @config/research/6-step-template.md for detailed steps:
 ```
 Step 1: Requirement Clarification (AskUserQuestion)
 Step 2: Deep Analysis (/ultra-think with 6D framework)
-Step 2.5: Codex Research Enhancement (NEW)
-        - Verify claims against sources
-        - Add production examples
-        - Rate confidence levels
 Step 3: Analysis Validation (show summary with confidence)
 Step 4: Iteration Decision (satisfied AND confidence ≥90% → continue)
 Step 5: Generate Spec Content (Write to specs/)
@@ -87,7 +81,7 @@ Step 6: Round Satisfaction Rating (1-5 stars)
 
 ### Round Overview
 
-| Round | Focus | Questions | Codex Role | Output |
+| Round | Focus | Questions | Output |
 |-------|-------|-----------|------------|--------|
 | 1: Problem Discovery | Problem space, users | Q1-5 | Verify market data | specs/product.md §1-2 |
 | 2: Solution Exploration | MVP features, stories | Q6-8 | Add implementation patterns | specs/product.md §3-5 |
@@ -98,22 +92,17 @@ Step 6: Round Satisfaction Rating (1-5 stars)
 
 ---
 
-## Mode 2: Focused Technology Research (Codex-Enhanced)
+## Mode 2: Focused Technology Research
 
 **When**: Specific tech decision during development
 
 **Duration**: 10-15 minutes
 
-**Process**: Single-round 6D comparison with Codex verification
+**Process**: Single-round 6D comparison with verification
 
-### Codex Technology Research Template
+### Technology Research Template
 
-```bash
-codex -q --json <<EOF
-Research technology options for: {topic}
-Context: {project_context}
-
-Requirements:
+Research technology options with:
 1. Compare top 3 options with evidence
 2. Include official documentation references
 3. Provide production-ready code examples
@@ -126,10 +115,6 @@ Output comparison matrix with:
 - Maintenance/community status
 - Integration complexity
 - Production readiness score
-EOF
-```
-
-Delegate to codex-research-gen skill for deep technical analysis with 90%+ confidence requirement.
 
 ---
 
@@ -207,10 +192,9 @@ Delegate to codex-research-gen skill for deep technical analysis with 90%+ confi
 
 ## Integration
 
-- **Skills**: codex-research-gen (research enhancement), **syncing-docs (CLAUDE.md generation)**
+- **Skills**: **syncing-docs (CLAUDE.md generation)**
 - **Think**: Each round invokes /ultra-think for 6D analysis
 - **MCP**: Round 3 uses Context7 (docs) + Exa (code examples)
-- **Dual-Engine**: Claude Code (questions) + Codex (verification)
 - **Next**: guiding-workflow suggests /ultra-plan when complete
 - **Output**: syncing-docs generates project CLAUDE.md on completion
 
@@ -243,4 +227,3 @@ Every research output must include confidence assessment:
 
 - @config/research/6-step-template.md - Detailed 6-step cycle
 - @config/research/round-questions.md - All core questions
-- @skills/codex-research-gen/SKILL.md - Codex research enhancement

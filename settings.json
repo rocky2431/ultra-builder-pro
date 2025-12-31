@@ -1,0 +1,67 @@
+{
+  "cleanupPeriodDays": 30,
+  "env": {
+    "MAX_THINKING_TOKENS": "31999"
+  },
+  "includeCoAuthoredBy": true,
+  "permissions": {
+    "allow": [
+      "Bash",
+      "WebSearch",
+      "WebFetch",
+      "Grep",
+      "Glob",
+      "Read",
+      "Write",
+      "Edit",
+      "NotebookEdit",
+      "Task",
+      "Skill",
+      "SlashCommand",
+      "TodoWrite",
+      "AskUserQuestion",
+      "BashOutput",
+      "KillShell",
+      "ExitPlanMode",
+      "mcp__*"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./.env.production)",
+      "Read(./.env.development)",
+      "Read(./secrets/**)",
+      "Read(./**/credentials*)",
+      "Read(./**/*secret*)",
+      "Read(./**/*password*)"
+    ]
+  },
+  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/ccline/ccline",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "superpowers@superpowers-marketplace": true,
+    "feature-dev@claude-plugins-official": true,
+    "document-skills@anthropic-agent-skills": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "csharp-lsp@claude-plugins-official": true,
+    "php-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true,
+    "claude-mem@thedotmack": true
+  },
+  "sandbox": {
+    "enabled": false,
+    "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
+  },
+  "_comment_project": "Ultra Builder Pro 4.4.0",
+  "_comment_version": "4.4.0 - Simplified (No Hooks, No Codex)"
+}

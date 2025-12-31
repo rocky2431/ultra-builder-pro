@@ -1,41 +1,13 @@
 {
-  "version": "4.3.2",
-  "description": "UltraBuild Pro 4.3.2 Skill Auto-Trigger Rules - Priority Stack + Behavioral Directives Edition",
-  "dualEngineConfig": {
-    "enabled": true,
-    "primaryBackend": "claude",
-    "reviewBackend": "codex",
-    "stuckDetection": {
-      "maxRetries": 3,
-      "sameErrorThreshold": 2,
-      "roleSwapEnabled": true
-    },
-    "researchCollaboration": {
-      "initiatorBackend": "claude",
-      "verifierBackend": "codex",
-      "minConfidence": 0.9,
-      "requireSources": true
-    },
-    "documentCollaboration": {
-      "draftBackend": "claude",
-      "reviewBackend": "codex",
-      "enhanceBackend": "codex",
-      "finalBackend": "claude"
-    },
-    "productionGradeRequirements": {
-      "prohibitedPatterns": ["TODO", "FIXME", "demo", "placeholder", "example only"],
-      "minTestConfidence": 0.9,
-      "minResearchConfidence": 0.9,
-      "requireRealImplementation": true
-    }
-  },
+  "version": "4.4.0",
+  "description": "UltraBuild Pro 4.4.0 Skill Rules - Simplified Edition (No Hooks, No Codex)",
   "commandSkillBindings": {
     "/ultra-init": [],
-    "/ultra-research": ["syncing-docs", "guiding-workflow", "codex-research-gen"],
+    "/ultra-research": ["syncing-docs", "guiding-workflow"],
     "/ultra-plan": ["guarding-quality"],
-    "/ultra-dev": ["guarding-quality", "guarding-git-workflow", "guarding-test-quality", "codex-reviewer"],
-    "/ultra-test": ["guarding-test-quality", "guarding-quality", "codex-test-gen"],
-    "/ultra-deliver": ["syncing-docs", "syncing-status", "guarding-quality", "codex-doc-reviewer"],
+    "/ultra-dev": ["guarding-quality", "guarding-git-workflow", "guarding-test-quality"],
+    "/ultra-test": ["guarding-test-quality", "guarding-quality"],
+    "/ultra-deliver": ["syncing-docs", "syncing-status", "guarding-quality"],
     "/ultra-status": ["syncing-status", "guiding-workflow"],
     "/ultra-think": ["ultra-think", "guiding-workflow"]
   },
@@ -44,7 +16,6 @@
       "type": "guard",
       "enforcement": "auto",
       "priority": "high",
-      "hookType": "PreToolUse",
       "description": "Code quality guard - SOLID principles, complexity limits",
       "promptTriggers": {
         "keywords": ["refactor", "重构", "code review", "代码审查", "代码评审", "quality", "质量", "优化代码", "改进代码"],
@@ -64,22 +35,13 @@
           "DIP": "依赖倒置原则"
         },
         "maxFunctionLines": 50,
-        "maxFunctionLines_zh": "函数最大行数 50",
         "maxNestingDepth": 3,
-        "maxNestingDepth_zh": "最大嵌套深度 3",
         "maxCyclomaticComplexity": 10,
-        "maxCyclomaticComplexity_zh": "最大圈复杂度 10",
         "requireTypeAnnotations": true,
-        "requireTypeAnnotations_zh": "必须添加类型注解",
         "namingConventions": {
           "functions": "camelCase",
           "classes": "PascalCase",
           "constants": "UPPER_SNAKE_CASE"
-        },
-        "namingConventions_zh": {
-          "functions": "函数: 小驼峰 (camelCase)",
-          "classes": "类: 大驼峰 (PascalCase)",
-          "constants": "常量: 大写下划线 (UPPER_SNAKE_CASE)"
         }
       }
     },
@@ -87,7 +49,6 @@
       "type": "guard",
       "enforcement": "auto",
       "priority": "high",
-      "hookType": "PostToolUse",
       "description": "Test quality guard - TAS scoring, ZERO MOCK enforcement",
       "promptTriggers": {
         "keywords": ["test", "测试", "TAS", "coverage", "覆盖率", "spec", "单元测试", "集成测试", "测试用例"],
@@ -112,15 +73,13 @@
           ".todo(",
           "// TODO"
         ],
-        "testDimensions": ["functional", "boundary", "exception", "performance", "security", "compatibility"],
-        "testDimensions_zh": ["功能测试", "边界测试", "异常测试", "性能测试", "安全测试", "兼容性测试"]
+        "testDimensions": ["functional", "boundary", "exception", "performance", "security", "compatibility"]
       }
     },
     "guarding-git-workflow": {
       "type": "guard",
       "enforcement": "auto",
       "priority": "critical",
-      "hookType": "PreToolUse",
       "description": "Git workflow guard - safe commits, branch strategy",
       "promptTriggers": {
         "keywords": ["commit", "提交", "push", "推送", "merge", "合并", "rebase", "变基", "branch", "分支", "git"],
@@ -135,26 +94,8 @@
           "checkout -- .",
           "rebase -i"
         ],
-        "dangerousCommands_zh": [
-          "强制推送 (push --force)",
-          "强制推送 (push -f)",
-          "硬重置 (reset --hard)",
-          "强制清理 (clean -fd)",
-          "丢弃更改 (checkout -- .)",
-          "交互式变基 (rebase -i)"
-        ],
         "requireConventionalCommits": true,
         "conventionalTypes": ["feat", "fix", "refactor", "docs", "test", "chore", "perf", "ci"],
-        "conventionalTypes_zh": {
-          "feat": "新功能",
-          "fix": "修复",
-          "refactor": "重构",
-          "docs": "文档",
-          "test": "测试",
-          "chore": "杂项",
-          "perf": "性能",
-          "ci": "持续集成"
-        },
         "branchNamingPattern": "^(feat|fix|refactor|docs|test|hotfix)/[a-z0-9-]+$",
         "protectedBranches": ["main", "master", "develop", "release/*"],
         "requireCoAuthor": true,
@@ -165,7 +106,6 @@
       "type": "sync",
       "enforcement": "auto",
       "priority": "medium",
-      "hookType": "Stop",
       "description": "Status sync - task progress, test results",
       "promptTriggers": {
         "keywords": ["status", "状态", "progress", "进度", "task", "任务", "done", "完成"],
@@ -174,25 +114,14 @@
       "statusConfig": {
         "trackingFile": ".ultra/tasks/tasks.json",
         "statusTypes": ["pending", "in_progress", "completed", "blocked"],
-        "statusTypes_zh": {
-          "pending": "待处理",
-          "in_progress": "进行中",
-          "completed": "已完成",
-          "blocked": "已阻塞"
-        },
         "autoUpdateOnTaskComplete": true,
-        "autoUpdateOnTaskComplete_zh": "任务完成时自动更新",
-        "includeTestResults": true,
-        "includeTestResults_zh": "包含测试结果",
-        "includeCodeReviewScore": true,
-        "includeCodeReviewScore_zh": "包含代码审查评分"
+        "includeTestResults": true
       }
     },
     "syncing-docs": {
       "type": "sync",
       "enforcement": "auto",
       "priority": "medium",
-      "hookType": "PostToolUse",
       "description": "Documentation sync - ADR, research reports",
       "promptTriggers": {
         "keywords": ["document", "文档", "ADR", "research", "研究", "architecture", "架构", "说明文档"],
@@ -203,7 +132,6 @@
       "type": "utility",
       "enforcement": "auto",
       "priority": "low",
-      "hookType": "SessionStart",
       "description": "Workflow guidance - next step suggestions",
       "promptTriggers": {
         "keywords": ["next", "下一步", "workflow", "工作流", "what should", "该做什么", "接下来"],
@@ -214,10 +142,9 @@
       "type": "domain",
       "enforcement": "auto",
       "priority": "high",
-      "hookType": "UserPromptSubmit",
       "description": "Frontend development - React/Vue/Next.js patterns",
       "promptTriggers": {
-        "keywords": ["frontend", "前端", "React", "Vue", "Next.js", "Nuxt", "Svelte", "component", "组件", "UI", "界面", "CSS", "样式", "页面", "布局", "响应式", "Tailwind", "Sass", "Less"],
+        "keywords": ["frontend", "前端", "React", "Vue", "Next.js", "Nuxt", "Svelte", "component", "组件", "UI", "界面", "CSS", "样式", "页面", "布局", "响应式", "Tailwind"],
         "intentPatterns": ["(build|create|fix|构建|创建|修复).*(component|组件|页面|界面)"]
       },
       "fileTriggers": {
@@ -229,210 +156,63 @@
           "INP": "< 200ms",
           "CLS": "< 0.1"
         },
-        "coreWebVitals_zh": {
-          "LCP": "最大内容绘制 < 2.5秒",
-          "INP": "交互响应延迟 < 200毫秒",
-          "CLS": "累积布局偏移 < 0.1"
-        },
         "frameworks": ["React", "Vue", "Next.js", "Nuxt", "Svelte"],
         "a11yRequired": true,
         "a11yStandard": "WCAG 2.1 AA",
-        "a11yStandard_zh": "无障碍标准 WCAG 2.1 AA",
         "responsiveBreakpoints": ["mobile", "tablet", "desktop"],
-        "responsiveBreakpoints_zh": ["移动端", "平板", "桌面端"],
-        "stateManagement": ["useState", "useReducer", "Zustand", "Pinia"],
-        "antiPatterns": [
-          "inline styles for dynamic values",
-          "prop drilling > 3 levels",
-          "useEffect without cleanup",
-          "missing key in lists"
-        ],
-        "antiPatterns_zh": [
-          "动态值使用内联样式",
-          "props 透传超过3层",
-          "useEffect 缺少清理函数",
-          "列表缺少 key 属性"
-        ]
+        "stateManagement": ["useState", "useReducer", "Zustand", "Pinia"]
       }
     },
     "backend": {
       "type": "domain",
       "enforcement": "auto",
       "priority": "high",
-      "hookType": "UserPromptSubmit",
       "description": "Backend development - API/database/security",
       "promptTriggers": {
-        "keywords": ["backend", "后端", "API", "接口", "REST", "GraphQL", "gRPC", "database", "数据库", "server", "服务器", "服务端", "auth", "认证", "鉴权", "登录", "权限", "中间件", "微服务"],
+        "keywords": ["backend", "后端", "API", "接口", "REST", "GraphQL", "gRPC", "database", "数据库", "server", "服务器", "auth", "认证", "鉴权", "登录", "权限", "中间件", "微服务"],
         "intentPatterns": ["(create|build|fix|创建|构建|修复).*(api|接口|服务)"]
       },
       "fileTriggers": {
         "pathPatterns": ["**/api/**", "**/server/**", "**/controllers/**", "**/routes/**"]
       },
       "backendConfig": {
-        "securityChecks": [
-          "SQL injection",
-          "XSS",
-          "CSRF",
-          "command injection",
-          "path traversal",
-          "auth bypass"
-        ],
-        "securityChecks_zh": [
-          "SQL 注入",
-          "跨站脚本攻击 (XSS)",
-          "跨站请求伪造 (CSRF)",
-          "命令注入",
-          "路径遍历",
-          "认证绕过"
-        ],
+        "securityChecks": ["SQL injection", "XSS", "CSRF", "command injection", "path traversal", "auth bypass"],
         "requireInputValidation": true,
-        "requireInputValidation_zh": "必须进行输入验证",
         "requireRateLimiting": true,
-        "requireRateLimiting_zh": "必须实现限流",
         "requireErrorHandling": true,
-        "requireErrorHandling_zh": "必须进行错误处理",
         "requireLogging": true,
-        "requireLogging_zh": "必须记录日志",
         "apiPatterns": ["REST", "GraphQL", "gRPC"],
         "authMethods": ["JWT", "OAuth2", "Session"],
-        "authMethods_zh": ["JWT 令牌", "OAuth2 授权", "会话认证"],
-        "dbBestPractices": [
-          "parameterized queries",
-          "connection pooling",
-          "index optimization",
-          "N+1 query prevention"
-        ],
-        "dbBestPractices_zh": [
-          "参数化查询",
-          "连接池",
-          "索引优化",
-          "N+1 查询预防"
-        ]
+        "dbBestPractices": ["parameterized queries", "connection pooling", "index optimization", "N+1 query prevention"]
       }
     },
     "smart-contract": {
       "type": "domain",
       "enforcement": "auto",
       "priority": "high",
-      "hookType": "UserPromptSubmit",
       "description": "Smart contract development - EVM/Solana/security audit",
       "promptTriggers": {
-        "keywords": ["contract", "合约", "智能合约", "solidity", "ERC", "web3", "blockchain", "区块链", "链上", "DeFi", "NFT", "代币", "钱包", "Foundry", "Hardhat", "ethers", "wagmi"],
+        "keywords": ["contract", "合约", "智能合约", "solidity", "ERC", "web3", "blockchain", "区块链", "DeFi", "NFT", "代币", "钱包", "Foundry", "Hardhat", "ethers", "wagmi"],
         "intentPatterns": ["(write|audit|deploy|编写|审计|部署).*(contract|合约)"]
       },
       "fileTriggers": {
         "pathPatterns": ["**/*.sol", "**/contracts/**", "**/foundry/**"]
       },
       "contractConfig": {
-        "securityChecks": [
-          "reentrancy",
-          "integer overflow/underflow",
-          "access control",
-          "front-running",
-          "denial of service",
-          "timestamp dependence",
-          "unchecked external calls"
-        ],
-        "securityChecks_zh": [
-          "重入攻击",
-          "整数溢出/下溢",
-          "访问控制",
-          "抢跑攻击",
-          "拒绝服务",
-          "时间戳依赖",
-          "未检查的外部调用"
-        ],
+        "securityChecks": ["reentrancy", "integer overflow/underflow", "access control", "front-running", "denial of service", "timestamp dependence", "unchecked external calls"],
         "requireAudit": true,
-        "requireAudit_zh": "必须进行安全审计",
         "gasOptimization": true,
-        "gasOptimization_zh": "必须进行 Gas 优化",
         "supportedChains": ["Ethereum", "Polygon", "Arbitrum", "Optimism", "BSC", "Solana"],
-        "supportedChains_zh": ["以太坊", "Polygon", "Arbitrum", "Optimism", "币安链", "Solana"],
         "standards": ["ERC-20", "ERC-721", "ERC-1155", "ERC-4626"],
-        "standards_zh": ["ERC-20 代币", "ERC-721 NFT", "ERC-1155 多代币", "ERC-4626 金库"],
         "testingFrameworks": ["Foundry", "Hardhat"],
         "requireFuzzTesting": true,
-        "requireFuzzTesting_zh": "必须进行模糊测试",
-        "requireInvariantTesting": true,
-        "requireInvariantTesting_zh": "必须进行不变量测试"
+        "requireInvariantTesting": true
       }
-    },
-    "codex-reviewer": {
-      "type": "dual-engine",
-      "enforcement": "auto",
-      "priority": "critical",
-      "hookType": "PostToolUse",
-      "backend": "codex",
-      "requiresCodex": true,
-      "description": "Codex code review - quality feedback, bug detection, security audit",
-      "promptTriggers": {
-        "keywords": ["review", "审查", "codex", "feedback", "反馈", "代码检查"],
-        "intentPatterns": ["codex.*(review|check|审查|检查)"]
-      },
-      "triggerAfter": ["Edit", "Write"],
-      "reviewDimensions": {
-        "correctness": 40,
-        "security": 30,
-        "performance": 20,
-        "maintainability": 10
-      },
-      "qualityThreshold": 80
-    },
-    "codex-test-gen": {
-      "type": "dual-engine",
-      "enforcement": "auto",
-      "priority": "critical",
-      "backend": "codex",
-      "requiresCodex": true,
-      "description": "Codex test generation - production-grade tests with 6D coverage, no TODO/mock/demo",
-      "promptTriggers": {
-        "keywords": ["generate test", "生成测试", "test case", "测试用例", "自动测试"],
-        "intentPatterns": ["(generate|create|生成|创建).*(test|测试)"]
-      },
-      "testDimensions": ["functional", "boundary", "exception", "performance", "security", "compatibility"],
-      "prohibitedPatterns": ["TODO", "FIXME", "expect(true).toBe(true)", "jest.mock('../", "vi.mock('../", ".skip(", ".todo("],
-      "minTAS": 70,
-      "minCoverage": 80,
-      "maxMockCount": 0,
-      "zeroMockPolicy": true
-    },
-    "codex-doc-reviewer": {
-      "type": "dual-engine",
-      "enforcement": "auto",
-      "priority": "high",
-      "hookType": "UserPromptSubmit",
-      "backend": "codex",
-      "requiresCodex": true,
-      "description": "Codex documentation review - technical accuracy, completeness, examples",
-      "promptTriggers": {
-        "keywords": ["doc review", "文档审查", "document feedback", "文档反馈", "检查文档"],
-        "intentPatterns": ["(review|审查|检查).*(doc|文档)"]
-      },
-      "docDimensions": ["accuracy", "completeness", "clarity", "practicality"],
-      "qualityThreshold": 80
-    },
-    "codex-research-gen": {
-      "type": "dual-engine",
-      "enforcement": "auto",
-      "priority": "high",
-      "hookType": "UserPromptSubmit",
-      "backend": "codex",
-      "requiresCodex": true,
-      "description": "Codex research enhancement - evidence-based analysis, 90%+ confidence, production examples",
-      "promptTriggers": {
-        "keywords": ["research", "研究", "调研", "compare", "比较", "对比", "technology", "技术", "library", "库", "framework", "框架", "技术选型"],
-        "intentPatterns": ["(research|compare|analyze|研究|比较|分析).*(technology|library|framework|approach|技术|库|框架|方案)"]
-      },
-      "researchDimensions": ["feasibility", "risk", "complexity", "production-readiness"],
-      "minConfidence": 0.9,
-      "requireSources": true,
-      "prohibitedPatterns": ["TODO", "demo", "placeholder", "example only"]
     },
     "ultra-think": {
       "type": "analysis",
       "enforcement": "auto",
       "priority": "high",
-      "hookType": "UserPromptSubmit",
       "description": "Deep analysis with 6D framework - multi-dimensional thinking for complex decisions",
       "promptTriggers": {
         "keywords": [
@@ -447,11 +227,7 @@
         "intentPatterns": [
           "(should|应该|该).*(use|choose|adopt|select|用|选|采用)",
           "(compare|对比|比较|分析).*(approach|方案|架构|选项|alternative)",
-          "(build|buy|make|自建|外购|购买).*(or|还是|versus|vs)",
-          "(微服务|microservice).*(单体|monolith)",
-          "(权衡|trade-off|tradeoff).*(利弊|pros|cons)",
-          "(深度|深入|全面|系统).*(分析|思考|评估)",
-          "(架构|技术|方案).*(决策|选型|选择)"
+          "(build|buy|make|自建|外购|购买).*(or|还是|versus|vs)"
         ]
       },
       "analysisConfig": {
@@ -459,13 +235,7 @@
         "minSolutions": 3,
         "maxSolutions": 5,
         "requireDevilsAdvocate": true,
-        "requireUncertaintyStatement": true,
-        "tokenAllocation": {
-          "simple": 8000,
-          "medium": 16000,
-          "complex": 24000,
-          "critical": 32000
-        }
+        "requireUncertaintyStatement": true
       }
     }
   }
