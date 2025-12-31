@@ -122,7 +122,7 @@ All must pass for `/ultra-deliver`:
 
 ### 1. Persist Results
 
-Write `.ultra/test-report.json`:
+Update `.ultra/test-report.json`:
 
 ```json
 {
