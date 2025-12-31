@@ -81,10 +81,10 @@ Step 6: Generate Spec Content (Write to .ultra/specs/)
 
 | Round | Focus | Key Deliverables | Output |
 |-------|-------|------------------|--------|
-| 1: User & Scenario | Personas, User Scenarios | Who uses it, how they use it | product.md §1-2 |
-| 2: Feature Definition | User Stories, Features Out | What to build, what NOT to build | product.md §3-4 |
+| 1: User & Scenario | Personas, User Scenarios | Who uses it, how they use it | product.md §1-3 |
+| 2: Feature Definition | User Stories, Features Out | What to build, what NOT to build | product.md §4-5 |
 | 3: Architecture Design | Context, Strategy, Modules, Runtime | How it's structured and runs | architecture.md §1-6 |
-| 4: Quality & Deployment | Deployment, Quality, Risks | How it's deployed and monitored | architecture.md §7-11 |
+| 4: Quality & Deployment | Deployment, Quality, Risks | How it's deployed and monitored | architecture.md §7-12 |
 
 ### Round 1: User & Scenario Discovery
 
@@ -93,7 +93,7 @@ Step 6: Generate Spec Content (Write to .ultra/specs/)
 2. What scenarios will users encounter? (3-5 User Scenarios with context)
 3. What is the core problem being solved?
 
-**Output**: product.md §1 (Problem Statement), §2 (Personas & Scenarios)
+**Output**: product.md §1 (Problem Statement), §2 (Personas), §3 (User Scenarios)
 
 ### Round 2: Feature Definition
 
@@ -102,7 +102,7 @@ Step 6: Generate Spec Content (Write to .ultra/specs/)
 2. What features are required? (Prioritized list with acceptance criteria)
 3. What features are explicitly OUT of scope? (Features Out with rationale)
 
-**Output**: product.md §3 (User Stories), §4 (Features & Features Out)
+**Output**: product.md §4 (User Stories & Features), §5 (Features Out)
 
 ### Round 3: Architecture Design
 
@@ -124,7 +124,7 @@ Step 6: Generate Spec Content (Write to .ultra/specs/)
 3. What are the quality requirements? (Specific scenarios)
 4. What are known risks and technical debt?
 
-**Output**: architecture.md §7-11
+**Output**: architecture.md §7-12
 
 
 ---

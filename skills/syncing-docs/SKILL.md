@@ -33,8 +33,8 @@ python scripts/doc_sync.py check
 ## Documentation Locations
 
 **New projects (.ultra/specs/):**
-- `.ultra/specs/product.md` - Product requirements
-- `.ultra/specs/architecture.md` - Technical decisions
+- `.ultra/specs/product.md` - Personas, Scenarios, User Stories, Features Out
+- `.ultra/specs/architecture.md` - arc42 structure (12 sections)
 
 **Legacy projects (docs/):**
 - `docs/prd.md` - Product requirements
@@ -54,8 +54,8 @@ When research introduces new information:
 ### After Feature Completion
 
 Check alignment between:
-- User stories in .ultra/specs/product.md and implemented features
-- Architecture in .ultra/specs/architecture.md and actual code structure
+- User Stories (product.md §4) and implemented features
+- Building Blocks (architecture.md §5) and actual code structure
 
 ## Drift Detection
 
@@ -134,10 +134,10 @@ Generate/update CLAUDE.md when:
 ```
 
 **Step 2: Extract Content**
-- Project name from architecture.md or directory name
-- First 2 paragraphs from product.md for overview
-- Tech stack table from architecture.md
-- High/Medium risks only (skip Low)
+- Project name from architecture.md §1 or directory name
+- Problem Statement from product.md §1 for overview
+- Tech stack from architecture.md §4 (Solution Strategy)
+- Risks from architecture.md §11 (High/Medium only)
 - First in_progress task + first pending task
 
 **Step 3: Generate CLAUDE.md**

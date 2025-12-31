@@ -133,8 +133,8 @@ Create `.ultra/` by copying from template (`~/.claude/.ultra-template/`):
 
 **Specification-Driven Structure**:
 - `.ultra/specs/` - Specification source of truth
-  - `product.md` - Product requirements & user stories
-  - `architecture.md` - Architecture design & tech stack
+  - `product.md` - Personas, User Scenarios, User Stories, Features Out
+  - `architecture.md` - arc42 structure (12 sections)
 
 **Task Management**:
 - `.ultra/tasks/tasks.json` - Native task tracking
