@@ -83,6 +83,8 @@ Execute development tasks using TDD workflow.
 
 ### Step 5: Commit and Update
 
+> **Prerequisite**: Step 4 Quality Gates passed (all tests green)
+
 1. **Commit**:
    ```bash
    git add -A
@@ -93,10 +95,14 @@ Execute development tasks using TDD workflow.
    ```bash
    git fetch origin
    git rebase origin/main
-   # Resolve conflicts if any
    ```
+   - If conflicts → resolve → `git rebase --continue`
 
-3. **Run tests** after rebase
+3. **Verify after rebase** (main 可能有新代码):
+   ```bash
+   # Run tests again to ensure compatibility
+   ```
+   - If tests fail → fix → amend commit → repeat
 
 4. **Merge to main**:
    ```bash
