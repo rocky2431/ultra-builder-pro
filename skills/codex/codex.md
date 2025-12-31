@@ -7,30 +7,38 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 
 ## Running a Task
 
-1. Ask the user (via `AskUserQuestion`) which model to run AND which reasoning effort to use in a **single prompt with two questions**:
-   - Models: `gpt-5.2-codex` (recommended), `gpt-5.2`
-   - Reasoning effort: `xhigh`, `high`, `medium`, `low`
+### Defaults (use unless user specifies otherwise)
+- **Model**: `gpt-5.2-codex`
+- **Reasoning effort**: `medium`
+- **Sandbox**: `workspace-write`
 
-2. Select the sandbox mode required for the task:
+### When to ask user
+Only use `AskUserQuestion` if:
+- User explicitly asks to choose model/effort
+- Task is high-risk (e.g., `--full-auto` with edits)
+- Previous codex call failed
+
+Otherwise, **proceed with defaults automatically**.
+
+### Sandbox mode selection:
    - `workspace-write` (default) - allows codex to run git/ls commands for context
    - `read-only` - only if user explicitly requests no file access
    - `danger-full-access` - only with explicit user permission
 
-3. Assemble the command:
-   ```bash
-   codex exec \
-     -m <MODEL> \
-     -c model_reasoning_effort="<EFFORT>" \
-     --sandbox <MODE> \
-     --skip-git-repo-check \
-     "prompt here"
-   ```
+### Command template
+```bash
+codex exec \
+  -m gpt-5.2-codex \
+  -c model_reasoning_effort="medium" \
+  --sandbox workspace-write \
+  --skip-git-repo-check \
+  "prompt here"
+```
 
-4. **Do NOT use `2>/dev/null`** - stderr contains important error info. Only suppress if user explicitly requests "hide thinking".
-
-5. Run the command and show complete output to user.
-
-6. After completion, inform user: "You can resume this session with 'codex resume' or ask for additional analysis."
+### Execution rules
+- **Do NOT use `2>/dev/null`** - stderr contains important error info
+- Run the command and show complete output to user
+- After completion: "You can resume with 'codex resume'"
 
 ## Resume Syntax
 
