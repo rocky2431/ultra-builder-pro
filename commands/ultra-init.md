@@ -65,11 +65,9 @@ Detect project context before initialization:
 **Tech stack**: $3 or auto-detect (supports multiple stacks for fullstack projects)
 
 **Detection by layer** (can coexist):
-- **Frontend**: React/Vue/Next.js/Svelte + TypeScript
-- **Backend**: Node.js/Python/Go/Rust + framework (Express/FastAPI/Gin/Actix)
-- **Database**: PostgreSQL/MySQL/MongoDB
-
-**Fullstack example**: `["React + TypeScript", "Node.js + Express", "PostgreSQL"]`
+- **Frontend**: Detect from dependencies (UI frameworks, build tools)
+- **Backend**: Detect from dependencies (API frameworks, runtime)
+- **Database**: Detect from config or dependencies
 
 **Fallback**: Use AskUserQuestion with multi-select support
 
@@ -91,7 +89,7 @@ Detect project context before initialization:
 
 2. **Ask tech stack** (multiSelect: true for fullstack projects)
    - Show detected stacks with "(detected)" label
-   - Allow multi-selection (e.g., React + Node.js + PostgreSQL)
+   - Allow multi-selection for frontend + backend + database
    - Options based on detected package files grouped by layer
    - Fallback: Custom input
 
@@ -142,7 +140,27 @@ Create `.ultra/tasks/tasks.json`:
 - Metadata (version, project name, created timestamp)
 - Stats initialization (total: 0, completed: 0)
 
-### 4. Copy All Template Files
+### 4. Initialize Status Files
+
+Create `.ultra/test-report.json`:
+```json
+{
+  "passed": false,
+  "run_count": 0,
+  "gates": {},
+  "blocking_issues": ["Not yet run"]
+}
+```
+
+Create `.ultra/delivery-report.json`:
+```json
+{
+  "version": null,
+  "pushed": false
+}
+```
+
+### 5. Copy All Template Files
 
 **Copy `~/.claude/.ultra-template/` contents:**
 
@@ -151,7 +169,7 @@ Create `.ultra/tasks/tasks.json`:
 - Tasks: `.ultra/tasks/tasks.json`
 - Docs: `.ultra/docs/research/`
 
-### 5. Git Integration (Based on User Choice)
+### 6. Git Integration (Based on User Choice)
 
 **If user chose "Initialize Git repository"** or **"Reinitialize Git"**:
 - If reinitializing: Backup existing `.git/` to `.git.backup.{timestamp}`
@@ -165,12 +183,13 @@ Create `.ultra/tasks/tasks.json`:
 **If user chose "Keep existing Git repository"** or **"Don't use Git"**:
 - Skip Git operations
 
-### 6. Display Success Summary
+### 7. Display Success Summary
 
 Show in Chinese:
 - Directories created (.ultra/specs/, .ultra/tasks/, .ultra/docs/)
 - Template files copied
 - Task system initialized (tasks.json)
+- Status files initialized (test-report.json, delivery-report.json)
 - Specification templates ready (product.md, architecture.md with [NEEDS CLARIFICATION] markers)
 
 **CRITICAL NEXT STEP - Research Phase (DO NOT SKIP)**:
@@ -202,10 +221,10 @@ Show in Chinese:
 ## Usage Examples
 
 ```bash
-/ultra-init                                      # Interactive mode
-/ultra-init MyProject web "Next.js + TS" git    # Full params
-/ultra-init MyProject web                        # Partial params
-/ultra-init MyProject api "FastAPI"              # Without git
+/ultra-init                           # Interactive mode (auto-detect)
+/ultra-init MyProject                 # With project name
+/ultra-init MyProject web             # With project type
+/ultra-init MyProject api git         # With git initialization
 ```
 
 ## Success Criteria
@@ -234,9 +253,8 @@ Show in Chinese:
 - ✅ Research reports: Saved to .ultra/docs/research/
 
 **Why This Matters**:
-- Without research: Vague requirements → 2h rework, wrong tech → 5h refactor, missing constraints → 3h fixes
+- Without research: Vague requirements → rework, wrong tech → refactor, missing constraints → fixes
 - With research: Complete specs → accurate tasks, right tech → fast dev, known risks → proactive mitigation
-- ROI: Thorough research avoids significant rework
 
 ### Step 2: Run `/ultra-plan` (After Research Completes)
 
