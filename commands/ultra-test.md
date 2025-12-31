@@ -90,31 +90,19 @@ Pre-delivery quality audit. Validates test health, coverage gaps, E2E functional
 
 **Trigger**: Project has frontend or web application
 
-**Detection priority**:
-1. Existing framework: `playwright.config.*` or `cypress.config.*`
-2. No framework: Use Claude Code native Chrome capability
-
-**Option A: Existing E2E Framework**
-
-If project has E2E config, run existing tests:
-- Playwright: `npx playwright test`
-- Cypress: `npx cypress run`
-
-**Option B: Claude Code Chrome Capability**
-
-If no E2E framework but has web UI, use native browser automation:
-1. Start dev server (auto-detect from package.json)
-2. Use `mcp__claude-in-chrome__*` tools for basic smoke tests:
-   - Navigate to key pages
-   - Verify critical elements render
-   - Check for console errors
-   - Test primary user flows
+**Method**: Claude Code native Chrome capability (`mcp__claude-in-chrome__*`)
 
 **Process**:
-1. Check for existing E2E framework config
-2. If exists → run framework tests
-3. If not exists but has web UI → use Chrome MCP for smoke tests
-4. Report results
+1. Start dev server (auto-detect from package.json)
+2. Navigate to key pages
+3. Verify critical elements render (`read_page`, `find`)
+4. Check for console errors (`read_console_messages`)
+5. Test primary user flows (form submission, navigation, etc.)
+6. Take screenshots for verification (`computer` action=screenshot)
+
+**Result**:
+- ✅ **PASS**: All pages load, no console errors, flows complete
+- ❌ **BLOCKED**: Critical pages fail to load or major console errors
 
 ---
 
@@ -232,7 +220,7 @@ Action: Fix coverage gaps before /ultra-deliver
 | When | Per task | Before delivery |
 | Focus | TDD for single task | Project-wide audit |
 | Unit tests | Run & write | Detect anti-patterns |
-| E2E | ❌ | ✅ (Playwright/Cypress/Chrome MCP) |
+| E2E | ❌ | ✅ (Chrome MCP) |
 | Performance | ❌ | ✅ (Lighthouse) |
 | Security | ❌ | ✅ (Dependency audit) |
 
