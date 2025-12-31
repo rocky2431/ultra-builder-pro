@@ -125,17 +125,9 @@ All must pass for `/ultra-deliver`:
 
 **Process**:
 1. Collect test files and coverage report
-2. Use `codex` skill with prompt:
-   ```
-   Review this test suite for:
-   1) Missing edge cases (boundary, null, error paths)
-   2) Test anti-patterns (flaky, order-dependent, over-mocking)
-   3) Untested critical paths (auth, payment, data mutation)
-   4) False confidence (tests that pass but don't verify behavior)
-   Provide specific issues with file:line references.
-   ```
+2. Use `codex` skill with template: `test-review`
 3. **If issues found** → Display issues, BLOCK, return to Auto-Fix Loop
-4. **If passed** → Continue to Output
+4. **If "PASS"** → Continue to Output
 
 **Blocking Behavior**: Cannot proceed to /ultra-deliver until Codex review passes.
 

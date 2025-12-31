@@ -100,17 +100,9 @@ Execute development tasks using TDD workflow.
 
 **Process**:
 1. Collect changed files: `git diff --name-only`
-2. Use `codex` skill with prompt:
-   ```
-   Review this code for:
-   1) Security vulnerabilities (injection, XSS, auth bypass)
-   2) Logic errors or race conditions
-   3) Performance issues (N+1, memory leaks)
-   4) Spec compliance (does it match acceptance criteria?)
-   Provide specific issues with file:line references.
-   ```
+2. Use `codex` skill with template: `code-review`
 3. **If issues found** → Display issues, BLOCK, return to GREEN phase to fix
-4. **If passed** → Continue to Step 5
+4. **If "PASS"** → Continue to Step 5
 
 **Blocking Behavior**: Cannot commit until Codex review passes.
 

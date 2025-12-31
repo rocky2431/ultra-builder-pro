@@ -72,3 +72,73 @@ codex exec -m gpt-5.2-codex resume --last "prompt"
 - If `codex exec` exits non-zero, show the error and ask user for direction.
 - Before using `--full-auto` or `--sandbox danger-full-access`, ask user permission via `AskUserQuestion`.
 - If output shows warnings, summarize and ask how to proceed.
+
+---
+
+## Review Templates
+
+Use these predefined templates when commands reference `codex skill with template: <name>`.
+
+### research-review
+
+| Config | Value |
+|--------|-------|
+| Model | gpt-5.2-codex |
+| Effort | medium |
+| Sandbox | read-only |
+
+**Prompt**:
+```
+Review this technical research output for:
+1) Logical gaps or contradictions between sections
+2) Missing risks or edge cases not considered
+3) Unverified claims without cited sources
+4) Overly optimistic assumptions or underestimated complexity
+
+Provide specific issues with file:line references.
+If no critical issues found, respond with "PASS: No blocking issues".
+```
+
+---
+
+### code-review
+
+| Config | Value |
+|--------|-------|
+| Model | gpt-5.2-codex |
+| Effort | **high** |
+| Sandbox | read-only |
+
+**Prompt**:
+```
+Review this code diff for:
+1) Security vulnerabilities (injection, XSS, CSRF, auth bypass, secrets exposure)
+2) Logic errors, race conditions, or incorrect state handling
+3) Performance issues (N+1 queries, memory leaks, blocking operations)
+4) Spec compliance - does implementation match acceptance criteria?
+
+Provide specific issues with file:line references and severity (Critical/High/Medium/Low).
+If no critical/high issues found, respond with "PASS: No blocking issues".
+```
+
+---
+
+### test-review
+
+| Config | Value |
+|--------|-------|
+| Model | gpt-5.2-codex |
+| Effort | medium |
+| Sandbox | workspace-write |
+
+**Prompt**:
+```
+Review this test suite for:
+1) Missing edge cases (null, empty, boundary values, error paths)
+2) Test anti-patterns (flaky tests, order-dependent, excessive mocking)
+3) Untested critical paths (auth flows, payment, data mutations, deletions)
+4) False confidence - tests that pass but don't actually verify behavior
+
+Provide specific issues with file:line references.
+If no critical issues found, respond with "PASS: No blocking issues".
+```

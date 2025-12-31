@@ -230,17 +230,9 @@ Output comparison matrix with:
 
 **Process**:
 1. Collect research outputs (specs + reports)
-2. Use `codex` skill with prompt:
-   ```
-   Review this technical research for:
-   1) Logical gaps or contradictions
-   2) Missing risks or edge cases
-   3) Unverified claims without sources
-   4) Overly optimistic assumptions
-   Provide specific issues with file:line references.
-   ```
+2. Use `codex` skill with template: `research-review`
 3. **If issues found** → Display issues, BLOCK, ask user to address
-4. **If passed** → Continue to Final Quality Summary
+4. **If "PASS"** → Continue to Final Quality Summary
 
 **Blocking Behavior**: Research cannot proceed to /ultra-plan until Codex review passes or user explicitly overrides.
 
