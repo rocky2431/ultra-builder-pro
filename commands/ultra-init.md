@@ -207,13 +207,13 @@ Show in Chinese:
 - Research completes these templates through 6-dimensional interactive discovery
 - Skipping research leads to: vague requirements, wrong tech choices, missing constraints
 
-**Think-Driven Interactive Discovery** (50-70 minutes):
-  - Round 1: Problem Discovery (20 min) - Understand WHY and WHAT
-  - Round 2: Solution Exploration (20 min) - Define features and user stories
-  - Round 3: Technology Selection (15 min) - Choose tech stack with 6D analysis
-  - Round 4: Risk & Constraint Mapping (15 min) - Identify risks and mitigation
+**Think-Driven Interactive Discovery**:
+  - Round 1: Problem Discovery - Understand WHY and WHAT
+  - Round 2: Solution Exploration - Define features and user stories
+  - Round 3: Technology Selection - Choose tech stack with analysis
+  - Round 4: Risk & Constraint Mapping - Identify risks and mitigation
 
-**ROI**: 70-minute investment saves 10+ hours of rework (8x+ return)
+**ROI**: Thorough research saves significant rework
 
 **After Research Completes**:
   - .ultra/specs/product.md: 100% complete (no [NEEDS CLARIFICATION] markers)
@@ -243,15 +243,15 @@ Show in Chinese:
 
 ## Next Steps (CRITICAL - Follow This Order)
 
-### Step 1: Run `/ultra-research` (MANDATORY - 50-70 minutes)
+### Step 1: Run `/ultra-research` (MANDATORY)
 
 **DO NOT skip research!** This is the most important phase.
 
 **Think-Driven Interactive Discovery**:
-- Round 1: Problem Discovery (20 min) - 6D analysis of problem space
-- Round 2: Solution Exploration (20 min) - Generate user stories with 6D analysis
-- Round 3: Technology Selection (15 min) - Compare tech options with 6D matrix
-- Round 4: Risk & Constraint Mapping (15 min) - Identify risks with mitigation
+- Round 1: Problem Discovery - Analyze problem space
+- Round 2: Solution Exploration - Generate user stories
+- Round 3: Technology Selection - Compare tech options
+- Round 4: Risk & Constraint Mapping - Identify risks with mitigation
 
 **Output**:
 - ✅ .ultra/specs/product.md: 100% complete (all [NEEDS CLARIFICATION] filled)
@@ -261,7 +261,7 @@ Show in Chinese:
 **Why This Matters**:
 - Without research: Vague requirements → 2h rework, wrong tech → 5h refactor, missing constraints → 3h fixes
 - With research: Complete specs → accurate tasks, right tech → fast dev, known risks → proactive mitigation
-- ROI: 10 hours saved / 1.2 hours invested = **8.3x return**
+- ROI: Thorough research avoids significant rework
 
 ### Step 2: Run `/ultra-plan` (After Research Completes)
 

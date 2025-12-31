@@ -10,7 +10,7 @@ Transform vague ideas into complete specifications through progressive interacti
 
 **Philosophy**: Research is collaborative. Each decision validated with user before proceeding. All findings must have 90%+ confidence.
 
-**ROI**: 85 min investment → 90%+ accuracy → 10+ hours rework avoided
+**ROI**: Thorough research → 90%+ accuracy → significant rework avoided
 
 ---
 
@@ -26,12 +26,12 @@ Transform vague ideas into complete specifications through progressive interacti
 
 Use AskUserQuestion to determine research scope:
 
-| Type | Rounds | Duration |
-|------|--------|----------|
-| New Project | Round 1-4 | ~80 min |
-| Incremental Feature | Round 2-3 | ~30 min |
-| Tech Decision | Round 3 only | ~15 min |
-| Custom | User selects | Varies |
+| Type | Rounds |
+|------|--------|
+| New Project | Round 1-4 |
+| Incremental Feature | Round 2-3 |
+| Tech Decision | Round 3 only |
+| Custom | User selects |
 
 ---
 
@@ -68,13 +68,11 @@ Write to .ultra/specs/
 
 ### 6-Step Cycle (Every Round)
 
-See @config/research/6-step-template.md for detailed steps:
-
 ```
 Step 1: Requirement Clarification (AskUserQuestion)
-Step 2: Deep Analysis (/ultra-think with 6D framework)
+Step 2: Deep Analysis (/ultra-think)
 Step 3: Analysis Validation (show summary with confidence)
-Step 4: Iteration Decision (satisfied AND confidence ≥90% → continue)
+Step 4: Iteration Decision (satisfied → continue)
 Step 5: Generate Spec Content (Write to .ultra/specs/)
 Step 6: Round Satisfaction Rating (1-5 stars)
 ```
@@ -88,7 +86,6 @@ Step 6: Round Satisfaction Rating (1-5 stars)
 | 3: Technology Selection | Tech stack, architecture | Q9-11 | **Deep tech comparison** | .ultra/specs/architecture.md |
 | 4: Risk & Constraints | Risks, hard constraints | Q12-13 | Risk quantification | Risk sections |
 
-**Questions Reference**: @config/research/round-questions.md
 
 ---
 
@@ -96,7 +93,6 @@ Step 6: Round Satisfaction Rating (1-5 stars)
 
 **When**: Specific tech decision during development
 
-**Duration**: 10-15 minutes
 
 **Process**: Single-round 6D comparison with verification
 
@@ -223,7 +219,3 @@ Every research output must include confidence assessment:
 
 ---
 
-## References
-
-- @config/research/6-step-template.md - Detailed 6-step cycle
-- @config/research/round-questions.md - All core questions

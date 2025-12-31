@@ -38,13 +38,13 @@ Issues:
 - [Specific missing or incomplete sections]
 
 Solution:
-Run /ultra-research to complete specifications (50-70 minutes)
+Run /ultra-research to complete specifications
 
 /ultra-research will complete specs through 4-round Think-Driven Discovery:
-- Round 1: Problem Discovery (20 min)
-- Round 2: Solution Exploration (20 min)
-- Round 3: Technology Selection (15 min)
-- Round 4: Risk & Constraint Mapping (15 min)
+- Round 1: Problem Discovery
+- Round 2: Solution Exploration
+- Round 3: Technology Selection
+- Round 4: Risk & Constraint Mapping
 
 After completion, specs will be 100% filled, then run /ultra-plan
 ```
