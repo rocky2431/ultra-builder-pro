@@ -284,7 +284,6 @@ Test summary:
 
 ## Integration
 
-- **Skills**: syncing-docs (CLAUDE.md update if tests fail)
 - **Output files**:
   - `.ultra/docs/test-coverage-gaps.md` (gap analysis)
 - **Next**: `/ultra-deliver` for deployment prep

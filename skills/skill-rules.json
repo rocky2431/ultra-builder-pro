@@ -3,25 +3,15 @@
   "description": "UltraBuild Pro 4.4.0 Skill Rules - Simplified Edition (No Hooks, No Codex)",
   "commandSkillBindings": {
     "/ultra-init": [],
-    "/ultra-research": ["syncing-docs"],
+    "/ultra-research": [],
     "/ultra-plan": [],
-    "/ultra-dev": ["syncing-docs"],
+    "/ultra-dev": [],
     "/ultra-test": [],
-    "/ultra-deliver": ["syncing-docs"],
+    "/ultra-deliver": [],
     "/ultra-status": [],
     "/ultra-think": ["ultra-think"]
   },
   "skills": {
-    "syncing-docs": {
-      "type": "sync",
-      "enforcement": "auto",
-      "priority": "medium",
-      "description": "Documentation sync - ADR, research reports",
-      "promptTriggers": {
-        "keywords": ["document", "文档", "ADR", "research", "研究", "architecture", "架构", "说明文档"],
-        "intentPatterns": ["(update|write|create|更新|编写|创建).*(doc|文档)"]
-      }
-    },
     "frontend": {
       "type": "domain",
       "enforcement": "auto",

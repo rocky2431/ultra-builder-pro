@@ -112,7 +112,7 @@ Add:
 
 ### Step 6: Update Project Context
 
-**Update CLAUDE.md** (via syncing-docs):
+**Update CLAUDE.md**:
 - Add release version to project overview
 - Clear "Current Focus" (all tasks completed)
 - Update any changed development rules
@@ -134,7 +134,6 @@ Add:
 ## Integration
 
 - **Agents**: ultra-performance-agent for optimization
-- **Skills**: syncing-docs
 - **Next**: Deploy or create release PR
 
 ## Output Format

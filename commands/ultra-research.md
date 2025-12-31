@@ -202,7 +202,7 @@ Output comparison matrix with:
    - `.ultra/tasks/tasks.json` → Current Focus
 
 2. **Generate CLAUDE.md** at project root:
-   - Use template from syncing-docs skill
+   - Use CLAUDE.md template structure
    - Limit to ~500 words
    - Include generation timestamp
 
@@ -228,11 +228,10 @@ Output comparison matrix with:
 
 ## Integration
 
-- **Skills**: **syncing-docs (CLAUDE.md generation)**
 - **Think**: Each round invokes /ultra-think for deep analysis
 - **MCP**: Round 3 uses Context7 (docs) + Exa (code examples)
 - **Next**: Run /ultra-plan when research complete
-- **Output**: syncing-docs generates project CLAUDE.md on completion
+- **Output**: Generate project CLAUDE.md on completion
 
 ---
 
