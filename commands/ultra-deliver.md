@@ -28,8 +28,11 @@ If validation fails, block delivery.
 Run `git status` and verify working directory is clean.
 
 If unclean:
-- Auto-commit with message: `chore: pre-delivery cleanup`
-- If commit fails (conflicts, etc.) → block and report
+1. Use `AskUserQuestion` to confirm:
+   - Option A: "Auto-commit all changes" → commit with `chore: pre-delivery cleanup`
+   - Option B: "Review changes first" → show `git diff --stat` and ask again
+   - Option C: "Block delivery" → stop and let user handle manually
+2. If user approves commit but it fails (conflicts, etc.) → block and report
 
 ---
 
@@ -51,9 +54,16 @@ If unclean:
 
 ### Step 2: Production Build
 
-Detect and run production build command from project config.
+Detect build command by priority:
+1. `package.json` → `scripts.build` → run `npm run build` or `pnpm build`
+2. `Makefile` → run `make build` or `make release`
+3. `Cargo.toml` → run `cargo build --release`
+4. `go.mod` → run `go build ./...`
+5. None found → use `AskUserQuestion` to ask user for build command
 
-Verify build succeeds before proceeding.
+**Build validation**:
+- Exit code 0 → proceed
+- Exit code non-zero → block with error output, ask user how to proceed
 
 ### Step 3: Version & Release
 
@@ -63,8 +73,8 @@ Verify build succeeds before proceeding.
 4. Create git tag: `vX.X.X`
 5. Push to remote:
    ```bash
-   git push origin main   # release commit (任务代码已在 /ultra-dev 推送)
-   git push origin vX.X.X # tag
+   git push origin main   # release commit
+   git push origin vX.X.X # version tag
    ```
 
 ### Step 4: Persist Results

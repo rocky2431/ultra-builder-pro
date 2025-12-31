@@ -109,31 +109,34 @@ Execute development tasks using TDD workflow.
      - **Summary**: {what was delivered}
      ```
 
-2. **Commit**:
+2. **Commit & Merge** (single confirmation):
+   - Run `git status` to show staged/unstaged changes
+   - Use `AskUserQuestion` with options:
+     - Option A: "Commit + Merge to main" (recommended) → full flow
+     - Option B: "Commit only, create PR later" → commit but skip merge
+     - Option C: "Review diff first" → show `git diff --stat` then ask again
+
+   **If user approves commit**:
    ```bash
    git add -A
    git commit -m "feat(scope): description"
    ```
 
 3. **Record commit hash**:
-   ```bash
-   git rev-parse HEAD  # Get hash
-   ```
-   - Update context file: replace `_pending_` with actual hash
-   - Amend: `git commit --amend --no-edit`
+   - `git rev-parse HEAD` → update context file
+   - `git commit --amend --no-edit`
 
 4. **Sync with main**:
    ```bash
-   git fetch origin
-   git rebase origin/main
+   git fetch origin && git rebase origin/main
    ```
    - If conflicts → resolve → `git rebase --continue`
 
-5. **Verify after rebase** (main may have new code):
-   - Run tests again to ensure compatibility
-   - If tests fail → fix → amend commit → repeat step 4-5
+5. **Verify after rebase**:
+   - Run tests again
+   - If fail → fix → amend → repeat step 4-5
 
-6. **Merge to main**:
+6. **Merge to main** (if user chose Option A):
    ```bash
    git checkout main && git pull origin main
    git merge --no-ff feat/task-{id}-{slug}

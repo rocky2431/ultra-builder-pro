@@ -10,7 +10,7 @@
 
 [![Version](https://img.shields.io/badge/version-4.4.1-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
-[![Skills](https://img.shields.io/badge/skills-4-orange)](skills/)
+[![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
 [![Official Compliance](https://img.shields.io/badge/official-100%25%20native-brightgreen)](https://docs.claude.com/claude-code)
 
 </div>
@@ -37,14 +37,14 @@ claude
 
 ---
 
-## What's New in 4.4.0
+## What's New in 4.4.1
 
-### Simplified Architecture
+### Command Refinement
 
-- Removed hooks system (PostToolUse/PreToolUse stdout doesn't inject to AI context)
-- Removed Codex integration (skill triggering via hooks was ineffective)
-- Streamlined to 6 core skills
-- Cleaner, more maintainable configuration
+- Refactored `/ultra-test` TAS scoring → Anti-Pattern Detection (executable)
+- Refactored `/ultra-dev` git branch logic with decision tree
+- Added AskUserQuestion to all commands (except status)
+- Added `.ultra-template/` for project initialization
 
 ### Production Absolutism (Preserved)
 
@@ -76,10 +76,11 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ---
 
-## Skills (4 Total)
+## Skills (5 Total)
 
 | Skill | Function |
 |-------|----------|
+| codex | OpenAI Codex CLI integration (code analysis, refactoring) |
 | frontend | React/Vue/Next.js patterns, Core Web Vitals |
 | backend | API/database/security patterns |
 | smart-contract | EVM/Solana security audit |
@@ -125,6 +126,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 ├── settings.json             # Claude Code settings
 ├── .ultra-template/          # Project initialization templates
 ├── skills/                   # Domain skills
+│   ├── codex/
 │   ├── frontend/
 │   ├── backend/
 │   ├── smart-contract/
@@ -146,6 +148,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ### v4.4.1 (2026-01-01) - Command Refinement
 
+- **Added**: `codex` skill for OpenAI Codex CLI integration
 - **Refactored**: `/ultra-test` TAS scoring → Anti-Pattern Detection (executable)
 - **Refactored**: `/ultra-dev` git branch logic with decision tree
 - **Added**: AskUserQuestion to all commands (except status)
@@ -158,7 +161,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 - **Removed**: Hooks system (SessionStart, PreToolUse, PostToolUse, Stop)
 - **Removed**: Codex integration (4 codex-* skills)
-- **Result**: Cleaner architecture, 4 domain skills
+- **Result**: Cleaner architecture, 4 skills
 
 ### v4.3.4 (2025-12-31) - Production Absolutism
 
