@@ -1,486 +1,321 @@
 # Architecture Design
 
-> **Purpose**: This document defines HOW the system is built, based on requirements in `product.md`.
-
-## 1. System Overview
-
-### 1.1 Architecture Vision
-
-[NEEDS CLARIFICATION - High-level description of system architecture and design philosophy]
-
-**Guiding questions**:
-- What architectural style? (Monolithic, Microservices, Serverless, Event-Driven)
-- What are the key quality attributes? (Scalability, Maintainability, Performance)
-- How does the architecture support business goals?
-
-### 1.2 Key Components
-
-[NEEDS CLARIFICATION - Identify major system components and their relationships]
-
-**Example format**:
-- **Component 1**: [Name and primary responsibility]
-- **Component 2**: [Name and primary responsibility]
-- **Component 3**: [Name and primary responsibility]
-
-### 1.3 Data Flow Overview
-
-[NEEDS CLARIFICATION - Describe how data flows through the system]
-
-**Example format**:
-- **Input**: [Where data enters the system]
-- **Processing**: [Key transformations and business logic]
-- **Storage**: [Where and how data is persisted]
-- **Output**: [How data is presented or exported]
+> **Purpose**: This document defines HOW the system is built. Based on arc42 template.
+> **Reference**: [arc42.org](https://arc42.org)
 
 ---
 
-## 2. Architecture Principles
+## 1. Introduction & Goals
 
-**Core Principles**:
-- Specification-Driven: specs/ is the source of truth
-- Test-First Development: RED → GREEN → REFACTOR
-- Minimal Abstraction: Avoid premature optimization
-- YAGNI: Build only what's needed now
+### 1.1 Requirements Overview
 
-**Project-Specific Principles**:
+[NEEDS CLARIFICATION - Key functional requirements driving architecture]
 
-[NEEDS CLARIFICATION - Add project-specific architecture principles]
+| Requirement | Priority | Impact on Architecture |
+|-------------|----------|----------------------|
+| [Requirement 1] | P0 | [How it shapes architecture] |
+| [Requirement 2] | P0 | [How it shapes architecture] |
 
-**Example format**:
-1. **[Principle Name]**: [Description and rationale]
-2. **[Principle Name]**: [Description and rationale]
+### 1.2 Quality Goals
 
----
+[NEEDS CLARIFICATION - Top 3-5 quality attributes]
 
-## 3. Technology Stack
+| Priority | Quality Goal | Scenario |
+|----------|--------------|----------|
+| 1 | [e.g., Performance] | [Measurable scenario: "API responds in <200ms for 95th percentile"] |
+| 2 | [e.g., Security] | [Measurable scenario] |
+| 3 | [e.g., Maintainability] | [Measurable scenario] |
 
-### 3.1 Frontend Stack (if applicable)
+### 1.3 Stakeholders
 
-#### 3.1.1 Framework Selection
-
-**Decision**: [NEEDS CLARIFICATION - Framework/Library chosen]
-
-**Rationale**:
-- **Traces to**: [Link to specific requirement in product.md]
-- **Team Expertise**: [Team's familiarity with chosen technology]
-- **Performance**: [How it meets performance requirements from product.md#5.1]
-- **Ecosystem**: [Community support and library availability]
-- **Learning Curve**: [Onboarding time for new team members]
-
-#### 3.1.2 Technical Details
-
-[NEEDS CLARIFICATION - Specific technology choices and versions]
-
-**Example format**:
-- **Framework**: [e.g., React 18.3, Vue 3.4, Next.js 14]
-- **State Management**: [e.g., Zustand, Redux Toolkit, Jotai]
-- **Styling**: [e.g., Tailwind CSS, CSS Modules, Styled Components]
-- **Build Tool**: [e.g., Vite, Webpack, Turbopack]
-- **Testing**: [e.g., Vitest, Jest, Playwright]
+| Role | Expectations |
+|------|--------------|
+| [Developer] | [Clean code, good docs] |
+| [Ops] | [Easy deployment, monitoring] |
+| [End User] | [Fast, reliable] |
 
 ---
 
-### 3.2 Backend Stack (if applicable)
+## 2. Constraints
 
-#### 3.2.1 Runtime & Framework Selection
+### 2.1 Technical Constraints
 
-**Decision**: [NEEDS CLARIFICATION - Technology chosen]
+[NEEDS CLARIFICATION - Technical limitations]
 
-**Rationale**:
-- **Traces to**: [Link to specific requirement in product.md]
-- **Workload Type**: [I/O-bound, CPU-bound, or mixed]
-- **Performance**: [How it meets throughput/latency requirements from product.md#5.1]
-- **Team Expertise**: [Team's familiarity with chosen technology]
-- **Ecosystem**: [Available libraries and community support]
+| Constraint | Reason |
+|------------|--------|
+| [Must use X technology] | [Reason] |
+| [Cannot use Y] | [Reason] |
+| [Must integrate with Z] | [Reason] |
 
-#### 3.2.2 Technical Details
+### 2.2 Organizational Constraints
 
-[NEEDS CLARIFICATION - Specific technology choices and versions]
+| Constraint | Reason |
+|------------|--------|
+| [Team size: N developers] | [Resource limit] |
+| [Timeline: X months] | [Business deadline] |
 
-**Example format**:
-- **Runtime**: [e.g., Node.js 20 LTS, Python 3.12, Go 1.22]
-- **Framework**: [e.g., Express, FastAPI, Gin, Django]
-- **API Style**: [REST, GraphQL, gRPC, tRPC]
-- **Database Driver**: [e.g., Prisma, SQLAlchemy, GORM]
-- **Authentication**: [e.g., Passport.js, Auth0, Clerk]
+### 2.3 Conventions
 
----
-
-### 3.3 Smart Contract Stack (if applicable)
-
-#### 3.3.1 Blockchain Platform Selection
-
-**Decision**: [NEEDS CLARIFICATION - Blockchain platform chosen]
-
-**Rationale**:
-- **Traces to**: [Link to specific requirement in product.md]
-- **VM Compatibility**: [EVM-compatible, Non-EVM, or other]
-- **Performance**: [Transaction speed and gas fee requirements]
-- **Ecosystem**: [Developer tooling and community support]
-- **Security**: [Audit tools and security track record]
-
-#### 3.3.2 Technical Details
-
-[NEEDS CLARIFICATION - Smart contract technology choices]
-
-**Example format**:
-- **Platform**: [e.g., Ethereum, Polygon, Solana, Base]
-- **Language**: [e.g., Solidity, Vyper, Rust]
-- **Framework**: [e.g., Hardhat, Foundry, Anchor]
-- **Patterns**: [Upgradeable, Factory, Access Control, Proxy]
-- **Libraries**: [OpenZeppelin, Solmate]
+| Convention | Description |
+|------------|-------------|
+| Code style | [ESLint/Prettier config, or language standard] |
+| Commit format | Conventional Commits |
+| Branch strategy | [GitFlow / Trunk-based] |
 
 ---
 
-### 3.4 Database Stack
+## 3. Context & Scope
 
-#### 3.4.1 Database Selection
+### 3.1 Business Context
 
-**Decision**: [NEEDS CLARIFICATION - Database chosen]
+[NEEDS CLARIFICATION - External actors and systems]
 
-**Rationale**:
-- **Traces to**: [Link to specific requirement in product.md]
-- **Data Model**: [Relational, Document, Graph, Key-Value, Time-Series]
-- **Scalability**: [How it meets growth requirements from product.md#5.3]
-- **Consistency**: [ACID requirements or eventual consistency needs]
-- **Query Patterns**: [How it supports application query patterns]
+```
+                    ┌─────────────┐
+                    │   System    │
+     [User] ───────►│             │◄─────── [External API]
+                    │             │
+   [Admin] ───────►│             │◄─────── [Database]
+                    └─────────────┘
+```
 
-#### 3.4.2 Technical Details
+| Actor/System | Input | Output |
+|--------------|-------|--------|
+| [User] | [What they send] | [What they receive] |
+| [External API] | [What we receive] | [What we send] |
 
-[NEEDS CLARIFICATION - Database technology choices]
+### 3.2 Technical Context
 
-**Example format**:
-- **Type**: [Relational, Document, Key-Value, Graph, Time-Series]
-- **Product**: [e.g., PostgreSQL 16, MongoDB 7, Redis 7]
-- **Version**: [Specific version chosen]
-- **Deployment**: [Managed service (AWS RDS, MongoDB Atlas) or self-hosted]
-- **Backup Strategy**: [Automated backups, point-in-time recovery]
+[NEEDS CLARIFICATION - Technical interfaces]
+
+| Interface | Protocol | Data Format |
+|-----------|----------|-------------|
+| [REST API] | HTTPS | JSON |
+| [Database] | TCP | SQL |
+| [Message Queue] | AMQP | JSON |
 
 ---
 
-### 3.5 Infrastructure Stack
+## 4. Solution Strategy
 
-#### 3.5.1 Deployment Platform Selection
+### 4.1 Technology Decisions
 
-**Decision**: [NEEDS CLARIFICATION - Deployment platform chosen]
+[NEEDS CLARIFICATION - Key technology choices with rationale]
 
-**Rationale**:
-- **Traces to**: [Link to specific NFR in product.md#5]
-- **Scalability**: [Auto-scaling requirements from product.md#5.3]
-- **Reliability**: [Uptime requirements from product.md#5.4]
-- **Budget**: [Cost considerations from product.md#6.2]
-- **Vendor Lock-in**: [Multi-cloud strategy or vendor-specific services]
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Frontend | [React/Vue/etc.] | [Why this choice] |
+| Backend | [Node/Python/Go/etc.] | [Why this choice] |
+| Database | [PostgreSQL/MongoDB/etc.] | [Why this choice] |
+| Hosting | [AWS/GCP/Vercel/etc.] | [Why this choice] |
 
-#### 3.5.2 Technical Details
+### 4.2 Architecture Patterns
 
-[NEEDS CLARIFICATION - Infrastructure technology choices]
+| Pattern | Applied To | Rationale |
+|---------|------------|-----------|
+| [e.g., Layered] | [Backend] | [Separation of concerns] |
+| [e.g., Component-based] | [Frontend] | [Reusability] |
 
-**Example format**:
-- **Platform**: [e.g., AWS, GCP, Azure, Vercel, Railway]
-- **Containerization**: [e.g., Docker, Podman]
-- **Orchestration**: [e.g., Kubernetes, ECS, Cloud Run]
-- **CI/CD**: [e.g., GitHub Actions, GitLab CI, CircleCI]
-- **Monitoring**: [e.g., Datadog, New Relic, Sentry, Prometheus]
-- **CDN**: [e.g., Cloudflare, AWS CloudFront, Vercel Edge]
+---
 
-## Component Architecture
+## 5. Building Block View
 
-### High-Level Components
+### 5.1 Level 1: System Context
 
-```
-[Diagram or description]
-
-Example for web app:
-┌─────────────┐
-│   Browser   │
-└──────┬──────┘
-       │ HTTPS
-┌──────▼──────────┐
-│  Load Balancer  │
-└──────┬──────────┘
-       │
-┌──────▼──────────┐
-│   API Gateway   │
-└──────┬──────────┘
-       │
-   ┌───┴───┬───────┬────────┐
-   │       │       │        │
-┌──▼───┐ ┌▼────┐ ┌▼─────┐ ┌▼──────┐
-│ Auth │ │User │ │Order │ │Payment│
-│Service│ │Svc  │ │Svc   │ │Svc    │
-└──┬───┘ └┬────┘ └┬─────┘ └┬──────┘
-   │      │       │        │
-   └──────┴───────┴────────┘
-          │
-     ┌────▼────┐
-     │Database │
-     └─────────┘
-```
-
-### Component Details
-
-#### Component 1: [Name]
-- **Responsibility**: [What it does]
-- **Technology**: [Implementation choice]
-- **Interfaces**: [APIs it exposes]
-- **Dependencies**: [What it depends on]
-- **Trace to**: [product.md#user-story-001]
-
-#### Component 2: [Name]
-[Continue...]
-
-## Data Architecture
-
-### Data Models
-
-#### Entity 1: [Name]
-```
-[Schema definition]
-
-Example:
-User {
-  id: UUID
-  email: string (unique, indexed)
-  passwordHash: string
-  role: enum (admin, user)
-  createdAt: timestamp
-  updatedAt: timestamp
-}
-```
-
-**Trace to**: [product.md#functional-requirement-001]
-
-#### Entity 2: [Name]
-[Continue...]
-
-### Data Flow
-
-1. **Create User Flow**:
-   - Client → API Gateway → Auth Service
-   - Auth Service → Hash Password → Database
-   - Database → Return User → Client
-
-**Trace to**: [product.md#user-story-002]
-
-## API Design
-
-### API Contracts
-
-#### REST Endpoints (if applicable)
+[NEEDS CLARIFICATION - High-level module decomposition]
 
 ```
-POST   /api/v1/users          - Create user
-GET    /api/v1/users/:id      - Get user by ID
-PUT    /api/v1/users/:id      - Update user
-DELETE /api/v1/users/:id      - Delete user
-GET    /api/v1/users          - List users (paginated)
+┌────────────────────────────────────────┐
+│              System                     │
+│  ┌──────────┐  ┌──────────┐  ┌───────┐ │
+│  │ Frontend │  │ Backend  │  │  DB   │ │
+│  └──────────┘  └──────────┘  └───────┘ │
+└────────────────────────────────────────┘
 ```
 
-**Trace to**: [product.md#functional-requirement-auth]
+### 5.2 Level 2: Component Breakdown
 
-#### GraphQL Schema (if applicable)
+| Component | Responsibility | Technology |
+|-----------|----------------|------------|
+| [Component 1] | [What it does] | [Tech used] |
+| [Component 2] | [What it does] | [Tech used] |
+| [Component 3] | [What it does] | [Tech used] |
 
-```graphql
-type User {
-  id: ID!
-  email: String!
-  role: Role!
-  createdAt: DateTime!
-}
-
-type Query {
-  user(id: ID!): User
-  users(limit: Int, offset: Int): [User!]!
-}
-
-type Mutation {
-  createUser(input: CreateUserInput!): User!
-  updateUser(id: ID!, input: UpdateUserInput!): User!
-}
-```
-
-## Project Structure
-
-### Frontend Structure (if applicable)
+### 5.3 Code Organization
 
 ```
 src/
-├── domain/              # Business logic (pure functions)
-│   ├── entities/       # Data models
-│   └── usecases/       # Business rules
-├── application/         # Use case coordination
-│   └── hooks/          # React hooks / composables
-├── infrastructure/      # External dependencies
-│   ├── api/            # API clients
-│   ├── storage/        # LocalStorage, SessionStorage
-│   └── services/       # Third-party integrations
-├── presentation/        # UI components
-│   ├── components/     # Reusable components
-│   ├── pages/          # Page components
-│   └── layouts/        # Layout components
-└── store/              # State management
-    ├── slices/         # State slices (Redux) or stores (Zustand)
-    └── index.ts        # Store configuration
+├── [layer1]/     # [Purpose]
+├── [layer2]/     # [Purpose]
+├── [layer3]/     # [Purpose]
+└── [shared]/     # [Shared utilities]
 ```
 
-**Rationale**: Clean Architecture separation of concerns
+---
 
-### Backend Structure (if applicable)
+## 6. Runtime View
 
-```
-src/
-├── controllers/         # HTTP request handlers
-├── services/            # Business logic
-├── repositories/        # Data access layer
-├── models/              # Data models
-├── middleware/          # Express/FastAPI middleware
-├── utils/               # Utility functions
-├── config/              # Configuration
-└── types/               # TypeScript types / Python types
-```
+### 6.1 Key Scenario 1: [Scenario Name]
 
-**Rationale**: Three-layer architecture (Controller → Service → Repository)
-
-### Smart Contract Structure (if applicable)
+[NEEDS CLARIFICATION - Important runtime behavior]
 
 ```
-contracts/
-├── core/                # Core business logic
-│   └── Token.sol
-├── interfaces/          # Interface definitions
-│   └── IToken.sol
-├── libraries/           # Reusable libraries
-│   └── SafeMath.sol
-├── access/              # Access control
-│   └── Ownable.sol
-└── utils/               # Utility contracts
-    └── Address.sol
+User → Frontend → Backend → Database
+  │                          │
+  └──────── Response ────────┘
 ```
 
-**Rationale**: Modular design, separation of concerns
+**Steps**:
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
 
-## Security Architecture
+### 6.2 Key Scenario 2: [Scenario Name]
 
-### Authentication
-- Method: [JWT / OAuth2 / Session]
-- Token expiry: [Duration]
-- Refresh mechanism: [Yes/No, how]
+[Continue for other critical flows...]
 
-**Trace to**: [product.md#nfr-security]
+---
 
-### Authorization
-- Model: [RBAC / ABAC]
-- Roles: [admin, user, guest]
-- Permissions: [Define per role]
+## 7. Deployment View
 
-### Data Protection
-- Encryption at rest: [Yes/No, method if applicable]
-- Encryption in transit: [Protocol and version]
-- Secret management: [Solution chosen for secrets and credentials]
+### 7.1 Infrastructure
 
-## Performance Architecture
+[NEEDS CLARIFICATION - Deployment topology]
 
-### Caching Strategy
-- Client-side: [Caching mechanism chosen]
-- CDN: [CDN provider if applicable]
-- Server-side: [Caching solution chosen]
-- Database: [Query caching approach]
-
-**Trace to**: [product.md#nfr-performance]
-
-### Load Balancing
-- Strategy: [Round-robin / Least connections]
-- Health checks: [Interval, timeout]
-
-### Monitoring
-- APM: [New Relic / DataDog / Sentry]
-- Metrics: [Prometheus + Grafana]
-- Logs: [ELK Stack / CloudWatch]
-
-## Testing Strategy
-
-### Test Pyramid
 ```
-       /\
-      /E2E\        - 10%  (Playwright)
-     /------\
-    /Integra\      - 30%  (API tests)
-   /----------\
-  /Unit Tests \    - 60%  (Jest/Pytest)
- /--------------\
+┌─────────────────────────────────────┐
+│            Production               │
+│  ┌─────────┐  ┌─────────┐  ┌─────┐ │
+│  │   CDN   │  │   App   │  │ DB  │ │
+│  │         │  │ Server  │  │     │ │
+│  └─────────┘  └─────────┘  └─────┘ │
+└─────────────────────────────────────┘
 ```
 
-### Test Coverage Targets
-See `.ultra/config.json` for all coverage targets:
-- Overall coverage
-- Critical paths coverage
-- Branch coverage
-- Function coverage
+### 7.2 Environments
 
-**Trace to**: .ultra/config.json#quality_gates.test_coverage
+| Environment | Purpose | URL |
+|-------------|---------|-----|
+| Development | Local dev | localhost |
+| Staging | Pre-production testing | [URL] |
+| Production | Live system | [URL] |
 
-## Deployment Architecture
+### 7.3 CI/CD Pipeline
 
-### Environments
-- Development: [Local / Dev server]
-- Staging: [Pre-production environment]
-- Production: [Live environment]
+```
+Push → Build → Test → Deploy Staging → Manual Approval → Deploy Prod
+```
 
-### CI/CD Pipeline
-1. Code push → GitHub
-2. Run tests (unit + integration)
-3. Build Docker image
-4. Push to registry
-5. Deploy to staging (auto)
-6. Manual approval for production
-7. Deploy to production
-8. Health check + rollback on failure
+---
 
-### Rollback Strategy
-- **Deployment strategy**: [Blue-Green, Canary, Rolling, etc.]
-- **Rollback window**: [Maximum time before automated rollback]
-- **Database migrations**: [Backward compatibility approach]
+## 8. Crosscutting Concepts
 
-## Scalability Considerations
+### 8.1 Authentication & Authorization
 
-### Horizontal Scaling
-- Stateless services: [Yes/No]
-- Load balancer: [Required]
-- Database read replicas: [Number]
+[NEEDS CLARIFICATION - Security model]
 
-**Trace to**: [product.md#nfr-scalability]
+| Aspect | Approach |
+|--------|----------|
+| Authentication | [JWT / OAuth2 / Session] |
+| Authorization | [RBAC / ABAC] |
+| Token Storage | [HttpOnly Cookie / LocalStorage] |
 
-### Vertical Scaling
-- Resource limits: [CPU, Memory]
-- Auto-scaling triggers: [CPU >70%, Memory >80%]
+### 8.2 Error Handling
 
-## 12. Open Questions
+| Layer | Strategy |
+|-------|----------|
+| Frontend | [Error boundaries, user messages] |
+| Backend | [Structured errors, logging] |
+| API | [Standard error response format] |
 
-### 12.1 Technical Uncertainties
+### 8.3 Logging & Monitoring
 
-[NEEDS CLARIFICATION - Unresolved technical questions requiring investigation]
+| Aspect | Tool/Approach |
+|--------|---------------|
+| Application Logs | [Structured JSON logging] |
+| Error Tracking | [Sentry / similar] |
+| Metrics | [Prometheus / DataDog] |
+| Alerting | [PagerDuty / similar] |
 
-**Example format**:
-1. **Question**: [Technical question needing resolution]
-   - **Impacts**: [What decisions depend on this answer?]
-   - **Research needed**: [What investigation is required?]
-   - **Deadline**: [When do we need an answer?]
+---
 
-2. **Question**: [Another technical question]
-   [Continue...]
+## 9. Architectural Decisions
 
-### 12.2 Alternative Approaches Under Evaluation
+[NEEDS CLARIFICATION - Key decisions not covered elsewhere]
 
-[NEEDS CLARIFICATION - Technology or design alternatives being considered]
+### ADR-001: [Decision Title]
 
-**Example format**:
-- **Option A vs Option B**: [Comparison context]
-  - **Trade-offs**: [Pros and cons of each]
-  - **Decision criteria**: [How will we decide?]
-  - **Timeline**: [When will decision be made?]
+| Aspect | Description |
+|--------|-------------|
+| **Context** | [Why this decision was needed] |
+| **Decision** | [What was decided] |
+| **Consequences** | [Trade-offs accepted] |
+
+### ADR-002: [Decision Title]
+
+[Continue as needed...]
+
+---
+
+## 10. Quality Requirements
+
+### 10.1 Quality Scenarios
+
+[NEEDS CLARIFICATION - Specific, testable quality scenarios]
+
+| ID | Quality | Scenario | Measure |
+|----|---------|----------|---------|
+| Q1 | Performance | [Scenario] | [Target metric] |
+| Q2 | Security | [Scenario] | [Target metric] |
+| Q3 | Availability | [Scenario] | [Target metric] |
+
+### 10.2 Performance Requirements
+
+| Metric | Target |
+|--------|--------|
+| API Response Time (p95) | <200ms |
+| Page Load Time | <2s |
+| Concurrent Users | [Number] |
+
+### 10.3 Security Requirements
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Data at Rest | AES-256 encryption |
+| Data in Transit | TLS 1.3 |
+| Input Validation | [Approach] |
+
+---
+
+## 11. Risks & Technical Debt
+
+### 11.1 Known Risks
+
+[NEEDS CLARIFICATION - Technical risks]
+
+| Risk | Probability | Impact | Mitigation |
+|------|-------------|--------|------------|
+| [Risk 1] | High/Med/Low | High/Med/Low | [Mitigation strategy] |
+| [Risk 2] | High/Med/Low | High/Med/Low | [Mitigation strategy] |
+
+### 11.2 Technical Debt
+
+| Item | Impact | Priority | Plan |
+|------|--------|----------|------|
+| [Debt item 1] | [Impact] | High/Med/Low | [When to address] |
+| [Debt item 2] | [Impact] | High/Med/Low | [When to address] |
+
+---
+
+## 12. Glossary
+
+| Term | Definition |
+|------|------------|
+| [Term 1] | [Definition] |
+| [Term 2] | [Definition] |
 
 ---
 
 **Document Status**: Draft | In Review | Approved
 **Last Updated**: [Date]
-**Reviewed By**: [Name]

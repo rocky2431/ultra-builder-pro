@@ -26,12 +26,12 @@ Transform vague ideas into complete specifications through progressive interacti
 
 Use AskUserQuestion to determine research scope:
 
-| Type | Rounds |
-|------|--------|
-| New Project | Round 1-4 |
-| Incremental Feature | Round 2-3 |
-| Tech Decision | Round 3 only |
-| Custom | User selects |
+| Type | Rounds | Focus |
+|------|--------|-------|
+| New Project | Round 1-4 | Full product + architecture |
+| New Feature | Round 1-2 | User scenarios + feature definition |
+| Architecture Change | Round 3-4 | Architecture + deployment |
+| Custom | User selects | Specific rounds |
 
 ---
 
@@ -79,12 +79,52 @@ Step 6: Generate Spec Content (Write to .ultra/specs/)
 
 ### Round Overview
 
-| Round | Focus | Questions | Verification | Output |
-|-------|-------|-----------|--------------|--------|
-| 1: Problem Discovery | Problem space, users | Q1-5 | Verify market data | .ultra/specs/product.md §1-2 |
-| 2: Solution Exploration | MVP features, stories | Q6-8 | Add implementation patterns | .ultra/specs/product.md §3-5 |
-| 3: Technology Selection | Tech stack, architecture | Q9-11 | Deep tech comparison | .ultra/specs/architecture.md |
-| 4: Risk & Constraints | Risks, hard constraints | Q12-13 | Risk quantification | Risk sections |
+| Round | Focus | Key Deliverables | Output |
+|-------|-------|------------------|--------|
+| 1: User & Scenario | Personas, User Scenarios | Who uses it, how they use it | product.md §1-2 |
+| 2: Feature Definition | User Stories, Features Out | What to build, what NOT to build | product.md §3-4 |
+| 3: Architecture Design | Context, Strategy, Modules, Runtime | How it's structured and runs | architecture.md §1-6 |
+| 4: Quality & Deployment | Deployment, Quality, Risks | How it's deployed and monitored | architecture.md §7-11 |
+
+### Round 1: User & Scenario Discovery
+
+**Questions to answer**:
+1. Who are the target users? (Define 2-3 Personas with goals, pain points)
+2. What scenarios will users encounter? (3-5 User Scenarios with context)
+3. What is the core problem being solved?
+
+**Output**: product.md §1 (Problem Statement), §2 (Personas & Scenarios)
+
+### Round 2: Feature Definition
+
+**Questions to answer**:
+1. What are the User Stories? (As a [persona], I want [action], so that [benefit])
+2. What features are required? (Prioritized list with acceptance criteria)
+3. What features are explicitly OUT of scope? (Features Out with rationale)
+
+**Output**: product.md §3 (User Stories), §4 (Features & Features Out)
+
+### Round 3: Architecture Design
+
+**Questions to answer** (aligned with arc42 §1-6):
+1. What are the quality goals? (Performance, Security, Maintainability)
+2. What are the constraints? (Technical, Organizational, Legal)
+3. What is the system context? (External systems, interfaces)
+4. What is the solution strategy? (Tech stack with rationale)
+5. What are the building blocks? (Module decomposition)
+6. What are the key runtime scenarios? (Sequence flows)
+
+**Output**: architecture.md §1-6
+
+### Round 4: Quality & Deployment
+
+**Questions to answer** (aligned with arc42 §7-11):
+1. How will it be deployed? (Infrastructure, environments)
+2. What are crosscutting concerns? (Logging, Auth, Error handling)
+3. What are the quality requirements? (Specific scenarios)
+4. What are known risks and technical debt?
+
+**Output**: architecture.md §7-11
 
 
 ---
@@ -178,11 +218,11 @@ Output comparison matrix with:
 
 | File | Content |
 |------|---------|
-| `.ultra/specs/product.md` | Problem, Users, Stories, Requirements, NFRs |
-| `.ultra/specs/architecture.md` | Tech stack with rationale |
+| `.ultra/specs/product.md` | Personas, User Scenarios, User Stories, Features Out |
+| `.ultra/specs/architecture.md` | arc42 structure (Context, Strategy, Blocks, Runtime, Deployment, Quality, Risks) |
 | `.ultra/docs/research/*.md` | Round-specific analysis reports |
 | `.ultra/docs/research/metadata.json` | Quality metrics + confidence scores |
-| **`CLAUDE.md` (project root)** | Project context for Claude Code (NEW) |
+| **`CLAUDE.md` (project root)** | Project context for Claude Code |
 
 ---
 

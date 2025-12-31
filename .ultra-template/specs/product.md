@@ -1,6 +1,8 @@
 # Product Specification
 
-> **Source of Truth**: This document defines WHAT the system does and WHY. Technology choices belong in `architecture.md`.
+> **Source of Truth**: This document defines WHAT the system does and WHO it's for. Technical HOW belongs in `architecture.md`.
+
+---
 
 ## 1. Problem Statement
 
@@ -8,351 +10,163 @@
 
 [NEEDS CLARIFICATION - Describe the primary problem this project solves]
 
-**Guiding questions**:
-- What is the root cause of this problem?
-- Why does this problem exist?
-- What would happen if this problem remains unsolved?
+**Template**:
+> [Target users] struggle with [problem] because [root cause], resulting in [negative outcome].
 
-### 1.2 Current Pain Points
+### 1.2 Current Solutions & Pain Points
 
-[NEEDS CLARIFICATION - List 3-5 specific pain points users experience]
+[NEEDS CLARIFICATION - How users currently solve this and why it's inadequate]
 
-**Example format**:
-1. **Pain Point 1**: [Description]
-2. **Pain Point 2**: [Description]
-3. **Pain Point 3**: [Description]
-
-### 1.3 How Users Currently Solve This
-
-[NEEDS CLARIFICATION - Describe existing workarounds or alternative solutions]
-
-**Guiding questions**:
-- What manual processes do users follow today?
-- What tools or systems do they currently use?
-- Why are these solutions inadequate?
+| Current Solution | Pain Point | Impact |
+|------------------|------------|--------|
+| [Solution 1] | [Pain point] | [Quantified impact] |
+| [Solution 2] | [Pain point] | [Quantified impact] |
 
 ---
 
-## 2. Users & Stakeholders
+## 2. Personas
 
-### 2.1 Primary User Segments
+### Persona 1: [Name/Role]
 
-[NEEDS CLARIFICATION - Identify primary user types: B2C, B2B, Internal Teams, Developers]
+[NEEDS CLARIFICATION - Define primary user persona]
 
-**Example format**:
-- **Segment 1**: [User type]
-  - Size: [Estimated user count or market size]
-  - Priority: [P0/P1/P2]
+| Attribute | Description |
+|-----------|-------------|
+| **Role** | [Job title or user type] |
+| **Goals** | [What they want to achieve] |
+| **Pain Points** | [Current frustrations] |
+| **Behaviors** | [How they work/interact] |
+| **Technical Level** | [Beginner/Intermediate/Advanced] |
 
-- **Segment 2**: [User type]
-  - Size: [Estimated user count]
-  - Priority: [P0/P1/P2]
+### Persona 2: [Name/Role]
 
-### 2.2 User Characteristics
+[NEEDS CLARIFICATION - Define secondary user persona]
 
-[NEEDS CLARIFICATION - Demographics, behaviors, technical proficiency, needs]
+| Attribute | Description |
+|-----------|-------------|
+| **Role** | [Job title or user type] |
+| **Goals** | [What they want to achieve] |
+| **Pain Points** | [Current frustrations] |
+| **Behaviors** | [How they work/interact] |
+| **Technical Level** | [Beginner/Intermediate/Advanced] |
 
-**Example format**:
-- **Demographics**: [Age, location, industry, role]
-- **Technical Proficiency**: [Beginner, Intermediate, Advanced]
-- **Common Behaviors**: [Usage patterns, frequency]
-- **Key Needs**: [What users value most]
+---
 
-### 2.3 Secondary Stakeholders
+## 3. User Scenarios
 
-[NEEDS CLARIFICATION - Identify secondary users, administrators, decision-makers]
+### Scenario 1: [Scenario Name]
 
-**Example format**:
-- **Stakeholder 1**: [Role and influence]
-- **Stakeholder 2**: [Role and influence]
+[NEEDS CLARIFICATION - Describe a key user journey]
 
-## 3. User Stories
+| Element | Description |
+|---------|-------------|
+| **Persona** | [Which persona] |
+| **Context** | [When/where this happens] |
+| **Goal** | [What user wants to accomplish] |
+| **Steps** | 1. [Step 1] → 2. [Step 2] → 3. [Step 3] |
+| **Success Outcome** | [What success looks like] |
+| **Failure Handling** | [What happens if something goes wrong] |
 
-### 3.1 MVP Feature Scope
+### Scenario 2: [Scenario Name]
 
-[NEEDS CLARIFICATION - Define which features are must-have for MVP]
+[NEEDS CLARIFICATION - Describe another key user journey]
 
-**Guiding questions**:
-- What are the core features without which the product cannot function?
-- What features can be deferred to post-MVP releases?
+| Element | Description |
+|---------|-------------|
+| **Persona** | [Which persona] |
+| **Context** | [When/where this happens] |
+| **Goal** | [What user wants to accomplish] |
+| **Steps** | 1. [Step 1] → 2. [Step 2] → 3. [Step 3] |
+| **Success Outcome** | [What success looks like] |
+| **Failure Handling** | [What happens if something goes wrong] |
 
-**Example format**:
-- **MVP Features**: [List 3-5 must-have features]
-- **Post-MVP Features**: [List nice-to-have features for later]
+### Scenario 3: [Scenario Name]
 
-### 3.2 Epic Breakdown
+[Continue as needed...]
 
-[NEEDS CLARIFICATION - Organize user stories into epics]
+---
 
-**Example format**:
+## 4. User Stories & Features
 
-#### Epic 1: [Epic Name]
+### 4.1 Feature List
 
-**User Story 1.1**
-**As a** [role]
-**I want to** [capability]
+[NEEDS CLARIFICATION - Prioritized list of features]
+
+| ID | Feature | Priority | Acceptance Criteria |
+|----|---------|----------|---------------------|
+| F1 | [Feature name] | P0 | [Testable criteria] |
+| F2 | [Feature name] | P0 | [Testable criteria] |
+| F3 | [Feature name] | P1 | [Testable criteria] |
+| F4 | [Feature name] | P2 | [Testable criteria] |
+
+**Priority Guide**: P0 = Must have, P1 = Should have, P2 = Nice to have
+
+### 4.2 User Stories
+
+[NEEDS CLARIFICATION - Detailed user stories for each feature]
+
+#### Story 1: [Story Title]
+
+**As a** [persona]
+**I want to** [action]
 **So that** [benefit]
 
 **Acceptance Criteria**:
-- [ ] [Testable criterion 1]
-- [ ] [Testable criterion 2]
-- [ ] [Testable criterion 3]
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+- [ ] [Criterion 3]
 
-**Priority**: P0 | P1 | P2 | P3
-**Estimated Effort**: [hours/days]
+**Links to**: F1
 
-**User Story 1.2**
-[Continue...]
+#### Story 2: [Story Title]
 
-#### Epic 2: [Epic Name]
-[Continue...]
-
-### 3.3 Key User Scenarios
-
-[NEEDS CLARIFICATION - Describe 3-5 critical user journeys]
-
-**Example format**:
-1. **Scenario 1**: [User goal] → [Steps] → [Expected outcome]
-2. **Scenario 2**: [User goal] → [Steps] → [Expected outcome]
+[Continue for each feature...]
 
 ---
 
-## 4. Functional Requirements
+## 5. Features Out (Explicitly NOT Building)
 
-### 4.1 Core Capabilities
+[NEEDS CLARIFICATION - What is explicitly out of scope and why]
 
-[NEEDS CLARIFICATION - Define essential system capabilities]
-
-**Example format**:
-1. **[Feature Name]**
-   - Description: [What it does]
-   - Input: [What data/actions trigger it]
-   - Output: [What result users see]
-   - Business Rules: [Logic and constraints]
-   - **Trace to**: [User Story 1.1]
-
-2. **[Feature Name]**
-   [Continue...]
-
-### 4.2 Data Operations
-
-[NEEDS CLARIFICATION - CRUD operations, search, filtering, export/import]
-
-**Example format**:
-- **Create**: [What entities can users create?]
-- **Read**: [What queries and views are needed?]
-- **Update**: [What can be modified?]
-- **Delete**: [What can be removed? Soft or hard delete?]
-
-### 4.3 Integration Requirements
-
-[NEEDS CLARIFICATION - Third-party APIs, webhooks, external services]
-
-**Example format**:
-- **Integration 1**: [Service name] - [Purpose] - [API/SDK used]
-- **Integration 2**: [Service name] - [Purpose] - [API/SDK used]
+| Feature | Reason NOT Building | Future Consideration |
+|---------|---------------------|---------------------|
+| [Feature X] | [Reason] | Phase 2 / Never |
+| [Feature Y] | [Reason] | Phase 2 / Never |
+| [Feature Z] | [Reason] | Phase 2 / Never |
 
 ---
 
-## 5. Non-Functional Requirements
+## 6. Success Metrics
 
-### 5.1 Performance Requirements
+### 6.1 Business Metrics
 
-[NEEDS CLARIFICATION - Response time, throughput, Core Web Vitals targets]
+[NEEDS CLARIFICATION - How we measure success]
 
-**Example format**:
-- **Response Time**: [e.g., <200ms for API calls, <2s for page loads]
-- **Throughput**: [e.g., Support 10K concurrent users]
-- **Frontend Performance** (if applicable):
-  - LCP (Largest Contentful Paint): <2.5s
-  - INP (Interaction to Next Paint): <200ms
-  - CLS (Cumulative Layout Shift): <0.1
+| Metric | Baseline | Target | Measurement Method |
+|--------|----------|--------|-------------------|
+| [Metric 1] | [Current] | [Goal] | [How to measure] |
+| [Metric 2] | [Current] | [Goal] | [How to measure] |
 
-### 5.2 Security Requirements
+### 6.2 User Metrics
 
-[NEEDS CLARIFICATION - Authentication, authorization, data protection, compliance]
-
-**Example format**:
-- **Authentication**: [JWT, OAuth2, Session-based]
-- **Authorization**: [RBAC, ABAC, role definitions]
-- **Data Encryption**: [At rest: AES-256, In transit: TLS 1.3]
-- **Compliance**: [GDPR, HIPAA, SOC2, PCI-DSS]
-- **Security Controls**: [Rate limiting, input validation, OWASP Top 10]
-
-### 5.3 Scalability Requirements
-
-[NEEDS CLARIFICATION - Expected growth, scaling strategy, load distribution]
-
-**Example format**:
-- **Expected Growth**: [User count, data volume projections]
-- **Horizontal Scaling**: [Required for which components?]
-- **Load Distribution**: [Geographic distribution, CDN needs]
-
-### 5.4 Reliability Requirements
-
-[NEEDS CLARIFICATION - Uptime, recovery, backup, failover]
-
-**Example format**:
-- **Uptime Target**: [e.g., 99.9% = 8.76 hours downtime/year]
-- **Recovery Time Objective (RTO)**: [e.g., <1 hour]
-- **Recovery Point Objective (RPO)**: [e.g., <15 minutes data loss]
-- **Backup Strategy**: [Frequency, retention, restore testing]
-- **Disaster Recovery**: [Failover mechanisms, redundancy]
-
-### 5.5 Usability Requirements
-
-[NEEDS CLARIFICATION - Accessibility, internationalization, browser/device support]
-
-**Example format**:
-- **Accessibility**: [WCAG 2.1 AA, keyboard navigation, screen reader support]
-- **Internationalization**: [Languages supported, RTL support]
-- **Browser Support**: [Chrome, Firefox, Safari, Edge - versions]
-- **Device Support**: [Desktop, tablet, mobile - responsive design]
-
-## 6. Constraints
-
-### 6.1 Technical Constraints
-
-[NEEDS CLARIFICATION - Platform, integration, technology restrictions]
-
-**Example format**:
-- **Must integrate with**: [Existing system names and versions]
-- **Must run on**: [Platform/infrastructure requirements]
-- **Cannot use**: [Prohibited technologies and reasons]
-- **Required compatibility**: [Legacy system requirements]
-
-### 6.2 Business Constraints
-
-[NEEDS CLARIFICATION - Budget, timeline, team size, organizational limits]
-
-**Example format**:
-- **Budget**: [Total budget and breakdown]
-- **Timeline**: [Hard deadlines with milestones]
-- **Team Size**: [Number of developers, designers, QA]
-- **Resource Limits**: [Infrastructure, licenses, tooling]
-
-### 6.3 Regulatory Constraints
-
-[NEEDS CLARIFICATION - GDPR, HIPAA, SOC2, industry-specific regulations]
-
-**Example format**:
-- **Data Privacy**: [GDPR, CCPA requirements]
-- **Healthcare**: [HIPAA compliance if applicable]
-- **Financial**: [PCI-DSS, SOX if applicable]
-- **Industry-Specific**: [Sector-specific regulations]
+| Metric | Target |
+|--------|--------|
+| Task Completion Rate | [%] |
+| User Satisfaction (NPS) | [Score] |
+| Time to Complete [Task] | [Time] |
 
 ---
 
-## 7. Risks & Mitigation
+## 7. Open Questions
 
-### 7.1 Critical Risks
+[Questions requiring clarification before or during development]
 
-[NEEDS CLARIFICATION - High-probability or high-impact risks]
-
-**Example format**:
-| Risk | Probability | Impact | Category |
-|------|------------|--------|----------|
-| [Risk description] | High/Medium/Low | Critical/Significant/Moderate | Technical/Business/Regulatory |
-
-### 7.2 Mitigation Strategies
-
-[NEEDS CLARIFICATION - Risk response plans for each critical risk]
-
-**Example format**:
-1. **Risk**: [Risk name from 7.1]
-   - **Mitigation**: [Preventive measures]
-   - **Contingency**: [If mitigation fails, what's Plan B?]
-   - **Owner**: [Who is responsible?]
-
-2. **Risk**: [Risk name from 7.1]
-   [Continue...]
-
-### 7.3 Assumptions
-
-[NEEDS CLARIFICATION - Key assumptions requiring validation]
-
-**Example format**:
-1. **Assumption**: [Statement]
-   - **Validation**: [How to verify this assumption?]
-   - **Impact if wrong**: [What happens if this assumption is incorrect?]
-
-2. **Assumption**: [Statement]
-   [Continue...]
-
----
-
-## 8. Success Metrics
-
-### 8.1 Key Performance Indicators (KPIs)
-
-**Business Metrics**:
-1. **[Metric Name]**
-   - Current: [Baseline]
-   - Target: [Goal]
-   - Measurement: [How to measure]
-   - Timeline: [When to achieve target]
-
-2. **[Metric Name]**
-   [Continue...]
-
-**Technical Metrics**:
-- Response time: [Target]
-- Error rate: [Target]
-- Uptime: [Target]
-
-### 8.2 User Satisfaction Metrics
-
-- **Net Promoter Score (NPS)**: Target [number]
-- **User Adoption Rate**: Target [percentage]
-- **Task Completion Rate**: Target [percentage]
-- **User Retention**: Target [percentage]
-
----
-
-## 9. Out of Scope
-
-**Explicitly list what this project will NOT include**:
-
-- **[Feature X]**: Reason: [Will be addressed in Phase 2]
-- **[Feature Y]**: Reason: [Not aligned with current goals]
-- **[Feature Z]**: Reason: [Technical constraints or budget limits]
-
----
-
-## 10. Dependencies
-
-### 10.1 External Dependencies
-
-- **[Third-party service/API]**: [Purpose and integration point]
-- **[External data source]**: [Data type and access method]
-
-### 10.2 Internal Dependencies
-
-- **[Existing system]**: [Integration requirements]
-- **[Team/department]**: [What we need from them and when]
-
----
-
-## 11. Open Questions
-
-[Questions requiring clarification during development]
-
-1. **Question**: [Open question]
-   - **Impacts**: [What decisions depend on this?]
-   - **Deadline**: [When do we need an answer?]
-
-2. **Question**: [Open question]
-   [Continue...]
-
-## References
-
-- User research: [Link]
-- Market analysis: [Link]
-- Competitor analysis: [Link]
-- Related projects: [Link]
+| # | Question | Impact | Deadline |
+|---|----------|--------|----------|
+| 1 | [Question] | [What depends on this] | [When needed] |
+| 2 | [Question] | [What depends on this] | [When needed] |
 
 ---
 
 **Document Status**: Draft | In Review | Approved
 **Last Updated**: [Date]
-**Approved By**: [Name]
