@@ -34,8 +34,8 @@ If ANY component is fake/mocked/simulated → Quality = 0
 **Why this matters**: Development without specification leads to mock code, hardcoded values, and degraded implementations — all violate Production Absolutism. The spec provides the contract that tests verify against with real dependencies.
 
 **If validation fails**:
-- Report: "❌ 任务 #{id} 没有关联规范 (trace_to 字段缺失)"
-- Solution: "请先运行 /ultra-research 建立规范，或在 tasks.json 中添加 trace_to 字段"
+- Report: "❌ Task #{id} has no linked specification (trace_to field missing)"
+- Solution: "Run /ultra-research to create specs, or add trace_to field to tasks.json"
 - STOP here. Do not proceed.
 
 **If validation passes**: Continue to Validation 2.
@@ -47,8 +47,8 @@ If ANY component is fake/mocked/simulated → Quality = 0
 **Why this matters**: Main branch must remain deployable at all times. Each task requires an independent branch so changes can be reverted individually without affecting other work.
 
 **If validation fails**:
-- Report: "❌ 当前在 main/master 分支，禁止直接开发"
-- Solution: "请运行: git checkout -b feat/task-{id}-{slug}"
+- Report: "❌ Currently on main/master branch, direct development prohibited"
+- Solution: "Run: git checkout -b feat/task-{id}-{slug}"
 - STOP here. Do not proceed.
 
 **If validation passes**: Continue to Validation 3.
@@ -60,8 +60,8 @@ If ANY component is fake/mocked/simulated → Quality = 0
 **Parallel Development Mode**: Dependencies are soft constraints. Tasks can run in parallel even if dependencies are incomplete.
 
 **If dependencies incomplete**:
-- Report: "⚠️ 依赖任务未完成: Task #{dep_id} (状态: {status})"
-- Warning: "并行开发模式：可继续开发，但需注意接口兼容性"
+- Report: "⚠️ Dependency task incomplete: Task #{dep_id} (status: {status})"
+- Warning: "Parallel development mode: can proceed, but watch interface compatibility"
 - **Continue with development** (do not block)
 
 **If dependencies are `completed`**: No warning needed.

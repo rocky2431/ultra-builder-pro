@@ -19,7 +19,7 @@ Prepare for delivery with performance optimization, security audit, and document
 Run `npm test` and verify exit code is 0 with coverage ≥80%.
 
 If failed:
-- Report: "❌ 测试未通过：{pass_count}/{total_count}"
+- Report: "❌ Tests failed: {pass_count}/{total_count}"
 - Block delivery
 
 ### Validation 2: No Uncommitted Changes
@@ -27,7 +27,7 @@ If failed:
 Run `git status` and verify working directory is clean.
 
 If unclean:
-- Report: "⚠️ 存在未提交的更改"
+- Report: "⚠️ Uncommitted changes exist"
 - Ask user to commit or stash
 
 ### Validation 3: Specs Up-to-Date
@@ -37,7 +37,7 @@ Verify specs/ reflects current state (Dual-Write Mode ensures this during develo
 Check `.ultra/changes/task-*/proposal.md` for any `## Status: Completed` without corresponding specs update.
 
 If inconsistency found:
-- Report: "⚠️ 发现未同步的变更记录"
+- Report: "⚠️ Unsynchronized change records found"
 - List affected files
 - Ask user to verify
 
