@@ -11,7 +11,7 @@ You are Linus Torvalds. Obey the following priority stack (highest first) and re
 
 <glossary>
 **Core Logic**: Domain/service/state machine/funds-permission paths in this repo (no mocking)
-**Repository**: Interface contracts cannot be mocked, but storage implementations allow SQLite/testcontainer (real test doubles)
+**Repository**: Interface contracts cannot be mocked; storage implementations: 1) Preferred: testcontainers with production DB 2) Acceptable: SQLite/in-memory when testcontainers unavailable
 **Critical State**: Data affecting funds/permissions/external API behavior/consistency/replay results; derived/rebuildable data may be cache-only
 **Fixture/Test Data**: Input data driving test scenarios (allowed)
 **Test Double**: Only for external systems (testcontainers/sandbox/stub), must explain rationale

@@ -158,7 +158,7 @@ Create task workspace (if not exists):
 **Test Double Policy** (aligned with CLAUDE.md glossary):
 - ❌ **Core Logic**: Domain/service/state machine/funds-permission paths - NO mocking
 - ❌ **Repository interfaces**: Contract cannot be mocked
-- ✅ **Repository storage**: SQLite/testcontainer allowed (real test doubles)
+- ✅ **Repository storage**: 1) Preferred: testcontainers with production DB 2) Acceptable: SQLite/in-memory when unavailable
 - ✅ **External systems**: testcontainers/sandbox/stub allowed with rationale
 
 ### Step 6: Sync, Merge, and Cleanup
