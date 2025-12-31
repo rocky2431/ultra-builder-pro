@@ -1,7 +1,7 @@
 ---
 description: Think-Driven Interactive Discovery - Deep research with 6-dimensional analysis
 argument-hint: [topic]
-allowed-tools: TodoWrite, Task, Read, Write, WebSearch, WebFetch, Grep, Glob
+allowed-tools: TodoWrite, Task, Read, Write, WebSearch, WebFetch, Grep, Glob, AskUserQuestion
 ---
 
 # Ultra Research
@@ -16,8 +16,8 @@ Transform vague ideas into complete specifications through progressive interacti
 
 ## Pre-Research Check
 
-1. If `specs/product.md` has [NEEDS CLARIFICATION] → Run Mode 1
-2. If `specs/` doesn't exist → Suggest /ultra-init first
+1. If `.ultra/specs/product.md` has [NEEDS CLARIFICATION] → Run Mode 1
+2. If `.ultra/specs/` doesn't exist → Suggest /ultra-init first
 3. If specs 100% complete → Skip to /ultra-plan
 
 ---
@@ -49,7 +49,7 @@ Deep analysis with verification
         ↓
 High-confidence output
         ↓
-Write to specs/
+Write to .ultra/specs/
 ```
 
 **Key Principle**: All research output must be:
@@ -75,7 +75,7 @@ Step 1: Requirement Clarification (AskUserQuestion)
 Step 2: Deep Analysis (/ultra-think with 6D framework)
 Step 3: Analysis Validation (show summary with confidence)
 Step 4: Iteration Decision (satisfied AND confidence ≥90% → continue)
-Step 5: Generate Spec Content (Write to specs/)
+Step 5: Generate Spec Content (Write to .ultra/specs/)
 Step 6: Round Satisfaction Rating (1-5 stars)
 ```
 
@@ -83,9 +83,9 @@ Step 6: Round Satisfaction Rating (1-5 stars)
 
 | Round | Focus | Questions | Output |
 |-------|-------|-----------|------------|--------|
-| 1: Problem Discovery | Problem space, users | Q1-5 | Verify market data | specs/product.md §1-2 |
-| 2: Solution Exploration | MVP features, stories | Q6-8 | Add implementation patterns | specs/product.md §3-5 |
-| 3: Technology Selection | Tech stack, architecture | Q9-11 | **Deep tech comparison** | specs/architecture.md |
+| 1: Problem Discovery | Problem space, users | Q1-5 | Verify market data | .ultra/specs/product.md §1-2 |
+| 2: Solution Exploration | MVP features, stories | Q6-8 | Add implementation patterns | .ultra/specs/product.md §3-5 |
+| 3: Technology Selection | Tech stack, architecture | Q9-11 | **Deep tech comparison** | .ultra/specs/architecture.md |
 | 4: Risk & Constraints | Risks, hard constraints | Q12-13 | Risk quantification | Risk sections |
 
 **Questions Reference**: @config/research/round-questions.md
@@ -144,8 +144,8 @@ Output comparison matrix with:
 ## Success Criteria
 
 **Research Complete When**:
-- ✅ `specs/product.md` has NO [NEEDS CLARIFICATION] markers
-- ✅ `specs/architecture.md` has justified tech decisions
+- ✅ `.ultra/specs/product.md` has NO [NEEDS CLARIFICATION] markers
+- ✅ `.ultra/specs/architecture.md` has justified tech decisions
 - ✅ All selected rounds completed
 - ✅ Research reports saved to `.ultra/docs/research/`
 - ✅ Overall rating ≥4 stars, no round <3 stars
@@ -160,8 +160,8 @@ Output comparison matrix with:
 **After all rounds complete, generate project-level CLAUDE.md:**
 
 1. **Read source files**:
-   - `specs/product.md` → Project Overview
-   - `specs/architecture.md` → Tech Stack, Development Rules
+   - `.ultra/specs/product.md` → Project Overview
+   - `.ultra/specs/architecture.md` → Tech Stack, Development Rules
    - `.ultra/docs/research/*` → Known Risks
    - `.ultra/tasks/tasks.json` → Current Focus
 
@@ -182,8 +182,8 @@ Output comparison matrix with:
 
 | File | Content |
 |------|---------|
-| `specs/product.md` | Problem, Users, Stories, Requirements, NFRs |
-| `specs/architecture.md` | Tech stack with rationale |
+| `.ultra/specs/product.md` | Problem, Users, Stories, Requirements, NFRs |
+| `.ultra/specs/architecture.md` | Tech stack with rationale |
 | `.ultra/docs/research/*.md` | Round-specific analysis reports |
 | `.ultra/docs/research/metadata.json` | Quality metrics + confidence scores |
 | **`CLAUDE.md` (project root)** | Project context for Claude Code (NEW) |

@@ -46,9 +46,9 @@ python scripts/doc_sync.py list-adrs
 
 ## Documentation Locations
 
-**New projects (specs/):**
-- `specs/product.md` - Product requirements
-- `specs/architecture.md` - Technical decisions
+**New projects (.ultra/specs/):**
+- `.ultra/specs/product.md` - Product requirements
+- `.ultra/specs/architecture.md` - Technical decisions
 
 **Legacy projects (docs/):**
 - `docs/prd.md` - Product requirements
@@ -70,8 +70,8 @@ When research introduces new information:
 ### After Feature Completion
 
 Check alignment between:
-- User stories in specs/product.md and implemented features
-- Architecture in specs/architecture.md and actual code structure
+- User stories in .ultra/specs/product.md and implemented features
+- Architecture in .ultra/specs/architecture.md and actual code structure
 
 ### ADR Creation
 
@@ -126,7 +126,7 @@ Generate and maintain a project-specific `CLAUDE.md` at project root. Claude Cod
 Generate/update CLAUDE.md when:
 1. `/ultra-research` completes (full generation)
 2. Task completes via `/ultra-dev` (update "Current Focus")
-3. `specs/` files are modified (incremental update)
+3. `.ultra/specs/` files are modified (incremental update)
 4. `/ultra-deliver` completes (add release info)
 
 ### Content Structure
@@ -135,10 +135,10 @@ Generate/update CLAUDE.md when:
 # {Project Name}
 
 ## Project Overview
-{1-2 paragraph summary from specs/product.md}
+{1-2 paragraph summary from .ultra/specs/product.md}
 
 ## Tech Stack
-{Extracted from specs/architecture.md}
+{Extracted from .ultra/specs/architecture.md}
 - Frontend: {framework}
 - Backend: {framework}
 - Database: {database}
@@ -168,10 +168,10 @@ Generate/update CLAUDE.md when:
 
 **Step 1: Read Source Files**
 ```
-specs/product.md      → Project Overview
-specs/architecture.md → Tech Stack, Development Rules
-docs/research/*.md    → Known Risks (from risk assessment)
-tasks/tasks.json      → Current Focus
+.ultra/specs/product.md      → Project Overview
+.ultra/specs/architecture.md → Tech Stack, Development Rules
+.ultra/docs/research/*.md    → Known Risks (from risk assessment)
+.ultra/tasks/tasks.json      → Current Focus
 ```
 
 **Step 2: Extract Content**
@@ -194,8 +194,8 @@ tasks/tasks.json      → Current Focus
 
 | Change Type | Update Action |
 |-------------|---------------|
-| specs/product.md changed | Regenerate "Project Overview" |
-| specs/architecture.md changed | Regenerate "Tech Stack" + "Development Rules" |
+| .ultra/specs/product.md changed | Regenerate "Project Overview" |
+| .ultra/specs/architecture.md changed | Regenerate "Tech Stack" + "Development Rules" |
 | Task status changed | Update "Current Focus" only |
 | Risk assessment updated | Regenerate "Known Risks" |
 | Full research completed | Full regeneration |
@@ -203,7 +203,7 @@ tasks/tasks.json      → Current Focus
 ### Quality Constraints
 
 - **Max length**: 500 words (minimize token cost)
-- **No duplication**: Reference specs/ for details, don't copy
+- **No duplication**: Reference .ultra/specs/ for details, don't copy
 - **Actionable**: Rules should be specific, not vague
 - **Current**: Always reflect latest project state
 

@@ -17,8 +17,8 @@ Generate task breakdown from complete specifications (created by /ultra-research
 ### Mandatory: Specification Completeness Validation
 
 **Check both files exist and are complete**:
-- `specs/product.md` (new projects) or `docs/prd.md` (old projects)
-- `specs/architecture.md` (new projects) or `docs/tech.md` (old projects)
+- `.ultra/specs/product.md` (new projects) or `docs/prd.md` (old projects)
+- `.ultra/specs/architecture.md` (new projects) or `docs/tech.md` (old projects)
 
 **Validation criteria**:
 - ❌ **BLOCK if**: File has [NEEDS CLARIFICATION] markers → Force return to /ultra-research
@@ -31,8 +31,8 @@ Generate task breakdown from complete specifications (created by /ultra-research
 ⚠️  Specifications incomplete, cannot generate task plan
 
 Detection results:
-- specs/product.md: [status]
-- specs/architecture.md: [status]
+- .ultra/specs/product.md: [status]
+- .ultra/specs/architecture.md: [status]
 
 Issues:
 - [Specific missing or incomplete sections]
@@ -51,7 +51,7 @@ After completion, specs will be 100% filled, then run /ultra-plan
 
 ### Optional Checks
 
-- Detect project structure: specs/ (new) or docs/ (old)?
+- Detect project structure: .ultra/specs/ (new) or docs/ (old)?
 - Check for recent research in `.ultra/docs/research/` → Use recommendations as basis
 - Check for existing tasks in `.ultra/tasks/tasks.json` → Ask whether to replace/extend/cancel
 - Clarify scope: Full project plan vs specific feature tasks
@@ -62,8 +62,8 @@ After completion, specs will be 100% filled, then run /ultra-plan
 
 **Determine specification source**:
 ```
-IF specs/product.md exists:
-  specification_file = "specs/product.md"
+IF .ultra/specs/product.md exists:
+  specification_file = ".ultra/specs/product.md"
 ELSE IF docs/prd.md exists:
   specification_file = "docs/prd.md"  (old project)
 ELSE:
@@ -73,7 +73,7 @@ ELSE:
 ### 1. Requirements Analysis
 
 **Load specification** (must be complete):
-- Primary: `specs/product.md` (new projects)
+- Primary: `.ultra/specs/product.md` (new projects)
 - Fallback: `docs/prd.md` (old projects)
 - If missing/incomplete: BLOCK and force return to /ultra-research
 
@@ -104,21 +104,21 @@ Generate tasks with:
 - **Type** (NEW): architecture | feature | bugfix
 - **Trace to** (NEW): Auto-generated link to source requirement
 
-**Auto-generate trace_to field** (new projects with specs/ only):
+**Auto-generate trace_to field** (new projects with .ultra/specs/ only):
 
-1. **Parse specification file** (specs/product.md):
+1. **Parse specification file** (.ultra/specs/product.md):
    - Extract all markdown headers with IDs or create IDs from header text
    - Map functional requirements, user stories, and features to header IDs
    - Example: "## User Authentication" → `#user-authentication`
 
 2. **Match task to requirement**:
    - Analyze task title and description
-   - Find matching section in specs/product.md using keyword matching
-   - Example: Task "Implement JWT authentication" → `specs/product.md#user-authentication`
+   - Find matching section in .ultra/specs/product.md using keyword matching
+   - Example: Task "Implement JWT authentication" → `.ultra/specs/product.md#user-authentication`
 
 3. **trace_to format**:
-   - New projects: `specs/product.md#section-id`
-   - Architecture tasks: `specs/architecture.md#technology-decision`
+   - New projects: `.ultra/specs/product.md#section-id`
+   - Architecture tasks: `.ultra/specs/architecture.md#technology-decision`
    - Old projects: Omit trace_to field (backward compatibility)
 
 4. **Validation**:
@@ -153,7 +153,7 @@ Save to `.ultra/tasks/tasks.json`:
       "estimated_days": 2,
       "status": "pending",
       "type": "feature",
-      "trace_to": "specs/product.md#user-story-001"
+      "trace_to": ".ultra/specs/product.md#user-story-001"
     }
   ]
 }
@@ -207,8 +207,8 @@ Output summary in Chinese:
   - `syncing-status`: Initializes feature-status.json entries
   - `guarding-quality`: Validates task structure
 - **Input**:
-  - `specs/product.md` (new projects, created by /ultra-research)
-  - `specs/architecture.md` (new projects, created by /ultra-research)
+  - `.ultra/specs/product.md` (new projects, created by /ultra-research)
+  - `.ultra/specs/architecture.md` (new projects, created by /ultra-research)
   - `docs/prd.md` (old projects, backward compatibility)
   - `docs/tech.md` (old projects, backward compatibility)
 - **Output**:
@@ -225,22 +225,22 @@ Output summary in Chinese:
 
 ## Backward Compatibility
 
-**Old projects** (without specs/):
+**Old projects** (without .ultra/specs/):
 - Reads from `docs/prd.md` and `docs/tech.md`
 - tasks.json created without `type` and `trace_to` fields
 - No /ultra-research requirement (manual spec creation acceptable)
 - Zero breaking changes for existing projects
 
-**New projects** (with specs/):
-- Requires /ultra-research to create `specs/product.md` and `specs/architecture.md` first
-- Reads from `specs/product.md` and `specs/architecture.md`
+**New projects** (with .ultra/specs/):
+- Requires /ultra-research to create `.ultra/specs/product.md` and `.ultra/specs/architecture.md` first
+- Reads from `.ultra/specs/product.md` and `.ultra/specs/architecture.md`
 - tasks.json includes `type` and `trace_to` fields
 - 100% specification completeness enforced
 
 **Migration Path** (old → new):
-- Run `/ultra-init` to create specs/ structure
-- Copy `docs/prd.md` → `specs/product.md`
-- Copy `docs/tech.md` → `specs/architecture.md`
+- Run `/ultra-init` to create .ultra/specs/ structure
+- Copy `docs/prd.md` → `.ultra/specs/product.md`
+- Copy `docs/tech.md` → `.ultra/specs/architecture.md`
 - Future planning will use new structure
 
 ## Output Format

@@ -1,7 +1,7 @@
 ---
 description: Initialize Ultra Builder Pro 4.3 project with native task management
 argument-hint: <name> <type> <stack> [git]
-allowed-tools: Read, Write, Bash, TodoWrite, Grep, Glob
+allowed-tools: Read, Write, Bash, TodoWrite, Grep, Glob, AskUserQuestion
 ---
 
 # /ultra-init
@@ -119,7 +119,7 @@ Detect project context before initialization:
      - "Don't use Git"
 
 4. **Ask re-initialization handling** (if `.ultra/` exists)
-   - Overwrite (backup to `.ultra/backup/`)
+   - Overwrite (backup to `.ultra/backups/`)
    - Keep existing (update missing files only)
    - Cancel
 
@@ -129,26 +129,26 @@ Detect project context before initialization:
 
 ### 2. Create Project Structure
 
-Create `.ultra/` by copying from template (`.claude/.ultra-template/`):
+Create `.ultra/` by copying from template (`~/.claude/.ultra-template/`):
 
 **Specification-Driven Structure**:
-- `specs/` - Specification source of truth
+- `.ultra/specs/` - Specification source of truth
   - `product.md` - Product requirements & user stories
   - `architecture.md` - Architecture design & tech stack
   - `api-contracts/` - API specifications
   - `data-models/` - Data model definitions
 
 **Task Management**:
-- `tasks/tasks.json` - Native task tracking
+- `.ultra/tasks/tasks.json` - Native task tracking
 
 **Documentation**:
-- `docs/research/` - Research reports (/ultra-research outputs)
-- `docs/decisions/` - Architecture Decision Records (ADRs with template)
+- `.ultra/docs/research/` - Research reports (/ultra-research outputs)
+- `.ultra/docs/decisions/` - Architecture Decision Records (ADRs with template)
 
 **Additional Directories**:
-- `changes/` - Feature proposals (OpenSpec pattern)
+- `.ultra/changes/` - Feature proposals (OpenSpec pattern)
 
-**Template Source**: All files copied from `.claude/.ultra-template/`
+**Template Source**: All files copied from `~/.claude/.ultra-template/`
 
 **Note**: Old projects using `docs/prd.md` and `docs/tech.md` are supported via fallback mechanism in commands
 
@@ -161,13 +161,13 @@ Create `.ultra/tasks/tasks.json`:
 
 ### 4. Copy All Template Files
 
-**Copy `.claude/.ultra-template/` contents:**
+**Copy `~/.claude/.ultra-template/` contents:**
 
 **To `.ultra/` directory:**
-- Specs: `specs/product.md`, `specs/architecture.md`, subdirectories
-- Tasks: `tasks/tasks.json`
-- Docs: `docs/decisions/`, `docs/research/`
-- Additional: `changes/`, `thinking-sessions/`
+- Specs: `.ultra/specs/product.md`, `.ultra/specs/architecture.md`, subdirectories
+- Tasks: `.ultra/tasks/tasks.json`
+- Docs: `.ultra/docs/decisions/`, `.ultra/docs/research/`
+- Additional: `.ultra/changes/`, `.ultra/thinking-sessions/`
 
 **To project root:**
 - `CLAUDE.md` - Project-level context file (Claude Code auto-reads this)
@@ -192,7 +192,7 @@ Create `.ultra/tasks/tasks.json`:
 ### 6. Display Success Summary
 
 Show in Chinese:
-- Directories created (specs/, changes/, tasks/, docs/)
+- Directories created (.ultra/specs/, .ultra/changes/, .ultra/tasks/, .ultra/docs/)
 - Template files copied
 - Task system initialized (tasks.json)
 - Specification templates ready (product.md, architecture.md with [NEEDS CLARIFICATION] markers)
@@ -216,13 +216,13 @@ Show in Chinese:
 **ROI**: 70-minute investment saves 10+ hours of rework (8x+ return)
 
 **After Research Completes**:
-  - specs/product.md: 100% complete (no [NEEDS CLARIFICATION] markers)
-  - specs/architecture.md: 100% complete with justified decisions
-  - Research reports saved to docs/research/
+  - .ultra/specs/product.md: 100% complete (no [NEEDS CLARIFICATION] markers)
+  - .ultra/specs/architecture.md: 100% complete with justified decisions
+  - Research reports saved to .ultra/docs/research/
 
 **Then Run**: `/ultra-plan` to generate task breakdown from complete specs
 
-**Important**: specs/product.md is the source of truth (docs/prd.md is a symlink for compatibility)
+**Important**: .ultra/specs/product.md is the source of truth (legacy projects may use docs/prd.md + docs/tech.md for compatibility)
 
 ## Usage Examples
 
@@ -254,9 +254,9 @@ Show in Chinese:
 - Round 4: Risk & Constraint Mapping (15 min) - Identify risks with mitigation
 
 **Output**:
-- ✅ specs/product.md: 100% complete (all [NEEDS CLARIFICATION] filled)
-- ✅ specs/architecture.md: 100% complete with justified decisions
-- ✅ Research reports: Saved to docs/research/
+- ✅ .ultra/specs/product.md: 100% complete (all [NEEDS CLARIFICATION] filled)
+- ✅ .ultra/specs/architecture.md: 100% complete with justified decisions
+- ✅ Research reports: Saved to .ultra/docs/research/
 
 **Why This Matters**:
 - Without research: Vague requirements → 2h rework, wrong tech → 5h refactor, missing constraints → 3h fixes
@@ -266,8 +266,8 @@ Show in Chinese:
 ### Step 2: Run `/ultra-plan` (After Research Completes)
 
 Generate task breakdown from complete specifications:
-- Reads specs/product.md (now 100% complete)
-- Reads specs/architecture.md (now 100% complete)
+- Reads .ultra/specs/product.md (now 100% complete)
+- Reads .ultra/specs/architecture.md (now 100% complete)
 - Generates tasks with dependencies and complexity estimates
 - Saves to .ultra/tasks/tasks.json
 
@@ -276,10 +276,10 @@ Generate task breakdown from complete specifications:
 TDD workflow with quality gates and automatic git integration.
 
 **Specification-Driven Workflow**:
-- `specs/product.md` - WHAT to build (completed in research)
-- `specs/architecture.md` - HOW to build (completed in research)
-- `tasks.json` - Task breakdown (generated from specs)
-- `changes/` - Feature proposals (during development)
+- `.ultra/specs/product.md` - WHAT to build (completed in research)
+- `.ultra/specs/architecture.md` - HOW to build (completed in research)
+- `.ultra/tasks/tasks.json` - Task breakdown (generated from specs)
+- `.ultra/changes/` - Feature proposals (during development)
 
 ## Output Format
 

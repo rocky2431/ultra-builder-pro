@@ -1,0 +1,20 @@
+{
+  "output_format": "StreamJson",
+  "timeout_seconds": null,
+  "max_tokens": null,
+  "max_thinking_tokens": null,
+  "verbose": true,
+  "permissions": {
+    "allowed_tools": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash"
+    ],
+    "disallowed_tools": [],
+    "permission_mode": "Interactive",
+    "auto_approve_edits": false,
+    "enable_dangerous_skip": true
+  },
+  "disable_rewind_git_operations": false
+}

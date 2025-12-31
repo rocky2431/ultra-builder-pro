@@ -51,7 +51,7 @@ If found:
 2. For each, read the task ID and check if task status is "completed" in tasks.json
 3. If completed:
    - Read proposal.md for spec changes documented during development
-   - Apply relevant changes to main specs (specs/product.md, specs/architecture.md)
+   - Apply relevant changes to main specs (.ultra/specs/product.md, .ultra/specs/architecture.md)
    - Verify proposal.md has `## Status: Completed` section
 4. Mark as processed (no separate archive - completion tracked in proposal.md)
 

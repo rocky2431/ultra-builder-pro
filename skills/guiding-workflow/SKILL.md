@@ -35,7 +35,7 @@ python scripts/detect_project_state.py --json  # JSON output
 | Signal | Location | Indicates |
 |--------|----------|-----------|
 | .ultra/ directory | `.ultra/` | Project initialized |
-| Specifications | `specs/product.md`, `specs/architecture.md` | Requirements defined |
+| Specifications | `.ultra/specs/product.md`, `.ultra/specs/architecture.md` | Requirements defined |
 | Research | `.ultra/docs/research/*.md` | Investigation complete |
 | Task plan | `.ultra/tasks/tasks.json` | Tasks defined |
 | Code changes | `git status` | Active development |
