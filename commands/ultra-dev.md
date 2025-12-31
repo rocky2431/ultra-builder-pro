@@ -24,7 +24,9 @@ Execute development tasks using TDD workflow.
    - Otherwise → select first task with `status: "pending"`
 3. Read context file: `.ultra/tasks/contexts/task-{id}.md`
 4. Display task context
-5. Update task status to `in_progress` in tasks.json
+5. **Update status to `in_progress`**:
+   - tasks.json: `status: "in_progress"`
+   - context file: Change header `> **Status**: in_progress`
 6. Create todos from Acceptance section
 
 ### Step 2: Environment Setup
@@ -105,9 +107,17 @@ Execute development tasks using TDD workflow.
    git branch -d feat/task-{id}-{slug}
    ```
 
-5. **Update status**:
-   - tasks.json: Set status to `completed`
-   - context file: Update header status to `completed`
+5. **Update status to `completed`**:
+   - tasks.json: `status: "completed"`
+   - context file:
+     - Header: `> **Status**: completed`
+     - Fill Completion section:
+       ```markdown
+       ## Completion
+       - **Completed**: {today's date}
+       - **Commit**: {commit hash}
+       - **Summary**: {what was delivered}
+       ```
 
 6. **Trigger syncing skills**:
    - syncing-status: Record to feature-status.json
@@ -124,15 +134,21 @@ Output:
 
 ## Dual-Write Mode
 
-**When requirements change during development**:
+**Trigger**: When implementation reveals spec gaps or requirement changes.
+
+**Examples**:
+- API signature differs from spec
+- New edge case discovered
+- Constraint changed
+
+**Process**:
 
 1. **Update specs immediately** (`.ultra/specs/product.md` or `architecture.md`)
    - Keep specifications current for parallel tasks
 
-2. **Record change in context file** (`.ultra/tasks/contexts/task-{id}.md`):
-   - Add entry to Change Log section:
+2. **Record change in context file** Change Log:
    ```markdown
-   | {date} | {change description} | {reason} |
+   | {date} | {change description} | specs/{file}#{section} | {reason} |
    ```
 
 **Key principle**: `specs/` is source of truth, `contexts/` tracks implementation history.
