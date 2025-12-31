@@ -148,10 +148,32 @@ Write `.ultra/test-report.json`:
 - `passed` = all gates passed
 - `blocking_issues` = list of reasons for failure
 
-**If failed**:
-1. Display blocking_issues in Chinese
-2. User fixes issues manually
-3. User re-runs `/ultra-test`
+---
+
+## Auto-Fix Loop
+
+If any gate fails, attempt automatic fix:
+
+```
+Loop (max 3 attempts):
+  1. Analyze blocking_issues
+  2. If fixable → fix → re-run tests → update run_count
+  3. If not fixable → break and report
+  4. If all gates pass → done
+```
+
+**Fixable issues** (auto-fix):
+- Coverage Gap → Write missing tests
+- Anti-Pattern → Fix test code
+- E2E errors → Fix code or test
+
+**Not fixable** (report to user):
+- Security CVE → Requires dependency upgrade or upstream fix
+- Performance → May require architecture changes
+
+**If max attempts reached**:
+- Report remaining issues to user
+- Explain what was attempted
 
 ### 2. Display Report
 
