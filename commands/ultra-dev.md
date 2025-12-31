@@ -1,7 +1,7 @@
 ---
 description: Agile development execution with TDD workflow
 argument-hint: [task-id]
-allowed-tools: Read, Write, Edit, Bash, TodoWrite, Grep, Glob, Task
+allowed-tools: Read, Write, Edit, Bash, TodoWrite, Grep, Glob, Task, AskUserQuestion
 ---
 
 # /ultra-dev

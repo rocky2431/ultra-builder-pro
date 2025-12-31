@@ -1,7 +1,7 @@
 ---
 description: Release preparation (documentation + build + version + publish)
 argument-hint: [version-type]
-allowed-tools: TodoWrite, Task, Read, Write, Edit, Bash, Grep, Glob
+allowed-tools: TodoWrite, Task, Read, Write, Edit, Bash, Grep, Glob, AskUserQuestion
 ---
 
 # /ultra-deliver
