@@ -1,88 +1,51 @@
 ---
 description: Analyze decisions with structured trade-off comparison
 argument-hint: [decision question]
-allowed-tools: Read, Grep, Glob, WebFetch, WebSearch, TodoWrite
 ---
 
-# /ultra-think - Decision Analysis
+# /ultra-think
 
-Structured analysis for technical decisions. Converges to clear recommendation.
+Deep analysis for complex decisions. Let Claude determine the optimal thinking approach.
 
-## Workflow
+## Instructions
 
-### 1. Problem Clarification (1-2 sentences)
-- What is the core decision?
-- What constraints exist?
+Think through this problem thoroughly and in great detail:
 
-### 2. Dimension Selection
-Pick **2-4 most relevant** dimensions (not all 6):
+$ARGUMENTS
 
-| Dimension | When Relevant |
-|-----------|---------------|
-| Technical | Architecture, performance, security involved |
-| Business | Cost, timeline, ROI matters |
-| Team | Skills, learning curve, velocity impact |
-| Ecosystem | Dependencies, vendor lock-in, community |
-| Strategic | Long-term direction, competitive positioning |
-| Risk | High-stakes, irreversible, compliance |
-
-### 3. Options Comparison (2-3 options)
-
-| Criteria | Option A | Option B | Option C |
-|----------|----------|----------|----------|
-| [Dimension 1] | ... | ... | ... |
-| [Dimension 2] | ... | ... | ... |
-| [Dimension 3] | ... | ... | ... |
-
-### 4. Recommendation
-
-**推荐**: [Option]
-**置信度**: High (>80%) / Medium (50-80%) / Low (<50%)
-**理由**: 1-2 sentences
-**风险**: Key risk + mitigation
-**下一步**: `/ultra-plan` or `/ultra-dev`
-
----
+Consider multiple approaches and show your complete reasoning. Try different methods if your first approach doesn't work. Challenge your own assumptions.
 
 ## Output Format (Chinese)
 
-```markdown
-## 问题
-[1-2 sentences: core decision + constraints]
+Use `<thinking>` for internal reasoning, then provide:
 
-## 分析维度
-[Only relevant dimensions, not all 6]
+```
+## 问题
+[1-2 句: 核心决策 + 约束]
+
+## 分析
+[Claude 自主选择相关维度分析]
 
 ## 方案对比
 | 维度 | 方案A | 方案B |
 |------|-------|-------|
-| ... | ... | ... |
 
 ## 推荐
-- **选择**: [Option]
+- **选择**: [方案]
 - **置信度**: High/Medium/Low
-- **理由**: [1-2 sentences]
-- **主要风险**: [Risk + mitigation]
+- **理由**: [1-2 句]
+- **风险**: [主要风险 + 缓解]
 
 ## 下一步
-1. [Immediate action]
+[具体行动]
 ```
 
----
+## Evidence Requirement
 
-## Evidence Requirements
-
-Per CLAUDE.md `<evidence_first>`:
-- Technical claims → verify with Context7/Exa MCP
-- Mark unverified claims as **Speculation**
-- Include sources for key assertions
-
----
+Per CLAUDE.md `<evidence_first>`: External claims require verification (Context7/Exa MCP). Label assertions as Fact/Inference/Speculation.
 
 ## When NOT to Use
 
 - Simple questions → direct answer
-- Implementation details → `/ultra-dev`
-- Research needed → `/ultra-research`
-
-Use `/ultra-think` only for **decisions with trade-offs**.
+- Implementation → `/ultra-dev`
+- Research → `/ultra-research`
