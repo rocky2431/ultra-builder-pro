@@ -85,26 +85,42 @@ Execute development tasks using TDD workflow.
 
 > **Prerequisite**: Step 4 Quality Gates passed (all tests green)
 
-1. **Commit**:
+1. **Update status to `completed`** (before commit):
+   - tasks.json: `status: "completed"`
+   - context file header: `> **Status**: completed`
+   - context file Completion section (date + summary, hash later):
+     ```markdown
+     ## Completion
+     - **Completed**: {today's date}
+     - **Commit**: _pending_
+     - **Summary**: {what was delivered}
+     ```
+
+2. **Commit**:
    ```bash
    git add -A
    git commit -m "feat(scope): description"
    ```
 
-2. **Sync with main**:
+3. **Record commit hash**:
+   ```bash
+   git rev-parse HEAD  # Get hash
+   ```
+   - Update context file: replace `_pending_` with actual hash
+   - Amend: `git commit --amend --no-edit`
+
+4. **Sync with main**:
    ```bash
    git fetch origin
    git rebase origin/main
    ```
    - If conflicts → resolve → `git rebase --continue`
 
-3. **Verify after rebase** (main may have new code):
-   ```bash
-   # Run tests again to ensure compatibility
-   ```
-   - If tests fail → fix → amend commit → repeat
+5. **Verify after rebase** (main may have new code):
+   - Run tests again to ensure compatibility
+   - If tests fail → fix → amend commit → repeat step 4-5
 
-4. **Merge to main**:
+6. **Merge to main**:
    ```bash
    git checkout main
    git pull origin main
@@ -113,19 +129,7 @@ Execute development tasks using TDD workflow.
    git branch -d feat/task-{id}-{slug}
    ```
 
-5. **Update status to `completed`**:
-   - tasks.json: `status: "completed"`
-   - context file:
-     - Header: `> **Status**: completed`
-     - Fill Completion section:
-       ```markdown
-       ## Completion
-       - **Completed**: {today's date}
-       - **Commit**: {commit hash}
-       - **Summary**: {what was delivered}
-       ```
-
-6. **Trigger syncing skills**:
+7. **Trigger syncing skills**:
    - syncing-status: Record to feature-status.json
    - syncing-docs: Update CLAUDE.md "Current Focus"
 
