@@ -149,6 +149,11 @@ Review this code diff against these rules:
 - No race conditions or incorrect state handling
 - No N+1 queries or memory leaks
 - Spec compliance - implementation matches acceptance criteria
+- Edge cases handled (boundary values, null, empty, error paths)
+
+[Testing in Code]
+- No mocks on core logic (domain/service/state paths must use real deps)
+- Test files included should follow Core Logic NO MOCKING rule
 
 Provide specific issues with file:line references and severity (Critical/High/Medium/Low).
 If no critical/high issues found, respond with "PASS: No blocking issues".
@@ -187,6 +192,11 @@ Core Logic = Domain/service/state machine/funds-permission paths
 - Tautology assertions (expect(true).toBe(true))
 - Empty test bodies
 - False confidence - tests that pass but don't verify behavior
+
+[Security Testing]
+- Auth/permission tests exist for protected endpoints
+- Input validation tests for injection vectors
+- Sensitive data handling tests (no plaintext secrets in logs/responses)
 
 Provide specific issues with file:line references.
 If no critical issues found, respond with "PASS: No blocking issues".
