@@ -99,7 +99,4 @@ Suggest next optimal task based on:
 
 ## Output Format
 
-
 **Command icon**: 📊
-
-**Example output**: See template Section 7.7 for ultra-status specific example.

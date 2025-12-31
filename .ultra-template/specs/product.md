@@ -157,16 +157,5 @@
 
 ---
 
-## 7. Open Questions
-
-[Questions requiring clarification before or during development]
-
-| # | Question | Impact | Deadline |
-|---|----------|--------|----------|
-| 1 | [Question] | [What depends on this] | [When needed] |
-| 2 | [Question] | [What depends on this] | [When needed] |
-
----
-
 **Document Status**: Draft | In Review | Approved
 **Last Updated**: [Date]

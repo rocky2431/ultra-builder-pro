@@ -72,19 +72,52 @@ Write to .ultra/specs/
 Step 1: Requirement Clarification (AskUserQuestion)
 Step 2: Deep Analysis (/ultra-think)
 Step 3: Analysis Validation (show summary with confidence)
-Step 4: Round Satisfaction Rating (1-5 stars)
-Step 5: If <3 stars → Iterate (back to Step 1); If ≥3 stars → Continue
-Step 6: Generate Spec Content (Write to .ultra/specs/)
+Step 4: Round Satisfaction Rating (1-5 stars, ask user)
+Step 5: Quality Gate
+        - If <4 stars → Iterate (ask: what's missing? back to Step 1)
+        - If ≥4 stars → Continue to Step 6
+Step 6: Generate Output
+        - Write to .ultra/specs/ (product.md or architecture.md)
+        - Write research report to .ultra/docs/research/{round-name}-{date}.md
+```
+
+**Rating Definition**:
+
+| Rating | Meaning | Action |
+|--------|---------|--------|
+| 1-2 ⭐ | Serious issues, needs major rework | Iterate |
+| 3 ⭐ | Notable gaps or omissions | Iterate |
+| 4 ⭐ | Acceptable, meets requirements | Continue |
+| 5 ⭐ | Excellent, exceeds expectations | Continue |
+
+**Research Report Format** (written in Step 6):
+
+```markdown
+# Round {N}: {Round Name}
+
+> **Rating**: ⭐⭐⭐⭐ (4/5)
+> **Confidence**: 92%
+> **Iterations**: 1
+> **Completed**: {date}
+
+## Summary
+[Key findings from this round]
+
+## Details
+[Full analysis content]
+
+## Decisions Made
+[Choices and rationale]
 ```
 
 ### Round Overview
 
-| Round | Focus | Key Deliverables | Output |
-|-------|-------|------------------|--------|
-| 1: User & Scenario | Personas, User Scenarios | Who uses it, how they use it | product.md §1-3 |
-| 2: Feature Definition | User Stories, Features Out | What to build, what NOT to build | product.md §4-5 |
-| 3: Architecture Design | Context, Strategy, Modules, Runtime | How it's structured and runs | architecture.md §1-6 |
-| 4: Quality & Deployment | Deployment, Quality, Risks | How it's deployed and monitored | architecture.md §7-12 |
+| Round | Focus | Spec Output | Report Output |
+|-------|-------|-------------|---------------|
+| 1: User & Scenario | Personas, User Scenarios | product.md §1-3 | user-scenario-{date}.md |
+| 2: Feature Definition | User Stories, Features, Metrics | product.md §4-6 | feature-definition-{date}.md |
+| 3: Architecture Design | Context, Strategy, Modules | architecture.md §1-6 | architecture-design-{date}.md |
+| 4: Quality & Deployment | Deployment, Quality, Risks | architecture.md §7-12 | quality-deployment-{date}.md |
 
 ### Round 1: User & Scenario Discovery
 
@@ -101,8 +134,9 @@ Step 6: Generate Spec Content (Write to .ultra/specs/)
 1. What are the User Stories? (As a [persona], I want [action], so that [benefit])
 2. What features are required? (Prioritized list with acceptance criteria)
 3. What features are explicitly OUT of scope? (Features Out with rationale)
+4. How will we measure success? (Business metrics, user metrics, targets)
 
-**Output**: product.md §4 (User Stories & Features), §5 (Features Out)
+**Output**: product.md §4 (User Stories & Features), §5 (Features Out), §6 (Success Metrics)
 
 ### Round 3: Architecture Design
 
@@ -182,11 +216,28 @@ Output comparison matrix with:
 **Research Complete When**:
 - ✅ `.ultra/specs/product.md` has NO [NEEDS CLARIFICATION] markers
 - ✅ `.ultra/specs/architecture.md` has justified tech decisions
-- ✅ All selected rounds completed
+- ✅ All selected rounds completed (each round ≥4 stars)
 - ✅ Research reports saved to `.ultra/docs/research/`
-- ✅ Overall rating ≥4 stars, no round <3 stars
 - ✅ **All recommendations have 90%+ confidence**
 - ✅ **All code examples are production-ready**
+
+**Note**: No separate "overall gate" needed - each round requires ≥4 stars to continue, so completing all rounds guarantees overall quality.
+
+**Final Quality Summary** (display after all rounds complete):
+
+```
+📊 Research Quality Summary
+===========================
+Round 1 (User & Scenario):    ⭐⭐⭐⭐ (4/5), 92%, 1 iteration
+Round 2 (Feature Definition): ⭐⭐⭐⭐⭐ (5/5), 95%, 1 iteration
+Round 3 (Architecture):       ⭐⭐⭐⭐ (4/5), 91%, 2 iterations
+Round 4 (Quality & Deploy):   ⭐⭐⭐⭐ (4/5), 90%, 1 iteration
+
+Overall: 4.25/5 avg, 92% avg confidence
+Status: ✅ Complete (all rounds ≥4 stars)
+Reports: .ultra/docs/research/*.md
+Next: /ultra-plan
+```
 
 ---
 
@@ -194,10 +245,9 @@ Output comparison matrix with:
 
 | File | Content |
 |------|---------|
-| `.ultra/specs/product.md` | Personas, User Scenarios, User Stories, Features Out |
+| `.ultra/specs/product.md` | Personas, User Scenarios, User Stories, Features Out, Success Metrics |
 | `.ultra/specs/architecture.md` | arc42 structure (Context, Strategy, Blocks, Runtime, Deployment, Quality, Risks) |
-| `.ultra/docs/research/*.md` | Round-specific analysis reports |
-| `.ultra/docs/research/metadata.json` | Quality metrics + confidence scores |
+| `.ultra/docs/research/*.md` | Round-specific analysis reports with confidence scores |
 
 ---
 

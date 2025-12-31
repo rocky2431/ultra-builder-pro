@@ -133,8 +133,8 @@ Create `.ultra/` by copying from template (`~/.claude/.ultra-template/`):
 
 **Specification-Driven Structure**:
 - `.ultra/specs/` - Specification source of truth
-  - `product.md` - Personas, User Scenarios, User Stories, Features Out
-  - `architecture.md` - arc42 structure (12 sections)
+  - `product.md` - Problem Statement, Personas, User Scenarios, User Stories, Features Out, Success Metrics (§1-6)
+  - `architecture.md` - arc42 structure (§1-12)
 
 **Task Management**:
 - `.ultra/tasks/tasks.json` - Native task tracking
@@ -168,7 +168,6 @@ Create `.ultra/tasks/tasks.json`:
 - Initialize repo: `git init`
 - Create `.gitignore`:
   - Exclude `.ultra/backups`
-  - Exclude `CLAUDE.local.md` (personal config, not shared)
   - Exclude secrets, build artifacts
 - Create basic `README.md` (if not exists)
 - Suggest first commit: `git add . && git commit -m "feat: initialize Ultra Builder Pro 4.4"`
@@ -194,10 +193,10 @@ Show in Chinese:
 - Skipping research leads to: vague requirements, wrong tech choices, missing constraints
 
 **Think-Driven Interactive Discovery**:
-  - Round 1: Problem Discovery - Understand WHY and WHAT
-  - Round 2: Solution Exploration - Define features and user stories
-  - Round 3: Technology Selection - Choose tech stack with analysis
-  - Round 4: Risk & Constraint Mapping - Identify risks and mitigation
+  - Round 1: User & Scenario - Define personas and user scenarios (§1-3)
+  - Round 2: Feature Definition - Define features and success metrics (§4-6)
+  - Round 3: Architecture Design - Design system architecture (arch §1-6)
+  - Round 4: Quality & Deployment - Define quality and deployment (arch §7-12)
 
 **ROI**: Thorough research saves significant rework
 
@@ -234,10 +233,10 @@ Show in Chinese:
 **DO NOT skip research!** This is the most important phase.
 
 **Think-Driven Interactive Discovery**:
-- Round 1: Problem Discovery - Analyze problem space
-- Round 2: Solution Exploration - Generate user stories
-- Round 3: Technology Selection - Compare tech options
-- Round 4: Risk & Constraint Mapping - Identify risks with mitigation
+- Round 1: User & Scenario - Define personas and user scenarios (§1-3)
+- Round 2: Feature Definition - Define features and success metrics (§4-6)
+- Round 3: Architecture Design - Design system architecture (arch §1-6)
+- Round 4: Quality & Deployment - Define quality and deployment (arch §7-12)
 
 **Output**:
 - ✅ .ultra/specs/product.md: 100% complete (all [NEEDS CLARIFICATION] filled)
@@ -269,7 +268,4 @@ TDD workflow with quality gates and automatic git integration.
 
 ## Output Format
 
-
 **Command icon**: 🏗️
-
-**Example output**: See template Section 7.1 for ultra-init specific example.

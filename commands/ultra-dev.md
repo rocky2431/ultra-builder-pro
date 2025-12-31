@@ -122,11 +122,9 @@ Execute development tasks using TDD workflow.
 
 6. **Merge to main**:
    ```bash
-   git checkout main
-   git pull origin main
+   git checkout main && git pull origin main
    git merge --no-ff feat/task-{id}-{slug}
-   git push origin main
-   git branch -d feat/task-{id}-{slug}
+   git push origin main && git branch -d feat/task-{id}-{slug}
    ```
 
 ### Step 6: Report

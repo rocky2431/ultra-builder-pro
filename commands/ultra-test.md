@@ -290,10 +290,7 @@ Test summary:
 
 ## Output Format
 
-
 **Command icon**: 🧪
-
-**Example output**: See template Section 7.5 for ultra-test specific example.
 
 ## References
 
