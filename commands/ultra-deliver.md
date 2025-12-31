@@ -117,10 +117,6 @@ Add:
 - Clear "Current Focus" (all tasks completed)
 - Update any changed development rules
 
-**Update feature-status.json** (via syncing-status):
-- Mark all features as released
-- Add release version to metadata
-
 ---
 
 ## Deliverables Checklist
@@ -132,14 +128,13 @@ Add:
 - [ ] Specs up-to-date (Dual-Write verified)
 - [ ] Production build successful
 - [ ] CLAUDE.md updated with release info
-- [ ] feature-status.json marked as released
 
 ---
 
 ## Integration
 
 - **Agents**: ultra-performance-agent for optimization
-- **Skills**: syncing-docs, syncing-status
+- **Skills**: syncing-docs
 - **Next**: Deploy or create release PR
 
 ## Output Format

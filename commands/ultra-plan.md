@@ -185,9 +185,6 @@ mkdir -p .ultra/tasks/contexts
 1. **Update CLAUDE.md** (via syncing-docs skill):
    - Update "Current Focus" section with first pending task
 
-2. **Initialize feature-status.json** (via syncing-status skill):
-   - Create entries for each task
-
 ### 7. Report
 
 Output summary:
@@ -211,7 +208,7 @@ Output summary:
 ## Integration
 
 - **Prerequisites**: `/ultra-research` (specs must be complete)
-- **Skills**: syncing-docs, syncing-status
+- **Skills**: syncing-docs
 - **Input**: `.ultra/specs/product.md`, `.ultra/specs/architecture.md`
 - **Output**: `.ultra/tasks/tasks.json`, `.ultra/tasks/contexts/*.md`
 - **Next**: `/ultra-dev`

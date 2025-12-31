@@ -141,7 +141,6 @@ Create `.ultra/` by copying from template (`~/.claude/.ultra-template/`):
 
 **Documentation**:
 - `.ultra/docs/research/` - Research reports (/ultra-research outputs)
-- `.ultra/docs/feature-status.json` - Feature implementation tracking
 
 **Template Source**: All files copied from `~/.claude/.ultra-template/`
 
@@ -160,7 +159,7 @@ Create `.ultra/tasks/tasks.json`:
 **To `.ultra/` directory:**
 - Specs: `.ultra/specs/product.md`, `.ultra/specs/architecture.md`
 - Tasks: `.ultra/tasks/tasks.json`
-- Docs: `.ultra/docs/research/`, `.ultra/docs/feature-status.json`
+- Docs: `.ultra/docs/research/`
 
 **To project root:**
 - `CLAUDE.md` - Project-level context file (Claude Code auto-reads this)

@@ -240,55 +240,22 @@ Iterate until all tests pass and metrics meet baselines.
 | Any test fails OR coverage <80% | "fail" |
 
 **Step 1: Identify tested tasks**
-Read completed tasks from tasks.json that need status update:
+Read completed tasks from tasks.json:
 ```bash
 cat .ultra/tasks/tasks.json | jq '.tasks[] | select(.status == "completed")'
 ```
 
-**Step 2: Read existing feature status**
-```bash
-cat .ultra/docs/feature-status.json
+**Step 2: Report test results** (output in Chinese at runtime):
 ```
-
-**Step 3: Update each task's feature status** (execute, not just describe)
-For each completed task:
-1. Find entry in feature-status.json by taskId
-2. If found → Update existing entry:
-   - `status`: "pass" or "fail" (based on test results)
-   - `testedAt`: current ISO timestamp
-   - `coverage`: percentage from test run
-   - `coreWebVitals`: {lcp, inp, cls} (frontend only)
-3. If NOT found → Create new entry with test results
-
-**Step 4: Write updated feature-status.json**
-
-**Step 5: Verify update succeeded**
-```bash
-cat .ultra/docs/feature-status.json | grep "testedAt"
-# Must show updated timestamps
-```
-
-**Output Format** (Chinese at runtime):
-```
-Test completion message including:
-   - Feature status updates: feat-{id} ({name}): pass/fail (coverage: X%)
-   - Test summary: Unit tests X/Y passed, E2E tests X/Y passed
+Test summary:
+   - Unit tests: X/Y passed
+   - E2E tests: X/Y passed
    - Total coverage: X%
-   - Core Web Vitals: LCP, INP, CLS values
-   - Issues to fix (if any): Coverage below 80%
+   - Core Web Vitals: LCP, INP, CLS values (frontend only)
+   - Issues to fix (if any)
 ```
 
-**Failure Handling**:
-If feature-status.json update fails:
-1. Display warning (Chinese at runtime)
-2. Log error to .ultra/docs/status-sync.log
-3. Continue with test report (do NOT block)
-4. syncing-status Skill will auto-fix on next trigger
-
-**Benefits**:
-- Track pass/fail status per feature
-- Historical verification records
-- Commit traceability for debugging
+**Note**: Test results are reported in terminal output. Use `/ultra-deliver` when all tests pass.
 
 ## Quality Gates (All Must Pass)
 
@@ -317,12 +284,9 @@ If feature-status.json update fails:
 
 ## Integration
 
-- **Skills**:
-  - Sync: **syncing-status** (feature-status.json), **syncing-docs** (CLAUDE.md)
+- **Skills**: syncing-docs (CLAUDE.md update if tests fail)
 - **Output files**:
-  - `.ultra/docs/feature-status.json` (test results)
   - `.ultra/docs/test-coverage-gaps.md` (gap analysis)
-  - `CLAUDE.md` (status update if tests fail)
 - **Next**: `/ultra-deliver` for deployment prep
 
 ## Output Format

@@ -5,29 +5,13 @@
     "/ultra-init": [],
     "/ultra-research": ["syncing-docs"],
     "/ultra-plan": [],
-    "/ultra-dev": [],
+    "/ultra-dev": ["syncing-docs"],
     "/ultra-test": [],
-    "/ultra-deliver": ["syncing-docs", "syncing-status"],
-    "/ultra-status": ["syncing-status"],
+    "/ultra-deliver": ["syncing-docs"],
+    "/ultra-status": [],
     "/ultra-think": ["ultra-think"]
   },
   "skills": {
-    "syncing-status": {
-      "type": "sync",
-      "enforcement": "auto",
-      "priority": "medium",
-      "description": "Status sync - task progress, test results",
-      "promptTriggers": {
-        "keywords": ["status", "状态", "progress", "进度", "task", "任务", "done", "完成"],
-        "intentPatterns": ["(what|show|check|查看|显示|检查).*(status|状态|进度)"]
-      },
-      "statusConfig": {
-        "trackingFile": ".ultra/tasks/tasks.json",
-        "statusTypes": ["pending", "in_progress", "completed", "blocked"],
-        "autoUpdateOnTaskComplete": true,
-        "includeTestResults": true
-      }
-    },
     "syncing-docs": {
       "type": "sync",
       "enforcement": "auto",

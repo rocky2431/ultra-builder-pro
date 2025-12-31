@@ -129,9 +129,8 @@ Execute development tasks using TDD workflow.
    git branch -d feat/task-{id}-{slug}
    ```
 
-7. **Trigger syncing skills**:
-   - syncing-status: Record to feature-status.json
-   - syncing-docs: Update CLAUDE.md "Current Focus"
+7. **Trigger syncing-docs**:
+   - Update CLAUDE.md "Current Focus" from tasks.json
 
 ### Step 6: Report
 
@@ -173,9 +172,8 @@ Output:
 - **Output**:
   - `.ultra/tasks/tasks.json` (status update)
   - `.ultra/tasks/contexts/task-{id}.md` (updated context with change log)
-  - `.ultra/docs/feature-status.json` (tracking)
   - `CLAUDE.md` (current focus)
-- **Skills**: syncing-docs, syncing-status
+- **Skills**: syncing-docs
 - **Agents**: ultra-architect-agent (for complexity ≥7)
 - **Next**: `/ultra-test` or `/ultra-dev [next-task-id]`
 

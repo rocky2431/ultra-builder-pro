@@ -76,14 +76,13 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ---
 
-## Skills (6 Total)
+## Skills (5 Total)
 
 ### Sync Skills
 
 | Skill | Function |
 |-------|----------|
-| syncing-docs | ADR, research reports |
-| syncing-status | Task progress, test results |
+| syncing-docs | Documentation, CLAUDE.md updates |
 
 ### Domain Skills
 
@@ -134,10 +133,9 @@ If ANY component is fake/mocked/simulated → Quality = 0
 ~/.claude/
 ├── CLAUDE.md                 # Main configuration
 ├── settings.json             # Claude Code settings
-├── skills/                   # 6 Automated Skills
+├── skills/                   # 5 Automated Skills
 │   ├── skill-rules.json      # Skill trigger rules
 │   ├── syncing-docs/
-│   ├── syncing-status/
 │   ├── frontend/
 │   ├── backend/
 │   ├── smart-contract/

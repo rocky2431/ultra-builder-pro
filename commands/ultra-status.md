@@ -38,47 +38,6 @@ Display comprehensive project status:
 - ⚠️ **Risks**: Auto-detected issues and recommendations
 - 📈 **Next steps**: Optimal next task with rationale
 
-### Phase 2.5: Feature Status Consistency Check
-
-**Automatic validation on every /ultra-status run**
-
-**Step 1: Load data sources**
-```bash
-# Load completed tasks
-cat .ultra/tasks/tasks.json | jq '.tasks[] | select(.status == "completed")'
-
-# Load feature status entries
-cat .ultra/docs/feature-status.json
-```
-
-**Step 2: Compare and identify gaps**
-```
-For each completed task in tasks.json:
-  - Check if feature-status.json has entry with matching taskId
-  - If missing → add to gap list
-
-For each entry in feature-status.json:
-  - Check if corresponding task exists and is completed
-  - Check if status is stale (pending > 24 hours)
-  - If stale → add to stale list
-```
-
-**Step 3: Report gaps** (Chinese at runtime)
-```
-Status sync detection message including:
-- Missing entries ({count}): Task #{id}: {title} (completed {date}, no status record)
-- Stale entries ({count}): feat-{id}: pending > 24 hours, recommend /ultra-test
-- Suggested actions: Run /ultra-test or use "auto-fix"
-```
-
-**Step 4: Auto-fix option**
-If user confirms "auto-fix":
-- Create missing entries with `status: "unknown"`
-- Add note: "Auto-created by /ultra-status consistency check"
-- Recommend running /ultra-test to verify
-
-**If all consistent**: Display success message (Chinese at runtime)
-
 ### Phase 3: Analyze Risks
 
 **Auto-detect issues**:
@@ -129,7 +88,6 @@ Suggest next optimal task based on:
 - **Input**: `.ultra/tasks/tasks.json` (native task management)
 - **Output**: Console report or exported markdown
 - **Timing**: Run frequently (daily standup, before /ultra-dev)
-- **Skills**: syncing-status (consistency check)
 
 ## Benefits
 
