@@ -125,16 +125,14 @@ All must pass for `/ultra-deliver`:
 
 **Process**:
 1. Collect test files and coverage report
-2. Call Codex with review prompt:
-   ```bash
-   codex exec -m gpt-5.2-codex -c model_reasoning_effort="low" \
-     --sandbox read-only --skip-git-repo-check \
-     "Review this test suite for:
-      1) Missing edge cases (boundary, null, error paths)
-      2) Test anti-patterns (flaky, order-dependent, over-mocking)
-      3) Untested critical paths (auth, payment, data mutation)
-      4) False confidence (tests that pass but don't verify behavior)
-      Provide specific issues with file:line references."
+2. Use `codex` skill with prompt:
+   ```
+   Review this test suite for:
+   1) Missing edge cases (boundary, null, error paths)
+   2) Test anti-patterns (flaky, order-dependent, over-mocking)
+   3) Untested critical paths (auth, payment, data mutation)
+   4) False confidence (tests that pass but don't verify behavior)
+   Provide specific issues with file:line references.
    ```
 3. **If issues found** → Display issues, BLOCK, return to Auto-Fix Loop
 4. **If passed** → Continue to Output

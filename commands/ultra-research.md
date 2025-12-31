@@ -230,16 +230,14 @@ Output comparison matrix with:
 
 **Process**:
 1. Collect research outputs (specs + reports)
-2. Call Codex with review prompt:
-   ```bash
-   codex exec -m gpt-5.2-codex -c model_reasoning_effort="low" \
-     --sandbox read-only --skip-git-repo-check \
-     "Review this technical research for:
-      1) Logical gaps or contradictions
-      2) Missing risks or edge cases
-      3) Unverified claims without sources
-      4) Overly optimistic assumptions
-      Provide specific issues with file:line references."
+2. Use `codex` skill with prompt:
+   ```
+   Review this technical research for:
+   1) Logical gaps or contradictions
+   2) Missing risks or edge cases
+   3) Unverified claims without sources
+   4) Overly optimistic assumptions
+   Provide specific issues with file:line references.
    ```
 3. **If issues found** → Display issues, BLOCK, ask user to address
 4. **If passed** → Continue to Final Quality Summary

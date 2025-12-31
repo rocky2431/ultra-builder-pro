@@ -100,16 +100,14 @@ Execute development tasks using TDD workflow.
 
 **Process**:
 1. Collect changed files: `git diff --name-only`
-2. Call Codex with review prompt:
-   ```bash
-   codex exec -m gpt-5.2-codex -c model_reasoning_effort="low" \
-     --sandbox read-only --skip-git-repo-check \
-     "Review this code for:
-      1) Security vulnerabilities (injection, XSS, auth bypass)
-      2) Logic errors or race conditions
-      3) Performance issues (N+1, memory leaks)
-      4) Spec compliance (does it match acceptance criteria?)
-      Provide specific issues with file:line references."
+2. Use `codex` skill with prompt:
+   ```
+   Review this code for:
+   1) Security vulnerabilities (injection, XSS, auth bypass)
+   2) Logic errors or race conditions
+   3) Performance issues (N+1, memory leaks)
+   4) Spec compliance (does it match acceptance criteria?)
+   Provide specific issues with file:line references.
    ```
 3. **If issues found** → Display issues, BLOCK, return to GREEN phase to fix
 4. **If passed** → Continue to Step 5
