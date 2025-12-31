@@ -5,7 +5,7 @@ argument-hint: [decision question]
 
 # /ultra-think
 
-Deep analysis for complex decisions. Let Claude determine the optimal thinking approach.
+Deep analysis for complex decisions.
 
 ## Instructions
 
