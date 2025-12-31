@@ -155,21 +155,21 @@ Write `.ultra/test-report.json`:
 If any gate fails, attempt automatic fix:
 
 ```
-Loop (max 3 attempts):
+Loop (max 5 attempts):
   1. Analyze blocking_issues
-  2. If fixable → fix → re-run tests → update run_count
-  3. If not fixable → break and report
+  2. Fix issues → re-run tests → update run_count
+  3. If external dependency issue → break and report
   4. If all gates pass → done
 ```
 
-**Fixable issues** (auto-fix):
+**Auto-fix all code issues**:
 - Coverage Gap → Write missing tests
 - Anti-Pattern → Fix test code
-- E2E errors → Fix code or test
+- E2E errors → Fix code
+- Performance → Optimize code (splitting, lazy loading, etc.)
 
-**Not fixable** (report to user):
-- Security CVE → Requires dependency upgrade or upstream fix
-- Performance → May require architecture changes
+**External dependency issues** (cannot auto-fix):
+- Security CVE in third-party package → Requires upstream fix or user decision to upgrade
 
 **If max attempts reached**:
 - Report remaining issues to user
