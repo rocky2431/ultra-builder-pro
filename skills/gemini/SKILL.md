@@ -1,44 +1,43 @@
 ---
 name: gemini
-description: Use when the user needs technical research, architecture validation, documentation generation, or read-only code review. Gemini does NOT modify code - use codex for code changes.
+description: Use when the user needs technical research, architecture validation, documentation generation, or code review. Default is read-only mode, but can enable auto-approve (-y) for code changes.
 allowed-tools: Bash, Read, Glob, Grep, Write
 ---
 
 # Gemini Skill Guide
 
-> **Core Principle**: Gemini is for research, validation, and documentation. It does NOT modify code.
-> For code changes, use the `codex` skill instead.
+> **Default Behavior**: Gemini defaults to read-only mode (suggest). Use `-y` (yolo) for auto-approve if code changes needed.
 
 ## Use Cases
 
-| Task | Use Gemini | Use Codex |
-|------|------------|-----------|
-| Technical research | ✅ | ❌ |
-| Architecture validation | ✅ | ❌ |
-| Documentation generation | ✅ | ❌ |
-| Code review (read-only) | ✅ | ❌ |
-| Code refactoring | ❌ | ✅ |
-| Bug fixing | ❌ | ✅ |
-| Code optimization | ❌ | ✅ |
+| Task | Gemini Mode | Alternative |
+|------|-------------|-------------|
+| Technical research | suggest (default) | - |
+| Architecture validation | suggest (default) | - |
+| Documentation generation | suggest (default) | - |
+| Code review | suggest (default) | - |
+| Code refactoring | yolo (`-y`) | codex |
+| Bug fixing | yolo (`-y`) | codex |
+| Code optimization | yolo (`-y`) | codex |
 
 ## Running a Task
 
 ### Defaults
 - **Model**: `gemini-3-flash-preview`
-- **Mode**: Read-only (no `--yolo`)
+- **Approval mode**: `suggest` (read-only, requires confirmation)
 - **Output format**: `text`
 
 ### Invocation Modes
 
 **Mode 1: Template invocation** (from commands like `/ultra-research`)
 - Use template config directly, NO user interaction
-- Templates define model/context/prompt
+- Templates define model/approval/prompt
 
 **Mode 2: Regular invocation** (user requests gemini directly)
 1. Display current defaults
 2. Use `AskUserQuestion`:
-   - Option A: "使用默认配置" (Recommended) - gemini-3-flash-preview, read-only
-   - Option B: "自定义配置" - then ask model/output format
+   - Option A: "使用默认配置" (Recommended) - gemini-3-flash-preview, suggest mode
+   - Option B: "自定义配置" - then ask model/approval mode/output format
 3. Execute with chosen config
 
 ### Configuration Options
@@ -49,6 +48,10 @@ allowed-tools: Bash, Read, Glob, Grep, Write
 - `gemini-2.5-pro` (1M context, stable)
 - `gemini-2.5-flash` (balanced, stable)
 - `gemini-2.5-flash-lite` (lightweight, fast)
+
+**Approval modes**:
+- `suggest` (default) - requires user confirmation for actions, read-only
+- `yolo` (`-y`) - auto-approve all actions, can modify files
 
 **Output formats**:
 - `text` (default) - human-readable
@@ -77,7 +80,8 @@ gemini --include-directories src docs -p "Review the documentation coverage"
 ```
 
 ### Execution rules
-- **NEVER use `-y` (yolo mode)** - Gemini is read-only
+- Default: NO `-y` flag (suggest mode, read-only)
+- Use `-y` only when user explicitly chooses yolo mode in custom config
 - Run the command and show complete output to user
 - After completion: summarize findings and suggest next steps
 
@@ -90,16 +94,18 @@ gemini --include-directories src docs -p "Review the documentation coverage"
 | Documentation | `gemini -p "Generate API documentation for @./src/api/"` |
 | Code review | `gemini -p "Review this code for issues @./file.ts"` |
 | Validation | `gemini -p "Validate this design against requirements @./spec.md"` |
+| With auto-approve | `gemini -y -p "Fix the bug in @./file.ts"` |
 
 ## Following Up
 
 - After every `gemini` command, summarize key findings
 - Use `AskUserQuestion` to confirm next steps
-- If code changes needed, suggest using `codex` skill
+- If code changes needed and not in yolo mode, ask user to enable `-y` or use `codex` skill
 
 ## Error Handling
 
 - If `gemini` exits non-zero, show the error and ask user for direction
+- `-y` (yolo mode) requires explicit confirmation in Mode 2 custom config flow
 - If output shows concerns, summarize and recommend actions
 
 ---
@@ -113,6 +119,7 @@ Use these predefined templates when commands reference `gemini skill with templa
 | Config | Value |
 |--------|-------|
 | Model | gemini-2.5-pro |
+| Approval | suggest (read-only) |
 | Context | project files + web search |
 
 **Purpose**: Deep technical research with evidence gathering
@@ -149,6 +156,7 @@ Minimum 90% confidence required for recommendations.
 | Config | Value |
 |--------|-------|
 | Model | gemini-2.5-pro |
+| Approval | suggest (read-only) |
 | Context | include source directories |
 
 **Purpose**: Validate architecture decisions against best practices
@@ -193,6 +201,7 @@ Rate each area: Good | Needs Improvement | Critical Issue
 | Config | Value |
 |--------|-------|
 | Model | gemini-3-flash-preview |
+| Approval | suggest (read-only) |
 | Context | include source files |
 
 **Purpose**: Generate or review documentation
@@ -226,6 +235,7 @@ Include code examples where helpful.
 | Config | Value |
 |--------|-------|
 | Model | gemini-2.5-pro |
+| Approval | suggest (read-only) |
 | Context | include specs and implementation |
 
 **Purpose**: Validate implementation against specifications
@@ -256,14 +266,15 @@ Output:
 
 ---
 
-### code-review (read-only)
+### code-review
 
 | Config | Value |
 |--------|-------|
 | Model | gemini-2.5-pro |
+| Approval | suggest (read-only) |
 | Context | include changed files |
 
-**Purpose**: Review code for issues WITHOUT making changes
+**Purpose**: Review code for issues (default read-only, can enable yolo for fixes)
 
 **Prompt**:
 ```
