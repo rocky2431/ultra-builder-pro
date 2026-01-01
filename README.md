@@ -10,7 +10,7 @@
 
 [![Version](https://img.shields.io/badge/version-4.4.1-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
-[![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
+[![Skills](https://img.shields.io/badge/skills-6-orange)](skills/)
 [![Official Compliance](https://img.shields.io/badge/official-100%25%20native-brightgreen)](https://docs.claude.com/claude-code)
 
 </div>
@@ -55,6 +55,13 @@ claude
   - `/ultra-test` → after all gates pass
 - Templates aligned with CLAUDE.md rules
 
+### Gemini Integration
+
+- Added `gemini` skill for research, validation, and documentation
+- **Gemini does NOT modify code** - use codex for code changes
+- Models: gemini-3-flash-preview (default), gemini-3-pro-preview, gemini-2.5-pro
+- Templates: tech-research, architecture-review, documentation-gen, spec-validation, code-review (read-only)
+
 ### Production Absolutism (Preserved)
 
 > "There is no test code. There is no demo. There is no MVP.
@@ -85,11 +92,12 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ---
 
-## Skills (5 Total)
+## Skills (6 Total)
 
 | Skill | Function |
 |-------|----------|
-| codex | OpenAI Codex CLI integration (code analysis, refactoring) |
+| codex | OpenAI Codex CLI (code analysis, refactoring, **can modify code**) |
+| gemini | Google Gemini CLI (research, validation, docs, **read-only**) |
 | frontend | React/Vue/Next.js patterns, Core Web Vitals |
 | backend | API/database/security patterns |
 | smart-contract | EVM/Solana security audit |
@@ -137,6 +145,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 ├── .ultra-template/          # Project initialization templates
 ├── skills/                   # Domain skills
 │   ├── codex/
+│   ├── gemini/
 │   ├── frontend/
 │   ├── backend/
 │   ├── smart-contract/
@@ -156,9 +165,10 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ## Version History
 
-### v4.4.1 (2026-01-01) - Command Refinement + Codex Integration
+### v4.4.1 (2026-01-01) - Command Refinement + Codex/Gemini Integration
 
 - **Added**: `codex` skill with 3 review templates (research/code/test)
+- **Added**: `gemini` skill with 5 templates (tech-research, architecture-review, documentation-gen, spec-validation, code-review)
 - **Added**: Mandatory Codex review in `/ultra-research`, `/ultra-dev`, `/ultra-test`
 - **Added**: Git operation safety (AskUserQuestion before commit/merge/push)
 - **Refactored**: `/ultra-test` TAS scoring → Anti-Pattern Detection
@@ -167,6 +177,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 - **Added**: `.ultra-template/` for project initialization
 - **Removed**: `skill-rules.json`, `agents/`
 - **Fixed**: Review templates aligned with CLAUDE.md rules
+- **Separation**: Codex = code changes, Gemini = research/docs (read-only)
 
 ### v4.4.0 (2025-12-31) - Simplified Edition
 
