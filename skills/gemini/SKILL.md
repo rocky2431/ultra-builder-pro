@@ -24,7 +24,7 @@ allowed-tools: Bash, Read, Glob, Grep, Write
 ## Running a Task
 
 ### Defaults
-- **Model**: `gemini-3-flash`
+- **Model**: `gemini-3-flash-preview`
 - **Mode**: Read-only (no `--yolo`)
 - **Output format**: `text`
 
@@ -37,16 +37,18 @@ allowed-tools: Bash, Read, Glob, Grep, Write
 **Mode 2: Regular invocation** (user requests gemini directly)
 1. Display current defaults
 2. Use `AskUserQuestion`:
-   - Option A: "使用默认配置" (Recommended) - gemini-3-flash, read-only
+   - Option A: "使用默认配置" (Recommended) - gemini-3-flash-preview, read-only
    - Option B: "自定义配置" - then ask model/output format
 3. Execute with chosen config
 
 ### Configuration Options
 
 **Models**:
-- `gemini-3-flash` (default, latest and fastest)
-- `gemini-2.5-pro` (1M context, deep reasoning)
-- `gemini-2.5-flash` (balanced)
+- `gemini-3-flash-preview` (default, latest and fastest)
+- `gemini-3-pro-preview` (most powerful, deep reasoning)
+- `gemini-2.5-pro` (1M context, stable)
+- `gemini-2.5-flash` (balanced, stable)
+- `gemini-2.5-flash-lite` (lightweight, fast)
 
 **Output formats**:
 - `text` (default) - human-readable
@@ -60,7 +62,7 @@ allowed-tools: Bash, Read, Glob, Grep, Write
 ### Command template
 ```bash
 gemini \
-  -m gemini-3-flash \
+  -m gemini-3-flash-preview \
   -p "prompt here"
 ```
 
@@ -190,7 +192,7 @@ Rate each area: Good | Needs Improvement | Critical Issue
 
 | Config | Value |
 |--------|-------|
-| Model | gemini-3-flash |
+| Model | gemini-3-flash-preview |
 | Context | include source files |
 
 **Purpose**: Generate or review documentation
