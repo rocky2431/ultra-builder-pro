@@ -120,7 +120,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 |-------|---------|--------------|
 | `codex` | OpenAI Codex CLI | Code analysis, refactoring, **can modify code** |
 | `gemini` | Google Gemini CLI | Research, validation, docs; `-y` for code changes |
-| `senior-prompt-engineer` | Prompt engineering | Evidence-based principles, boundary detection, diagnostic iteration |
+| `promptup` | Prompt engineering | Evidence-based principles, boundary detection, diagnostic iteration |
 | `skill-creator` | Create new skills | Workflow guidance, packaging |
 
 ### Codex Skill
@@ -145,7 +145,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 **Note**: Use `-y` flag for auto-approve when code changes needed
 
-### Senior Prompt Engineer Skill
+### PromptUp Skill
 
 Transform vague requirements into production-grade prompts using evidence-based principles:
 
@@ -240,7 +240,7 @@ Agents are invoked automatically by the Task tool based on task requirements:
 ├── skills/                   # Domain skills (4)
 │   ├── codex/                # OpenAI Codex CLI
 │   ├── gemini/               # Google Gemini CLI
-│   ├── senior-prompt-engineer/ # LLM & prompt engineering
+│   ├── promptup/             # Prompt engineering
 │   └── skill-creator/        # Create new skills
 │
 ├── agents/                   # Specialized agents (4)
@@ -264,20 +264,20 @@ Agents are invoked automatically by the Task tool based on task requirements:
 
 ## Version History
 
-### v4.5.1 (2026-01-07) - Prompt Engineering Redesign
+### v4.5.1 (2026-01-07) - PromptUp Edition
 
-**Senior Prompt Engineer Skill Rewrite**:
+**PromptUp Skill** (renamed from `senior-prompt-engineer`):
 - Replaced hardcoded templates with 6 evidence-based principles
 - Added boundary detection (when NOT to use prompt engineering)
 - Mapped to Claude Code capabilities (Context7/Exa MCP, CLAUDE.md, skills)
 - Added diagnostic iteration (symptom → cause → fix)
-- Removed obsolete reference files and scripts
+- Renamed to `promptup` for brevity
 
 ### v4.5.0 (2026-01-07) - Agent Architecture Edition
 
 **Skills Refactoring**:
 - Removed `backend`, `frontend`, `smart-contract` domain skills
-- Added `senior-prompt-engineer` skill for LLM/prompt engineering
+- Added `promptup` skill for prompt engineering
 
 **New Agent System (4 agents)**:
 - `backend-architect`: Backend system architecture, API design

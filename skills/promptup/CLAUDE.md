@@ -7,5 +7,6 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14599 | 2:46 AM | ✅ | Cleaned up senior-prompt-engineer skill directory | ~185 |
+| #14638 | 3:21 AM | ✅ | Updated SKILL.md with new promptup name | ~176 |
+| #14640 | " | ✅ | Updated SKILL.md metadata for promptup skill | ~221 |
 </claude-mem-context>

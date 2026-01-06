@@ -12,12 +12,6 @@
 | #6100 | " | ✅ | Updated command bindings to remove guard skill references | ~210 |
 | #6101 | " | ✅ | Removed all guard skill configurations from skills section | ~223 |
 | #6103 | " | ✅ | Updated /ultra-research command to remove guiding-workflow reference | ~118 |
-| #6104 | " | ✅ | Removed guiding-workflow references from all command bindings | ~169 |
-| #6105 | " | 🔵 | skill-rules.json still contains guiding-workflow configuration | ~178 |
-| #6106 | " | ✅ | Removed guiding-workflow skill configuration from skills section | ~190 |
-| #6097 | " | ✅ | Removing all guard skills from the system | ~215 |
-| #6095 | 10:32 PM | 🔵 | Listing all available skills in the system | ~198 |
-| #6082 | 10:30 PM | 🔵 | Multiple files still contain ZERO MOCK references despite attempted modifications | ~233 |
 
 ### Jan 1, 2026
 
@@ -42,4 +36,10 @@
 | #6578 | " | 🔵 | syncing-docs references found in 12 files | ~205 |
 | #6579 | " | 🔄 | skill-rules.json contains syncing-docs references | ~193 |
 | #6580 | " | 🔄 | Removed syncing-docs from skill-rules.json | ~170 |
+
+### Jan 7, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #14636 | 3:21 AM | ✅ | Renamed senior-prompt-engineer skill to promptup | ~190 |
 </claude-mem-context>

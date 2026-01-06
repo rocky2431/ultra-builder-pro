@@ -1,10 +1,10 @@
 ---
-name: senior-prompt-engineer
-description: Transform vague requirements into production-grade prompts using evidence-based principles. Diagnose prompt issues, define boundaries (when RAG/fine-tuning is better), and iterate to quality.
+name: promptup
+description: Transform vague requirements into production-grade prompts using evidence-based principles. Diagnose prompt issues, define boundaries, and iterate to quality.
 allowed-tools: AskUserQuestion, Read, Write, Glob, Grep
 ---
 
-# Prompt Engineering Skill
+# PromptUp Skill
 
 > **Purpose**: Transform user's vague requirements into production-grade prompts using evidence-based principles, not hardcoded templates.
 
