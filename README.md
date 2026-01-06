@@ -10,7 +10,7 @@
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-8-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-4-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-7-red)](agents/)
+[![Agents](https://img.shields.io/badge/agents-6-red)](agents/)
 
 </div>
 
@@ -157,25 +157,23 @@ World-class prompt engineering for production AI systems:
 
 ---
 
-## Agents (7)
+## Agents (6)
 
-Specialized agents for domain-specific tasks:
+Specialized agents for domain-specific tasks (all inherit full toolset):
 
-| Agent | Purpose | Tools |
-|-------|---------|-------|
-| `backend-architect` | Backend system architecture, API design | Read, Write, Edit, Bash |
-| `database-architect` | Database design, data modeling, scalability | Read, Write, Edit, Bash |
-| `frontend-developer` | React/Next.js, UI components, performance | Read, Write, Edit, Bash |
-| `smart-contract-auditor` | Security audits, vulnerability detection | All tools |
-| `smart-contract-specialist` | Solidity development, gas optimization | All tools |
-| `ui-ux-designer` | User research, wireframes, design systems | Read, Write, Edit |
-| `web3-integration-specialist` | Wallet integration, dApp development | All tools |
+| Agent | Purpose |
+|-------|---------|
+| `backend-architect` | Backend system architecture, API design |
+| `frontend-developer` | React/Next.js, UI components, performance |
+| `smart-contract-auditor` | Security audits, vulnerability detection |
+| `smart-contract-specialist` | Solidity development, gas optimization |
+| `ui-ux-designer` | User research, wireframes, design systems |
+| `web3-integration-specialist` | Wallet integration, dApp development |
 
 ### Usage
 
 Agents are invoked automatically by the Task tool based on task requirements:
 - Backend/API design → `backend-architect`
-- Database schema design → `database-architect`
 - React/UI development → `frontend-developer`
 - Smart contract security → `smart-contract-auditor`
 - Smart contract development → `smart-contract-specialist`
@@ -240,9 +238,8 @@ Agents are invoked automatically by the Task tool based on task requirements:
 │   ├── senior-prompt-engineer/ # LLM & prompt engineering
 │   └── skill-creator/        # Create new skills
 │
-├── agents/                   # Specialized agents (7)
+├── agents/                   # Specialized agents (6)
 │   ├── backend-architect.md
-│   ├── database-architect.md
 │   ├── frontend-developer.md
 │   ├── smart-contract-auditor.md
 │   ├── smart-contract-specialist.md
@@ -270,9 +267,8 @@ Agents are invoked automatically by the Task tool based on task requirements:
 - Removed `backend`, `frontend`, `smart-contract` domain skills
 - Added `senior-prompt-engineer` skill for LLM/prompt engineering
 
-**New Agent System (7 agents)**:
+**New Agent System (6 agents)**:
 - `backend-architect`: Backend system architecture, API design
-- `database-architect`: Database design, data modeling, scalability
 - `frontend-developer`: React/Next.js, UI components, performance
 - `smart-contract-auditor`: Security audits, vulnerability detection
 - `smart-contract-specialist`: Solidity development, gas optimization
