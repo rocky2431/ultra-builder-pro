@@ -6,7 +6,7 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-4.5.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-4.5.1-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-8-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-4-orange)](skills/)
@@ -120,7 +120,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 |-------|---------|--------------|
 | `codex` | OpenAI Codex CLI | Code analysis, refactoring, **can modify code** |
 | `gemini` | Google Gemini CLI | Research, validation, docs; `-y` for code changes |
-| `senior-prompt-engineer` | Prompt engineering | LLM optimization, prompt patterns, RAG, agent design |
+| `senior-prompt-engineer` | Prompt engineering | Evidence-based principles, boundary detection, diagnostic iteration |
 | `skill-creator` | Create new skills | Workflow guidance, packaging |
 
 ### Codex Skill
@@ -147,13 +147,22 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ### Senior Prompt Engineer Skill
 
-World-class prompt engineering for production AI systems:
-- **Prompt Patterns**: Advanced prompting techniques, few-shot, CoT
-- **LLM Evaluation**: Frameworks for assessing model performance
-- **Agentic Design**: Multi-agent orchestration patterns
-- **RAG Optimization**: Retrieval-augmented generation best practices
+Transform vague requirements into production-grade prompts using evidence-based principles:
 
-**Resources**: `references/prompt_engineering_patterns.md`, `references/llm_evaluation_frameworks.md`, `references/agentic_system_design.md`
+**Core Approach**:
+- **Principles over Templates**: 6 evidence-based principles from Anthropic official docs
+- **Boundary Detection**: Know when to use MCP tools, CLAUDE.md, or skills instead
+- **Diagnostic Iteration**: Symptom → Cause → Fix troubleshooting
+
+**6 Principles**:
+1. Be Explicit (no guessing)
+2. Provide Context and Motivation (WHY)
+3. Positive Instructions (do X, not don't Y)
+4. XML Structure for separation
+5. Consistent Examples
+6. Chain-of-Thought for reasoning
+
+**Claude Code Integration**: Maps to actual capabilities (Context7/Exa MCP, CLAUDE.md, skills)
 
 ---
 
@@ -254,6 +263,15 @@ Agents are invoked automatically by the Task tool based on task requirements:
 ---
 
 ## Version History
+
+### v4.5.1 (2026-01-07) - Prompt Engineering Redesign
+
+**Senior Prompt Engineer Skill Rewrite**:
+- Replaced hardcoded templates with 6 evidence-based principles
+- Added boundary detection (when NOT to use prompt engineering)
+- Mapped to Claude Code capabilities (Context7/Exa MCP, CLAUDE.md, skills)
+- Added diagnostic iteration (symptom → cause → fix)
+- Removed obsolete reference files and scripts
 
 ### v4.5.0 (2026-01-07) - Agent Architecture Edition
 
