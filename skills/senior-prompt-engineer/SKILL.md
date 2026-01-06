@@ -1,226 +1,299 @@
 ---
 name: senior-prompt-engineer
-description: World-class prompt engineering skill for LLM optimization, prompt patterns, structured outputs, and AI product development. Expertise in Claude, GPT-4, prompt design patterns, few-shot learning, chain-of-thought, and AI evaluation. Includes RAG optimization, agent design, and LLM system architecture. Use when building AI products, optimizing LLM performance, designing agentic systems, or implementing advanced prompting techniques.
+description: Expert prompt engineering for LLM optimization. Use when designing prompts, implementing few-shot/CoT patterns, building RAG systems, designing agents, or evaluating LLM outputs.
 ---
 
 # Senior Prompt Engineer
 
-World-class senior prompt engineer skill for production-grade AI/ML/Data systems.
+Expert-level prompt engineering for production LLM systems.
 
-## Quick Start
+## When to Use
 
-### Main Capabilities
+- Designing or optimizing prompts for Claude/GPT/other LLMs
+- Implementing advanced patterns (few-shot, CoT, self-consistency)
+- Building RAG pipelines with effective retrieval prompts
+- Designing multi-agent orchestration
+- Evaluating and benchmarking LLM outputs
 
-```bash
-# Core Tool 1
-python scripts/prompt_optimizer.py --input data/ --output results/
+## Core Prompt Patterns
 
-# Core Tool 2  
-python scripts/rag_evaluator.py --target project/ --analyze
+### 1. Few-Shot Learning
 
-# Core Tool 3
-python scripts/agent_orchestrator.py --config config.yaml --deploy
+```markdown
+You are a sentiment classifier.
+
+Examples:
+Input: "This product exceeded my expectations!"
+Output: {"sentiment": "positive", "confidence": 0.95}
+
+Input: "Terrible experience, would not recommend."
+Output: {"sentiment": "negative", "confidence": 0.92}
+
+Input: "It's okay, nothing special."
+Output: {"sentiment": "neutral", "confidence": 0.78}
+
+Now classify:
+Input: "{user_input}"
+Output:
 ```
 
-## Core Expertise
+**Best Practices**:
+- 3-5 diverse examples covering edge cases
+- Consistent format across examples
+- Include confidence scores for calibration
 
-This skill covers world-class capabilities in:
+### 2. Chain-of-Thought (CoT)
 
-- Advanced production patterns and architectures
-- Scalable system design and implementation
-- Performance optimization at scale
-- MLOps and DataOps best practices
-- Real-time processing and inference
-- Distributed computing frameworks
-- Model deployment and monitoring
-- Security and compliance
-- Cost optimization
-- Team leadership and mentoring
+```markdown
+Solve this step by step:
 
-## Tech Stack
+Question: {question}
 
-**Languages:** Python, SQL, R, Scala, Go
-**ML Frameworks:** PyTorch, TensorFlow, Scikit-learn, XGBoost
-**Data Tools:** Spark, Airflow, dbt, Kafka, Databricks
-**LLM Frameworks:** LangChain, LlamaIndex, DSPy
-**Deployment:** Docker, Kubernetes, AWS/GCP/Azure
-**Monitoring:** MLflow, Weights & Biases, Prometheus
-**Databases:** PostgreSQL, BigQuery, Snowflake, Pinecone
+Let's think through this:
+1. First, identify the key information...
+2. Then, consider the relationships...
+3. Finally, calculate/conclude...
 
-## Reference Documentation
-
-### 1. Prompt Engineering Patterns
-
-Comprehensive guide available in `references/prompt_engineering_patterns.md` covering:
-
-- Advanced patterns and best practices
-- Production implementation strategies
-- Performance optimization techniques
-- Scalability considerations
-- Security and compliance
-- Real-world case studies
-
-### 2. Llm Evaluation Frameworks
-
-Complete workflow documentation in `references/llm_evaluation_frameworks.md` including:
-
-- Step-by-step processes
-- Architecture design patterns
-- Tool integration guides
-- Performance tuning strategies
-- Troubleshooting procedures
-
-### 3. Agentic System Design
-
-Technical reference guide in `references/agentic_system_design.md` with:
-
-- System design principles
-- Implementation examples
-- Configuration best practices
-- Deployment strategies
-- Monitoring and observability
-
-## Production Patterns
-
-### Pattern 1: Scalable Data Processing
-
-Enterprise-scale data processing with distributed computing:
-
-- Horizontal scaling architecture
-- Fault-tolerant design
-- Real-time and batch processing
-- Data quality validation
-- Performance monitoring
-
-### Pattern 2: ML Model Deployment
-
-Production ML system with high availability:
-
-- Model serving with low latency
-- A/B testing infrastructure
-- Feature store integration
-- Model monitoring and drift detection
-- Automated retraining pipelines
-
-### Pattern 3: Real-Time Inference
-
-High-throughput inference system:
-
-- Batching and caching strategies
-- Load balancing
-- Auto-scaling
-- Latency optimization
-- Cost optimization
-
-## Best Practices
-
-### Development
-
-- Test-driven development
-- Code reviews and pair programming
-- Documentation as code
-- Version control everything
-- Continuous integration
-
-### Production
-
-- Monitor everything critical
-- Automate deployments
-- Feature flags for releases
-- Canary deployments
-- Comprehensive logging
-
-### Team Leadership
-
-- Mentor junior engineers
-- Drive technical decisions
-- Establish coding standards
-- Foster learning culture
-- Cross-functional collaboration
-
-## Performance Targets
-
-**Latency:**
-- P50: < 50ms
-- P95: < 100ms
-- P99: < 200ms
-
-**Throughput:**
-- Requests/second: > 1000
-- Concurrent users: > 10,000
-
-**Availability:**
-- Uptime: 99.9%
-- Error rate: < 0.1%
-
-## Security & Compliance
-
-- Authentication & authorization
-- Data encryption (at rest & in transit)
-- PII handling and anonymization
-- GDPR/CCPA compliance
-- Regular security audits
-- Vulnerability management
-
-## Common Commands
-
-```bash
-# Development
-python -m pytest tests/ -v --cov
-python -m black src/
-python -m pylint src/
-
-# Training
-python scripts/train.py --config prod.yaml
-python scripts/evaluate.py --model best.pth
-
-# Deployment
-docker build -t service:v1 .
-kubectl apply -f k8s/
-helm upgrade service ./charts/
-
-# Monitoring
-kubectl logs -f deployment/service
-python scripts/health_check.py
+Answer:
 ```
 
-## Resources
+**Variants**:
+- Zero-shot CoT: "Let's think step by step"
+- Self-consistency: Generate multiple reasoning paths, vote on answer
+- Tree-of-Thought: Explore branching reasoning paths
 
-- Advanced Patterns: `references/prompt_engineering_patterns.md`
-- Implementation Guide: `references/llm_evaluation_frameworks.md`
-- Technical Reference: `references/agentic_system_design.md`
-- Automation Scripts: `scripts/` directory
+### 3. Structured Output
 
-## Senior-Level Responsibilities
+```markdown
+Respond in this exact JSON format:
+{
+  "analysis": "string - your analysis",
+  "decision": "approve" | "reject" | "review",
+  "confidence": number between 0 and 1,
+  "reasoning": ["string array of reasons"]
+}
 
-As a world-class senior professional:
+Do not include any text outside the JSON.
+```
 
-1. **Technical Leadership**
-   - Drive architectural decisions
-   - Mentor team members
-   - Establish best practices
-   - Ensure code quality
+**Tips**:
+- Use JSON Schema or TypeScript types for complex structures
+- Provide examples of valid output
+- Explicitly state constraints
 
-2. **Strategic Thinking**
-   - Align with business goals
-   - Evaluate trade-offs
-   - Plan for scale
-   - Manage technical debt
+### 4. Role Prompting
 
-3. **Collaboration**
-   - Work across teams
-   - Communicate effectively
-   - Build consensus
-   - Share knowledge
+```markdown
+You are a {role} with expertise in {domain}.
 
-4. **Innovation**
-   - Stay current with research
-   - Experiment with new approaches
-   - Contribute to community
-   - Drive continuous improvement
+Your responsibilities:
+- {responsibility_1}
+- {responsibility_2}
 
-5. **Production Excellence**
-   - Ensure high availability
-   - Monitor proactively
-   - Optimize performance
-   - Respond to incidents
+Your constraints:
+- {constraint_1}
+- {constraint_2}
+
+Respond as this expert would.
+```
+
+### 5. Meta-Prompting (Prompt Generation)
+
+```markdown
+Generate a prompt for the following task:
+
+Task: {task_description}
+Input format: {input_format}
+Output format: {output_format}
+Quality criteria: {criteria}
+
+The generated prompt should:
+1. Be clear and unambiguous
+2. Include relevant examples
+3. Handle edge cases
+4. Produce consistent outputs
+```
+
+## RAG Prompt Design
+
+### Query Rewriting
+
+```markdown
+Original query: {user_query}
+
+Rewrite this query to improve retrieval:
+1. Expand abbreviations
+2. Add relevant synonyms
+3. Make implicit context explicit
+4. Split compound questions
+
+Rewritten queries (return as JSON array):
+```
+
+### Context Integration
+
+```markdown
+Use the following context to answer the question.
+If the context doesn't contain the answer, say "I don't have enough information."
+
+Context:
+{retrieved_chunks}
+
+Question: {user_question}
+
+Answer (cite sources with [1], [2], etc.):
+```
+
+### Hallucination Prevention
+
+```markdown
+STRICT RULES:
+1. Only use information from the provided context
+2. If uncertain, say "Based on the context, I'm not sure about..."
+3. Never invent facts, dates, or statistics
+4. Quote directly when possible
+
+Context: {context}
+Question: {question}
+```
+
+## Agent Prompt Design
+
+### ReAct Pattern
+
+```markdown
+You have access to these tools:
+{tool_descriptions}
+
+Use this format:
+Thought: What I need to do next
+Action: tool_name
+Action Input: {"param": "value"}
+Observation: [tool result will appear here]
+... (repeat Thought/Action/Observation)
+Thought: I now have enough information
+Final Answer: {answer}
+
+Question: {user_question}
+```
+
+### Planning Agent
+
+```markdown
+Break down this task into steps:
+
+Task: {complex_task}
+
+For each step:
+1. What needs to be done
+2. What tools/resources are needed
+3. Dependencies on other steps
+4. Success criteria
+
+Output as numbered plan:
+```
+
+## Evaluation Framework
+
+### Output Quality Dimensions
+
+| Dimension | Criteria |
+|-----------|----------|
+| **Accuracy** | Factually correct, no hallucinations |
+| **Relevance** | Addresses the actual question |
+| **Completeness** | Covers all aspects |
+| **Coherence** | Logical flow, well-structured |
+| **Conciseness** | No unnecessary content |
+
+### LLM-as-Judge Prompt
+
+```markdown
+Evaluate the following response on a scale of 1-5:
+
+Question: {question}
+Response: {response}
+Reference (if available): {reference}
+
+Criteria:
+- Accuracy (1-5): Is the information correct?
+- Relevance (1-5): Does it answer the question?
+- Completeness (1-5): Are all aspects covered?
+
+Provide scores and brief justification for each.
+```
+
+### A/B Testing Framework
+
+```markdown
+Compare these two responses:
+
+Question: {question}
+
+Response A:
+{response_a}
+
+Response B:
+{response_b}
+
+Which is better? Consider:
+1. Accuracy
+2. Helpfulness
+3. Clarity
+4. Completeness
+
+Winner: A/B/Tie
+Reasoning:
+```
+
+## Optimization Techniques
+
+### 1. Prompt Compression
+
+- Remove redundant instructions
+- Use concise examples
+- Leverage model's prior knowledge
+
+### 2. Temperature Tuning
+
+| Use Case | Temperature |
+|----------|-------------|
+| Factual Q&A | 0.0 - 0.3 |
+| Creative writing | 0.7 - 1.0 |
+| Code generation | 0.0 - 0.2 |
+| Brainstorming | 0.8 - 1.0 |
+
+### 3. Iterative Refinement
+
+```
+Initial prompt → Test on examples → Identify failures →
+Refine prompt → Test again → Repeat until satisfactory
+```
+
+## Anti-Patterns to Avoid
+
+| Anti-Pattern | Problem | Fix |
+|--------------|---------|-----|
+| Vague instructions | Inconsistent outputs | Be specific and concrete |
+| No examples | Model guesses format | Add 2-3 clear examples |
+| Conflicting rules | Confusion | Prioritize rules explicitly |
+| Too many constraints | Rigid, unnatural output | Focus on key requirements |
+| No error handling | Fails silently | Add fallback instructions |
+
+## Quick Reference
+
+```bash
+# Optimize existing prompt
+/senior-prompt-engineer optimize: {your_prompt}
+
+# Design prompt for task
+/senior-prompt-engineer design prompt for: {task_description}
+
+# Evaluate prompt effectiveness
+/senior-prompt-engineer evaluate: {prompt} against {test_cases}
+
+# RAG prompt design
+/senior-prompt-engineer rag prompt for: {use_case}
+
+# Agent prompt design
+/senior-prompt-engineer agent prompt with tools: {tool_list}
+```
