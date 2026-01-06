@@ -115,21 +115,8 @@ All must pass for `/ultra-deliver`:
 | E2E | All tests pass (if applicable) |
 | Performance | Core Web Vitals pass (if frontend) |
 | Security | No critical/high vulnerabilities |
-| Codex Review | No critical issues from Codex |
 
----
-
-## Step 6: Codex Review (Mandatory)
-
-**When**: After all Quality Gates pass.
-
-**Process**:
-1. Collect test files and coverage report
-2. Use `codex` skill with template: `test-review`
-3. **If issues found** → Display issues, BLOCK, return to Auto-Fix Loop
-4. **If "PASS"** → Continue to Output
-
-**Blocking Behavior**: Cannot proceed to /ultra-deliver until Codex review passes.
+**Pass Condition**: All gates pass → Proceed to Output
 
 ---
 

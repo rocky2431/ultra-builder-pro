@@ -94,21 +94,44 @@ Execute development tasks using TDD workflow.
 - ❌ Core logic (domain/service/state) → NO mocking
 - ✅ External systems → testcontainers/sandbox/stub allowed
 
-### Step 4.5: Codex Review (Mandatory)
+### Step 4.5: PR Review Toolkit (Mandatory)
 
 **When**: After Quality Gates pass, before commit.
 
 **Process**:
-1. Collect changed files: `git diff --name-only`
-2. Use `codex` skill with template: `code-review`
-3. **If issues found** → Display issues, BLOCK, return to GREEN phase to fix
+
+#### Phase 1: Comprehensive Review (parallel)
+
+Run these agents in parallel using Task tool:
+
+| Agent | Focus |
+|-------|-------|
+| `pr-review-toolkit:code-reviewer` | Bugs, logic errors, security, code quality |
+| `pr-review-toolkit:silent-failure-hunter` | Silent failures, inadequate error handling |
+| `pr-review-toolkit:pr-test-analyzer` | Test coverage gaps, missing edge cases |
+| `pr-review-toolkit:type-design-analyzer` | Type design, encapsulation, invariants |
+| `pr-review-toolkit:comment-analyzer` | Comment accuracy, technical debt |
+
+#### Phase 2: Fix Issues
+
+- **If issues found** → Fix all issues, re-run tests
+- **If tests fail after fix** → Return to GREEN phase
+- **Repeat Phase 1** until all agents pass
+
+#### Phase 3: Code Optimization
+
+After all reviews pass:
+
+1. Run `pr-review-toolkit:code-simplifier` agent
+2. Apply simplification suggestions
+3. Verify tests still pass
 4. **If "PASS"** → Continue to Step 5
 
-**Blocking Behavior**: Cannot commit until Codex review passes.
+**Blocking Behavior**: Cannot commit until all PR Review agents pass.
 
 ### Step 5: Commit and Update
 
-> **Prerequisite**: Step 4 Quality Gates passed (all tests green)
+> **Prerequisite**: Step 4 Quality Gates + Step 4.5 PR Review all passed
 
 1. **Update status to `completed`** (before commit):
    - tasks.json: `status: "completed"`
