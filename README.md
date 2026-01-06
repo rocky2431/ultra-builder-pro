@@ -77,8 +77,8 @@ If ANY component is fake/mocked/simulated → Quality = 0
 | `/ultra-init` | Initialize project | Auto-detect type/stack, copy templates, git setup |
 | `/ultra-research` | Interactive discovery | 4 rounds (User→Feature→Architecture→Quality), 90%+ confidence |
 | `/ultra-plan` | Task planning | Dependency analysis, complexity assessment, context files |
-| `/ultra-dev` | TDD development | RED→GREEN→REFACTOR, Codex review, auto git flow |
-| `/ultra-test` | Quality audit | Anti-Pattern detection, Coverage gaps, E2E, Performance, Security |
+| `/ultra-dev` | TDD development | RED→GREEN→REFACTOR, PR Review Toolkit, auto git flow |
+| `/ultra-test` | Quality audit | Anti-Pattern, Coverage gaps, E2E, Performance, Security |
 | `/ultra-deliver` | Release preparation | CHANGELOG, build, version bump, tag, push |
 | `/ultra-status` | Progress monitoring | Real-time stats, risk analysis, recommendations |
 | `/ultra-think` | Deep analysis | Structured reasoning, multi-dimension comparison |
@@ -101,7 +101,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 #### /ultra-dev
 - TDD workflow: RED (failing tests) → GREEN (pass) → REFACTOR
 - Git branch management with decision tree
-- Mandatory Codex review before commit
+- PR Review Toolkit (5 agents parallel + code optimizer)
 - Dual-write mode: update specs when implementation reveals gaps
 
 #### /ultra-test
