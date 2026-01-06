@@ -1,289 +1,353 @@
 ---
 name: senior-prompt-engineer
 description: World-class prompt engineering skill for LLM optimization, prompt patterns, structured outputs, and AI product development. Expertise in Claude, GPT-4, prompt design patterns, few-shot learning, chain-of-thought, and AI evaluation. Includes RAG optimization, agent design, and LLM system architecture. Use when building AI products, optimizing LLM performance, designing agentic systems, or implementing advanced prompting techniques.
+allowed-tools: AskUserQuestion, Read, Write, Glob, Grep
 ---
 
-# Senior Prompt Engineer
+# Prompt Engineer Skill Guide
 
-将用户的模糊需求转化为生产级 Prompt。
+> **Purpose**: Transform user's vague requirements into production-grade prompts for any LLM.
 
----
+## Use Cases
 
-## 触发场景
+| Task | Template | Output |
+|------|----------|--------|
+| Content generation prompt | content-gen | Prompt for articles/code/creative |
+| Data extraction prompt | extraction | Few-shot prompt for structured output |
+| Reasoning/analysis prompt | reasoning | CoT prompt for complex tasks |
+| Chatbot system prompt | dialogue | System prompt with persona/rules |
+| Agent prompt | agent | ReAct pattern with tool definitions |
+| RAG prompt | rag | Grounded generation with citations |
 
-用户请求：
-- "帮我优化这个 prompt"
-- "帮我设计一个 prompt 来做 X"
-- "这个 prompt 效果不好，帮我改进"
-- "我想让 AI 完成 X 任务，帮我写 prompt"
+## Running a Task
 
----
+### Defaults
+- **Target Model**: Claude (Sonnet 4.5)
+- **Output Language**: English
+- **Template**: Auto-detect based on task type
 
-## 执行流程
+### Invocation Flow
 
-### Step 1: 需求澄清
+**Step 1: Gather Requirements**
 
-使用 AskUserQuestion 收集关键信息：
+Use `AskUserQuestion` with these questions:
 
 ```
-必须明确：
-1. 目标 LLM（Claude/GPT/其他）
-2. 任务类型（生成/分类/推理/对话/Agent）
-3. 输入格式（用户会提供什么）
-4. 输出格式（期望得到什么）
-5. 使用场景（一次性/API调用/嵌入应用）
+Question 1: Target Model
+Header: "Model"
+Options:
+- "Claude (Sonnet/Opus/Haiku)" (Recommended)
+- "GPT (4o/4/3.5)"
+- "Other LLM"
+
+Question 2: Task Type
+Header: "Task"
+Options:
+- "Content Generation (articles, code, creative)"
+- "Data Extraction / Classification"
+- "Reasoning / Analysis"
+- "Chatbot / Dialogue System"
+- "Agent with Tools"
+- "RAG (Retrieval-Augmented)"
+
+Question 3: Output Format
+Header: "Output"
+Options:
+- "JSON (structured data)"
+- "Markdown (formatted text)"
+- "Plain text"
+- "Code"
+
+Question 4: Usage Context
+Header: "Usage"
+Options:
+- "API integration (production)"
+- "Manual use (one-off)"
+- "Embedded in application"
 ```
 
-**问题模板**：
+**Step 2: Select Template**
+
+Based on user's answers, select appropriate template from Templates section below.
+
+**Step 3: Customize Template**
+
+Ask follow-up questions specific to the selected template:
+
+| Template | Follow-up Questions |
+|----------|---------------------|
+| content-gen | Role, tone, length, audience |
+| extraction | Target fields, example input/output |
+| reasoning | Problem domain, reasoning depth |
+| dialogue | Persona name, capabilities, restrictions |
+| agent | Available tools, behavior rules |
+| rag | Citation format, grounding strictness |
+
+**Step 4: Generate Prompt**
+
+Fill template with collected information. Apply model-specific optimizations:
+
+| Model | Optimizations |
+|-------|---------------|
+| Claude | Use XML tags (`<context>`, `<task>`), avoid "think" word for Opus, positive instructions |
+| GPT | Use Markdown structure, separate system/user messages |
+| Other | Use clear delimiters, explicit format instructions |
+
+**Step 5: Deliver Output**
+
+Output format:
 ```
-为了设计最优的 prompt，我需要确认：
+## Optimized Prompt
 
-1. **目标模型**：这个 prompt 用于哪个模型？
-   - Claude (Sonnet/Opus/Haiku)
-   - GPT (4o/4/3.5)
-   - 其他
-
-2. **任务类型**：
-   - 内容生成（文章/代码/创意）
-   - 信息提取/分类
-   - 推理/分析
-   - 对话/客服
-   - Agent/工具调用
-
-3. **输出要求**：
-   - 格式（JSON/Markdown/纯文本/代码）
-   - 长度限制
-   - 特殊要求
-
-4. **使用方式**：
-   - 手动使用
-   - API 集成
-   - 嵌入应用
-```
-
-### Step 2: 分析与设计
-
-根据收集的信息，选择合适的 prompt 结构：
-
-| 任务类型 | 推荐结构 |
-|---------|---------|
-| 内容生成 | 角色 + 上下文 + 任务 + 约束 + 输出格式 |
-| 分类/提取 | 任务 + 示例(few-shot) + 输入 + 输出格式 |
-| 推理分析 | 任务 + CoT 引导 + 输入 |
-| 对话系统 | System prompt + 人设 + 规则 + 示例对话 |
-| Agent | 角色 + 工具描述 + 行为模式 + 输出格式 |
-| RAG | 上下文规则 + 引用要求 + 防幻觉指令 |
-
-### Step 3: 构建 Prompt
-
-**通用结构**（按需组合）：
-
-```markdown
-# 1. 角色定义（可选）
-You are a [specific role] with expertise in [domain].
-
-# 2. 上下文（如有）
-<context>
-{background_information}
-</context>
-
-# 3. 任务指令
-Your task is to [specific action].
-
-# 4. 输入说明
-You will receive [input description].
-
-# 5. 输出要求
-Respond in [format] with the following structure:
-[output_schema]
-
-# 6. 约束/规则
-Rules:
-- [constraint_1]
-- [constraint_2]
-
-# 7. 示例（few-shot，如需要）
-Example:
-Input: [example_input]
-Output: [example_output]
-
-# 8. 实际输入
-[Input placeholder or variable]
-```
-
-### Step 4: 模型适配
-
-**Claude 优化**：
-- 使用 XML 标签分隔结构：`<context>`, `<task>`, `<rules>`
-- 避免 "think" 一词（Opus），改用 "consider", "analyze"
-- 正向指令优先（说做什么，不说不做什么）
-
-**GPT 优化**：
-- 使用 Markdown 结构
-- System message 放核心指令
-- User message 放输入数据
-
-### Step 5: 输出交付
-
-输出格式：
-
-```markdown
-## 优化后的 Prompt
-
-[完整的 prompt 内容]
+[Complete prompt content]
 
 ---
 
-## 使用说明
+## Usage Instructions
 
-- **变量**：`{variable_name}` 需要替换为实际值
-- **调用方式**：[API/手动/...]
-- **推荐参数**：temperature=[X], max_tokens=[Y]
-
-## 设计说明
-
-[简要解释为什么这样设计，关键决策点]
+- **Variables**: `{variable}` placeholders to replace
+- **API Call**: Model, temperature, max_tokens recommendations
+- **Notes**: Key design decisions explained
 ```
+
+## Quick Reference
+
+| User Request | Action |
+|--------------|--------|
+| "Help me write a prompt" | Ask target model + task type first |
+| "Optimize this prompt" | Analyze existing prompt, identify issues, apply template |
+| "This prompt doesn't work" | Diagnose issue, ask for expected vs actual output |
+| "I want AI to do X" | Map X to task type, select template |
+
+## Following Up
+
+- After delivering prompt, use `AskUserQuestion`:
+  - Option A: "Test this prompt now" - help user test
+  - Option B: "Modify the prompt" - iterate on design
+  - Option C: "Done" - end session
+- If user reports issues, diagnose and iterate
+
+## Error Handling
+
+- If user request is too vague, ask for concrete example of desired output
+- If task doesn't fit templates, build custom prompt using general structure
+- If user can't decide, recommend most common choice
 
 ---
 
-## Prompt 模板库
+## Templates
 
-### 模板 1: 内容生成
+### content-gen
 
-```markdown
-You are a professional [role] specializing in [domain].
+| Config | Value |
+|--------|-------|
+| Pattern | Role + Context + Task + Constraints + Format |
+| Best For | Articles, code, creative writing, marketing copy |
+
+**Template**:
+```
+You are a {role} with expertise in {domain}.
 
 <task>
-Write a [content_type] about [topic].
+{task_description}
 </task>
 
 <requirements>
-- Tone: [formal/casual/technical]
-- Length: [word_count] words
-- Audience: [target_audience]
-- Include: [specific_elements]
+- Tone: {tone}
+- Length: {length}
+- Audience: {audience}
+- Include: {elements}
 </requirements>
 
 <output_format>
-[Specify structure: sections, headings, etc.]
+{format_specification}
 </output_format>
+
+<input>
+{user_input}
+</input>
 ```
 
-### 模板 2: 信息提取 (Few-shot)
+---
 
-```markdown
-Extract [target_info] from the text and output as JSON.
+### extraction
+
+| Config | Value |
+|--------|-------|
+| Pattern | Few-shot with consistent examples |
+| Best For | Data extraction, classification, parsing |
+
+**Template**:
+```
+Extract {target_info} from the text and output as {format}.
 
 Example 1:
-Input: "[example_text_1]"
-Output: {"field1": "value1", "field2": "value2"}
+Input: "{example_input_1}"
+Output: {example_output_1}
 
 Example 2:
-Input: "[example_text_2]"
-Output: {"field1": "value3", "field2": "value4"}
+Input: "{example_input_2}"
+Output: {example_output_2}
 
-Now extract from:
+Example 3:
+Input: "{example_input_3}"
+Output: {example_output_3}
+
+Now process:
 Input: "{user_input}"
 Output:
 ```
 
-### 模板 3: 推理分析 (CoT)
+**Best Practices**:
+- Use 3-5 diverse examples
+- Include edge cases in examples
+- Maintain exact format consistency
 
-```markdown
+---
+
+### reasoning
+
+| Config | Value |
+|--------|-------|
+| Pattern | Chain-of-Thought with structured output |
+| Best For | Math, logic, analysis, decision-making |
+
+**Template**:
+```
 Analyze the following and provide your conclusion.
 
-<input>
-{data_or_question}
-</input>
+<problem>
+{problem_description}
+</problem>
 
-Think through this step by step:
-1. First, identify the key information
-2. Then, analyze the relationships
-3. Consider potential issues or edge cases
-4. Finally, form your conclusion
+Work through this systematically:
+1. Identify the key information and constraints
+2. Break down into sub-problems if needed
+3. Analyze each component
+4. Consider edge cases and potential issues
+5. Form your conclusion with reasoning
 
 <analysis>
-[Your step-by-step reasoning]
+[Step-by-step reasoning here]
 </analysis>
 
 <conclusion>
-[Your final answer]
+[Final answer with confidence level]
 </conclusion>
 ```
 
-### 模板 4: 对话系统 (System Prompt)
+---
 
-```markdown
-You are [character_name], a [role] at [organization].
+### dialogue
 
-<personality>
-- [trait_1]
-- [trait_2]
-- [communication_style]
-</personality>
+| Config | Value |
+|--------|-------|
+| Pattern | System prompt with persona + rules + examples |
+| Best For | Chatbots, customer service, virtual assistants |
+
+**Template**:
+```
+You are {character_name}, a {role} at {organization}.
+
+<persona>
+- Personality: {traits}
+- Communication style: {style}
+- Expertise: {expertise}
+</persona>
 
 <capabilities>
 You can help users with:
-- [capability_1]
-- [capability_2]
+- {capability_1}
+- {capability_2}
+- {capability_3}
 </capabilities>
 
 <rules>
-- Always [required_behavior]
-- Never [prohibited_behavior]
-- If asked about [topic], respond with [guidance]
+- Always: {required_behaviors}
+- Never: {prohibited_behaviors}
+- When asked about {sensitive_topic}: {handling_instruction}
 </rules>
 
 <response_format>
-Keep responses [length]. Use [tone] tone.
+- Length: {max_length}
+- Tone: {tone}
+- Include: {elements}
 </response_format>
 ```
 
-### 模板 5: Agent (工具调用)
+---
 
-```markdown
+### agent
+
+| Config | Value |
+|--------|-------|
+| Pattern | ReAct with tool definitions |
+| Best For | Tool-using agents, automation, multi-step tasks |
+
+**Template**:
+```
 You are an AI assistant with access to the following tools:
 
 <tools>
-{tool_definitions_json}
+{tool_definitions}
 </tools>
 
 <behavior>
-When the user asks a question:
-1. Determine if tools are needed
-2. If yes, call the appropriate tool with correct parameters
-3. Use tool results to formulate your response
-4. If no tools needed, answer directly
+When responding to user requests:
+1. Determine if tools are needed to complete the task
+2. If yes, select the appropriate tool and provide correct parameters
+3. Wait for tool results before proceeding
+4. Use results to formulate your response
+5. If no tools needed, respond directly
 </behavior>
 
 <output_format>
-For tool calls, use this exact format:
-Action: tool_name
-Action Input: {"param": "value"}
+When using tools:
+Action: {tool_name}
+Action Input: {parameters_json}
 
-For final answers:
-Final Answer: [your response]
+When providing final answer:
+Final Answer: {your_response}
 </output_format>
 
-User: {user_query}
+<rules>
+- {rule_1}
+- {rule_2}
+</rules>
+
+User request: {user_query}
 ```
 
-### 模板 6: RAG (检索增强)
+---
 
-```markdown
+### rag
+
+| Config | Value |
+|--------|-------|
+| Pattern | Grounded generation with citation rules |
+| Best For | Q&A over documents, knowledge bases, search |
+
+**Template**:
+```
 Answer the question using ONLY the provided context.
 
 <context>
 {retrieved_documents}
 </context>
 
-<rules>
-- Only use information from the context above
+<grounding_rules>
+- Only use information explicitly stated in the context
 - If the answer is not in the context, say "I don't have this information in the provided documents"
-- Cite sources using [1], [2], etc.
-- Never invent facts, dates, or statistics
-</rules>
+- Cite sources using [{source_id}] format
+- Never invent facts, dates, statistics, or proper nouns
+- When uncertain, say "Based on the context, I'm not certain about..."
+</grounding_rules>
+
+<output_format>
+- Provide direct answer first
+- Include citations inline
+- List sources at the end if multiple used
+</output_format>
 
 Question: {user_question}
 
@@ -292,26 +356,39 @@ Answer:
 
 ---
 
-## 质量检查清单
+## Anti-Pattern Handling
 
-交付前确认：
-
-- [ ] 指令是否明确具体（无歧义）
-- [ ] 输出格式是否清晰定义
-- [ ] 是否包含必要的示例
-- [ ] 是否有处理边界情况的指引
-- [ ] 是否适配目标模型的特性
-- [ ] 变量占位符是否标注清楚
+| User Mistake | How to Handle |
+|--------------|---------------|
+| "Write me a good prompt" | Ask: "What task should this prompt accomplish?" |
+| Instructions too vague | Ask for example of desired output |
+| No output format specified | Add explicit format requirement |
+| Examples inconsistent | Normalize example format |
+| Too many negative rules | Convert to positive instructions |
+| One prompt doing too much | Recommend splitting into multiple prompts |
+| Assuming model knowledge | Add explicit context |
 
 ---
 
-## 反模式警示
+## Model-Specific Tips
 
-| 用户常犯错误 | 我应该如何修正 |
-|-------------|---------------|
-| "帮我写个好的 prompt" | 追问具体任务和期望输出 |
-| 指令过于笼统 | 拆解为具体步骤 |
-| 没有输出格式 | 添加明确的格式要求 |
-| 示例不一致 | 统一示例格式 |
-| 否定指令过多 | 转换为正向指令 |
-| 一个 prompt 做太多事 | 建议拆分为多个 prompt |
+### Claude (Sonnet/Opus 4.5)
+
+- Use XML tags for structure: `<context>`, `<task>`, `<rules>`, `<output>`
+- For Opus: Replace "think" with "consider", "analyze", "evaluate"
+- Prefer positive instructions over negative ones
+- Claude follows instructions precisely - be explicit
+
+### GPT (4o/4/3.5)
+
+- Use Markdown headers for structure
+- Put core instructions in system message
+- Put input data in user message
+- GPT generalizes well from short, clear prompts
+
+### General Tips
+
+- Match prompt style to desired output style
+- Include 2-3 examples for format consistency
+- Specify edge case handling explicitly
+- Keep instructions concise but complete
