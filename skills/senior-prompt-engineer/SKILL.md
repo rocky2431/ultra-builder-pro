@@ -1,394 +1,307 @@
 ---
 name: senior-prompt-engineer
-description: World-class prompt engineering skill for LLM optimization, prompt patterns, structured outputs, and AI product development. Expertise in Claude, GPT-4, prompt design patterns, few-shot learning, chain-of-thought, and AI evaluation. Includes RAG optimization, agent design, and LLM system architecture. Use when building AI products, optimizing LLM performance, designing agentic systems, or implementing advanced prompting techniques.
+description: Transform vague requirements into production-grade prompts using evidence-based principles. Diagnose prompt issues, define boundaries (when RAG/fine-tuning is better), and iterate to quality.
 allowed-tools: AskUserQuestion, Read, Write, Glob, Grep
 ---
 
-# Prompt Engineer Skill Guide
+# Prompt Engineering Skill
 
-> **Purpose**: Transform user's vague requirements into production-grade prompts for any LLM.
+> **Purpose**: Transform user's vague requirements into production-grade prompts using evidence-based principles, not hardcoded templates.
 
-## Use Cases
+## Core Philosophy
 
-| Task | Template | Output |
-|------|----------|--------|
-| Content generation prompt | content-gen | Prompt for articles/code/creative |
-| Data extraction prompt | extraction | Few-shot prompt for structured output |
-| Reasoning/analysis prompt | reasoning | CoT prompt for complex tasks |
-| Chatbot system prompt | dialogue | System prompt with persona/rules |
-| Agent prompt | agent | ReAct pattern with tool definitions |
-| RAG prompt | rag | Grounded generation with citations |
+**Prompts are communication, not magic formulas.**
 
-## Running a Task
+A good prompt is clear communication with a capable assistant. There are principles, not templates.
 
-### Defaults
-- **Target Model**: Claude (Sonnet 4.5)
-- **Output Language**: English
-- **Template**: Auto-detect based on task type
+## When NOT to Use Prompt Engineering
 
-### Invocation Flow
+Before writing any prompt, evaluate if prompt engineering is the right approach:
 
-**Step 1: Gather Requirements**
+| Signal | Better Approach | Why |
+|--------|-----------------|-----|
+| Need private/recent knowledge | RAG | Models have knowledge cutoff |
+| Need consistent specialized behavior | Fine-tuning | Prompts can't change base behavior |
+| Need domain-specific terminology | Fine-tuning + RAG | Models may not know jargon |
+| Task requires real-time data | Tool use / RAG | Prompts are static |
+| Need to learn from examples at scale | Fine-tuning | Few-shot has limits |
 
-Use `AskUserQuestion` with these questions:
+**If any signal matches**: Recommend the better approach, explain why, offer to help with that instead.
+
+---
+
+## Invocation Flow
+
+### Step 1: Understand the Task
+
+Use `AskUserQuestion` to gather:
 
 ```
-Question 1: Target Model
-Header: "Model"
-Options:
-- "Claude (Sonnet/Opus/Haiku)" (Recommended)
-- "GPT (4o/4/3.5)"
-- "Other LLM"
-
-Question 2: Task Type
+Question 1: Task Description
 Header: "Task"
 Options:
-- "Content Generation (articles, code, creative)"
-- "Data Extraction / Classification"
-- "Reasoning / Analysis"
-- "Chatbot / Dialogue System"
-- "Agent with Tools"
-- "RAG (Retrieval-Augmented)"
-
-Question 3: Output Format
-Header: "Output"
-Options:
-- "JSON (structured data)"
-- "Markdown (formatted text)"
-- "Plain text"
-- "Code"
-
-Question 4: Usage Context
-Header: "Usage"
-Options:
-- "API integration (production)"
-- "Manual use (one-off)"
-- "Embedded in application"
+- "Generate content (articles, code, creative)"
+- "Extract/classify data from text"
+- "Analyze/reason about a problem"
+- "Build a chatbot/assistant persona"
+- "Create an agent with tools"
 ```
 
-**Step 2: Select Template**
+**Follow-up based on answer**:
+- Ask for a concrete example of desired output
+- Ask for constraints (length, format, tone)
+- Ask what the prompt will be used for (one-off vs API integration)
 
-Based on user's answers, select appropriate template from Templates section below.
+### Step 2: Check Boundaries
 
-**Step 3: Customize Template**
+Evaluate if prompt engineering is sufficient:
 
-Ask follow-up questions specific to the selected template:
+| Question | If Yes → |
+|----------|----------|
+| Does this need knowledge the model doesn't have? | Recommend RAG |
+| Does this need consistent specialized behavior at scale? | Recommend Fine-tuning |
+| Is this a simple, one-time task? | Proceed with prompt |
 
-| Template | Follow-up Questions |
-|----------|---------------------|
-| content-gen | Role, tone, length, audience |
-| extraction | Target fields, example input/output |
-| reasoning | Problem domain, reasoning depth |
-| dialogue | Persona name, capabilities, restrictions |
-| agent | Available tools, behavior rules |
-| rag | Citation format, grounding strictness |
+If boundary crossed, explain and offer alternatives.
 
-**Step 4: Generate Prompt**
+### Step 3: Apply Principles
 
-Fill template with collected information. Apply model-specific optimizations:
+Build the prompt using these evidence-based principles (from Anthropic official docs):
 
-| Model | Optimizations |
-|-------|---------------|
-| Claude | Use XML tags (`<context>`, `<task>`), avoid "think" word for Opus, positive instructions |
-| GPT | Use Markdown structure, separate system/user messages |
-| Other | Use clear delimiters, explicit format instructions |
+#### Principle 1: Be Explicit
 
-**Step 5: Deliver Output**
-
-Output format:
 ```
-## Optimized Prompt
-
-[Complete prompt content]
-
----
-
-## Usage Instructions
-
-- **Variables**: `{variable}` placeholders to replace
-- **API Call**: Model, temperature, max_tokens recommendations
-- **Notes**: Key design decisions explained
+BAD:  "Write something about AI"
+GOOD: "Write a 500-word blog post explaining how transformers work to a non-technical audience"
 ```
 
-## Quick Reference
+#### Principle 2: Provide Context and Motivation
 
-| User Request | Action |
-|--------------|--------|
-| "Help me write a prompt" | Ask target model + task type first |
-| "Optimize this prompt" | Analyze existing prompt, identify issues, apply template |
-| "This prompt doesn't work" | Diagnose issue, ask for expected vs actual output |
-| "I want AI to do X" | Map X to task type, select template |
-
-## Following Up
-
-- After delivering prompt, use `AskUserQuestion`:
-  - Option A: "Test this prompt now" - help user test
-  - Option B: "Modify the prompt" - iterate on design
-  - Option C: "Done" - end session
-- If user reports issues, diagnose and iterate
-
-## Error Handling
-
-- If user request is too vague, ask for concrete example of desired output
-- If task doesn't fit templates, build custom prompt using general structure
-- If user can't decide, recommend most common choice
-
----
-
-## Templates
-
-### content-gen
-
-| Config | Value |
-|--------|-------|
-| Pattern | Role + Context + Task + Constraints + Format |
-| Best For | Articles, code, creative writing, marketing copy |
-
-**Template**:
 ```
-You are a {role} with expertise in {domain}.
+BAD:  "Never use ellipses"
+GOOD: "Your response will be read by a text-to-speech engine, so never use ellipses since it won't know how to pronounce them"
+```
+
+The model generalizes from understanding WHY.
+
+#### Principle 3: Say What TO Do, Not What NOT to Do
+
+```
+BAD:  "Don't use markdown"
+GOOD: "Write in flowing prose paragraphs without formatting"
+```
+
+#### Principle 4: Structure with XML Tags
+
+```xml
+<context>
+Background information here
+</context>
 
 <task>
-{task_description}
+What you want the model to do
 </task>
 
-<requirements>
-- Tone: {tone}
-- Length: {length}
-- Audience: {audience}
-- Include: {elements}
-</requirements>
+<constraints>
+- Length: 500 words
+- Tone: Professional
+- Format: Prose paragraphs
+</constraints>
 
 <output_format>
-{format_specification}
+How the response should be structured
 </output_format>
-
-<input>
-{user_input}
-</input>
 ```
 
----
+#### Principle 5: Examples Must Match Desired Behavior
 
-### extraction
+If using few-shot, examples must be:
+- Consistent in format
+- Representative of edge cases
+- Free of behaviors you don't want
 
-| Config | Value |
-|--------|-------|
-| Pattern | Few-shot with consistent examples |
-| Best For | Data extraction, classification, parsing |
-
-**Template**:
 ```
-Extract {target_info} from the text and output as {format}.
-
-Example 1:
-Input: "{example_input_1}"
-Output: {example_output_1}
-
-Example 2:
-Input: "{example_input_2}"
-Output: {example_output_2}
-
-Example 3:
-Input: "{example_input_3}"
-Output: {example_output_3}
-
-Now process:
-Input: "{user_input}"
-Output:
+BAD:  One example shows JSON, another shows plain text
+GOOD: All examples show identical JSON structure
 ```
 
-**Best Practices**:
-- Use 3-5 diverse examples
-- Include edge cases in examples
-- Maintain exact format consistency
+#### Principle 6: For Reasoning, Use Chain-of-Thought
 
----
+```xml
+<task>
+Analyze this problem step by step.
+</task>
 
-### reasoning
-
-| Config | Value |
-|--------|-------|
-| Pattern | Chain-of-Thought with structured output |
-| Best For | Math, logic, analysis, decision-making |
-
-**Template**:
-```
-Analyze the following and provide your conclusion.
-
-<problem>
-{problem_description}
-</problem>
-
+<thinking_format>
 Work through this systematically:
-1. Identify the key information and constraints
-2. Break down into sub-problems if needed
+1. Identify key information
+2. Break into sub-problems
 3. Analyze each component
-4. Consider edge cases and potential issues
-5. Form your conclusion with reasoning
-
-<analysis>
-[Step-by-step reasoning here]
-</analysis>
-
-<conclusion>
-[Final answer with confidence level]
-</conclusion>
+4. Form conclusion with reasoning
+</thinking_format>
 ```
+
+### Step 4: Construct and Deliver
+
+**Output format**:
+
+```markdown
+## Prompt
+
+[Complete prompt with XML structure]
 
 ---
 
-### dialogue
+## Usage Notes
 
-| Config | Value |
-|--------|-------|
-| Pattern | System prompt with persona + rules + examples |
-| Best For | Chatbots, customer service, virtual assistants |
-
-**Template**:
+- **Variables**: `{variable}` placeholders to replace
+- **When to use**: [Specific scenarios]
+- **Limitations**: [What this prompt can't do]
+- **Iteration hints**: [How to improve if results aren't good]
 ```
-You are {character_name}, a {role} at {organization}.
 
-<persona>
-- Personality: {traits}
-- Communication style: {style}
-- Expertise: {expertise}
-</persona>
+### Step 5: Offer Iteration
 
-<capabilities>
-You can help users with:
-- {capability_1}
-- {capability_2}
-- {capability_3}
-</capabilities>
+Use `AskUserQuestion`:
 
-<rules>
-- Always: {required_behaviors}
-- Never: {prohibited_behaviors}
-- When asked about {sensitive_topic}: {handling_instruction}
-</rules>
-
-<response_format>
-- Length: {max_length}
-- Tone: {tone}
-- Include: {elements}
-</response_format>
 ```
+Question: Next Steps
+Header: "Action"
+Options:
+- "Test this prompt and report results"
+- "Modify the prompt"
+- "Explain the design decisions"
+- "Done"
+```
+
+If user reports issues, diagnose:
+
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| Too verbose | No length constraint | Add explicit length |
+| Wrong format | No format example | Add output_format tag |
+| Hallucinating | Task too vague | Add constraints, context |
+| Inconsistent | Examples inconsistent | Fix example format |
+| Ignoring instructions | Instructions buried | Move to top, use XML |
 
 ---
 
-### agent
+## Quality Checklist
 
-| Config | Value |
-|--------|-------|
-| Pattern | ReAct with tool definitions |
-| Best For | Tool-using agents, automation, multi-step tasks |
+Before delivering, verify:
 
-**Template**:
-```
-You are an AI assistant with access to the following tools:
-
-<tools>
-{tool_definitions}
-</tools>
-
-<behavior>
-When responding to user requests:
-1. Determine if tools are needed to complete the task
-2. If yes, select the appropriate tool and provide correct parameters
-3. Wait for tool results before proceeding
-4. Use results to formulate your response
-5. If no tools needed, respond directly
-</behavior>
-
-<output_format>
-When using tools:
-Action: {tool_name}
-Action Input: {parameters_json}
-
-When providing final answer:
-Final Answer: {your_response}
-</output_format>
-
-<rules>
-- {rule_1}
-- {rule_2}
-</rules>
-
-User request: {user_query}
-```
+- [ ] Task is explicit (no guessing required)
+- [ ] Context explains WHY, not just WHAT
+- [ ] Instructions are positive (do X, not don't Y)
+- [ ] Structure uses XML tags for separation
+- [ ] Examples (if any) are consistent
+- [ ] Output format is specified
+- [ ] Limitations are acknowledged
 
 ---
 
-### rag
+## Anti-Patterns
 
-| Config | Value |
-|--------|-------|
-| Pattern | Grounded generation with citation rules |
-| Best For | Q&A over documents, knowledge bases, search |
+| Pattern | Problem | Fix |
+|---------|---------|-----|
+| "Be creative" | Too vague | Define what creative means |
+| "Don't hallucinate" | Negative instruction | "Only use information from the provided context" |
+| "Think step by step" alone | No structure | Provide thinking format |
+| Multiple roles in one prompt | Conflicting behaviors | Split into separate prompts |
+| Prompt > 2000 tokens | Too complex | Simplify or use RAG |
 
-**Template**:
-```
-Answer the question using ONLY the provided context.
+---
 
+## Advanced Techniques
+
+### Grounded Generation (RAG Pattern)
+
+```xml
 <context>
 {retrieved_documents}
 </context>
 
 <grounding_rules>
-- Only use information explicitly stated in the context
-- If the answer is not in the context, say "I don't have this information in the provided documents"
-- Cite sources using [{source_id}] format
-- Never invent facts, dates, statistics, or proper nouns
-- When uncertain, say "Based on the context, I'm not certain about..."
+- Only use information from the context
+- Cite sources using [source_id]
+- If not in context, say "I don't have this information"
 </grounding_rules>
 
+<question>
+{user_question}
+</question>
+```
+
+### Agent Pattern (Tool Use)
+
+```xml
+<tools>
+{tool_definitions}
+</tools>
+
+<behavior>
+1. Determine if tools are needed
+2. Select appropriate tool with correct parameters
+3. Wait for results before proceeding
+4. Use results to formulate response
+</behavior>
+
 <output_format>
-- Provide direct answer first
-- Include citations inline
-- List sources at the end if multiple used
+When using tools: Action: {tool} / Input: {params}
+When answering: Final Answer: {response}
 </output_format>
+```
 
-Question: {user_question}
+### Persona Pattern (Chatbot)
 
-Answer:
+```xml
+<persona>
+You are {name}, a {role} at {org}.
+- Personality: {traits}
+- Expertise: {areas}
+- Communication style: {style}
+</persona>
+
+<capabilities>
+You can help with: {list}
+</capabilities>
+
+<rules>
+- Always: {required}
+- Never: {prohibited}
+- When asked about {sensitive}: {handling}
+</rules>
 ```
 
 ---
 
-## Anti-Pattern Handling
+## Evaluation Criteria
 
-| User Mistake | How to Handle |
-|--------------|---------------|
-| "Write me a good prompt" | Ask: "What task should this prompt accomplish?" |
-| Instructions too vague | Ask for example of desired output |
-| No output format specified | Add explicit format requirement |
-| Examples inconsistent | Normalize example format |
-| Too many negative rules | Convert to positive instructions |
-| One prompt doing too much | Recommend splitting into multiple prompts |
-| Assuming model knowledge | Add explicit context |
+A good prompt should score well on:
+
+| Criterion | Question |
+|-----------|----------|
+| **Clarity** | Can someone else understand what this prompt wants? |
+| **Specificity** | Are edge cases and constraints defined? |
+| **Structure** | Is information organized logically? |
+| **Completeness** | Does it include all necessary context? |
+| **Minimalism** | Is every part necessary? (No bloat) |
 
 ---
 
-## Model-Specific Tips
+## Error Recovery
 
-### Claude (Sonnet/Opus 4.5)
+If user says "the prompt doesn't work":
 
-- Use XML tags for structure: `<context>`, `<task>`, `<rules>`, `<output>`
-- For Opus: Replace "think" with "consider", "analyze", "evaluate"
-- Prefer positive instructions over negative ones
-- Claude follows instructions precisely - be explicit
+1. **Ask for specifics**: What output did you get? What did you expect?
+2. **Check boundaries**: Is this actually a prompt engineering problem?
+3. **Diagnose**: Match symptoms to causes table above
+4. **Iterate**: Make one change at a time, test
 
-### GPT (4o/4/3.5)
+---
 
-- Use Markdown headers for structure
-- Put core instructions in system message
-- Put input data in user message
-- GPT generalizes well from short, clear prompts
+## References
 
-### General Tips
-
-- Match prompt style to desired output style
-- Include 2-3 examples for format consistency
-- Specify edge case handling explicitly
-- Keep instructions concise but complete
+- Anthropic Claude 4 Best Practices (platform.claude.com)
+- Anthropic Prompt Engineering Interactive Tutorial
+- DAIR.AI Prompt Engineering Guide
