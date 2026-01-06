@@ -16,17 +16,18 @@ A good prompt is clear communication with a capable assistant. There are princip
 
 ## When NOT to Use Prompt Engineering
 
-Before writing any prompt, evaluate if prompt engineering is the right approach:
+Before writing any prompt, evaluate if prompt engineering is the right approach.
 
-| Signal | Better Approach | Why |
-|--------|-----------------|-----|
-| Need private/recent knowledge | RAG | Models have knowledge cutoff |
-| Need consistent specialized behavior | Fine-tuning | Prompts can't change base behavior |
-| Need domain-specific terminology | Fine-tuning + RAG | Models may not know jargon |
-| Task requires real-time data | Tool use / RAG | Prompts are static |
-| Need to learn from examples at scale | Fine-tuning | Few-shot has limits |
+**In Claude Code environment, you have these capabilities**:
 
-**If any signal matches**: Recommend the better approach, explain why, offer to help with that instead.
+| Signal | Better Approach | How in Claude Code |
+|--------|-----------------|-------------------|
+| Need external/recent knowledge | Retrieval | Use Context7 MCP (official docs), Exa MCP (search), or Read (local files) |
+| Need persistent behavior rules | Configuration | Define in CLAUDE.md or create a skill |
+| Need real-time data | Tool use | Use WebSearch, WebFetch, or MCP tools |
+| Need domain-specific knowledge | Retrieval + Config | Combine MCP lookup with skill-defined rules |
+
+**If any signal matches**: Use the appropriate tool/config instead of trying to solve with prompt alone.
 
 ---
 
@@ -58,11 +59,11 @@ Evaluate if prompt engineering is sufficient:
 
 | Question | If Yes → |
 |----------|----------|
-| Does this need knowledge the model doesn't have? | Recommend RAG |
-| Does this need consistent specialized behavior at scale? | Recommend Fine-tuning |
-| Is this a simple, one-time task? | Proceed with prompt |
+| Does this need external knowledge? | Use Context7/Exa MCP or Read tool first |
+| Does this need persistent behavior? | Suggest defining in CLAUDE.md or skill |
+| Is this a one-time prompt for user's project? | Proceed with prompt engineering |
 
-If boundary crossed, explain and offer alternatives.
+If boundary crossed, use the appropriate capability instead of forcing a prompt-only solution.
 
 ### Step 3: Apply Principles
 
