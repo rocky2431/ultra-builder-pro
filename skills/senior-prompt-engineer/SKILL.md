@@ -1,283 +1,575 @@
 ---
 name: senior-prompt-engineer
-description: Expert prompt engineering for LLM optimization. Use when designing prompts, implementing few-shot/CoT patterns, building RAG systems, designing agents, or evaluating LLM outputs.
+description: World-class prompt engineering skill for LLM optimization, prompt patterns, structured outputs, and AI product development. Expertise in Claude, GPT-4, prompt design patterns, few-shot learning, chain-of-thought, and AI evaluation. Includes RAG optimization, agent design, and LLM system architecture. Use when building AI products, optimizing LLM performance, designing agentic systems, or implementing advanced prompting techniques.
 ---
 
 # Senior Prompt Engineer
 
-Expert-level prompt engineering for production LLM systems.
+Production-grade prompt engineering for modern LLM systems.
 
 ## When to Use
 
 - Designing or optimizing prompts for Claude/GPT/other LLMs
-- Implementing advanced patterns (few-shot, CoT, self-consistency)
+- Implementing advanced patterns (CoT, Self-Consistency, Meta-Prompting)
 - Building RAG pipelines with effective retrieval prompts
 - Designing multi-agent orchestration
 - Evaluating and benchmarking LLM outputs
+- Troubleshooting prompt failures
 
-## Core Prompt Patterns
+---
 
-### 1. Few-Shot Learning
+## Part 1: Core Principles
+
+> Source: [Anthropic Claude 4.x Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-4-best-practices)
+
+### 1.1 Be Explicit with Instructions
+
+Claude 4.x models follow instructions precisely. Vague prompts yield vague results.
 
 ```markdown
-You are a sentiment classifier.
+# Less effective
+Create an analytics dashboard
 
-Examples:
-Input: "This product exceeded my expectations!"
-Output: {"sentiment": "positive", "confidence": 0.95}
+# More effective
+Create an analytics dashboard. Include as many relevant features
+and interactions as possible. Go beyond the basics to create
+a fully-featured implementation.
+```
 
-Input: "Terrible experience, would not recommend."
-Output: {"sentiment": "negative", "confidence": 0.92}
+### 1.2 Add Context and Motivation
 
-Input: "It's okay, nothing special."
-Output: {"sentiment": "neutral", "confidence": 0.78}
+Explain WHY, not just WHAT. Context helps models generalize.
 
-Now classify:
-Input: "{user_input}"
+```markdown
+# Less effective
+NEVER use ellipses
+
+# More effective
+Your response will be read aloud by a text-to-speech engine,
+so never use ellipses since the TTS engine cannot pronounce them.
+```
+
+### 1.3 Match Prompt Style to Output Style
+
+The formatting in your prompt influences the response style:
+- Want prose? Write your prompt in prose
+- Want structured data? Use structured format in prompt
+- Want minimal markdown? Remove markdown from your prompt
+
+### 1.4 Tell What TO DO, Not What NOT TO DO
+
+```markdown
+# Less effective
+Do not use markdown in your response
+
+# More effective
+Your response should be composed of smoothly flowing prose paragraphs.
+```
+
+---
+
+## Part 2: Foundational Patterns
+
+### 2.1 Zero-Shot Prompting
+
+Direct instruction without examples. Works well for Claude 4.x due to strong instruction following.
+
+```markdown
+Classify the sentiment of this review as positive, negative, or neutral.
+Output only the classification label.
+
+Review: "{text}"
+Classification:
+```
+
+**When to use**: Simple tasks, well-defined outputs, when examples might bias
+
+### 2.2 Few-Shot Prompting
+
+Provide 2-5 examples to establish pattern. Critical for format consistency.
+
+```markdown
+Extract names and roles from text. Output as JSON.
+
+Text: "Alice is a software engineer and Bob is a doctor."
+Output: [{"name": "Alice", "role": "software engineer"}, {"name": "Bob", "role": "doctor"}]
+
+Text: "Charlie teaches math and Diana practices law."
+Output: [{"name": "Charlie", "role": "teacher"}, {"name": "Diana", "role": "lawyer"}]
+
+Text: "{user_input}"
 Output:
 ```
 
-**Best Practices**:
-- 3-5 diverse examples covering edge cases
-- Consistent format across examples
-- Include confidence scores for calibration
+**Best practices**:
+- Use diverse examples covering edge cases
+- Maintain consistent format across all examples
+- Include boundary cases (empty input, ambiguous cases)
+- Order: simple → complex
 
-### 2. Chain-of-Thought (CoT)
+### 2.3 Chain-of-Thought (CoT)
+
+Decompose reasoning into explicit steps. Essential for math, logic, multi-step problems.
 
 ```markdown
-Solve this step by step:
+Solve this problem step by step.
 
 Question: {question}
 
-Let's think through this:
-1. First, identify the key information...
-2. Then, consider the relationships...
-3. Finally, calculate/conclude...
+Let me work through this systematically:
+1. First, I'll identify the key information...
+2. Then, I'll analyze the relationships...
+3. Finally, I'll calculate the answer...
 
 Answer:
 ```
 
 **Variants**:
-- Zero-shot CoT: "Let's think step by step"
-- Self-consistency: Generate multiple reasoning paths, vote on answer
-- Tree-of-Thought: Explore branching reasoning paths
+| Variant | Description | Use Case |
+|---------|-------------|----------|
+| Zero-shot CoT | Add "Let's think step by step" | Quick reasoning boost |
+| Manual CoT | Provide reasoning examples | Complex domain-specific tasks |
+| Auto-CoT | Let model generate diverse chains | Research, exploration |
 
-### 3. Structured Output
+### 2.4 Structured Output
 
+Force specific output format using schemas, XML tags, or prefill.
+
+**JSON with Schema**:
 ```markdown
-Respond in this exact JSON format:
+Analyze this text and respond in this exact JSON format:
 {
-  "analysis": "string - your analysis",
-  "decision": "approve" | "reject" | "review",
+  "sentiment": "positive" | "negative" | "neutral",
   "confidence": number between 0 and 1,
-  "reasoning": ["string array of reasons"]
+  "key_phrases": ["string array"],
+  "summary": "string under 100 chars"
 }
 
-Do not include any text outside the JSON.
+Text: "{input}"
+Output:
 ```
 
-**Tips**:
-- Use JSON Schema or TypeScript types for complex structures
-- Provide examples of valid output
-- Explicitly state constraints
+**XML Tags** (Claude-optimized):
+```markdown
+Analyze the code and provide feedback.
 
-### 4. Role Prompting
+<code>
+{code_snippet}
+</code>
+
+Respond with:
+<analysis>Your detailed analysis</analysis>
+<suggestions>Improvement suggestions</suggestions>
+<rating>1-10 score</rating>
+```
+
+**Prefill Technique** (Claude-specific):
+```python
+# Force JSON output by prefilling assistant response
+response = client.messages.create(
+    model="claude-sonnet-4-5-20250929",
+    messages=[
+        {"role": "user", "content": prompt},
+        {"role": "assistant", "content": "{"}  # Prefill
+    ]
+)
+```
+
+---
+
+## Part 3: Advanced Techniques
+
+### 3.1 Self-Consistency
+
+Generate multiple reasoning paths, select most common answer. 3-5x accuracy boost on reasoning tasks.
+
+**How it works**:
+1. Sample N responses with temperature > 0
+2. Extract final answer from each
+3. Return majority answer
+
+```python
+def self_consistency(prompt, n=5, temperature=0.7):
+    answers = []
+    for _ in range(n):
+        response = generate(prompt, temperature=temperature)
+        answer = extract_final_answer(response)
+        answers.append(answer)
+    return most_common(answers)
+```
+
+**When to use**: Arithmetic, logic puzzles, multi-step reasoning where single-pass fails
+
+### 3.2 Tree of Thoughts (ToT)
+
+Explore multiple reasoning branches, evaluate each, backtrack if needed.
 
 ```markdown
-You are a {role} with expertise in {domain}.
+Consider this problem: {problem}
 
-Your responsibilities:
-- {responsibility_1}
-- {responsibility_2}
+Generate 3 different initial approaches:
+<approach_1>First possible direction...</approach_1>
+<approach_2>Second possible direction...</approach_2>
+<approach_3>Third possible direction...</approach_3>
 
-Your constraints:
-- {constraint_1}
-- {constraint_2}
+Evaluate each approach (score 1-10):
+<evaluation>
+Approach 1: [score] - [reasoning]
+Approach 2: [score] - [reasoning]
+Approach 3: [score] - [reasoning]
+</evaluation>
 
-Respond as this expert would.
+Pursue the highest-scoring approach and develop it further...
 ```
 
-### 5. Meta-Prompting (Prompt Generation)
+**When to use**: Creative problem-solving, strategic planning, complex puzzles
+
+### 3.3 Meta-Prompting
+
+Two-stage process: first generate optimal prompt structure, then use it.
 
 ```markdown
-Generate a prompt for the following task:
+# Stage 1: Generate meta-prompt
+Given this task: {task_description}
 
-Task: {task_description}
-Input format: {input_format}
-Output format: {output_format}
-Quality criteria: {criteria}
+Design an optimal prompt structure that includes:
+1. Clear role definition
+2. Input/output format specification
+3. Relevant constraints
+4. Quality criteria
 
-The generated prompt should:
-1. Be clear and unambiguous
-2. Include relevant examples
-3. Handle edge cases
-4. Produce consistent outputs
+Output the prompt template:
+
+# Stage 2: Use generated prompt
+{generated_prompt_template}
+
+Input: {actual_input}
 ```
 
-## RAG Prompt Design
+**Advantages**:
+- Token efficient (structure over examples)
+- Reduces few-shot bias
+- Works well for novel tasks
 
-### Query Rewriting
+### 3.4 Reflection and Self-Critique
 
+Have model evaluate and improve its own output.
+
+```markdown
+<task>{original_task}</task>
+
+<initial_response>{first_attempt}</initial_response>
+
+Now critically evaluate your response:
+1. What assumptions did you make?
+2. What could be wrong or incomplete?
+3. What would a skeptical expert question?
+
+<critique>Your self-evaluation</critique>
+
+Based on this critique, provide an improved response:
+<improved_response>...</improved_response>
+```
+
+---
+
+## Part 4: Domain-Specific Patterns
+
+### 4.1 RAG (Retrieval-Augmented Generation)
+
+**Query Rewriting** - Transform user query for better retrieval:
 ```markdown
 Original query: {user_query}
 
-Rewrite this query to improve retrieval:
-1. Expand abbreviations
+Rewrite this query to improve search retrieval:
+1. Expand abbreviations and acronyms
 2. Add relevant synonyms
 3. Make implicit context explicit
-4. Split compound questions
+4. Split compound questions if needed
 
-Rewritten queries (return as JSON array):
+Return 2-3 rewritten queries as JSON array:
 ```
 
-### Context Integration
-
+**Context Integration** - Grounded generation with citations:
 ```markdown
-Use the following context to answer the question.
+Answer the question using ONLY the provided context.
 If the context doesn't contain the answer, say "I don't have enough information."
 
-Context:
+<context>
 {retrieved_chunks}
+</context>
 
 Question: {user_question}
 
-Answer (cite sources with [1], [2], etc.):
+Instructions:
+- Quote directly when possible
+- Cite sources with [1], [2], etc.
+- Never invent facts not in context
+- If uncertain, say "Based on the context, I'm not certain about..."
+
+Answer:
 ```
 
-### Hallucination Prevention
-
+**Hallucination Prevention**:
 ```markdown
-STRICT RULES:
-1. Only use information from the provided context
-2. If uncertain, say "Based on the context, I'm not sure about..."
-3. Never invent facts, dates, or statistics
-4. Quote directly when possible
-
-Context: {context}
-Question: {question}
+STRICT GROUNDING RULES:
+1. ONLY use information from <context> tags
+2. If a claim cannot be traced to context, prefix with "I cannot verify this"
+3. Never invent dates, statistics, or proper nouns
+4. When quoting, use exact text with citation
+5. If asked about something not in context, say "The provided documents don't contain information about this"
 ```
 
-## Agent Prompt Design
+### 4.2 Agent Design
 
-### ReAct Pattern
-
+**ReAct Pattern** (Reasoning + Acting):
 ```markdown
 You have access to these tools:
 {tool_descriptions}
 
-Use this format:
-Thought: What I need to do next
+Use this format for each step:
+Thought: What I need to do and why
 Action: tool_name
 Action Input: {"param": "value"}
-Observation: [tool result will appear here]
-... (repeat Thought/Action/Observation)
-Thought: I now have enough information
+Observation: [tool result appears here]
+... (repeat Thought/Action/Observation as needed)
+Thought: I have enough information to answer
 Final Answer: {answer}
 
 Question: {user_question}
 ```
 
-### Planning Agent
-
+**Planning Agent**:
 ```markdown
-Break down this task into steps:
+Break down this complex task into steps:
 
 Task: {complex_task}
 
-For each step:
-1. What needs to be done
+For each step, specify:
+1. What needs to be done (action)
 2. What tools/resources are needed
 3. Dependencies on other steps
 4. Success criteria
+5. Estimated complexity (low/medium/high)
 
-Output as numbered plan:
+Output as numbered plan with dependencies marked.
 ```
 
-## Evaluation Framework
+**Tool Definition Best Practices**:
+```json
+{
+  "name": "search_database",
+  "description": "Search the product database. Use when user asks about product availability, pricing, or specifications. Returns up to 10 matching products.",
+  "parameters": {
+    "query": {
+      "type": "string",
+      "description": "Search query - product name, category, or feature"
+    },
+    "filters": {
+      "type": "object",
+      "description": "Optional filters: {price_max, category, in_stock}",
+      "required": false
+    }
+  }
+}
+```
 
-### Output Quality Dimensions
+### 4.3 Multi-Turn Conversation
 
-| Dimension | Criteria |
-|-----------|----------|
-| **Accuracy** | Factually correct, no hallucinations |
-| **Relevance** | Addresses the actual question |
-| **Completeness** | Covers all aspects |
-| **Coherence** | Logical flow, well-structured |
-| **Conciseness** | No unnecessary content |
+**Context Carryover**:
+```markdown
+<conversation_summary>
+Key facts established:
+- User is building a React app
+- Using TypeScript
+- Needs authentication feature
+</conversation_summary>
 
-### LLM-as-Judge Prompt
+<current_turn>
+User: How should I structure the auth components?
+</current_turn>
+
+Continue the conversation maintaining context consistency.
+```
+
+**State Management Across Windows** (Claude 4.5):
+```markdown
+Your context window will be automatically compacted as it approaches limit.
+Before compaction:
+1. Save progress to progress.txt
+2. Update tests.json with current status
+3. Commit any working code to git
+
+When resuming:
+1. Read progress.txt for context
+2. Check tests.json for remaining work
+3. Review git log for recent changes
+```
+
+---
+
+## Part 5: Model-Specific Guidelines
+
+### 5.1 Claude 4.x (Sonnet/Opus 4.5)
+
+| Behavior | Guidance |
+|----------|----------|
+| Precise instruction following | Be explicit; vague = vague output |
+| Thinking sensitivity (Opus) | Replace "think" with "consider", "evaluate", "analyze" |
+| Parallel tool calling | Claude aggressively parallelizes; add sequencing if needed |
+| File creation tendency | Add "clean up temporary files" instruction |
+| Over-engineering | Add "minimal solution, no extra features" |
+
+**XML Tags Work Best**:
+```markdown
+<context>Background information</context>
+<task>What to do</task>
+<constraints>Rules to follow</constraints>
+<output_format>Expected structure</output_format>
+```
+
+**Thinking/Extended Thinking**:
+```markdown
+After receiving tool results, carefully reflect on their quality
+and determine optimal next steps before proceeding. Use your thinking
+to plan and iterate based on this new information.
+```
+
+### 5.2 GPT-5.x
+
+| Behavior | Guidance |
+|----------|----------|
+| Agentic task handling | Provide preambles before major tool decisions |
+| TODO tracking | Use TODO tool for workflow progress |
+| Long context (>10k tokens) | Have model outline key sections first |
+| Token efficiency | More efficient on medium-to-complex tasks |
+
+**Agentic Best Practices**:
+```markdown
+For this task:
+1. Plan thoroughly before acting
+2. Decompose into sub-tasks
+3. Reflect after each tool call
+4. Track progress with TODO updates
+5. Resolve completely before yielding control
+```
+
+---
+
+## Part 6: Evaluation Framework
+
+### 6.1 Output Quality Dimensions
+
+| Dimension | Criteria | Weight |
+|-----------|----------|--------|
+| **Accuracy** | Factually correct, no hallucinations | High |
+| **Relevance** | Addresses actual question | High |
+| **Completeness** | Covers all aspects | Medium |
+| **Coherence** | Logical flow, well-structured | Medium |
+| **Conciseness** | No unnecessary content | Low |
+
+### 6.2 LLM-as-Judge
 
 ```markdown
-Evaluate the following response on a scale of 1-5:
+Evaluate this response on a scale of 1-5:
 
-Question: {question}
-Response: {response}
-Reference (if available): {reference}
+<question>{question}</question>
+<response>{response}</response>
+<reference>{reference_answer}</reference>
 
-Criteria:
-- Accuracy (1-5): Is the information correct?
+Score each dimension:
+- Accuracy (1-5): Is information correct?
 - Relevance (1-5): Does it answer the question?
 - Completeness (1-5): Are all aspects covered?
+- Clarity (1-5): Is it easy to understand?
 
-Provide scores and brief justification for each.
+<scores>
+accuracy: X
+relevance: X
+completeness: X
+clarity: X
+</scores>
+
+<justification>Brief reasoning for each score</justification>
 ```
 
-### A/B Testing Framework
+### 6.3 A/B Comparison
 
 ```markdown
 Compare these two responses:
 
 Question: {question}
 
-Response A:
-{response_a}
+<response_a>{response_a}</response_a>
+<response_b>{response_b}</response_b>
 
-Response B:
-{response_b}
+Evaluate on: accuracy, helpfulness, clarity, completeness
 
-Which is better? Consider:
-1. Accuracy
-2. Helpfulness
-3. Clarity
-4. Completeness
-
-Winner: A/B/Tie
-Reasoning:
+<comparison>
+Winner: A | B | Tie
+Confidence: High | Medium | Low
+Reasoning: [specific differences that determined winner]
+</comparison>
 ```
 
-## Optimization Techniques
+---
 
-### 1. Prompt Compression
+## Part 7: Production Considerations
 
-- Remove redundant instructions
-- Use concise examples
-- Leverage model's prior knowledge
+### 7.1 Token Efficiency
 
-### 2. Temperature Tuning
+| Strategy | Savings | Trade-off |
+|----------|---------|-----------|
+| Shorter examples in few-shot | 30-50% | Slight accuracy drop |
+| Meta-prompting over few-shot | 40-60% | Needs model with strong priors |
+| Structured output over prose | 20-30% | Less natural language |
+| Remove redundant instructions | 10-20% | None if done carefully |
 
-| Use Case | Temperature |
-|----------|-------------|
-| Factual Q&A | 0.0 - 0.3 |
-| Creative writing | 0.7 - 1.0 |
-| Code generation | 0.0 - 0.2 |
-| Brainstorming | 0.8 - 1.0 |
+### 7.2 Temperature Tuning
 
-### 3. Iterative Refinement
+| Task Type | Temperature | Reasoning |
+|-----------|-------------|-----------|
+| Factual Q&A | 0.0-0.3 | Consistency, accuracy |
+| Code generation | 0.0-0.2 | Correctness over creativity |
+| Creative writing | 0.7-1.0 | Diversity, novelty |
+| Self-consistency | 0.5-0.8 | Need diverse paths |
+| Classification | 0.0 | Deterministic output |
 
+### 7.3 Error Handling
+
+```markdown
+<error_handling>
+If you cannot complete the task:
+1. Explain what specific information is missing
+2. Suggest what additional context would help
+3. Provide partial answer if possible with caveats
+4. Never fabricate information to fill gaps
+</error_handling>
 ```
-Initial prompt → Test on examples → Identify failures →
-Refine prompt → Test again → Repeat until satisfactory
-```
 
-## Anti-Patterns to Avoid
+### 7.4 Latency Optimization
+
+- **Streaming**: Use for long outputs to improve perceived latency
+- **Caching**: Cache common prompt prefixes
+- **Parallel calls**: Run independent evaluations concurrently
+- **Model selection**: Use smaller models for simple tasks (Haiku for classification)
+
+---
+
+## Part 8: Anti-Patterns
 
 | Anti-Pattern | Problem | Fix |
 |--------------|---------|-----|
-| Vague instructions | Inconsistent outputs | Be specific and concrete |
+| Vague instructions | Inconsistent outputs | Be specific and explicit |
 | No examples | Model guesses format | Add 2-3 clear examples |
-| Conflicting rules | Confusion | Prioritize rules explicitly |
+| Conflicting rules | Confusion, random behavior | Prioritize rules explicitly |
 | Too many constraints | Rigid, unnatural output | Focus on key requirements |
-| No error handling | Fails silently | Add fallback instructions |
+| Negative instructions | Model focuses on forbidden | Tell what TO DO instead |
+| Assuming model knowledge | Hallucinations | Provide context explicitly |
+| Long monolithic prompts | Lost in middle | Use XML structure |
+| Over-prompting for Claude 4.x | Over-triggering | Use normal language |
+
+---
 
 ## Quick Reference
 
@@ -286,14 +578,28 @@ Refine prompt → Test again → Repeat until satisfactory
 /senior-prompt-engineer optimize: {your_prompt}
 
 # Design prompt for task
-/senior-prompt-engineer design prompt for: {task_description}
+/senior-prompt-engineer design: {task_description}
 
 # Evaluate prompt effectiveness
-/senior-prompt-engineer evaluate: {prompt} against {test_cases}
+/senior-prompt-engineer evaluate: {prompt} with {test_cases}
 
 # RAG prompt design
-/senior-prompt-engineer rag prompt for: {use_case}
+/senior-prompt-engineer rag: {use_case}
 
 # Agent prompt design
-/senior-prompt-engineer agent prompt with tools: {tool_list}
+/senior-prompt-engineer agent: {tools_and_goals}
+
+# Debug failing prompt
+/senior-prompt-engineer debug: {prompt} failure: {observed_issue}
 ```
+
+---
+
+## Sources
+
+- [Anthropic Claude 4.x Best Practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-4-best-practices)
+- [Anthropic Courses - Prompt Engineering](https://github.com/anthropics/courses)
+- [Anthropic Cookbook](https://github.com/anthropics/anthropic-cookbook)
+- [OpenAI GPT-5 Prompting Guide](https://cookbook.openai.com/examples/gpt-5/gpt-5_prompting_guide)
+- [Prompt Engineering Guide](https://www.promptingguide.ai/techniques)
+- [OpenAI Orchestrating Agents](https://cookbook.openai.com/examples/orchestrating_agents)
