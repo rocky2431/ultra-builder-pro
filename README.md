@@ -6,10 +6,11 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-4.4.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-4.5.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-8-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-6-orange)](skills/)
+[![Skills](https://img.shields.io/badge/skills-4-orange)](skills/)
+[![Agents](https://img.shields.io/badge/agents-7-red)](agents/)
 
 </div>
 
@@ -113,15 +114,13 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ---
 
-## Skills (6)
+## Skills (4)
 
-| Skill | Purpose | Modes |
-|-------|---------|-------|
+| Skill | Purpose | Key Features |
+|-------|---------|--------------|
 | `codex` | OpenAI Codex CLI | Code analysis, refactoring, **can modify code** |
 | `gemini` | Google Gemini CLI | Research, validation, docs; `-y` for code changes |
-| `frontend` | Frontend development | React/Vue/Next.js, Core Web Vitals, a11y |
-| `backend` | Backend development | Node.js/Python/Go, API design, security |
-| `smart-contract` | Smart contract dev | EVM/Solana, security audit, Foundry tests |
+| `senior-prompt-engineer` | Prompt engineering | LLM optimization, prompt patterns, RAG, agent design |
 | `skill-creator` | Create new skills | Workflow guidance, packaging |
 
 ### Codex Skill
@@ -146,13 +145,42 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 **Note**: Use `-y` flag for auto-approve when code changes needed
 
-### Domain Skills
+### Senior Prompt Engineer Skill
 
-| Skill | Resources |
-|-------|-----------|
-| `frontend` | React/Vue/Next.js patterns, performance scripts, component templates |
-| `backend` | API design, Node/Python/Go patterns, security audit scripts |
-| `smart-contract` | ERC20/721/1155/esToken templates, vulnerability checklist, Foundry patterns |
+World-class prompt engineering for production AI systems:
+- **Prompt Patterns**: Advanced prompting techniques, few-shot, CoT
+- **LLM Evaluation**: Frameworks for assessing model performance
+- **Agentic Design**: Multi-agent orchestration patterns
+- **RAG Optimization**: Retrieval-augmented generation best practices
+
+**Resources**: `references/prompt_engineering_patterns.md`, `references/llm_evaluation_frameworks.md`, `references/agentic_system_design.md`
+
+---
+
+## Agents (7)
+
+Specialized agents for domain-specific tasks:
+
+| Agent | Purpose | Tools |
+|-------|---------|-------|
+| `backend-architect` | Backend system architecture, API design | Read, Write, Edit, Bash |
+| `database-architect` | Database design, data modeling, scalability | Read, Write, Edit, Bash |
+| `frontend-developer` | React/Next.js, UI components, performance | Read, Write, Edit, Bash |
+| `smart-contract-auditor` | Security audits, vulnerability detection | All tools |
+| `smart-contract-specialist` | Solidity development, gas optimization | All tools |
+| `ui-ux-designer` | User research, wireframes, design systems | Read, Write, Edit |
+| `web3-integration-specialist` | Wallet integration, dApp development | All tools |
+
+### Usage
+
+Agents are invoked automatically by the Task tool based on task requirements:
+- Backend/API design → `backend-architect`
+- Database schema design → `database-architect`
+- React/UI development → `frontend-developer`
+- Smart contract security → `smart-contract-auditor`
+- Smart contract development → `smart-contract-specialist`
+- UI/UX design → `ui-ux-designer`
+- Web3/dApp development → `web3-integration-specialist`
 
 ---
 
@@ -206,13 +234,20 @@ If ANY component is fake/mocked/simulated → Quality = 0
 │   ├── ultra-status.md
 │   └── ultra-think.md
 │
-├── skills/                   # Domain skills (6)
+├── skills/                   # Domain skills (4)
 │   ├── codex/                # OpenAI Codex CLI
 │   ├── gemini/               # Google Gemini CLI
-│   ├── frontend/             # React/Vue/Next.js
-│   ├── backend/              # Node.js/Python/Go
-│   ├── smart-contract/       # EVM/Solana
+│   ├── senior-prompt-engineer/ # LLM & prompt engineering
 │   └── skill-creator/        # Create new skills
+│
+├── agents/                   # Specialized agents (7)
+│   ├── backend-architect.md
+│   ├── database-architect.md
+│   ├── frontend-developer.md
+│   ├── smart-contract-auditor.md
+│   ├── smart-contract-specialist.md
+│   ├── ui-ux-designer.md
+│   └── web3-integration-specialist.md
 │
 └── .ultra-template/          # Project initialization templates
     ├── specs/
@@ -228,6 +263,25 @@ If ANY component is fake/mocked/simulated → Quality = 0
 ---
 
 ## Version History
+
+### v4.5.0 (2026-01-07) - Agent Architecture Edition
+
+**Skills Refactoring**:
+- Removed `backend`, `frontend`, `smart-contract` domain skills
+- Added `senior-prompt-engineer` skill for LLM/prompt engineering
+
+**New Agent System (7 agents)**:
+- `backend-architect`: Backend system architecture, API design
+- `database-architect`: Database design, data modeling, scalability
+- `frontend-developer`: React/Next.js, UI components, performance
+- `smart-contract-auditor`: Security audits, vulnerability detection
+- `smart-contract-specialist`: Solidity development, gas optimization
+- `ui-ux-designer`: User research, wireframes, design systems
+- `web3-integration-specialist`: Wallet integration, dApp development
+
+**Plugin Changes**:
+- Added: `secrets-scanner`, `typescript-lsp`, `pyright-lsp`, `gopls-lsp`
+- Removed: `commit-commands`, `code-review`, `hookify`
 
 ### v4.4.0 (2026-01-01) - Streamlined Edition
 
