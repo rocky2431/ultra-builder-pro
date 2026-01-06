@@ -220,25 +220,10 @@ Output comparison matrix with:
 - ✅ Research reports saved to `.ultra/docs/research/`
 - ✅ **All recommendations have 90%+ confidence**
 - ✅ **All code examples are production-ready**
-- ✅ **Codex review passed**
 
 ---
 
-## Codex Review (Mandatory)
-
-**When**: After all rounds complete, before final summary.
-
-**Process**:
-1. Collect research outputs (specs + reports)
-2. Use `codex` skill with template: `research-review`
-3. **If issues found** → Display issues, BLOCK, ask user to address
-4. **If "PASS"** → Continue to Final Quality Summary
-
-**Blocking Behavior**: Research cannot proceed to /ultra-plan until Codex review passes or user explicitly overrides.
-
----
-
-**Final Quality Summary** (display after Codex review passes):
+**Final Quality Summary** (display when all conditions met):
 
 ```
 📊 Research Quality Summary
