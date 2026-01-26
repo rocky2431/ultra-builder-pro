@@ -49,6 +49,9 @@ todos/
 
 # ===== Claude Code Runtime Files =====
 
+# Commands migration marker
+.commands/
+
 # API cache and history
 ccline/
 history.jsonl
