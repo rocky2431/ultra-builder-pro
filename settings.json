@@ -1,7 +1,20 @@
 {
   "cleanupPeriodDays": 30,
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "tool == \"Edit\" && tool_input.file_path matches \"\\\\.(ts|tsx|js|jsx)$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path;if(p&&fs.existsSync(p)){const c=fs.readFileSync(p,'utf8');const lines=c.split('\\n');const matches=[];lines.forEach((l,idx)=>{if(/console\\.log/.test(l))matches.push((idx+1)+': '+l.trim())});if(matches.length){console.error('[Hook] WARNING: console.log found in '+p);matches.slice(0,3).forEach(m=>console.error(m));console.error('[Hook] Remove before committing')}}console.log(d)})\""
+          }
+        ],
+        "description": "Warn about console.log statements after edits"
+      }
+    ]
+  },
   "env": {
-    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "64000",
     "MAX_THINKING_TOKENS": "31999"
   },
   "attribution": {
@@ -38,7 +51,8 @@
       "Read(./**/credentials*)",
       "Read(./**/*secret*)",
       "Read(./**/*password*)"
-    ]
+    ],
+    "defaultMode": "default"
   },
   "model": "opus",
   "statusLine": {
@@ -47,21 +61,20 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "secrets-scanner@agent-security": true,
     "feature-dev@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "ralph-wiggum@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true,
-    "claude-mem@thedotmack": true
+    "planning-with-files@planning-with-files": true
   },
+  "language": "Chinese",
   "sandbox": {
     "enabled": false,
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
-  "alwaysThinkingEnabled": true,
-  "_comment_project": "Ultra Builder Pro 4.4.0",
-  "_comment_version": "4.4.0"
+  "_comment_project": "Ultra Builder Pro 5.0.0",
+  "_comment_version": "5.0.0"
 }

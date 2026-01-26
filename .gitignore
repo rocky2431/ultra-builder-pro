@@ -1,4 +1,4 @@
-# Ultra Builder Pro 4.1 - Git Ignore
+# Ultra Builder Pro 5.0 - Git Ignore
 
 # ===== macOS System Files =====
 .DS_Store
@@ -76,8 +76,7 @@ backup/
 .git.backup-*/
 *.backup
 
-# Settings (personal configurations)
-settings.json
+# Settings (local overrides only)
 settings.local.json
 
 # Claude internal directories
@@ -93,3 +92,40 @@ templates/
 # PHASE_*_DELIVERY_REPORT.md
 hooks/node_modules/
 plugins/marketplaces/
+
+# ===== Claude Code Runtime Cache =====
+
+# Telemetry data (local only)
+telemetry/
+
+# Session plans (temporary)
+plans/
+
+# Paste cache
+paste-cache/
+
+# Task tracking (local)
+tasks/
+
+# Security warnings state (session-specific)
+security_warnings_state_*.json
+
+# Ultra working directories (local)
+.ultra/specs/
+.ultra/tasks/
+
+# Chrome extension runtime
+chrome/
+
+# Statistics cache
+stats-cache.json
+
+# Plugin cache files (auto-generated)
+plugins/install-counts-cache.json
+plugins/installed_plugins.json
+plugins/known_marketplaces.json
+
+# Third-party skills (install via plugin system)
+# Keep only core Ultra skills in repo
+skills/react-best-practices/
+skills/web-design-guidelines/
