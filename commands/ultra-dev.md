@@ -32,6 +32,29 @@ Execute development tasks using TDD workflow.
 
 ### Step 2: Environment Setup
 
+**Check for unmerged completed tasks** (recovery from context loss):
+
+1. List all local feat branches: `git branch --list 'feat/task-*'`
+2. For each branch, extract task ID from branch name
+3. Check task status in `.ultra/tasks/tasks.json`
+4. **If found completed task with unmerged branch**:
+   → Use AskUserQuestion:
+     - "Merge task-{id} to main first" (Recommended)
+     - "Delete branch (already merged or abandoned)"
+     - "Skip, continue with new task"
+
+   **If user chooses "Merge first"**:
+   ```bash
+   git checkout feat/task-{id}-{slug}
+   git fetch origin && git rebase origin/main
+   # Run tests to verify
+   git checkout main && git pull origin main
+   git merge --no-ff feat/task-{id}-{slug}
+   git push origin main
+   git branch -d feat/task-{id}-{slug}
+   ```
+   Then continue to new task.
+
 **Check git branch**:
 
 1. Get current branch: `git branch --show-current`
