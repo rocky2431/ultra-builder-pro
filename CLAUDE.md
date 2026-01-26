@@ -44,19 +44,26 @@ Labels: Fact (verified) | Inference (deduced) | Speculation (needs verification 
 
 <agent_system>
 **Agents**: See ~/.claude/agents/ for definitions
+**Default Model**: Opus (ALL agents use Opus, no exceptions)
 
 **Immediate Triggers** (no user prompt needed):
-- Complex feature request → **planner** (Opus)
-- Code just written/modified → **code-reviewer** (Opus, MANDATORY)
-- Bug fix or new feature → **tdd-guide** (Opus)
-- Architectural decision → **architect** (Opus)
-- Security-sensitive code → **security-reviewer** (Opus)
+- Complex feature request → **planner**
+- Code just written/modified → **code-reviewer** (MANDATORY)
+- Bug fix or new feature → **tdd-guide**
+- Architectural decision → **architect**
+- Security-sensitive code → **security-reviewer**
 
 **On-Demand Agents**:
-- Build failure → **build-error-resolver** (Sonnet)
-- E2E testing → **e2e-runner** (Sonnet)
-- Dead code cleanup → **refactor-cleaner** (Sonnet)
-- Documentation → **doc-updater** (Sonnet)
+- Build failure → **build-error-resolver**
+- E2E testing → **e2e-runner**
+- Dead code cleanup → **refactor-cleaner**
+- Documentation → **doc-updater**
+
+**Domain Agents**:
+- Backend/API design → **backend-architect**
+- React/UI/Web3 → **frontend-developer**
+- Smart contract dev → **smart-contract-specialist**
+- Smart contract security → **smart-contract-auditor**
 
 **Parallel Execution**: When tasks are independent, launch multiple agents in parallel using Task tool.
 </agent_system>

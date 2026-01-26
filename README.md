@@ -110,7 +110,9 @@ Patterns extracted via `/learn` are stored in `skills/learned/` with confidence 
 
 ## Agents (13)
 
-### Immediate Trigger Agents (Opus)
+> **Default Model**: ALL agents use Opus. No exceptions.
+
+### Immediate Trigger Agents
 
 Auto-triggered without user prompt:
 
@@ -122,7 +124,7 @@ Auto-triggered without user prompt:
 | `architect` | Architectural decision |
 | `security-reviewer` | Security-sensitive code |
 
-### On-Demand Agents (Sonnet)
+### On-Demand Agents
 
 Triggered when needed:
 
@@ -133,7 +135,7 @@ Triggered when needed:
 | `refactor-cleaner` | Dead code cleanup |
 | `doc-updater` | Documentation maintenance |
 
-### Domain Agents (Opus)
+### Domain Agents
 
 Specialized domain experts:
 
