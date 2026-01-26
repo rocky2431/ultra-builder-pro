@@ -1,4 +1,4 @@
-# Ultra Builder Pro 4.4
+# Ultra Builder Pro 5.0
 
 <div align="center">
 
@@ -6,11 +6,11 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-4.5.1-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.0.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
-[![Commands](https://img.shields.io/badge/commands-8-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-4-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-4-red)](agents/)
+[![Commands](https://img.shields.io/badge/commands-9-purple)](commands/)
+[![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
+[![Agents](https://img.shields.io/badge/agents-13-red)](agents/)
 
 </div>
 
@@ -70,7 +70,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ---
 
-## Commands (8)
+## Commands (9)
 
 | Command | Purpose | Key Features |
 |---------|---------|--------------|
@@ -82,39 +82,11 @@ If ANY component is fake/mocked/simulated → Quality = 0
 | `/ultra-deliver` | Release preparation | CHANGELOG, build, version bump, tag, push |
 | `/ultra-status` | Progress monitoring | Real-time stats, risk analysis, recommendations |
 | `/ultra-think` | Deep analysis | Structured reasoning, multi-dimension comparison |
-
-### Command Details
-
-#### /ultra-init
-- Auto-detects project type (web/api/cli/fullstack)
-- Auto-detects tech stack from dependencies
-- Creates `.ultra/` structure with specs and tasks
-- Interactive confirmation for existing projects
-
-#### /ultra-research
-- **Round 1**: User & Scenario (Personas, User Scenarios)
-- **Round 2**: Feature Definition (User Stories, Features, Metrics)
-- **Round 3**: Architecture Design (arc42 §1-6)
-- **Round 4**: Quality & Deployment (arc42 §7-12)
-- Each round: 6-step cycle with satisfaction rating (≥4 stars to continue)
-
-#### /ultra-dev
-- TDD workflow: RED (failing tests) → GREEN (pass) → REFACTOR
-- Git branch management with decision tree
-- PR Review Toolkit (5 agents parallel + code optimizer)
-- Dual-write mode: update specs when implementation reveals gaps
-
-#### /ultra-test
-- **Anti-Pattern Detection**: Tautology, empty tests, core logic mocks
-- **Coverage Gap Analysis**: Find untested exported functions
-- **E2E Testing**: Chrome MCP for web UI
-- **Performance**: Core Web Vitals (LCP <2.5s, INP <200ms, CLS <0.1)
-- **Security**: Dependency vulnerability scan
-- Auto-fix loop (max 5 attempts)
+| `/learn` | Pattern extraction | Extract reusable patterns from session, save to skills/learned/ |
 
 ---
 
-## Skills (4)
+## Skills (5)
 
 | Skill | Purpose | Key Features |
 |-------|---------|--------------|
@@ -122,53 +94,48 @@ If ANY component is fake/mocked/simulated → Quality = 0
 | `gemini` | Google Gemini CLI | Research, validation, docs; `-y` for code changes |
 | `promptup` | Prompt engineering | Evidence-based principles, boundary detection, diagnostic iteration |
 | `skill-creator` | Create new skills | Workflow guidance, packaging |
+| `learned/` | Extracted patterns | Patterns from `/learn` command with confidence levels |
 
-### Codex Skill
+### Learned Patterns
 
-**Templates**:
-- `research-review`: Validate research output (read-only)
-- `code-review`: Review code diff (read-only, high effort)
-- `test-review`: Audit test suite (workspace-write)
+Patterns extracted via `/learn` are stored in `skills/learned/` with confidence levels:
 
-**Config**: Model `gpt-5.2-codex`, Effort `medium`, Sandbox `workspace-write`
-
-### Gemini Skill
-
-**Templates**:
-- `tech-research`: Deep research with evidence
-- `architecture-review`: Validate architecture decisions
-- `documentation-gen`: Generate/review documentation
-- `spec-validation`: Validate implementation vs spec
-- `code-review`: Review code (read-only by default)
-
-**Config**: Model `gemini-3-flash-preview`, Mode `suggest` (read-only default)
-
-**Note**: Use `-y` flag for auto-approve when code changes needed
-
-### PromptUp Skill
-
-Transform vague requirements into production-grade prompts using evidence-based principles:
-
-**Core Approach**:
-- **Principles over Templates**: 6 evidence-based principles from Anthropic official docs
-- **Boundary Detection**: Know when to use MCP tools, CLAUDE.md, or skills instead
-- **Diagnostic Iteration**: Symptom → Cause → Fix troubleshooting
-
-**6 Principles**:
-1. Be Explicit (no guessing)
-2. Provide Context and Motivation (WHY)
-3. Positive Instructions (do X, not don't Y)
-4. XML Structure for separation
-5. Consistent Examples
-6. Chain-of-Thought for reasoning
-
-**Claude Code Integration**: Maps to actual capabilities (Context7/Exa MCP, CLAUDE.md, skills)
+| Confidence | File Suffix | Description |
+|------------|-------------|-------------|
+| Speculation | `_unverified` | Freshly extracted, needs verification |
+| Inference | No suffix | Human review passed |
+| Fact | No suffix + marked | Multiple successful uses verified |
 
 ---
 
-## Agents (4)
+## Agents (13)
 
-Specialized agents for domain-specific tasks (all inherit full toolset, all use opus model):
+### Immediate Trigger Agents (Opus)
+
+Auto-triggered without user prompt:
+
+| Agent | Trigger Condition |
+|-------|-------------------|
+| `planner` | Complex feature request |
+| `code-reviewer` | Code just written/modified (MANDATORY) |
+| `tdd-guide` | Bug fix or new feature |
+| `architect` | Architectural decision |
+| `security-reviewer` | Security-sensitive code |
+
+### On-Demand Agents (Sonnet)
+
+Triggered when needed:
+
+| Agent | Use Case |
+|-------|----------|
+| `build-error-resolver` | Build failure |
+| `e2e-runner` | E2E testing |
+| `refactor-cleaner` | Dead code cleanup |
+| `doc-updater` | Documentation maintenance |
+
+### Domain Agents (Opus)
+
+Specialized domain experts:
 
 | Agent | Purpose |
 |-------|---------|
@@ -177,13 +144,41 @@ Specialized agents for domain-specific tasks (all inherit full toolset, all use 
 | `smart-contract-specialist` | Solidity development, gas optimization, DeFi protocols |
 | `smart-contract-auditor` | Security audits, vulnerability detection, exploit analysis |
 
-### Usage
+---
 
-Agents are invoked automatically by the Task tool based on task requirements:
-- Backend/API design → `backend-architect`
-- React/UI/Web3 frontend → `frontend-developer`
-- Smart contract development → `smart-contract-specialist`
-- Smart contract security → `smart-contract-auditor`
+## TDD Workflow
+
+Mandatory for all new code:
+
+```
+1. RED    → Write failing test first (define expected behavior)
+2. GREEN  → Write minimal code to pass test
+3. REFACTOR → Improve code (keep tests passing)
+4. COVERAGE → Verify 80%+ coverage
+5. COMMIT → Atomic commit (test + implementation together)
+```
+
+### What NOT to Mock (Core Logic)
+
+- Domain/service/state machine logic
+- Funds/permission related paths
+- Repository interface contracts
+
+### What CAN be Mocked (External)
+
+- Third-party APIs (OpenAI, Supabase, etc.)
+- External services
+- Must explain rationale for each mock
+
+---
+
+## Hooks System
+
+Configured in `settings.json`:
+
+| Hook | Trigger | Action |
+|------|---------|--------|
+| PostToolUse (Edit) | After editing .ts/.tsx/.js/.jsx files | Warn if console.log found |
 
 ---
 
@@ -198,24 +193,16 @@ Agents are invoked automatically by the Task tool based on task requirements:
 | E2E | All critical flows pass |
 | Performance | Core Web Vitals pass (frontend) |
 | Security | No critical/high vulnerabilities |
-| Codex Review | No critical issues |
+| Code Review | MANDATORY code-reviewer agent |
 
 ### Code Limits
 
 | Metric | Limit |
 |--------|-------|
 | Function lines | ≤ 50 |
-| Nesting depth | ≤ 3 |
+| File lines | 200-400 typical, 800 max |
+| Nesting depth | ≤ 4 |
 | Cyclomatic complexity | ≤ 10 |
-
-### Testing Policy
-
-| Type | Mock Allowed? |
-|------|---------------|
-| Core Logic (domain/service/state) | **NO** |
-| Repository interfaces | **NO** (use testcontainers) |
-| External APIs | Yes (testcontainers/sandbox/stub) |
-| Third-party services | Yes (with rationale) |
 
 ---
 
@@ -225,9 +212,9 @@ Agents are invoked automatically by the Task tool based on task requirements:
 ~/.claude/
 ├── CLAUDE.md                 # Main configuration (Priority Stack)
 ├── README.md                 # This file
-├── settings.json             # Claude Code settings
+├── settings.json             # Claude Code settings + hooks
 │
-├── commands/                 # /ultra-* commands (8)
+├── commands/                 # /ultra-* commands (9)
 │   ├── ultra-init.md
 │   ├── ultra-research.md
 │   ├── ultra-plan.md
@@ -235,15 +222,26 @@ Agents are invoked automatically by the Task tool based on task requirements:
 │   ├── ultra-test.md
 │   ├── ultra-deliver.md
 │   ├── ultra-status.md
-│   └── ultra-think.md
+│   ├── ultra-think.md
+│   └── learn.md              # NEW: Pattern extraction
 │
-├── skills/                   # Domain skills (4)
+├── skills/                   # Domain skills (5)
 │   ├── codex/                # OpenAI Codex CLI
 │   ├── gemini/               # Google Gemini CLI
 │   ├── promptup/             # Prompt engineering
-│   └── skill-creator/        # Create new skills
+│   ├── skill-creator/        # Create new skills
+│   └── learned/              # NEW: Extracted patterns
 │
-├── agents/                   # Specialized agents (4)
+├── agents/                   # Specialized agents (13)
+│   ├── planner.md            # NEW: Implementation planning
+│   ├── code-reviewer.md      # NEW: Code review (mandatory)
+│   ├── tdd-guide.md          # NEW: TDD workflow
+│   ├── architect.md          # NEW: System architecture
+│   ├── security-reviewer.md  # NEW: Security review
+│   ├── build-error-resolver.md # NEW: Build error fix
+│   ├── e2e-runner.md         # NEW: E2E testing
+│   ├── refactor-cleaner.md   # NEW: Dead code cleanup
+│   ├── doc-updater.md        # NEW: Documentation
 │   ├── backend-architect.md
 │   ├── frontend-developer.md
 │   ├── smart-contract-specialist.md
@@ -264,14 +262,39 @@ Agents are invoked automatically by the Task tool based on task requirements:
 
 ## Version History
 
+### v5.0.0 (2026-01-26) - Agent System Edition
+
+**New Agent System (9 new agents)**:
+- `planner`: Implementation planning expert
+- `code-reviewer`: Code review (MANDATORY after code changes)
+- `tdd-guide`: TDD workflow expert
+- `architect`: System architecture expert
+- `security-reviewer`: Security review expert
+- `build-error-resolver`: Build error fix specialist
+- `e2e-runner`: E2E testing expert
+- `refactor-cleaner`: Dead code cleanup
+- `doc-updater`: Documentation maintenance
+
+**New Features**:
+- `/learn` command for pattern extraction
+- `skills/learned/` directory for extracted patterns
+- Confidence levels: Speculation → Inference → Fact
+- Hooks system (console.log warning)
+- TDD workflow enforcement
+
+**Architecture Changes**:
+- Agent-first design (from everything-claude-code)
+- Immediate trigger agents (auto-invoked)
+- On-demand agents (user-triggered)
+- Evidence-first principle preserved
+- High-risk brakes preserved
+
 ### v4.5.1 (2026-01-07) - PromptUp Edition
 
 **PromptUp Skill** (renamed from `senior-prompt-engineer`):
 - Replaced hardcoded templates with 6 evidence-based principles
 - Added boundary detection (when NOT to use prompt engineering)
 - Mapped to Claude Code capabilities (Context7/Exa MCP, CLAUDE.md, skills)
-- Added diagnostic iteration (symptom → cause → fix)
-- Renamed to `promptup` for brevity
 
 ### v4.5.0 (2026-01-07) - Agent Architecture Edition
 
@@ -280,41 +303,15 @@ Agents are invoked automatically by the Task tool based on task requirements:
 - Added `promptup` skill for prompt engineering
 
 **New Agent System (4 agents)**:
-- `backend-architect`: Backend system architecture, API design
-- `frontend-developer`: React/Web3 dApps, UI components, wallet integration, UX
-- `smart-contract-specialist`: Solidity development, gas optimization
-- `smart-contract-auditor`: Security audits, vulnerability detection
-
-**Plugin Changes**:
-- Added: `secrets-scanner`, `typescript-lsp`, `pyright-lsp`, `gopls-lsp`
-- Removed: `commit-commands`, `code-review`, `hookify`
+- `backend-architect`, `frontend-developer`
+- `smart-contract-specialist`, `smart-contract-auditor`
 
 ### v4.4.0 (2026-01-01) - Streamlined Edition
 
 **Core Changes**:
 - Unified Priority Stack in CLAUDE.md
-- Removed agents directory (empty)
-- Removed hooks system
-- Removed install.sh, execution_config.json
-- Removed plans/, plugins/, chrome/, telemetry/
-
-**Codex Integration**:
-- Added `codex` skill with 3 review templates
-- Mandatory Codex review in `/ultra-dev`, `/ultra-test`, `/ultra-research`
-
-**Gemini Integration**:
-- Added `gemini` skill with 5 templates
-- Default read-only mode, `-y` for code changes
-
-**Command Refinements**:
-- `/ultra-test`: Anti-Pattern Detection (replaced TAS scoring)
-- `/ultra-dev`: Git branch decision tree
-- `/ultra-research`: 4-round interactive discovery with satisfaction rating
-
-### v4.3.x (2025-12)
-
-- Production Absolutism enforcement
-- ZERO MOCK policy for core logic
+- Codex and Gemini skill integration
+- Anti-Pattern Detection in `/ultra-test`
 
 ---
 
