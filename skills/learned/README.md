@@ -1,27 +1,27 @@
 # Learned Patterns
 
-此目录存储通过 `/learn` 命令提取的模式。
+This directory stores patterns extracted via the `/learn` command.
 
-## 文件命名约定
+## File Naming Convention
 
-- `pattern-name_unverified.md` - 刚提取，置信度为 Speculation
-- `pattern-name.md` - 已验证，置信度为 Inference 或 Fact
+- `pattern-name_unverified.md` - Freshly extracted, confidence is Speculation
+- `pattern-name.md` - Verified, confidence is Inference or Fact
 
-## 置信度级别
+## Confidence Levels
 
-| 级别 | 文件后缀 | 描述 |
-|------|---------|------|
-| Speculation | `_unverified` | 刚提取，未经验证 |
-| Inference | 无后缀 | 人工审查通过 |
-| Fact | 无后缀 + 文件内标注 | 多次成功使用验证 |
+| Level | File Suffix | Description |
+|-------|-------------|-------------|
+| Speculation | `_unverified` | Freshly extracted, unverified |
+| Inference | No suffix | Human review passed |
+| Fact | No suffix + marked in file | Multiple successful uses verified |
 
-## 验证流程
+## Verification Process
 
-1. 运行 `/learn` 提取模式
-2. 模式保存为 `*_unverified.md`
-3. 人工审查，如果有效则移除 `_unverified` 后缀
-4. 多次成功使用后，在文件内更新置信度为 Fact
+1. Run `/learn` to extract patterns
+2. Pattern saved as `*_unverified.md`
+3. Human review, if valid remove `_unverified` suffix
+4. After multiple successful uses, update confidence to Fact in file
 
-## 加载优先级
+## Loading Priority
 
-当模式冲突时: Fact > Inference > Speculation
+When patterns conflict: Fact > Inference > Speculation

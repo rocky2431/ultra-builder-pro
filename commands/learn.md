@@ -1,99 +1,99 @@
-# /learn - 提取可重用模式
+# /learn - Extract Reusable Patterns
 
-分析当前会话并提取值得保存为技能的模式。
+Analyze current session and extract patterns worth saving as skills.
 
-## 触发条件
+## Trigger Conditions
 
-在解决了非平凡问题后，运行 `/learn` 来提取模式。
+After solving a non-trivial problem, run `/learn` to extract patterns.
 
-## 要提取的内容
+## What to Extract
 
-寻找以下类型的模式:
+Look for these types of patterns:
 
-### 1. 错误解决模式
-- 发生了什么错误？
-- 根本原因是什么？
-- 如何修复的？
-- 是否可用于类似错误？
+### 1. Error Resolution Patterns
+- What error occurred?
+- What was the root cause?
+- How was it fixed?
+- Can it be used for similar errors?
 
-### 2. 调试技术
-- 非显而易见的调试步骤
-- 有效的工具组合
-- 诊断模式
+### 2. Debugging Techniques
+- Non-obvious debugging steps
+- Effective tool combinations
+- Diagnostic patterns
 
-### 3. 变通方案
-- 库的怪癖
-- API 限制
-- 版本特定的修复
+### 3. Workarounds
+- Library quirks
+- API limitations
+- Version-specific fixes
 
-### 4. 项目特定模式
-- 发现的代码库约定
-- 做出的架构决策
-- 集成模式
+### 4. Project-Specific Patterns
+- Discovered codebase conventions
+- Architectural decisions made
+- Integration patterns
 
-## 输出格式
+## Output Format
 
-创建技能文件到 `~/.claude/skills/learned/[pattern-name]_unverified.md`:
+Create skill file to `~/.claude/skills/learned/[pattern-name]_unverified.md`:
 
 ```markdown
-# [描述性模式名称]
+# [Descriptive Pattern Name]
 
-**提取日期:** YYYY-MM-DD
-**置信度:** Speculation (未验证)
-**上下文:** [简短描述何时适用]
+**Extracted:** YYYY-MM-DD
+**Confidence:** Speculation (unverified)
+**Context:** [Brief description of when this applies]
 
-## 问题
-[这个模式解决什么问题 - 要具体]
+## Problem
+[What problem does this pattern solve - be specific]
 
-## 解决方案
-[模式/技术/变通方案]
+## Solution
+[Pattern/technique/workaround]
 
-## 示例
-[代码示例（如果适用）]
+## Example
+[Code example if applicable]
 
-## 触发条件
-[什么情况应该激活这个技能]
+## Trigger Conditions
+[What situations should activate this skill]
 
-## 验证状态
-- [ ] 人工审查通过
-- [ ] 多次成功使用
+## Verification Status
+- [ ] Human review passed
+- [ ] Multiple successful uses
 ```
 
-## 流程
+## Process
 
-1. 审查会话中可提取的模式
-2. 识别最有价值/可重用的洞察
-3. 起草技能文件
-4. **询问用户确认**后再保存
-5. 保存到 `~/.claude/skills/learned/`，使用 `_unverified` 后缀
+1. Review session for extractable patterns
+2. Identify most valuable/reusable insights
+3. Draft skill file
+4. **Ask user confirmation** before saving
+5. Save to `~/.claude/skills/learned/` with `_unverified` suffix
 
-## 验证升级路径
+## Verification Upgrade Path
 
-1. **Speculation**: 刚提取，未验证
-2. **Inference**: 人工审查通过，移除 `_unverified` 后缀
-3. **Fact**: 多次成功使用验证
+1. **Speculation**: Freshly extracted, unverified
+2. **Inference**: Human review passed, remove `_unverified` suffix
+3. **Fact**: Multiple successful uses verified
 
-## 不要提取的内容
+## What NOT to Extract
 
-- 简单的拼写错误修复
-- 一次性问题（特定 API 中断等）
-- 太过具体无法重用的模式
+- Simple typo fixes
+- One-time issues (specific API outages, etc.)
+- Patterns too specific to reuse
 
-## 示例
+## Example
 
 ```
-用户: /learn
+User: /learn
 
-Claude: 我在这个会话中识别到以下可提取的模式:
+Claude: I identified the following extractable pattern from this session:
 
-**模式: Supabase RLS 策略调试**
+**Pattern: Supabase RLS Policy Debugging**
 
-当 Supabase 查询返回空结果但数据存在时:
-1. 检查 RLS 策略是否启用
-2. 验证 auth.uid() 匹配
-3. 使用 service role key 测试绕过 RLS
+When Supabase queries return empty results but data exists:
+1. Check if RLS policies are enabled
+2. Verify auth.uid() matches
+3. Test bypassing RLS with service role key
 
-是否要保存这个模式到 ~/.claude/skills/learned/supabase-rls-debug_unverified.md？
+Save this pattern to ~/.claude/skills/learned/supabase-rls-debug_unverified.md?
 ```
 
-**记住**: 只提取能在未来会话中节省时间的模式。保持技能聚焦 - 一个技能一个模式。
+**Remember**: Only extract patterns that will save time in future sessions. Keep skills focused - one pattern per skill.

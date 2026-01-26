@@ -132,3 +132,4 @@ plugins/known_marketplaces.json
 # Keep only core Ultra skills in repo
 skills/react-best-practices/
 skills/web-design-guidelines/
+image-cache/
