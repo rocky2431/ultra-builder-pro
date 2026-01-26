@@ -2,6 +2,7 @@
 description: Status query with native task system (real-time progress + risk analysis)
 argument-hint: [task-id]
 allowed-tools: Read, Bash(git status:*), Bash(git log:*), TodoWrite, Grep, Glob
+model: opus
 ---
 
 # /ultra-status

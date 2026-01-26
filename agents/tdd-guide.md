@@ -1,8 +1,28 @@
 ---
 name: tdd-guide
-description: TDD workflow expert. Use for new features/bug fixes. Ensures test-first development, 80%+ coverage.
+description: |
+  TDD workflow expert. Use for new features/bug fixes. Ensures test-first development, 80%+ coverage.
+
+  <example>
+  Context: User wants to add a new feature
+  user: "Add a function to calculate order totals"
+  assistant: "I'll use the tdd-guide agent to implement this with test-first approach."
+  <commentary>
+  New feature - must follow RED-GREEN-REFACTOR cycle.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User reports a bug
+  user: "The discount calculation is wrong"
+  assistant: "I'll use the tdd-guide agent to write a failing test for the bug, then fix it."
+  <commentary>
+  Bug fix - write test that reproduces bug first, then fix.
+  </commentary>
+  </example>
 tools: Read, Write, Edit, Bash, Grep
 model: opus
+color: green
 ---
 
 # TDD Workflow Expert

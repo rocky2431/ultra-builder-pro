@@ -1,8 +1,28 @@
 ---
 name: code-reviewer
-description: Code review expert. Mandatory after code written/modified. Checks quality, security, maintainability.
+description: |
+  Code review expert. MANDATORY after code written/modified. Checks quality, security, maintainability.
+
+  <example>
+  Context: Assistant just finished writing a new function
+  user: (no prompt needed - auto-trigger)
+  assistant: "Now I'll use the code-reviewer agent to review the code I just wrote."
+  <commentary>
+  Code was just written - mandatory review before continuing.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User asks to check code quality
+  user: "Review my recent changes for issues"
+  assistant: "I'll use the code-reviewer agent to analyze your changes for quality and security issues."
+  <commentary>
+  Explicit review request - use code-reviewer agent.
+  </commentary>
+  </example>
 tools: Read, Grep, Glob, Bash
 model: opus
+color: red
 ---
 
 # Code Review Expert

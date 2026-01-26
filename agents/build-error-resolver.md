@@ -1,8 +1,28 @@
 ---
 name: build-error-resolver
-description: Build error fix expert. Use for build failures/type errors. Minimal changes to fix errors, no architecture changes.
+description: |
+  Build error fix expert. Use for build failures/type errors. Minimal changes to fix errors, no architecture changes.
+
+  <example>
+  Context: TypeScript compilation fails
+  user: "npm run build is failing with type errors"
+  assistant: "I'll use the build-error-resolver agent to fix the type errors with minimal changes."
+  <commentary>
+  Build failure - need quick fix without refactoring.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Import errors after refactoring
+  user: "Getting module not found errors"
+  assistant: "I'll use the build-error-resolver agent to fix the import paths."
+  <commentary>
+  Import errors - straightforward fix needed.
+  </commentary>
+  </example>
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
+model: opus
+color: yellow
 ---
 
 # Build Error Fix Expert

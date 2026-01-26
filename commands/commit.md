@@ -1,6 +1,7 @@
 ---
-argument-hint: [--no-verify] [--style=simple|full] [--type=feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert]
 description: Create well-formatted commits with conventional commit messages
+argument-hint: [--no-verify] [--style=simple|full] [--type=feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert]
+model: opus
 ---
 
 # Claude Command: Commit

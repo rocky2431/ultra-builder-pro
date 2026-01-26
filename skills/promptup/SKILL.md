@@ -2,6 +2,7 @@
 name: promptup
 description: Transform vague requirements into production-grade prompts using evidence-based principles. Diagnose prompt issues, define boundaries, and iterate to quality.
 allowed-tools: AskUserQuestion, Read, Write, Glob, Grep
+version: "5.0.0"
 ---
 
 # PromptUp Skill

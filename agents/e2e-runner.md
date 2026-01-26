@@ -1,8 +1,28 @@
 ---
 name: e2e-runner
-description: E2E testing expert. Use for critical user flow testing. Uses Playwright for end-to-end testing.
+description: |
+  E2E testing expert. Use for critical user flow testing. Uses Playwright for end-to-end testing.
+
+  <example>
+  Context: Need to test user journey
+  user: "Test the checkout flow end-to-end"
+  assistant: "I'll use the e2e-runner agent to create and run Playwright tests for checkout."
+  <commentary>
+  Critical user flow - needs E2E testing.
+  </commentary>
+  </example>
+
+  <example>
+  Context: E2E tests failing
+  user: "The login E2E test is flaky"
+  assistant: "I'll use the e2e-runner agent to debug and fix the flaky test."
+  <commentary>
+  E2E test maintenance - specialized agent needed.
+  </commentary>
+  </example>
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
+model: opus
+color: cyan
 ---
 
 # E2E Testing Expert

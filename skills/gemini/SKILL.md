@@ -2,6 +2,7 @@
 name: gemini
 description: Use when the user needs technical research, architecture validation, documentation generation, or code review. Default is read-only mode, but can enable auto-approve (-y) for code changes.
 allowed-tools: Bash, Read, Glob, Grep, Write
+version: "5.0.0"
 ---
 
 # Gemini Skill Guide

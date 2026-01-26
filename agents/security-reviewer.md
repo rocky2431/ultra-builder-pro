@@ -1,8 +1,28 @@
 ---
 name: security-reviewer
-description: Security review expert. Use when handling user input/auth/API/sensitive data. Detects OWASP Top 10 vulnerabilities.
+description: |
+  Security review expert. Use when handling user input/auth/API/sensitive data. Detects OWASP Top 10 vulnerabilities.
+
+  <example>
+  Context: Code handles user authentication
+  user: "I just wrote the login endpoint"
+  assistant: "I'll use the security-reviewer agent to check for authentication vulnerabilities."
+  <commentary>
+  Auth code is security-sensitive - needs security review.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Code processes user input
+  user: "Added form submission handler"
+  assistant: "I'll use the security-reviewer agent to check for injection and XSS vulnerabilities."
+  <commentary>
+  User input handling - must verify proper sanitization.
+  </commentary>
+  </example>
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
+color: red
 ---
 
 # Security Review Expert

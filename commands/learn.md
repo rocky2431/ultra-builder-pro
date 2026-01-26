@@ -1,3 +1,10 @@
+---
+description: Extract reusable patterns from current session and save to skills/learned/
+argument-hint: [pattern-name]
+allowed-tools: Read, Write, Grep, Glob, AskUserQuestion
+model: opus
+---
+
 # /learn - Extract Reusable Patterns
 
 Analyze current session and extract patterns worth saving as skills.

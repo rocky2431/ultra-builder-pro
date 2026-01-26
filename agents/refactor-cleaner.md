@@ -1,8 +1,28 @@
 ---
 name: refactor-cleaner
-description: Dead code cleanup expert. Use for code maintenance. Runs knip/depcheck to identify and safely remove unused code.
+description: |
+  Dead code cleanup expert. Use for code maintenance. Runs knip/depcheck to identify and safely remove unused code.
+
+  <example>
+  Context: Codebase needs cleanup
+  user: "Find and remove unused code"
+  assistant: "I'll use the refactor-cleaner agent to identify and safely remove dead code."
+  <commentary>
+  Code cleanup task - needs careful analysis before deletion.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Bundle size too large
+  user: "Our bundle is too big, find unused dependencies"
+  assistant: "I'll use the refactor-cleaner agent to find and remove unused packages."
+  <commentary>
+  Dependency cleanup - specialized agent needed.
+  </commentary>
+  </example>
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: sonnet
+model: opus
+color: yellow
 ---
 
 # Dead Code Cleanup Expert

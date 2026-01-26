@@ -2,6 +2,7 @@
 description: Deep analysis with structured reasoning and human-AI collaboration
 argument-hint: [problem or decision to analyze]
 allowed-tools: Read, Grep, Glob, WebSearch, WebFetch, Task, AskUserQuestion
+model: opus
 ---
 
 # /ultra-think
