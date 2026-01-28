@@ -73,24 +73,31 @@ Functional Core (Pure) ───────────────────
 <use_mature_libraries>
 **Principle**: Always use battle-tested libraries. Never reinvent the wheel.
 
-| Domain | Use This | NOT Custom Implementation |
-|--------|----------|---------------------------|
-| Date/Time | date-fns, dayjs | Custom date parsing/formatting |
-| Validation | zod, yup, joi | Manual if/else validation |
-| HTTP Client | axios, ky, ofetch | Custom fetch wrapper |
-| UUID | uuid, nanoid | Math.random() based ID |
-| Encryption | crypto, bcrypt | Custom crypto algorithms |
-| Auth | next-auth, passport, lucia | Custom session management |
-| ORM | prisma, drizzle, typeorm | Custom SQL query builder |
-| Forms | react-hook-form, formik | Custom form state management |
-| State | zustand, jotai, redux | Custom global state |
-| Logging | pino, winston | Custom logger implementation |
-| Testing | vitest, jest, playwright | Custom test framework |
-| CLI | commander, yargs | Custom arg parsing |
+**Before implementing any utility**:
+1. Search Context7/Exa for existing solutions
+2. Evaluate library candidates by selection criteria
+3. Only implement custom if no suitable library exists (rare)
 
-**Before implementing**: Search Context7/Exa for existing solutions.
-**Selection criteria**: Weekly downloads >100k, active maintenance, TypeScript support.
-**Red flag**: "Let me write a quick utility for..." → STOP, search for library first.
+**Selection criteria**:
+- Weekly downloads: prefer >100k (indicates community trust)
+- Maintenance: recent commits, responsive issues
+- TypeScript: first-class support preferred
+- Bundle size: appropriate for use case
+- License: MIT/Apache preferred
+
+**Common NIH (Not Invented Here) violations**:
+- Date parsing/formatting/timezone
+- Input validation/schema
+- HTTP client wrapper
+- ID generation (UUID/nanoid)
+- Encryption/hashing
+- Authentication/session
+- Database query building
+- Form state management
+- Global state management
+- Logging infrastructure
+
+**Red flag**: "Let me write a quick utility for..." → STOP, search first.
 </use_mature_libraries>
 
 <red_flags>
