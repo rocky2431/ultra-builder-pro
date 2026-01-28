@@ -239,20 +239,29 @@ console.log('Order created: ' + orderId);
 **1% Rule**: If even 1% chance an agent applies, invoke it. No exceptions.
 
 **Auto-trigger** (enforced by hooks):
-| Signal | Agent | Priority |
-|--------|-------|----------|
-| Code changed | pr-review-toolkit:code-reviewer | MANDATORY |
-| Build error | build-error-resolver | Immediate |
-| Auth/payment/PII | security-reviewer | MANDATORY |
-| .sol files | smart-contract-* (both) | MANDATORY |
-| E2E tests | e2e-runner | Recommended |
-| Documentation | doc-updater | Recommended |
+| Signal | Agent/Skill | Priority |
+|--------|-------------|----------|
+| .sol files | smart-contract-specialist + auditor | MANDATORY |
+| /auth/, /payment/ paths | security-reviewer | MANDATORY |
+| Build command fails | build-error-resolver | Immediate |
+| .tsx/.jsx files | frontend-developer + react-best-practices | Recommended |
+| /e2e/ path | e2e-runner | Recommended |
+| .md files, /docs/ | doc-updater | Recommended |
+
+**User-requested triggers** (not auto):
+| Request | Agent |
+|---------|-------|
+| "review code/PR", "ready to merge" | pr-review-toolkit:code-reviewer |
+| "test coverage", "missing tests" | pr-review-toolkit:pr-test-analyzer |
+| "error handling", "silent fail" | pr-review-toolkit:silent-failure-hunter |
 
 **Custom Agents** (7): build-error-resolver, doc-updater, e2e-runner, frontend-developer, refactor-cleaner, smart-contract-specialist, smart-contract-auditor
 
-**Hooks enforce**: mock detection, security scan, agent reminders
+**Skills** (user-invoked): codex, gemini, promptup, react-best-practices, web-design-guidelines
 
-**Reference**: ~/.claude/agents/, ~/.claude/hooks/
+**Hooks enforce**: mock detection, security scan, agent/skill reminders
+
+**Reference**: ~/.claude/agents/, ~/.claude/hooks/, ~/.claude/skills/
 </agent_system>
 
 <data_persistence>
