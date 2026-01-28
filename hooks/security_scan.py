@@ -98,6 +98,11 @@ def is_example_or_docs(file_path: str) -> bool:
     ])
 
 
+def is_hook_file(file_path: str) -> bool:
+    """Check if file is a hook file (skip self-detection)."""
+    return '/.claude/hooks/' in file_path
+
+
 def check_file(file_path: str, content: str) -> tuple:
     """Check file content for security issues. Returns (critical, high)."""
     critical = []
@@ -155,7 +160,7 @@ def main():
         print(input_data)
         return
 
-    tool_name = hook_input.get('tool')
+    tool_name = hook_input.get('tool_name')  # 官方文档：字段名是 tool_name
     tool_input = hook_input.get('tool_input', {})
 
     # Only check Edit and Write tools
@@ -168,7 +173,12 @@ def main():
     # Check file extension
     ext = os.path.splitext(file_path)[1].lower()
     if ext not in CODE_EXTENSIONS:
-        print(input_data)
+        print(json.dumps({}))
+        return
+
+    # Skip hook files (contain pattern descriptions that trigger false positives)
+    if is_hook_file(file_path):
+        print(json.dumps({}))
         return
 
     # Read file content
@@ -186,47 +196,58 @@ def main():
     # Check for security issues
     critical, high = check_file(file_path, content)
 
-    # Output high-severity warnings
-    if high:
-        print(f"[SECURITY WARNING] Potential issues in {file_path}", file=sys.stderr)
-        for h in high[:5]:
-            print(f"  Line {h['line']}: {h['message']}", file=sys.stderr)
-            print(f"    > {h['code']}", file=sys.stderr)
-        if len(high) > 5:
-            print(f"  ... and {len(high) - 5} more warnings", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("[Agent Reminder] Run pr-review-toolkit:code-reviewer for security review.", file=sys.stderr)
-        print("", file=sys.stderr)
+    # Build warning message for AI
+    all_issues = []
 
-    # Block on critical issues
     if critical:
-        print(f"[BLOCKED] Security vulnerabilities in {file_path}", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("CLAUDE.md security rules (security:180-186) violated", file=sys.stderr)
-        print("", file=sys.stderr)
-
+        all_issues.append(f"[SECURITY - CRITICAL] {file_path}")
+        all_issues.append("CLAUDE.md security rules violated. Fix these immediately:")
         for c in critical[:5]:
-            print(f"  Line {c['line']}: {c['message']}", file=sys.stderr)
-            print(f"    > {c['code']}", file=sys.stderr)
-
+            all_issues.append(f"  Line {c['line']}: {c['message']}")
+            all_issues.append(f"    > {c['code']}")
         if len(critical) > 5:
-            print(f"  ... and {len(critical) - 5} more vulnerabilities", file=sys.stderr)
+            all_issues.append(f"  ... and {len(critical) - 5} more")
+        all_issues.append("")
+        all_issues.append("Solutions: Use env vars for secrets, parameterized queries for SQL, proper error handling.")
 
-        print("", file=sys.stderr)
-        print("Solutions:", file=sys.stderr)
-        print("  - Secrets: Use environment variables or secret manager", file=sys.stderr)
-        print("  - SQL: Use parameterized queries ($1, ?, :param)", file=sys.stderr)
-        print("  - Errors: Log with context, then re-throw or handle", file=sys.stderr)
-        print("", file=sys.stderr)
+    if high:
+        if all_issues:
+            all_issues.append("")
+        all_issues.append(f"[SECURITY - WARNING] {file_path}")
+        for h in high[:5]:
+            all_issues.append(f"  Line {h['line']}: {h['message']}")
+            all_issues.append(f"    > {h['code']}")
+        if len(high) > 5:
+            all_issues.append(f"  ... and {len(high) - 5} more")
+        all_issues.append("")
+        all_issues.append("Consider running pr-review-toolkit:code-reviewer for security review.")
 
-        result = {
-            "blocked": True,
-            "reason": f"Security vulnerabilities: {len(critical)} critical issues found"
-        }
+    if all_issues:
+        all_issues.append("")
+        all_issues.append("ACTION REQUIRED: Fix security issues before continuing.")
+        warning_message = "\n".join(all_issues)
+
+        # CRITICAL issues block, HIGH issues warn
+        if critical:
+            result = {
+                "decision": "block",
+                "reason": warning_message,
+                "hookSpecificOutput": {
+                    "hookEventName": "PostToolUse",
+                    "additionalContext": warning_message
+                }
+            }
+        else:
+            result = {
+                "hookSpecificOutput": {
+                    "hookEventName": "PostToolUse",
+                    "additionalContext": warning_message
+                }
+            }
         print(json.dumps(result))
     else:
         # Pass through
-        print(input_data)
+        print(json.dumps({}))
 
 
 if __name__ == '__main__':

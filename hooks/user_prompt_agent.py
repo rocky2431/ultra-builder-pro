@@ -164,33 +164,43 @@ def main():
     # Analyze prompt
     agent_suggestions, skill_suggestions = analyze_prompt(prompt)
 
-    # Output suggestions
+    # Output suggestions to AI context (stdout for UserPromptSubmit)
     if agent_suggestions or skill_suggestions:
-        print("", file=sys.stderr)
+        context_lines = []
 
         if agent_suggestions:
-            print("[Agent Suggestion] Based on your request:", file=sys.stderr)
+            context_lines.append("[Agent Reminder] Based on user request:")
 
             # Show mandatory first
             mandatory = [s for s in agent_suggestions if s['priority'] == 'MANDATORY']
             recommended = [s for s in agent_suggestions if s['priority'] == 'Recommended']
 
             for s in mandatory:
-                print(f"  [MANDATORY] {s['agent']} - {s['reason']}", file=sys.stderr)
+                context_lines.append(f"  [MANDATORY] {s['agent']} - {s['reason']}")
 
-            for s in recommended[:3]:  # Limit to 3 recommendations
-                print(f"  [Recommended] {s['agent']} - {s['reason']}", file=sys.stderr)
-
-            print("", file=sys.stderr)
+            for s in recommended[:3]:
+                context_lines.append(f"  [Recommended] {s['agent']} - {s['reason']}")
 
         if skill_suggestions:
-            print("[Skill Suggestion] Consider using:", file=sys.stderr)
-            for s in skill_suggestions[:2]:  # Limit to 2 skills
-                print(f"  [Skill] /{s['skill']} - {s['reason']}", file=sys.stderr)
-            print("", file=sys.stderr)
+            context_lines.append("")
+            context_lines.append("[Skill Reminder] Consider using:")
+            for s in skill_suggestions[:2]:
+                context_lines.append(f"  [Skill] /{s['skill']} - {s['reason']}")
 
-    # Always pass through
-    print(input_data)
+        context_lines.append("")
+        context_lines.append("Use Task tool with subagent_type to invoke agents.")
+
+        # Output JSON with additionalContext for AI visibility
+        result = {
+            "hookSpecificOutput": {
+                "hookEventName": "UserPromptSubmit",
+                "additionalContext": "\n".join(context_lines)
+            }
+        }
+        print(json.dumps(result))
+    else:
+        # No suggestions, pass through
+        print(json.dumps({}))
 
 
 if __name__ == '__main__':

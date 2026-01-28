@@ -164,9 +164,9 @@ def main():
         print(input_data)
         return
 
-    tool_name = hook_input.get('tool')
+    tool_name = hook_input.get('tool_name')  # 官方文档：字段名是 tool_name
     tool_input = hook_input.get('tool_input', {})
-    tool_result = hook_input.get('tool_result', {})
+    tool_result = hook_input.get('tool_response', {})  # 官方文档：字段名是 tool_response
 
     reminders = []
 

@@ -83,7 +83,7 @@ def check_file(file_path: str, content: str) -> tuple:
 
 
 def is_generated_file(file_path: str) -> bool:
-    """Check if file is auto-generated and should be skipped."""
+    """Check if file is auto-generated or should be skipped."""
     indicators = [
         '/node_modules/',
         '/dist/',
@@ -93,6 +93,7 @@ def is_generated_file(file_path: str) -> bool:
         '.min.js',
         '.bundle.js',
         '.generated.',
+        '/.claude/hooks/',  # Skip hook files themselves (contain pattern descriptions)
     ]
     return any(ind in file_path for ind in indicators)
 
@@ -106,7 +107,7 @@ def main():
         print(input_data)
         return
 
-    tool_name = hook_input.get('tool')
+    tool_name = hook_input.get('tool_name')  # 官方文档：字段名是 tool_name
     tool_input = hook_input.get('tool_input', {})
 
     # Only check Edit and Write tools
@@ -142,42 +143,54 @@ def main():
     # Check for issues
     blocks, warnings = check_file(file_path, content)
 
-    # Output warnings (don't block)
-    if warnings:
-        print(f"[WARNING] Code quality issues in {file_path}", file=sys.stderr)
-        for w in warnings[:5]:
-            print(f"  Line {w['line']}: {w['message']}", file=sys.stderr)
-            print(f"    > {w['code']}", file=sys.stderr)
-        if len(warnings) > 5:
-            print(f"  ... and {len(warnings) - 5} more warnings", file=sys.stderr)
-        print("", file=sys.stderr)
+    # Build warning message for AI
+    all_issues = []
 
-    # Block if critical issues found
     if blocks:
-        print(f"[BLOCKED] Incomplete code detected in {file_path}", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("CLAUDE.md forbids TODO/FIXME/NotImplemented (forbidden_patterns:89-90)", file=sys.stderr)
-        print("", file=sys.stderr)
-
+        all_issues.append(f"[CODE QUALITY - CRITICAL] {file_path}")
+        all_issues.append("CLAUDE.md forbids TODO/FIXME/NotImplemented. Fix these:")
         for b in blocks[:5]:
-            print(f"  Line {b['line']}: {b['message']}", file=sys.stderr)
-            print(f"    > {b['code']}", file=sys.stderr)
-
+            all_issues.append(f"  Line {b['line']}: {b['message']}")
+            all_issues.append(f"    > {b['code']}")
         if len(blocks) > 5:
-            print(f"  ... and {len(blocks) - 5} more issues", file=sys.stderr)
+            all_issues.append(f"  ... and {len(blocks) - 5} more")
 
-        print("", file=sys.stderr)
-        print("Complete all implementations before proceeding.", file=sys.stderr)
-        print("", file=sys.stderr)
+    if warnings:
+        if all_issues:
+            all_issues.append("")
+        all_issues.append(f"[CODE QUALITY - WARNING] {file_path}")
+        for w in warnings[:5]:
+            all_issues.append(f"  Line {w['line']}: {w['message']}")
+            all_issues.append(f"    > {w['code']}")
+        if len(warnings) > 5:
+            all_issues.append(f"  ... and {len(warnings) - 5} more")
 
-        result = {
-            "blocked": True,
-            "reason": f"Incomplete code: {len(blocks)} TODO/FIXME/NotImplemented found"
-        }
+    if all_issues:
+        all_issues.append("")
+        all_issues.append("ACTION REQUIRED: Complete implementations and fix issues.")
+        warning_message = "\n".join(all_issues)
+
+        # BLOCK patterns (TODO/FIXME) block execution, WARN patterns only warn
+        if blocks:
+            result = {
+                "decision": "block",
+                "reason": warning_message,
+                "hookSpecificOutput": {
+                    "hookEventName": "PostToolUse",
+                    "additionalContext": warning_message
+                }
+            }
+        else:
+            result = {
+                "hookSpecificOutput": {
+                    "hookEventName": "PostToolUse",
+                    "additionalContext": warning_message
+                }
+            }
         print(json.dumps(result))
     else:
         # Pass through
-        print(input_data)
+        print(json.dumps({}))
 
 
 if __name__ == '__main__':

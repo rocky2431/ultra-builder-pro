@@ -117,29 +117,39 @@ def main():
                 'files': security_files[:5]
             })
 
-    # Output reminders
+    # Check for mandatory security review
+    has_security_files = any(r['type'] == 'Security Review' for r in reminders)
+
     if reminders:
-        print("", file=sys.stderr)
-        print("=" * 60, file=sys.stderr)
-        print("[Pre-Stop Check] Recommendations before ending session:", file=sys.stderr)
-        print("=" * 60, file=sys.stderr)
+        lines = ["[Pre-Stop Check] Before ending session:"]
 
         for reminder in reminders:
-            print("", file=sys.stderr)
-            print(f"[{reminder['type']}] {reminder['message']}", file=sys.stderr)
-            print(f"  Action: {reminder['action']}", file=sys.stderr)
+            lines.append(f"  [{reminder['type']}] {reminder['message']}")
+            lines.append(f"    Action: {reminder['action']}")
             if reminder.get('files'):
-                print("  Files:", file=sys.stderr)
-                for f in reminder['files']:
-                    print(f"    - {f}", file=sys.stderr)
+                for f in reminder['files'][:3]:
+                    lines.append(f"      - {f}")
 
-        print("", file=sys.stderr)
-        print("Use Task tool with appropriate subagent_type to invoke agents.", file=sys.stderr)
-        print("=" * 60, file=sys.stderr)
-        print("", file=sys.stderr)
+        lines.append("")
+        lines.append("Use Task tool with subagent_type to invoke agents.")
 
-    # Always pass through (reminder only)
-    print(input_data)
+        message = "\n".join(lines)
+
+        # Security files MUST be reviewed - block stopping
+        if has_security_files:
+            result = {
+                "decision": "block",
+                "reason": message
+            }
+            print(json.dumps(result))
+        else:
+            # Non-security reminders - warn user but allow stop
+            # Stop hook doesn't support additionalContext, use stderr for user
+            print(message, file=sys.stderr)
+            print(json.dumps({}))
+    else:
+        # No reminders, allow stop
+        print(json.dumps({}))
 
 
 if __name__ == '__main__':

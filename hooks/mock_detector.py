@@ -113,7 +113,7 @@ def main():
         print(input_data)
         return
 
-    tool_name = hook_input.get('tool')
+    tool_name = hook_input.get('tool_name')  # 官方文档：字段名是 tool_name
     tool_input = hook_input.get('tool_input', {})
 
     # Only check Edit and Write tools
@@ -150,34 +150,41 @@ def main():
     violations = check_file(file_path, content)
 
     if violations:
-        # BLOCK - Output error to stderr
-        print(f"[BLOCKED] Mock patterns detected in {file_path}", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("CLAUDE.md forbids mocking internal code (testing:60-68, forbidden_patterns:84-88)", file=sys.stderr)
-        print("", file=sys.stderr)
+        # Build warning message
+        warning_lines = [
+            f"[MOCK WARNING] Forbidden mock patterns detected in {file_path}",
+            "",
+            "CLAUDE.md forbids mocking internal code. You MUST fix these violations:",
+            ""
+        ]
 
-        for v in violations[:5]:  # Show max 5 violations
-            print(f"  Line {v['line']}: {v['pattern']}", file=sys.stderr)
-            print(f"    > {v['code']}", file=sys.stderr)
+        for v in violations[:5]:
+            warning_lines.append(f"  Line {v['line']}: {v['pattern']}")
+            warning_lines.append(f"    > {v['code']}")
 
         if len(violations) > 5:
-            print(f"  ... and {len(violations) - 5} more violations", file=sys.stderr)
+            warning_lines.append(f"  ... and {len(violations) - 5} more violations")
 
-        print("", file=sys.stderr)
-        print("Solutions:", file=sys.stderr)
-        print("  1. Use Testcontainers for database/service tests", file=sys.stderr)
-        print("  2. For external APIs (Stripe, OpenAI), add comment:", file=sys.stderr)
-        print("     // Test Double rationale: External payment gateway (Stripe)", file=sys.stderr)
-        print("", file=sys.stderr)
+        warning_lines.extend([
+            "",
+            "Solutions: Use Testcontainers, or add '// Test Double rationale: [reason]' for external APIs.",
+            "ACTION REQUIRED: Fix the mock patterns above before continuing."
+        ])
 
-        # Return blocking response
+        warning_message = "\n".join(warning_lines)
+
+        # Output JSON with decision: block to ensure Claude sees the warning
         result = {
-            "blocked": True,
-            "reason": f"Mock patterns detected: {len(violations)} violations. See CLAUDE.md testing rules."
+            "decision": "block",
+            "reason": warning_message,
+            "hookSpecificOutput": {
+                "hookEventName": "PostToolUse",
+                "additionalContext": warning_message
+            }
         }
         print(json.dumps(result))
     else:
-        # Pass through
+        # Pass through original input
         print(input_data)
 
 
