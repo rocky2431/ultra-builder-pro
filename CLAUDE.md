@@ -241,22 +241,18 @@ console.log('Order created: ' + orderId);
 **Auto-trigger** (enforced by hooks):
 | Signal | Agent | Priority |
 |--------|-------|----------|
-| Code changed | code-reviewer | MANDATORY |
-| New feature/bug | tdd-guide | Before impl |
-| Tech decision | architect | Before choosing |
+| Code changed | pr-review-toolkit:code-reviewer | MANDATORY |
 | Build error | build-error-resolver | Immediate |
 | Auth/payment/PII | security-reviewer | MANDATORY |
 | .sol files | smart-contract-* (both) | MANDATORY |
+| E2E tests | e2e-runner | Recommended |
+| Documentation | doc-updater | Recommended |
 
-**Rules**:
-- Code changes → code-reviewer (MANDATORY)
-- Security-sensitive → security-reviewer
-- Independent tasks → parallel agent execution
-- Default model: Opus
+**Custom Agents** (7): build-error-resolver, doc-updater, e2e-runner, frontend-developer, refactor-cleaner, smart-contract-specialist, smart-contract-auditor
 
 **Hooks enforce**: mock detection, security scan, agent reminders
 
-**Reference**: See ~/.claude/agents/, ~/.claude/hooks/
+**Reference**: ~/.claude/agents/, ~/.claude/hooks/
 </agent_system>
 
 <data_persistence>

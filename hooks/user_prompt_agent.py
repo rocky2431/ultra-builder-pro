@@ -4,12 +4,9 @@ User Prompt Agent Hook - UserPromptSubmit
 Analyzes user intent and suggests appropriate agents
 
 Keyword triggers:
-- add/implement/create + feature -> tdd-guide
-- fix/debug + bug -> tdd-guide
-- design/architect -> architect
-- choose/select + library/framework -> architect
 - e2e/test flow -> e2e-runner
 - auth/login/password/payment -> security-reviewer
+- smart contract -> smart-contract-specialist + auditor
 
 This is a reminder only, does not block.
 """
@@ -20,32 +17,6 @@ import re
 
 # Intent patterns to agent mapping
 INTENT_AGENTS = [
-    # Planner triggers (complex tasks need planning first)
-    (r'\b(implement|add|build|create)\b.*\b(oauth|authentication|notification|caching|queue|workflow)\b',
-     'planner', 'Complex feature - create implementation plan first'),
-    (r'\bhow\s+(?:should|do)\s+(?:i|we)\s+implement\b',
-     'planner', 'Implementation planning needed'),
-    (r'\b(multi-?step|complex|large)\s+(?:feature|task|change)\b',
-     'planner', 'Complex task - plan before implementing'),
-    (r'\bnot\s+sure\s+(?:where|how)\s+to\s+start\b',
-     'planner', 'Unclear path - planner will identify steps'),
-
-    # TDD workflow triggers
-    (r'\b(add|implement|create|build)\b.*\b(feature|function|api|endpoint|component)\b',
-     'tdd-guide', 'New feature implementation - follow TDD workflow'),
-    (r'\b(fix|debug|repair|solve)\b.*\b(bug|issue|error|problem)\b',
-     'tdd-guide', 'Bug fix - write failing test first'),
-
-    # Architecture triggers
-    (r'\b(design|architect|structure)\b.*\b(system|module|service|api)\b',
-     'architect', 'System design decision'),
-    (r'\b(choose|select|pick|decide)\b.*\b(library|framework|tool|stack|database)\b',
-     'architect', 'Technology choice decision'),
-    (r'\b(should\s+(?:we|i)\s+use|which\s+(?:is|should))\b.*\b(better|best|prefer)\b',
-     'architect', 'Technical comparison needed'),
-    (r'\b(scale|scalability|performance|optimize)\b.*\b(architecture|design)\b',
-     'architect', 'Architecture optimization'),
-
     # E2E testing triggers
     (r'\b(e2e|end-to-end|integration)\s+test\b',
      'e2e-runner', 'E2E testing task'),

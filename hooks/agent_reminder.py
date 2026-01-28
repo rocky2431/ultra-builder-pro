@@ -58,23 +58,12 @@ PATH_AGENTS = [
     (r'/route/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
 
     # Test paths
-    (r'/__tests__/', ['tdd-guide'], 'Recommended'),
-    (r'/test/', ['tdd-guide'], 'Recommended'),
-    (r'\.test\.', ['tdd-guide'], 'Recommended'),
-    (r'\.spec\.', ['tdd-guide'], 'Recommended'),
     (r'/e2e/', ['e2e-runner'], 'Recommended'),
 
     # Documentation paths
     (r'/docs/', ['doc-updater'], 'Recommended'),
     (r'readme', ['doc-updater'], 'Recommended'),
     (r'changelog', ['doc-updater'], 'Recommended'),
-
-    # Infrastructure paths (need planning)
-    (r'/infrastructure/', ['planner', 'architect'], 'Recommended'),
-    (r'/terraform/', ['planner'], 'Recommended'),
-    (r'/docker/', ['planner'], 'Recommended'),
-    (r'/k8s/', ['planner'], 'Recommended'),
-    (r'/kubernetes/', ['planner'], 'Recommended'),
 ]
 
 # Build commands that trigger build-error-resolver on failure
@@ -92,17 +81,6 @@ BUILD_COMMANDS = [
     r'\bmvn\s+(?:compile|package|install)\b',
 ]
 
-# Test commands that trigger tdd-guide on failure
-TEST_COMMANDS = [
-    r'\bnpm\s+(?:run\s+)?test\b',
-    r'\byarn\s+test\b',
-    r'\bpnpm\s+(?:run\s+)?test\b',
-    r'\bjest\b',
-    r'\bvitest\b',
-    r'\bpytest\b',
-    r'\bcargo\s+test\b',
-    r'\bgo\s+test\b',
-]
 
 
 def get_agents_for_file(file_path: str) -> list:
@@ -150,12 +128,6 @@ def check_command_failure(tool_name: str, tool_input: dict, tool_result: dict) -
     for pattern in BUILD_COMMANDS:
         if re.search(pattern, command, re.IGNORECASE):
             agents.append(('build-error-resolver', 'Build command failed'))
-            break
-
-    # Check test commands
-    for pattern in TEST_COMMANDS:
-        if re.search(pattern, command, re.IGNORECASE):
-            agents.append(('tdd-guide', 'Test command failed - follow TDD workflow'))
             break
 
     return agents

@@ -10,7 +10,7 @@
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-9-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-10-red)](agents/)
+[![Agents](https://img.shields.io/badge/agents-7-red)](agents/)
 [![Hooks](https://img.shields.io/badge/hooks-6-yellow)](hooks/)
 
 </div>
@@ -109,7 +109,7 @@ Patterns extracted via `/learn` are stored in `skills/learned/` with confidence 
 
 ---
 
-## Agents (10 Custom + Plugins)
+## Agents (7 Custom + Plugins)
 
 > **Default Model**: ALL agents use Opus. No exceptions.
 
@@ -117,9 +117,6 @@ Patterns extracted via `/learn` are stored in `skills/learned/` with confidence 
 
 | Agent | Purpose | Hook Trigger |
 |-------|---------|--------------|
-| `architect` | System architecture, tech decisions | "design system", "choose library" |
-| `planner` | Implementation planning (3+ files) | "implement oauth", /infrastructure/ |
-| `tdd-guide` | TDD workflow (RED-GREEN-REFACTOR) | "add feature", test files |
 | `build-error-resolver` | Build error quick fix | Build command fails |
 | `e2e-runner` | E2E testing with Playwright | /e2e/, "e2e test" |
 | `frontend-developer` | React/Web3, UI components | .tsx/.jsx/.vue/.svelte |
@@ -257,15 +254,12 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 │   ├── skill-creator/        # Create new skills
 │   └── learned/              # Extracted patterns
 │
-├── agents/                   # Custom agents (10)
-│   ├── architect.md          # System architecture
-│   ├── planner.md            # Implementation planning
-│   ├── tdd-guide.md          # TDD workflow
+├── agents/                   # Custom agents (7)
 │   ├── build-error-resolver.md
+│   ├── doc-updater.md
 │   ├── e2e-runner.md
 │   ├── frontend-developer.md
 │   ├── refactor-cleaner.md
-│   ├── doc-updater.md
 │   ├── smart-contract-specialist.md
 │   └── smart-contract-auditor.md
 │
