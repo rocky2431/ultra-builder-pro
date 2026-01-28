@@ -7,6 +7,27 @@ model: opus
 
 # /ultra-test
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major step using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 0 | Pre-Execution Check | Checking prerequisites... |
+| 1 | Anti-Pattern Detection | Detecting anti-patterns... |
+| 2 | Coverage Gap Analysis | Analyzing coverage gaps... |
+| 3 | E2E Testing | Running E2E tests... |
+| 4 | Performance Testing | Testing performance... |
+| 5 | Security Audit | Auditing security... |
+| 6 | Auto-Fix Loop | Auto-fixing issues... |
+| 7 | Persist Results | Persisting results... |
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
+---
+
 Pre-delivery quality audit. Validates test health, coverage gaps, E2E functionality, performance, and security.
 
 **Note**: This is NOT for running unit tests (that's `/ultra-dev`). This is for auditing overall project quality before `/ultra-deliver`.

@@ -7,6 +7,32 @@ model: opus
 
 # /ultra-dev
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major step using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 1 | Task Selection | Selecting task... |
+| 1.5 | Update Status to In-Progress | Updating task status... |
+| 2 | Environment Setup | Setting up environment... |
+| 3 | TDD Cycle | Running TDD cycle... |
+| 3.1 | TDD: RED Phase | Writing failing tests... |
+| 3.2 | TDD: GREEN Phase | Writing minimal code... |
+| 3.3 | TDD: REFACTOR Phase | Refactoring code... |
+| 4 | Quality Gates | Running quality gates... |
+| 4.5 | PR Review Toolkit | Running PR review agents... |
+| 5 | Update Status to Completed | Updating task status... |
+| 5.5 | Pre-Commit Checklist | Verifying checklist... |
+| 6 | Commit and Merge | Committing and merging... |
+| 7 | Report | Generating report... |
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
+---
+
 Execute development tasks using TDD workflow.
 
 ## Arguments

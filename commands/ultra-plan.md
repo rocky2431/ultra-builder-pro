@@ -7,6 +7,26 @@ model: opus
 
 # /ultra-plan
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major step using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 0 | Specification Validation | Validating specs... |
+| 1 | Requirements Analysis | Analyzing requirements... |
+| 2 | Codebase Analysis | Analyzing codebase... |
+| 3 | Task Generation | Generating tasks... |
+| 4 | Dependency Analysis | Analyzing dependencies... |
+| 5 | Save Tasks | Saving tasks to files... |
+| 6 | Generate Report | Generating report... |
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
+---
+
 ## Purpose
 
 Generate task breakdown from complete specifications (created by /ultra-research).

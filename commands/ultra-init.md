@@ -7,6 +7,26 @@ model: opus
 
 # /ultra-init
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major step using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 1 | Collect Project Information | Collecting project info... |
+| 1.5 | Interactive Confirmation | Confirming with user... |
+| 2 | Create Project Structure | Creating .ultra/ structure... |
+| 3 | Initialize Task System | Initializing tasks.json... |
+| 4 | Copy Template Files | Copying templates... |
+| 5 | Git Integration | Setting up Git... |
+| 6 | Display Summary | Generating summary... |
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
+---
+
 ## Purpose
 
 Initialize Ultra Builder Pro 4.4 project structure with native task management.

@@ -7,6 +7,33 @@ model: opus
 
 # Ultra Research
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major phase using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 0 | Pre-Research Check | Checking prerequisites... |
+| 0.5 | Project Type Detection | Detecting project type... |
+| R1 | Round 1: User & Scenario | Discovering user scenarios... |
+| R2 | Round 2: Feature Definition | Defining features... |
+| R3 | Round 3: Architecture Design | Designing architecture... |
+| R4 | Round 4: Quality & Deployment | Planning quality & deployment... |
+
+**For each Round**, create sub-tasks:
+- `R{n}.1: Requirement Clarification`
+- `R{n}.2: Deep Analysis`
+- `R{n}.3: Analysis Validation`
+- `R{n}.4: Satisfaction Rating`
+- `R{n}.5: Quality Gate`
+- `R{n}.6: Generate Output`
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
+---
+
 Transform vague ideas into complete specifications through progressive interactive discovery.
 
 **Philosophy**: Research is collaborative. Each decision validated with user before proceeding. All findings must have 90%+ confidence.

@@ -7,6 +7,28 @@ model: opus
 
 # /ultra-deliver
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major step using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 0.1 | Validate /ultra-test Passed | Validating test results... |
+| 0.2 | Check Uncommitted Changes | Checking git status... |
+| 1 | Documentation Update | Updating documentation... |
+| 1.1 | Update CHANGELOG.md | Updating changelog... |
+| 1.2 | Generate Technical Debt Report | Generating debt report... |
+| 1.3 | Update README.md | Updating readme... |
+| 2 | Production Build | Building for production... |
+| 3 | Version & Release | Bumping version and tagging... |
+| 4 | Persist Results | Persisting delivery report... |
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
+---
+
 Prepare release after `/ultra-test` passes: update documentation, build, bump version, tag, and push.
 
 ---

@@ -123,6 +123,37 @@ Extreme bias for action: incomplete action > perfect inaction.
 Default progress ≠ blind changes; must locate specific files/behaviors before implementation.
 </persistence>
 
+<workflow_tracking>
+**Purpose**: Prevent context loss during long-running commands.
+
+**Mandatory for multi-step commands** (ultra-dev, ultra-plan, ultra-research, etc.):
+
+1. **On command start**: Use `TaskCreate` to create tasks for each major step
+   - Subject: Step name (e.g., "Step 1: Task Selection")
+   - Description: What this step does
+   - activeForm: Present continuous (e.g., "Selecting task...")
+
+2. **Before each step**: Use `TaskUpdate` to set `status: "in_progress"`
+
+3. **After each step**: Use `TaskUpdate` to set `status: "completed"`
+
+4. **On context recovery**: Use `TaskList` to see progress and resume from last incomplete step
+
+**Example for /ultra-dev**:
+```
+TaskCreate: "Step 1: Task Selection" → in_progress → completed
+TaskCreate: "Step 2: Environment Setup" → in_progress → completed
+TaskCreate: "Step 3: TDD Cycle - RED" → in_progress → ...
+```
+
+**Benefits**:
+- Clear progress visibility for user
+- Resumable workflow after context loss
+- No need to re-read command definition to know current state
+
+**Skip if**: Task is trivial (< 3 steps) or purely informational
+</workflow_tracking>
+
 <output_verbosity>
 Prefer concise responses. For large code changes, summarize by file rather than inline.
 </output_verbosity>
