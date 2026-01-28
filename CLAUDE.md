@@ -67,7 +67,31 @@ Functional Core (Pure) ───────────────────
 | Arch | Business state in memory | Persist to DB |
 | Arch | Static variables for state | External storage |
 | Arch | Local files for business data | Object storage/DB |
+| NIH | Custom implementation | Use mature library |
 </forbidden_patterns>
+
+<use_mature_libraries>
+**Principle**: Always use battle-tested libraries. Never reinvent the wheel.
+
+| Domain | Use This | NOT Custom Implementation |
+|--------|----------|---------------------------|
+| Date/Time | date-fns, dayjs | Custom date parsing/formatting |
+| Validation | zod, yup, joi | Manual if/else validation |
+| HTTP Client | axios, ky, ofetch | Custom fetch wrapper |
+| UUID | uuid, nanoid | Math.random() based ID |
+| Encryption | crypto, bcrypt | Custom crypto algorithms |
+| Auth | next-auth, passport, lucia | Custom session management |
+| ORM | prisma, drizzle, typeorm | Custom SQL query builder |
+| Forms | react-hook-form, formik | Custom form state management |
+| State | zustand, jotai, redux | Custom global state |
+| Logging | pino, winston | Custom logger implementation |
+| Testing | vitest, jest, playwright | Custom test framework |
+| CLI | commander, yargs | Custom arg parsing |
+
+**Before implementing**: Search Context7/Exa for existing solutions.
+**Selection criteria**: Weekly downloads >100k, active maintenance, TypeScript support.
+**Red flag**: "Let me write a quick utility for..." → STOP, search for library first.
+</use_mature_libraries>
 
 <red_flags>
 If thinking any of these, **STOP**:
@@ -83,6 +107,9 @@ If thinking any of these, **STOP**:
 | "No time, deadline" | Right once < rework thrice |
 | "Store in memory first" | You'll forget; persist now |
 | "Should work" / "I'm confident" | Confidence ≠ evidence |
+| "Let me write a quick utility" | Search for library first |
+| "It's just a simple helper" | Simple today, bug magnet tomorrow |
+| "I can implement this easily" | Easy to write ≠ correct |
 
 All rationalization signals. Follow rules, no exceptions.
 </red_flags>
