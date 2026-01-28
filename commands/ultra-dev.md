@@ -25,10 +25,28 @@ Execute development tasks using TDD workflow.
    - Otherwise → select first task with `status: "pending"`
 3. Read context file: `.ultra/tasks/contexts/task-{id}.md`
 4. Display task context
-5. **Update status to `in_progress`**:
-   - tasks.json: `status: "in_progress"`
-   - context file: Change header `> **Status**: in_progress`
-6. Create todos from Acceptance section
+5. Create todos from Acceptance section
+
+### Step 1.5: Update Status to In-Progress (MANDATORY)
+
+**CRITICAL**: BOTH files MUST be updated. Do not proceed until verified.
+
+**1. Update `.ultra/tasks/tasks.json`**:
+```json
+{ "id": {id}, "status": "in_progress", ... }
+```
+
+**2. Update `.ultra/tasks/contexts/task-{id}.md`**:
+
+Find and change the status header line:
+```markdown
+> **Status**: in_progress
+```
+
+**3. Verify BOTH updates**:
+- Read tasks.json → confirm `"status": "in_progress"`
+- Read context file → confirm header shows `in_progress`
+- **If either missing → fix before proceeding**
 
 ### Step 2: Environment Setup
 
@@ -153,56 +171,95 @@ After all reviews pass:
 
 **Blocking Behavior**: Cannot commit until all PR Review agents pass.
 
-### Step 5: Commit and Update
+### Step 5: Update Status to Completed (MANDATORY)
 
 > **Prerequisite**: Step 4 Quality Gates + Step 4.5 PR Review all passed
 
-1. **Update status to `completed`** (before commit):
-   - tasks.json: `status: "completed"`
-   - context file header: `> **Status**: completed`
-   - context file Completion section (date + summary, hash later):
-     ```markdown
-     ## Completion
-     - **Completed**: {today's date}
-     - **Commit**: _pending_
-     - **Summary**: {what was delivered}
-     ```
+**CRITICAL**: BOTH files MUST be updated BEFORE commit. Do not proceed until verified.
 
-2. **Commit & Merge** (single confirmation):
-   - Run `git status` to show staged/unstaged changes
-   - Use `AskUserQuestion` with options:
-     - Option A: "Commit + Merge to main" (recommended) → full flow
-     - Option B: "Commit only, create PR later" → commit but skip merge
-     - Option C: "Review diff first" → show `git diff --stat` then ask again
+**1. Update `.ultra/tasks/tasks.json`**:
+```json
+{ "id": {id}, "status": "completed", ... }
+```
 
-   **If user approves commit**:
-   ```bash
-   git add -A
-   git commit -m "feat(scope): description"
-   ```
+**2. Update `.ultra/tasks/contexts/task-{id}.md`**:
 
-3. **Record commit hash**:
-   - `git rev-parse HEAD` → update context file
-   - `git commit --amend --no-edit`
+Update the status header line:
+```markdown
+> **Status**: completed
+```
 
-4. **Sync with main**:
-   ```bash
-   git fetch origin && git rebase origin/main
-   ```
-   - If conflicts → resolve → `git rebase --continue`
+Add or update the Completion section at the end of the file:
+```markdown
+## Completion
+- **Completed**: {today's date, e.g., 2026-01-28}
+- **Commit**: _pending_ (will update after commit)
+- **Summary**: {brief description of what was delivered}
+```
 
-5. **Verify after rebase**:
-   - Run tests again
-   - If fail → fix → amend → repeat step 4-5
+**3. Verify BOTH updates**:
+- Read tasks.json → confirm `"status": "completed"`
+- Read context file → confirm header shows `completed`
+- Read context file → confirm Completion section exists
+- **If any missing → fix before proceeding**
 
-6. **Merge to main** (if user chose Option A):
-   ```bash
-   git checkout main && git pull origin main
-   git merge --no-ff feat/task-{id}-{slug}
-   git push origin main && git branch -d feat/task-{id}-{slug}
-   ```
+### Step 5.5: Pre-Commit Checklist (BLOCKING)
 
-### Step 6: Report
+**Before `git commit`, verify ALL items**:
+
+- [ ] tasks.json: status = "completed"
+- [ ] context file: header = "completed"
+- [ ] context file: Completion section exists
+- [ ] All tests passing
+- [ ] All PR Review agents passed
+
+**If any unchecked → fix first, do NOT commit**
+
+### Step 6: Commit and Merge
+
+**1. Confirm with user**:
+- Run `git status` to show staged/unstaged changes
+- Use `AskUserQuestion` with options:
+  - Option A: "Commit + Merge to main" (recommended) → full flow
+  - Option B: "Commit only, create PR later" → commit but skip merge
+  - Option C: "Review diff first" → show `git diff --stat` then ask again
+
+**2. Create commit** (if user approves):
+```bash
+git add -A
+git commit -m "feat(scope): description"
+```
+
+**3. Record commit hash in context file**:
+- Run `git rev-parse HEAD` to get hash
+- Update context file Completion section:
+  ```markdown
+  - **Commit**: {actual hash}
+  ```
+- Amend commit to include this update:
+  ```bash
+  git add .ultra/tasks/contexts/task-{id}.md
+  git commit --amend --no-edit
+  ```
+
+**4. Sync with main**:
+```bash
+git fetch origin && git rebase origin/main
+```
+- If conflicts → resolve → `git rebase --continue`
+
+**5. Verify after rebase**:
+- Run tests again
+- If fail → fix → amend → repeat step 4-5
+
+**6. Merge to main** (if user chose Option A):
+```bash
+git checkout main && git pull origin main
+git merge --no-ff feat/task-{id}-{slug}
+git push origin main && git branch -d feat/task-{id}-{slug}
+```
+
+### Step 7: Report
 
 Output:
 - Commit hash

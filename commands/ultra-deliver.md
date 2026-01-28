@@ -39,19 +39,32 @@ If unclean:
 
 ## Delivery Workflow
 
-### Step 1: Documentation Update
+### Step 1: Documentation Update (MANDATORY)
 
-**CHANGELOG.md**:
+**CRITICAL**: All applicable documentation MUST be updated. Verify each item.
+
+**1.1 CHANGELOG.md** (REQUIRED):
 1. Run `git log --oneline` since last release tag
 2. Categorize by Conventional Commit prefix (feat→Added, fix→Fixed, etc.)
 3. Update CHANGELOG.md with new version section
+4. **Verify**: Read CHANGELOG.md → confirm new version section exists
 
-**Technical Debt** (optional):
-1. Use Grep to find TODO/FIXME/HACK markers
-2. Generate `.ultra/docs/technical-debt.md`
+**1.2 Technical Debt Report** (REQUIRED):
+1. Use Grep to find TODO/FIXME/HACK markers in source code
+2. Generate or update `.ultra/docs/technical-debt.md`
+3. **Verify**: Read technical-debt.md → confirm it reflects current state
 
-**README** (if API changed):
-1. Update usage examples to reflect changes
+**1.3 README.md** (if API changed):
+1. Check if any public API signatures changed in this release
+2. If changed → Update usage examples to reflect changes
+3. **Verify**: Read README.md → confirm examples match current API
+
+**1.4 Documentation Checklist**:
+- [ ] CHANGELOG.md updated with new version
+- [ ] technical-debt.md generated/updated
+- [ ] README.md updated (if API changed)
+
+**If any required item unchecked → fix before proceeding**
 
 ### Step 2: Production Build
 
@@ -66,17 +79,49 @@ Detect build command by priority:
 - Exit code 0 → proceed
 - Exit code non-zero → block with error output, ask user how to proceed
 
-### Step 3: Version & Release
+### Step 3: Version & Release (MANDATORY)
 
-1. Determine version bump (patch/minor/major) based on commits
-2. Update version using project's version management method
-3. Commit: `chore(release): vX.X.X`
-4. Create git tag: `vX.X.X`
-5. Push to remote:
-   ```bash
-   git push origin main   # release commit
-   git push origin vX.X.X # version tag
-   ```
+**CRITICAL**: All 5 sub-steps MUST complete successfully. Verify after each step.
+
+**3.1 Determine version bump**:
+- Analyze commits since last tag
+- patch: bug fixes only
+- minor: new features (backward compatible)
+- major: breaking changes
+- **Output**: Display determined version (e.g., "1.2.0 → 1.3.0")
+
+**3.2 Update version in project files**:
+- package.json, Cargo.toml, pyproject.toml, etc.
+- **Verify**: Read version file → confirm version updated
+
+**3.3 Create release commit**:
+```bash
+git add -A
+git commit -m "chore(release): vX.X.X"
+```
+- **Verify**: `git log -1 --oneline` → confirm commit message
+
+**3.4 Create git tag**:
+```bash
+git tag vX.X.X
+```
+- **Verify**: `git tag -l "vX.X.X"` → confirm tag exists
+
+**3.5 Push to remote**:
+```bash
+git push origin main      # release commit
+git push origin vX.X.X    # version tag
+```
+- **Verify**: `git ls-remote --tags origin | grep vX.X.X` → confirm tag pushed
+
+**3.6 Release Checklist**:
+- [ ] Version determined and displayed
+- [ ] Version file updated
+- [ ] Release commit created
+- [ ] Git tag created
+- [ ] Commit and tag pushed to remote
+
+**If any step fails → stop and report error, do NOT continue**
 
 ### Step 4: Persist Results
 

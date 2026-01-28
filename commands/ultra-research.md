@@ -77,9 +77,10 @@ Step 4: Round Satisfaction Rating (1-5 stars, ask user)
 Step 5: Quality Gate
         - If <4 stars → Iterate (ask: what's missing? back to Step 1)
         - If ≥4 stars → Continue to Step 6
-Step 6: Generate Output
-        - Write to .ultra/specs/ (product.md or architecture.md)
-        - Write research report to .ultra/docs/research/{round-name}-{date}.md
+Step 6: Generate Output (MANDATORY - BOTH files required)
+        6a. Write to .ultra/specs/ (product.md or architecture.md)
+        6b. Write research report to .ultra/docs/research/{round-name}-{date}.md
+        6c. Verify BOTH files updated before proceeding to next round
 ```
 
 **Rating Definition**:
@@ -110,6 +111,29 @@ Step 6: Generate Output
 ## Decisions Made
 [Choices and rationale]
 ```
+
+### Step 6 Detailed: Generate Output (MANDATORY)
+
+**CRITICAL**: BOTH spec file AND research report MUST be written. Do not proceed to next round until verified.
+
+**6a. Update Specification File**:
+- Round 1-2 → Update `.ultra/specs/product.md`
+- Round 3-4 → Update `.ultra/specs/architecture.md`
+- Replace [NEEDS CLARIFICATION] markers with actual content
+- **Verify**: Read spec file → confirm sections updated, no [NEEDS CLARIFICATION] in completed sections
+
+**6b. Write Research Report**:
+- Create `.ultra/docs/research/{round-name}-{date}.md`
+- Use the Research Report Format above
+- Include rating, confidence, iterations count
+- **Verify**: Read report file → confirm file exists and has required sections
+
+**6c. Output Verification Checklist**:
+- [ ] Spec file updated (product.md or architecture.md)
+- [ ] Research report created ({round-name}-{date}.md)
+- [ ] Both files readable and properly formatted
+
+**If any item unchecked → fix before proceeding to next round**
 
 ### Round Overview
 

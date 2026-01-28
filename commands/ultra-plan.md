@@ -148,14 +148,16 @@ Solution: Run /ultra-research first
 - Order tasks topologically
 - Identify parallel opportunities
 
-### 5. Save Tasks
+### 5. Save Tasks (MANDATORY)
 
-**Step 1**: Create directory structure:
+**CRITICAL**: BOTH tasks.json AND all context files MUST be created. Do not proceed until verified.
+
+**5.1 Create directory structure**:
 ```bash
 mkdir -p .ultra/tasks/contexts
 ```
 
-**Step 2**: Save tasks.json (lightweight):
+**5.2 Save tasks.json**:
 ```json
 {
   "version": "4.4",
@@ -177,7 +179,14 @@ mkdir -p .ultra/tasks/contexts
 }
 ```
 
-**Step 3**: Generate context file for each task
+**5.3 Generate context file for EACH task**:
+
+For every task in tasks.json, create `.ultra/tasks/contexts/task-{id}.md` using the template structure defined above.
+
+**5.4 Verify ALL outputs exist**:
+- Read tasks.json → count tasks
+- List `.ultra/tasks/contexts/` → count files
+- **If counts don't match → create missing context files before proceeding**
 
 ### 6. Report
 
