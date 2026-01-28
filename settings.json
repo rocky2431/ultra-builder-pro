@@ -1,19 +1,5 @@
 {
   "cleanupPeriodDays": 30,
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "tool == \"Edit\" && tool_input.file_path matches \"\\\\.(ts|tsx|js|jsx)$\"",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path;if(p&&fs.existsSync(p)){const c=fs.readFileSync(p,'utf8');const lines=c.split('\\n');const matches=[];lines.forEach((l,idx)=>{if(/console\\.log/.test(l))matches.push((idx+1)+': '+l.trim())});if(matches.length){console.error('[Hook] WARNING: console.log found in '+p);matches.slice(0,3).forEach(m=>console.error(m));console.error('[Hook] Remove before committing')}}console.log(d)})\""
-          }
-        ],
-        "description": "Warn about console.log statements after edits"
-      }
-    ]
-  },
   "env": {
     "MAX_THINKING_TOKENS": "31999"
   },
@@ -33,9 +19,12 @@
       "Edit",
       "NotebookEdit",
       "Task",
+      "TaskCreate",
+      "TaskUpdate",
+      "TaskList",
+      "TaskGet",
       "Skill",
       "SlashCommand",
-      "TodoWrite",
       "AskUserQuestion",
       "BashOutput",
       "KillShell",
@@ -55,20 +44,34 @@
     "defaultMode": "default"
   },
   "model": "opus",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "tool == \"Edit\" && tool_input.file_path matches \"\\\\.(ts|tsx|js|jsx)$\"",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path;if(p&&fs.existsSync(p)){const c=fs.readFileSync(p,'utf8');const lines=c.split('\\n');const matches=[];lines.forEach((l,idx)=>{if(/console\\.log/.test(l))matches.push((idx+1)+': '+l.trim())});if(matches.length){console.error('[Hook] WARNING: console.log found in '+p);matches.slice(0,3).forEach(m=>console.error(m));console.error('[Hook] Remove before committing')}}console.log(d)})\""
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/ccline/ccline",
     "padding": 0
   },
   "enabledPlugins": {
-    "feature-dev@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true,
     "ralph-loop@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "planning-with-files@planning-with-files": true
+    "security-guidance@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true
   },
   "language": "Chinese",
   "sandbox": {

@@ -1,7 +1,7 @@
 ---
 description: Pre-delivery quality audit (Anti-Pattern + Coverage Gap + E2E + Performance + Security)
 argument-hint: [scope]
-allowed-tools: TodoWrite, Bash, Read, Write, Edit, Task, Grep, Glob, AskUserQuestion
+allowed-tools: Bash, Read, Write, Edit, Task, Grep, Glob, AskUserQuestion
 model: opus
 ---
 

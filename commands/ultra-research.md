@@ -1,7 +1,7 @@
 ---
 description: Think-Driven Interactive Discovery - Deep research with structured analysis
 argument-hint: [topic]
-allowed-tools: TodoWrite, Task, Read, Write, WebSearch, WebFetch, Grep, Glob, AskUserQuestion
+allowed-tools: Task, Read, Write, WebSearch, WebFetch, Grep, Glob, AskUserQuestion
 model: opus
 ---
 

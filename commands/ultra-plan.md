@@ -1,7 +1,7 @@
 ---
 description: Task planning with intelligent dependency analysis and complexity assessment
 argument-hint: [scope]
-allowed-tools: Read, Write, Edit, Bash(mkdir:*), TodoWrite, Grep, Glob, Task, AskUserQuestion
+allowed-tools: Read, Write, Edit, Bash(mkdir .ultra/*), Grep, Glob, Task, AskUserQuestion
 model: opus
 ---
 

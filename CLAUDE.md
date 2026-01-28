@@ -43,29 +43,13 @@ Labels: Fact (verified) | Inference (deduced) | Speculation (needs verification 
 </honesty_challenge>
 
 <agent_system>
-**Agents**: See ~/.claude/agents/ for definitions
-**Default Model**: Opus (ALL agents use Opus, no exceptions)
+**Rule**: Use specialized agents proactively based on task type
+**Rule**: Code changes → code-reviewer (MANDATORY)
+**Rule**: Security-sensitive → security-reviewer
+**Rule**: Independent tasks → parallel agent execution
+**Rule**: Default model: Opus (no exceptions)
 
-**Immediate Triggers** (no user prompt needed):
-- Complex feature request → **planner**
-- Code just written/modified → **code-reviewer** (MANDATORY)
-- Bug fix or new feature → **tdd-guide**
-- Architectural decision → **architect**
-- Security-sensitive code → **security-reviewer**
-
-**On-Demand Agents**:
-- Build failure → **build-error-resolver**
-- E2E testing → **e2e-runner**
-- Dead code cleanup → **refactor-cleaner**
-- Documentation → **doc-updater**
-
-**Domain Agents**:
-- Backend/API design → **backend-architect**
-- React/UI/Web3 → **frontend-developer**
-- Smart contract dev → **smart-contract-specialist**
-- Smart contract security → **smart-contract-auditor**
-
-**Parallel Execution**: When tasks are independent, launch multiple agents in parallel using Task tool.
+**Reference**: See ~/.claude/agents/ for agent definitions and triggers
 </agent_system>
 
 <architecture>
@@ -84,27 +68,12 @@ External APIs default to backward compatible; breaking changes require migration
 </file_organization>
 
 <tdd_workflow>
-**Mandatory for all new code:**
+**Rule**: All new code MUST follow TDD (test-first)
+**Rule**: Coverage minimum 80%, critical code 100%
+**Rule**: NO mocking core logic (domain/service/funds paths)
+**Rule**: External deps MAY use test doubles with rationale
 
-1. **RED**: Write failing test first (define expected behavior)
-2. **GREEN**: Write minimal code to pass test
-3. **REFACTOR**: Improve code (keep tests passing)
-4. **COVERAGE**: Verify 80%+ coverage
-5. **COMMIT**: Atomic commit (test + implementation together)
-
-**Coverage Requirements:**
-- Minimum: 80% (branches, functions, lines, statements)
-- Critical code (funds/permissions/core logic): 100%
-
-**What NOT to mock** (Core Logic):
-- Domain/service/state machine logic
-- Funds/permission paths
-- Repository interface contracts
-
-**What CAN be mocked** (External):
-- Third-party APIs (OpenAI, Supabase, etc.)
-- External services
-- Must explain rationale for each mock
+**Implementation**: See commands/ultra-dev.md
 </tdd_workflow>
 
 <risk_control>
@@ -124,49 +93,16 @@ Default progress ≠ blind changes; must locate specific files/behaviors before 
 </persistence>
 
 <workflow_tracking>
-**Purpose**: Session-scoped workflow orchestration to prevent context loss during long-running commands.
+**Tools**: TaskCreate, TaskList, TaskGet, TaskUpdate (Claude Code 2.1.16+, replaces deprecated TodoWrite)
 
-**Task System Tools** (Claude Code 2.1+ built-in):
+**Rules**:
+- Multi-step commands (ultra-*) MUST use Task system for progress tracking
+- On command start: hydrate session tasks from `.ultra/tasks/` if exists
+- On task completion: update BOTH session (TaskUpdate) AND persistent (.ultra/tasks/)
+- Use `addBlockedBy`/`addBlocks` for dependency tracking
+- Skip task tracking if task is trivial (< 3 steps)
 
-| Tool | Purpose | Parameters |
-|------|---------|------------|
-| `TaskCreate` | Establish new work item | `subject` (title), `description` (details), `activeForm` (status message) |
-| `TaskList` | Display all tasks with status | (none) → returns id, subject, status, owner, blockedBy |
-| `TaskGet` | Retrieve full task details | `taskId` → returns description, status, dependencies, timestamps |
-| `TaskUpdate` | Modify task state/dependencies | `taskId`, `status`, `owner`, `addBlockedBy`, `addBlocks` |
-
-**Status Lifecycle**: `pending` → `in_progress` → `completed` (or `deleted` to remove)
-
-**Scope**: Tasks persist within session (survive `/compact`), cleared on `/clear` or session restart.
-
----
-
-**Mandatory for multi-step commands** (ultra-dev, ultra-plan, ultra-research, etc.):
-
-1. **On command start**: Use `TaskCreate` to create tasks for each major step
-   - Subject: Step name (e.g., "Step 1: Task Selection")
-   - Description: What this step does
-   - activeForm: Present continuous (e.g., "Selecting task...")
-
-2. **Before each step**: Use `TaskUpdate` to set `status: "in_progress"`
-
-3. **After each step**: Use `TaskUpdate` to set `status: "completed"`
-
-4. **On context recovery**: Use `TaskList` to see progress and resume from last incomplete step
-
-**Example for /ultra-dev**:
-```
-TaskCreate: "Step 1: Task Selection" → in_progress → completed
-TaskCreate: "Step 2: Environment Setup" → in_progress → completed
-TaskCreate: "Step 3: TDD Cycle - RED" → in_progress → ...
-```
-
-**Benefits**:
-- Clear progress visibility for user
-- Resumable workflow after context loss
-- No need to re-read command definition to know current state
-
-**Skip if**: Task is trivial (< 3 steps) or purely informational
+**Implementation**: See commands/*.md for detailed workflows
 </workflow_tracking>
 
 <output_verbosity>
@@ -178,26 +114,11 @@ Before finalizing, verify the solution is correct, secure, and maintainable. Rev
 </self_reflection>
 
 <high_risk_brakes>
-Must stop and ask 1-3 precise questions when encountering:
-- Data migration/deletion, permission model changes
-- Funds/signing/key operations
-- Breaking external API changes
-- Production config/infrastructure changes
-- No official evidence but significant consequences
+**Rule**: STOP and ask 1-3 questions for: data migration, funds/keys, breaking API, production config
+**Rule**: Security issues → STOP → security-reviewer agent → fix before continuing
+**Rule**: No official evidence + significant consequences → mark Speculation, brake
 
-**Security Checklist** (before any commit):
-- [ ] No hardcoded secrets (API keys, passwords, tokens)
-- [ ] All user inputs validated
-- [ ] SQL injection prevention (parameterized queries)
-- [ ] XSS prevention (sanitized output)
-- [ ] Authentication/authorization verified
-- [ ] Rate limiting on sensitive endpoints
-
-**If security issue found**:
-1. STOP immediately
-2. Use **security-reviewer** agent
-3. Fix CRITICAL issues before continuing
-4. Rotate any exposed secrets
+**Reference**: See security-reviewer agent for checklist
 </high_risk_brakes>
 
 <testing>
@@ -206,19 +127,10 @@ Completion claims should include evidence: CI results, test output, or coverage 
 
 <learned_patterns>
 **Location**: ~/.claude/skills/learned/
+**Rule**: New patterns start as Speculation (_unverified suffix)
+**Rule**: Loading priority: Fact > Inference > Speculation
 
-**Manual Learning** (/learn command):
-- Extract reusable patterns from current session
-- Patterns saved with Speculation label until verified
-- File naming: `pattern-name_unverified.md`
-
-**Verification Process**:
-- Human review → remove `_unverified` suffix → upgrade to Inference
-- Multiple successful uses → upgrade to Fact
-
-**Loading Priority**:
-Fact patterns > Inference patterns > Speculation patterns
-When conflicts: higher confidence wins
+**Implementation**: See commands/learn.md
 </learned_patterns>
 
 <git_workflow>

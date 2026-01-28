@@ -1,7 +1,7 @@
 ---
 description: Initialize Ultra Builder Pro 5.0 project with native task management
 argument-hint: <name> <type> <stack> [git]
-allowed-tools: Read, Write, Bash, TodoWrite, Grep, Glob, AskUserQuestion
+allowed-tools: Read, Write, Bash, Grep, Glob, Task, AskUserQuestion
 model: opus
 ---
 
