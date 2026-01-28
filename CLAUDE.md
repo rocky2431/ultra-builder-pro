@@ -236,12 +236,27 @@ console.log('Order created: ' + orderId);
 </honesty_challenge>
 
 <agent_system>
-**Rule**: Code changes → code-reviewer (MANDATORY)
-**Rule**: Security-sensitive → security-reviewer
-**Rule**: Independent tasks → parallel agent execution
-**Rule**: Default model: Opus
+**1% Rule**: If even 1% chance an agent applies, invoke it. No exceptions.
 
-**Reference**: See ~/.claude/agents/
+**Auto-trigger** (enforced by hooks):
+| Signal | Agent | Priority |
+|--------|-------|----------|
+| Code changed | code-reviewer | MANDATORY |
+| New feature/bug | tdd-guide | Before impl |
+| Tech decision | architect | Before choosing |
+| Build error | build-error-resolver | Immediate |
+| Auth/payment/PII | security-reviewer | MANDATORY |
+| .sol files | smart-contract-* (both) | MANDATORY |
+
+**Rules**:
+- Code changes → code-reviewer (MANDATORY)
+- Security-sensitive → security-reviewer
+- Independent tasks → parallel agent execution
+- Default model: Opus
+
+**Hooks enforce**: mock detection, security scan, agent reminders
+
+**Reference**: See ~/.claude/agents/, ~/.claude/hooks/
 </agent_system>
 
 <data_persistence>
