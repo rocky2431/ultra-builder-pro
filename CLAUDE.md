@@ -124,7 +124,22 @@ Default progress ≠ blind changes; must locate specific files/behaviors before 
 </persistence>
 
 <workflow_tracking>
-**Purpose**: Prevent context loss during long-running commands.
+**Purpose**: Session-scoped workflow orchestration to prevent context loss during long-running commands.
+
+**Task System Tools** (Claude Code 2.1+ built-in):
+
+| Tool | Purpose | Parameters |
+|------|---------|------------|
+| `TaskCreate` | Establish new work item | `subject` (title), `description` (details), `activeForm` (status message) |
+| `TaskList` | Display all tasks with status | (none) → returns id, subject, status, owner, blockedBy |
+| `TaskGet` | Retrieve full task details | `taskId` → returns description, status, dependencies, timestamps |
+| `TaskUpdate` | Modify task state/dependencies | `taskId`, `status`, `owner`, `addBlockedBy`, `addBlocks` |
+
+**Status Lifecycle**: `pending` → `in_progress` → `completed` (or `deleted` to remove)
+
+**Scope**: Tasks persist within session (survive `/compact`), cleared on `/clear` or session restart.
+
+---
 
 **Mandatory for multi-step commands** (ultra-dev, ultra-plan, ultra-research, etc.):
 
