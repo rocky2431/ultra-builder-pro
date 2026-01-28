@@ -133,3 +133,8 @@ plugins/known_marketplaces.json
 skills/react-best-practices/
 skills/web-design-guidelines/
 image-cache/
+
+# ===== Python Cache =====
+__pycache__/
+*.pyc
+*.pyo
