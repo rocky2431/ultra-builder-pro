@@ -288,9 +288,33 @@ No evidence + significant consequences → Speculation, brake
 **Forbidden without evidence**: "should work", "I'm confident", "looks good"
 </verification>
 
-<execution_principles>
-- **Evidence over confidence**: Verify before claiming done
-- **Action over perfection**: Incomplete action > perfect inaction
-- **Persistence**: Keep acting until solved, don't ask "should I continue?"
-- **Conflict resolution**: Higher priority rule wins, cite rule number
-</execution_principles>
+<learned_patterns>
+**Location**: ~/.claude/skills/learned/
+**Rule**: New patterns = Speculation (_unverified suffix)
+**Priority**: Fact > Inference > Speculation
+</learned_patterns>
+
+<workflow_tracking>
+**Tools**: TaskCreate, TaskList, TaskGet, TaskUpdate
+**Rules**: Multi-step commands use Task system; hydrate from .ultra/tasks/; update both session and persistent
+</workflow_tracking>
+
+<git_workflow>
+Follow project branch naming. Conventional Commits. Include Co-author for AI commits:
+```
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+```
+</git_workflow>
+
+<project_structure>
+Follow existing structure. New Ultra projects: .ultra/{tasks/, specs/, docs/}
+</project_structure>
+
+<work_style>
+- **Context**: Batch parallel calls, avoid repeated queries, stop when sufficient
+- **Persistence**: Keep acting until solved; "Should we do X?" + yes → execute directly
+- **Action Bias**: Incomplete action > perfect inaction
+- **Output**: Prefer concise; large changes → summarize by file
+- **Self-check**: Before finalizing, verify correct/secure/maintainable
+- **Conflict**: `Conflict: rule {higher} overrides rule {lower} → {action}`
+</work_style>
