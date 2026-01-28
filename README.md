@@ -185,14 +185,14 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 
 ### Auto-Trigger Matrix
 
-| Signal | Agent Triggered | Priority |
-|--------|----------------|----------|
+| Signal | Agent/Skill Triggered | Priority |
+|--------|----------------------|----------|
 | .sol files | smart-contract-specialist + auditor | MANDATORY |
 | /auth/, /payment/ paths | security-reviewer | MANDATORY |
-| "implement oauth" | planner + security-reviewer | MANDATORY |
 | Build command fails | build-error-resolver | Recommended |
-| Test command fails | tdd-guide | Recommended |
-| .tsx/.jsx files | frontend-developer | Recommended |
+| .tsx/.jsx files | frontend-developer + react-best-practices (skill) | Recommended |
+| "review code/PR" | pr-review-toolkit:code-reviewer | Recommended |
+| "ready to merge/commit" | pr-review-toolkit:code-reviewer | Recommended |
 
 ---
 
@@ -207,7 +207,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 | E2E | All critical flows pass |
 | Performance | Core Web Vitals pass (frontend) |
 | Security | No critical/high vulnerabilities |
-| Code Review | MANDATORY code-reviewer agent |
+| Code Review | MANDATORY pr-review-toolkit:code-reviewer |
 
 ### Code Limits
 

@@ -67,11 +67,13 @@ INTENT_AGENTS = [
     (r'\b(remove|delete)\s+(?:unused|dead)\s+(?:code|imports|dependencies)\b',
      'refactor-cleaner', 'Dead code removal'),
 
-    # PR Review triggers
-    (r'\b(review|check)\s+(?:my\s+)?(?:pr|pull\s*request|code)\b',
-     'pr-review-toolkit:code-reviewer', 'PR code review'),
-    (r'\b(create|open|submit)\s+(?:a\s+)?(?:pr|pull\s*request)\b',
-     'pr-review-toolkit:code-reviewer', 'Pre-PR review recommended'),
+    # PR Review triggers - ONLY for explicit review requests
+    (r'\b(review|check)\s+(?:my\s+)?(?:pr|pull\s*request)\b',
+     'pr-review-toolkit:code-reviewer', 'PR code review - comprehensive review'),
+    (r'\b(code\s*review|review\s+(?:the\s+)?code)\b',
+     'pr-review-toolkit:code-reviewer', 'Code review - CLAUDE.md compliance check'),
+    (r'\b(ready\s+(?:to|for)\s+(?:merge|pr|commit))\b',
+     'pr-review-toolkit:code-reviewer', 'Pre-merge review recommended'),
     (r'\b(test\s+coverage|missing\s+tests|test\s+quality)\b',
      'pr-review-toolkit:pr-test-analyzer', 'Test coverage analysis'),
     (r'\b(error\s+handling|silent\s+fail|catch\s+block)\b',
@@ -82,24 +84,54 @@ INTENT_AGENTS = [
      'pr-review-toolkit:type-design-analyzer', 'Type design analysis'),
 ]
 
+# Skill patterns - for suggesting our own skills
+# NOTE: codex, gemini, promptup are user-invoked tools, NOT auto-triggered
+INTENT_SKILLS = [
+    # React/Next.js performance
+    (r'\b(react|next\.?js|nextjs)\b.*\b(performance|optimize|slow|render)\b',
+     'react-best-practices', 'React/Next.js performance optimization'),
+    (r'\b(bundle|chunk|lazy\s*load|code\s*split)\b',
+     'react-best-practices', 'Bundle optimization patterns'),
+    (r'\b(rerender|re-render|memo|useMemo|useCallback)\b',
+     'react-best-practices', 'React render optimization'),
 
-def analyze_prompt(prompt: str) -> list:
-    """Analyze user prompt and return agent suggestions."""
-    suggestions = []
+    # UI/Design guidelines
+    (r'\b(ui|ux|design)\s+(?:review|audit|check)\b',
+     'web-design-guidelines', 'UI design compliance review'),
+    (r'\b(accessibility|a11y|wcag|aria)\b',
+     'web-design-guidelines', 'Accessibility compliance check'),
+]
+
+
+def analyze_prompt(prompt: str) -> tuple:
+    """Analyze user prompt and return agent and skill suggestions."""
+    agent_suggestions = []
+    skill_suggestions = []
     prompt_lower = prompt.lower()
 
+    # Check agent triggers
     for pattern, agent, reason in INTENT_AGENTS:
         if re.search(pattern, prompt_lower, re.IGNORECASE):
             # Avoid duplicates
-            if not any(s['agent'] == agent for s in suggestions):
+            if not any(s['agent'] == agent for s in agent_suggestions):
                 is_mandatory = 'MANDATORY' in reason
-                suggestions.append({
+                agent_suggestions.append({
                     'agent': agent,
                     'reason': reason,
                     'priority': 'MANDATORY' if is_mandatory else 'Recommended'
                 })
 
-    return suggestions
+    # Check skill triggers
+    for pattern, skill, reason in INTENT_SKILLS:
+        if re.search(pattern, prompt_lower, re.IGNORECASE):
+            # Avoid duplicates
+            if not any(s['skill'] == skill for s in skill_suggestions):
+                skill_suggestions.append({
+                    'skill': skill,
+                    'reason': reason
+                })
+
+    return agent_suggestions, skill_suggestions
 
 
 def main():
@@ -118,24 +150,32 @@ def main():
         return
 
     # Analyze prompt
-    suggestions = analyze_prompt(prompt)
+    agent_suggestions, skill_suggestions = analyze_prompt(prompt)
 
     # Output suggestions
-    if suggestions:
+    if agent_suggestions or skill_suggestions:
         print("", file=sys.stderr)
-        print("[Agent Suggestion] Based on your request:", file=sys.stderr)
 
-        # Show mandatory first
-        mandatory = [s for s in suggestions if s['priority'] == 'MANDATORY']
-        recommended = [s for s in suggestions if s['priority'] == 'Recommended']
+        if agent_suggestions:
+            print("[Agent Suggestion] Based on your request:", file=sys.stderr)
 
-        for s in mandatory:
-            print(f"  [MANDATORY] {s['agent']} - {s['reason']}", file=sys.stderr)
+            # Show mandatory first
+            mandatory = [s for s in agent_suggestions if s['priority'] == 'MANDATORY']
+            recommended = [s for s in agent_suggestions if s['priority'] == 'Recommended']
 
-        for s in recommended[:3]:  # Limit to 3 recommendations
-            print(f"  [Recommended] {s['agent']} - {s['reason']}", file=sys.stderr)
+            for s in mandatory:
+                print(f"  [MANDATORY] {s['agent']} - {s['reason']}", file=sys.stderr)
 
-        print("", file=sys.stderr)
+            for s in recommended[:3]:  # Limit to 3 recommendations
+                print(f"  [Recommended] {s['agent']} - {s['reason']}", file=sys.stderr)
+
+            print("", file=sys.stderr)
+
+        if skill_suggestions:
+            print("[Skill Suggestion] Consider using:", file=sys.stderr)
+            for s in skill_suggestions[:2]:  # Limit to 2 skills
+                print(f"  [Skill] /{s['skill']} - {s['reason']}", file=sys.stderr)
+            print("", file=sys.stderr)
 
     # Always pass through
     print(input_data)

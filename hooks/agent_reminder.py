@@ -17,15 +17,16 @@ import re
 import os
 
 # File type to agent mapping
+# NOTE: code-reviewer is NOT auto-triggered per file - only on explicit review request
 FILE_TYPE_AGENTS = {
     '.sol': ['smart-contract-specialist', 'smart-contract-auditor'],
-    '.tsx': ['frontend-developer', 'pr-review-toolkit:code-reviewer'],
-    '.jsx': ['frontend-developer', 'pr-review-toolkit:code-reviewer'],
+    '.tsx': ['frontend-developer'],
+    '.jsx': ['frontend-developer'],
     '.css': ['frontend-developer'],
     '.scss': ['frontend-developer'],
     '.less': ['frontend-developer'],
-    '.vue': ['frontend-developer', 'pr-review-toolkit:code-reviewer'],
-    '.svelte': ['frontend-developer', 'pr-review-toolkit:code-reviewer'],
+    '.vue': ['frontend-developer'],
+    '.svelte': ['frontend-developer'],
     '.md': ['doc-updater'],
     '.rst': ['doc-updater'],
 }
@@ -50,13 +51,6 @@ PATH_AGENTS = [
     (r'/role/', ['security-reviewer'], 'Recommended'),
     (r'/acl/', ['security-reviewer'], 'Recommended'),
 
-    # API paths
-    (r'/api/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
-    (r'/middleware/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
-    (r'/handler/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
-    (r'/controller/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
-    (r'/route/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
-
     # Test paths
     (r'/e2e/', ['e2e-runner'], 'Recommended'),
 
@@ -65,6 +59,16 @@ PATH_AGENTS = [
     (r'readme', ['doc-updater'], 'Recommended'),
     (r'changelog', ['doc-updater'], 'Recommended'),
 ]
+
+# Skills to suggest based on file type
+FILE_SKILLS = {
+    '.tsx': ['react-best-practices'],
+    '.jsx': ['react-best-practices'],
+    '.vue': ['web-design-guidelines'],
+    '.svelte': ['web-design-guidelines'],
+    '.css': ['web-design-guidelines'],
+    '.scss': ['web-design-guidelines'],
+}
 
 # Build commands that trigger build-error-resolver on failure
 BUILD_COMMANDS = [
@@ -111,6 +115,22 @@ def get_agents_for_file(file_path: str) -> list:
     return recommendations
 
 
+def get_skills_for_file(file_path: str) -> list:
+    """Get recommended skills based on file type."""
+    recommendations = []
+    ext = os.path.splitext(file_path)[1].lower()
+
+    if ext in FILE_SKILLS:
+        skills = FILE_SKILLS[ext]
+        recommendations.append({
+            'skills': skills,
+            'reason': f'File type: {ext}',
+            'priority': 'Recommended'
+        })
+
+    return recommendations
+
+
 def check_command_failure(tool_name: str, tool_input: dict, tool_result: dict) -> list:
     """Check if a Bash command failed and return appropriate agents."""
     if tool_name != 'Bash':
@@ -148,6 +168,8 @@ def main():
 
     reminders = []
 
+    skill_reminders = []
+
     # Check file-based agents for Edit/Write
     if tool_name in ('Edit', 'Write'):
         file_path = tool_input.get('file_path', '')
@@ -157,19 +179,34 @@ def main():
             agents_str = ' + '.join(rec['agents'])
             reminders.append(f"[{rec['priority']}] {agents_str} - {rec['reason']}")
 
+        # Check skills
+        skill_recs = get_skills_for_file(file_path)
+        for rec in skill_recs:
+            skills_str = ' + '.join(rec['skills'])
+            skill_reminders.append(f"[Skill] {skills_str} - {rec['reason']}")
+
     # Check for command failures (build/test)
     failed_agents = check_command_failure(tool_name, tool_input, tool_result)
     for agent, reason in failed_agents:
         reminders.append(f"[Recommended] {agent} - {reason}")
 
     # Output reminders
-    if reminders:
+    if reminders or skill_reminders:
         print("", file=sys.stderr)
-        print("[Agent Reminder] Consider invoking:", file=sys.stderr)
-        for reminder in reminders:
-            print(f"  {reminder}", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("Use Task tool with appropriate subagent_type to invoke agents.", file=sys.stderr)
+        if reminders:
+            print("[Agent Reminder] Consider invoking:", file=sys.stderr)
+            for reminder in reminders:
+                print(f"  {reminder}", file=sys.stderr)
+            print("", file=sys.stderr)
+            print("Use Task tool with appropriate subagent_type to invoke agents.", file=sys.stderr)
+
+        if skill_reminders:
+            print("", file=sys.stderr)
+            print("[Skill Reminder] Consider using:", file=sys.stderr)
+            for reminder in skill_reminders:
+                print(f"  {reminder}", file=sys.stderr)
+            print("", file=sys.stderr)
+            print("Use Skill tool to invoke skills (e.g., /react-best-practices).", file=sys.stderr)
         print("", file=sys.stderr)
 
     # Always pass through (reminder only)
