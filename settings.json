@@ -105,6 +105,15 @@
             "command": "python3 ~/.claude/hooks/agent_reminder.py"
           }
         ]
+      },
+      {
+        "matcher": "TaskUpdate|TaskCreate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/task_persistence.py"
+          }
+        ]
       }
     ],
     "Stop": [

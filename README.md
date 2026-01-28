@@ -11,7 +11,7 @@
 [![Commands](https://img.shields.io/badge/commands-9-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-7-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-9-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-10-yellow)](hooks/)
 
 </div>
 
@@ -182,6 +182,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 | `code_quality.py` | Edit/Write | TODO/FIXME, NotImplemented, hardcoded URLs/ports, static state |
 | `security_scan.py` | Edit/Write | Hardcoded secrets, SQL injection, empty catch, bad error handling |
 | `agent_reminder.py` | Edit/Write/Bash | Suggest agents based on file type/path |
+| `task_persistence.py` | TaskUpdate/TaskCreate | Remind to sync tasks to .ultra/tasks/ |
 
 ### Session Hooks (Context & Validation)
 
