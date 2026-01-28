@@ -5,7 +5,7 @@ Analyzes user intent and suggests appropriate agents
 
 Keyword triggers:
 - e2e/test flow -> e2e-runner
-- auth/login/password/payment -> security warning
+- auth/login/password/payment -> pr-review-toolkit:code-reviewer (MANDATORY)
 - smart contract -> smart-contract-specialist + auditor
 
 This is a reminder only, does not block.
@@ -17,6 +17,18 @@ import re
 
 # Intent patterns to agent mapping
 INTENT_AGENTS = [
+    # Security triggers (MANDATORY) - use pr-review-toolkit:code-reviewer
+    (r'\b(auth|authentication|login|logout|session)\b',
+     'pr-review-toolkit:code-reviewer', 'Authentication-related - SECURITY REVIEW MANDATORY'),
+    (r'\b(password|credential|secret|token|api[_-]?key)\b',
+     'pr-review-toolkit:code-reviewer', 'Credential handling - SECURITY REVIEW MANDATORY'),
+    (r'\b(payment|checkout|billing|stripe|paypal)\b',
+     'pr-review-toolkit:code-reviewer', 'Payment processing - SECURITY REVIEW MANDATORY'),
+    (r'\b(permission|role|access|authorization|rbac|acl)\b',
+     'pr-review-toolkit:code-reviewer', 'Authorization logic - SECURITY REVIEW MANDATORY'),
+    (r'\b(encrypt|decrypt|hash|salt|crypto)\b',
+     'pr-review-toolkit:code-reviewer', 'Cryptography - SECURITY REVIEW MANDATORY'),
+
     # E2E testing triggers
     (r'\b(e2e|end-to-end|integration)\s+test\b',
      'e2e-runner', 'E2E testing task'),
@@ -73,14 +85,6 @@ INTENT_AGENTS = [
      'pr-review-toolkit:type-design-analyzer', 'Type design analysis'),
 ]
 
-# Security keywords (warning only, no agent)
-SECURITY_KEYWORDS = [
-    r'\b(auth|authentication|login|logout|session)\b',
-    r'\b(password|credential|secret|token|api[_-]?key)\b',
-    r'\b(payment|checkout|billing|stripe|paypal)\b',
-    r'\b(permission|role|access|authorization|rbac|acl)\b',
-    r'\b(encrypt|decrypt|hash|salt|crypto)\b',
-]
 
 # Skill patterns - for suggesting our own skills
 # NOTE: codex, gemini, promptup are user-invoked tools, NOT auto-triggered
@@ -112,10 +116,9 @@ INTENT_SKILLS = [
 
 
 def analyze_prompt(prompt: str) -> tuple:
-    """Analyze user prompt and return agent suggestions, skill suggestions, and security warning."""
+    """Analyze user prompt and return agent and skill suggestions."""
     agent_suggestions = []
     skill_suggestions = []
-    security_warning = False
     prompt_lower = prompt.lower()
 
     # Check agent triggers
@@ -140,13 +143,7 @@ def analyze_prompt(prompt: str) -> tuple:
                     'reason': reason
                 })
 
-    # Check security keywords
-    for pattern in SECURITY_KEYWORDS:
-        if re.search(pattern, prompt_lower, re.IGNORECASE):
-            security_warning = True
-            break
-
-    return agent_suggestions, skill_suggestions, security_warning
+    return agent_suggestions, skill_suggestions
 
 
 def main():
@@ -165,17 +162,11 @@ def main():
         return
 
     # Analyze prompt
-    agent_suggestions, skill_suggestions, security_warning = analyze_prompt(prompt)
+    agent_suggestions, skill_suggestions = analyze_prompt(prompt)
 
     # Output suggestions
-    if agent_suggestions or skill_suggestions or security_warning:
+    if agent_suggestions or skill_suggestions:
         print("", file=sys.stderr)
-
-        if security_warning:
-            print("⚠️  [SECURITY WARNING] Your request involves security-sensitive code!", file=sys.stderr)
-            print("    Manual security review is MANDATORY.", file=sys.stderr)
-            print("    Check: auth bypass, injection, credential exposure, privilege escalation", file=sys.stderr)
-            print("", file=sys.stderr)
 
         if agent_suggestions:
             print("[Agent Suggestion] Based on your request:", file=sys.stderr)

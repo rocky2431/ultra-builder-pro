@@ -113,7 +113,7 @@ def main():
             reminders.append({
                 'type': 'Security Review',
                 'message': 'Security-sensitive files changed',
-                'action': 'Manual security review MANDATORY before committing',
+                'action': 'Run pr-review-toolkit:code-reviewer (MANDATORY)',
                 'files': security_files[:5]
             })
 

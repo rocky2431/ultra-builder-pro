@@ -33,6 +33,24 @@ FILE_TYPE_AGENTS = {
 
 # Path patterns to agent mapping (case-insensitive)
 PATH_AGENTS = [
+    # Security-critical paths (MANDATORY)
+    (r'/auth/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/login/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/password/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/payment/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/checkout/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/billing/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/crypto/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/encrypt/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/session/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+    (r'/token/', ['pr-review-toolkit:code-reviewer'], 'MANDATORY'),
+
+    # Admin/Permission paths
+    (r'/admin/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
+    (r'/permission/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
+    (r'/role/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
+    (r'/acl/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
+
     # Test paths
     (r'/e2e/', ['e2e-runner'], 'Recommended'),
 
@@ -40,13 +58,6 @@ PATH_AGENTS = [
     (r'/docs/', ['doc-updater'], 'Recommended'),
     (r'readme', ['doc-updater'], 'Recommended'),
     (r'changelog', ['doc-updater'], 'Recommended'),
-]
-
-# Security-critical paths (warning only, no agent)
-SECURITY_PATHS = [
-    r'/auth/', r'/login/', r'/password/', r'/payment/', r'/checkout/',
-    r'/billing/', r'/crypto/', r'/encrypt/', r'/session/', r'/token/',
-    r'/admin/', r'/permission/', r'/role/', r'/acl/',
 ]
 
 # Skills to suggest based on file type
@@ -104,13 +115,6 @@ def get_agents_for_file(file_path: str) -> list:
     return recommendations
 
 
-def check_security_path(file_path: str) -> bool:
-    """Check if file is in a security-critical path."""
-    path_lower = file_path.lower()
-    for pattern in SECURITY_PATHS:
-        if re.search(pattern, path_lower):
-            return True
-    return False
 
 
 def get_skills_for_file(file_path: str) -> list:
@@ -167,7 +171,6 @@ def main():
     reminders = []
 
     skill_reminders = []
-    security_warning = False
 
     # Check file-based agents for Edit/Write
     if tool_name in ('Edit', 'Write'):
@@ -184,24 +187,14 @@ def main():
             skills_str = ' + '.join(rec['skills'])
             skill_reminders.append(f"[Skill] {skills_str} - {rec['reason']}")
 
-        # Check security-critical paths
-        if check_security_path(file_path):
-            security_warning = True
-
     # Check for command failures (build/test)
     failed_agents = check_command_failure(tool_name, tool_input, tool_result)
     for agent, reason in failed_agents:
         reminders.append(f"[Recommended] {agent} - {reason}")
 
     # Output reminders
-    if reminders or skill_reminders or security_warning:
+    if reminders or skill_reminders:
         print("", file=sys.stderr)
-
-        if security_warning:
-            print("⚠️  [SECURITY WARNING] This file is in a security-critical path!", file=sys.stderr)
-            print("    Manual security review is MANDATORY before committing.", file=sys.stderr)
-            print("    Check: auth bypass, injection, credential exposure, privilege escalation", file=sys.stderr)
-            print("", file=sys.stderr)
 
         if reminders:
             print("[Agent Reminder] Consider invoking:", file=sys.stderr)

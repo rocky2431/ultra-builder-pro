@@ -9,7 +9,7 @@ CRITICAL (BLOCK):
 - Dangerous functions: eval(), exec()
 - Empty catch blocks
 
-HIGH (WARN + manual review required):
+HIGH (WARN + trigger pr-review-toolkit:code-reviewer):
 - innerHTML with dynamic values
 - SSL verification disabled
 - Security rule disable comments
@@ -195,7 +195,7 @@ def main():
         if len(high) > 5:
             print(f"  ... and {len(high) - 5} more warnings", file=sys.stderr)
         print("", file=sys.stderr)
-        print("⚠️  Manual security review is MANDATORY before committing.", file=sys.stderr)
+        print("[Agent Reminder] Run pr-review-toolkit:code-reviewer for security review.", file=sys.stderr)
         print("", file=sys.stderr)
 
     # Block on critical issues
