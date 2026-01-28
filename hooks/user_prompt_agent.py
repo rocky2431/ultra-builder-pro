@@ -87,19 +87,29 @@ INTENT_AGENTS = [
 # Skill patterns - for suggesting our own skills
 # NOTE: codex, gemini, promptup are user-invoked tools, NOT auto-triggered
 INTENT_SKILLS = [
-    # React/Next.js performance
+    # React/Next.js performance - based on SKILL.md triggers
     (r'\b(react|next\.?js|nextjs)\b.*\b(performance|optimize|slow|render)\b',
      'react-best-practices', 'React/Next.js performance optimization'),
-    (r'\b(bundle|chunk|lazy\s*load|code\s*split)\b',
+    (r'\b(bundle|chunk|lazy\s*load|code\s*split|tree\s*shak)\b',
      'react-best-practices', 'Bundle optimization patterns'),
     (r'\b(rerender|re-render|memo|useMemo|useCallback)\b',
      'react-best-practices', 'React render optimization'),
+    (r'\b(data\s*fetch|useSWR|useQuery|getServerSideProps|getStaticProps)\b',
+     'react-best-practices', 'Data fetching patterns'),
+    (r'\b(server\s*component|client\s*component|use\s*client|use\s*server)\b',
+     'react-best-practices', 'React Server Components'),
+    (r'\b(suspense|streaming|loading\s*state)\b',
+     'react-best-practices', 'Async rendering patterns'),
 
-    # UI/Design guidelines
+    # UI/Design guidelines - based on SKILL.md triggers
     (r'\b(ui|ux|design)\s+(?:review|audit|check)\b',
      'web-design-guidelines', 'UI design compliance review'),
     (r'\b(accessibility|a11y|wcag|aria)\b',
      'web-design-guidelines', 'Accessibility compliance check'),
+    (r'\breview\s+(?:my\s+)?(?:ui|site|interface)\b',
+     'web-design-guidelines', 'UI review'),
+    (r'\b(?:ui|web|interface)\s+(?:best\s*practices|guidelines)\b',
+     'web-design-guidelines', 'Web interface best practices'),
 ]
 
 

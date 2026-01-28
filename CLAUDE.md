@@ -238,26 +238,41 @@ console.log('Order created: ' + orderId);
 <agent_system>
 **1% Rule**: If even 1% chance an agent applies, invoke it. No exceptions.
 
-**Auto-trigger** (enforced by hooks):
-| Signal | Agent/Skill | Priority |
-|--------|-------------|----------|
-| .sol files | smart-contract-specialist + auditor | MANDATORY |
-| /auth/, /payment/ paths | security-reviewer | MANDATORY |
-| Build command fails | build-error-resolver | Immediate |
-| .tsx/.jsx files | frontend-developer + react-best-practices | Recommended |
-| /e2e/ path | e2e-runner | Recommended |
-| .md files, /docs/ | doc-updater | Recommended |
+**Auto-trigger by file type** (enforced by hooks):
+| File Type | Agent | Skill |
+|-----------|-------|-------|
+| .sol | smart-contract-specialist + auditor (MANDATORY) | - |
+| .tsx/.jsx | frontend-developer | react-best-practices |
+| .vue/.svelte/.css/.scss | frontend-developer | web-design-guidelines |
+| .md/.rst | doc-updater | - |
 
-**User-requested triggers** (not auto):
-| Request | Agent |
-|---------|-------|
-| "review code/PR", "ready to merge" | pr-review-toolkit:code-reviewer |
+**Auto-trigger by path**:
+| Path | Agent | Priority |
+|------|-------|----------|
+| /auth/, /login/, /password/, /payment/, /token/ | security-reviewer | MANDATORY |
+| /admin/, /permission/, /role/ | security-reviewer | Recommended |
+| /e2e/ | e2e-runner | Recommended |
+| /docs/ | doc-updater | Recommended |
+
+**Auto-trigger by event**:
+| Event | Agent |
+|-------|-------|
+| Build command fails | build-error-resolver |
+
+**User intent triggers** (keyword in prompt):
+| Keywords | Agent/Skill |
+|----------|-------------|
+| "review code/PR", "ready to merge/commit" | pr-review-toolkit:code-reviewer |
 | "test coverage", "missing tests" | pr-review-toolkit:pr-test-analyzer |
 | "error handling", "silent fail" | pr-review-toolkit:silent-failure-hunter |
+| react/nextjs + performance/optimize | react-best-practices |
+| bundle/chunk/lazy load/code split | react-best-practices |
+| data fetch/SWR/server component | react-best-practices |
+| ui/ux + review/audit, accessibility/a11y | web-design-guidelines |
 
 **Custom Agents** (7): build-error-resolver, doc-updater, e2e-runner, frontend-developer, refactor-cleaner, smart-contract-specialist, smart-contract-auditor
 
-**Skills** (user-invoked): codex, gemini, promptup, react-best-practices, web-design-guidelines
+**User-invoked Skills**: codex, gemini, promptup
 
 **Hooks enforce**: mock detection, security scan, agent/skill reminders
 
