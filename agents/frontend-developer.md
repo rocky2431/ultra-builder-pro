@@ -20,6 +20,7 @@ description: |
   Web3 wallet integration requires specialized frontend knowledge.
   </commentary>
   </example>
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
 color: cyan
 ---

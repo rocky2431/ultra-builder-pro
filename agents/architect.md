@@ -20,7 +20,7 @@ description: |
   System design task requiring architectural expertise.
   </commentary>
   </example>
-tools: Read, Grep, Glob
+tools: Read, Write, Edit, Grep, Glob
 model: opus
 color: purple
 ---

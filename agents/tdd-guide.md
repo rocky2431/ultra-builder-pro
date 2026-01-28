@@ -20,7 +20,7 @@ description: |
   Bug fix - write test that reproduces bug first, then fix.
   </commentary>
   </example>
-tools: Read, Write, Edit, Bash, Grep
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
 color: green
 ---

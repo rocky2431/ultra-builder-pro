@@ -20,6 +20,7 @@ description: |
   Database design impacts performance and scalability.
   </commentary>
   </example>
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
 color: purple
 ---

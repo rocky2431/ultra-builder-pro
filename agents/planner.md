@@ -20,7 +20,7 @@ description: |
   Refactoring with risk of breaking changes - needs careful planning.
   </commentary>
   </example>
-tools: Read, Grep, Glob
+tools: Read, Write, Edit, Grep, Glob
 model: opus
 color: blue
 ---
