@@ -179,7 +179,7 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 |------|------|
 | SQL | Parameterized queries only |
 | Output | Escape/sanitize all user-derived content |
-| Auth | Use established libraries (Passport, NextAuth) |
+| Auth | Use established auth libraries (search Context7 for current best) |
 | Secrets | Environment variables or secret manager |
 | Sessions | Secure, HttpOnly, SameSite cookies |
 
@@ -216,43 +216,15 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 </honesty_challenge>
 
 <agent_system>
-**1% Rule**: If even 1% chance an agent applies, invoke it. No exceptions.
+**1% Rule**: If even 1% chance a specialized agent applies, invoke it. No exceptions.
 
-**Auto-trigger by file type**:
-| File Type | Agent | Skill |
-|-----------|-------|-------|
-| .sol | smart-contract-specialist + auditor (MANDATORY) | - |
-| .tsx/.jsx | frontend-developer | react-best-practices |
-| .vue/.svelte/.css/.scss | frontend-developer | web-design-guidelines |
-| .md/.rst | doc-updater | - |
+**Principles**:
+- Security-sensitive code (auth/payment/PII) → security review agent MANDATORY
+- Smart contracts → specialist + auditor MANDATORY
+- Build failures → resolver agent before manual debugging
+- Code review before merge → MANDATORY
 
-**Auto-trigger by path**:
-| Path | Agent | Priority |
-|------|-------|----------|
-| /auth/, /login/, /password/, /payment/, /token/ | pr-review-toolkit:code-reviewer | MANDATORY |
-| /e2e/ | e2e-runner | Recommended |
-| /docs/ | doc-updater | Recommended |
-
-**Auto-trigger by event**: Build command fails → build-error-resolver
-
-**User intent triggers**:
-| Keywords | Agent/Skill |
-|----------|-------------|
-| "review code/PR", "ready to merge/commit" | pr-review-toolkit:code-reviewer |
-| "test coverage", "missing tests" | pr-review-toolkit:pr-test-analyzer |
-| "error handling", "silent fail" | pr-review-toolkit:silent-failure-hunter |
-| react/nextjs + performance/optimize | react-best-practices |
-| bundle/chunk/lazy load/code split | react-best-practices |
-| data fetch/SWR/server component | react-best-practices |
-| ui/ux + review/audit, accessibility/a11y | web-design-guidelines |
-
-**Agents** (7): build-error-resolver, doc-updater, e2e-runner, frontend-developer, refactor-cleaner, smart-contract-specialist, smart-contract-auditor
-
-**User-invoked Skills**: codex, gemini, promptup
-
-**Hooks enforce**: mock detection, security scan, agent/skill reminders
-
-**Reference**: ~/.claude/agents/, ~/.claude/hooks/, ~/.claude/skills/
+**Reference**: See README.md for current agent/skill list and trigger matrix.
 </agent_system>
 
 <data_persistence>
@@ -292,30 +264,9 @@ No evidence + significant consequences → Speculation, brake
 **Forbidden without evidence**: "should work", "I'm confident", "looks good"
 </verification>
 
-<learned_patterns>
-**Location**: ~/.claude/skills/learned/
-**Rule**: New patterns = Speculation (_unverified suffix)
-**Priority**: Fact > Inference > Speculation
-</learned_patterns>
-
-<workflow_tracking>
-**Tools**: TaskCreate, TaskList, TaskGet, TaskUpdate
-**Rules**: Multi-step commands use Task system; hydrate from .ultra/tasks/; update both session and persistent
-</workflow_tracking>
-
-<git_workflow>
-Follow project branch naming. Conventional Commits. Include Co-author for AI commits.
-</git_workflow>
-
-<project_structure>
-Follow existing structure. New Ultra projects: .ultra/{tasks/, specs/, docs/}
-</project_structure>
-
-<work_style>
-- **Context**: Batch parallel calls, avoid repeated queries, stop when sufficient
-- **Persistence**: Keep acting until solved; "Should we do X?" + yes → execute directly
-- **Action Bias**: Incomplete action > perfect inaction
-- **Output**: Prefer concise; large changes → summarize by file
-- **Self-check**: Before finalizing, verify correct/secure/maintainable
-- **Conflict**: `Conflict: rule {higher} overrides rule {lower} → {action}`
-</work_style>
+<execution_principles>
+- **Evidence over confidence**: Verify before claiming done
+- **Action over perfection**: Incomplete action > perfect inaction
+- **Persistence**: Keep acting until solved, don't ask "should I continue?"
+- **Conflict resolution**: Higher priority rule wins, cite rule number
+</execution_principles>
