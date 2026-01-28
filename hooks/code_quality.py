@@ -147,27 +147,35 @@ def main():
     all_issues = []
 
     if blocks:
-        all_issues.append(f"[CODE QUALITY - CRITICAL] {file_path}")
-        all_issues.append("CLAUDE.md forbids TODO/FIXME/NotImplemented. Fix these:")
+        all_issues.append(f"[CODE QUALITY CRITICAL] {file_path}")
+        all_issues.append("CLAUDE.md forbidden_patterns (lines 63-65) violated:")
         for b in blocks[:5]:
             all_issues.append(f"  Line {b['line']}: {b['message']}")
             all_issues.append(f"    > {b['code']}")
         if len(blocks) > 5:
             all_issues.append(f"  ... and {len(blocks) - 5} more")
+        all_issues.append("")
+        all_issues.append("Red flags (CLAUDE.md lines 72-88):")
+        all_issues.append("  - 'Write TODO, improve later' -> Later = never")
+        all_issues.append("  - 'Just MVP/prototype' -> MVP is production code")
+        all_issues.append("Complete the implementation NOW or don't commit.")
 
     if warnings:
         if all_issues:
             all_issues.append("")
-        all_issues.append(f"[CODE QUALITY - WARNING] {file_path}")
+        all_issues.append(f"[CODE QUALITY WARNING] {file_path}")
         for w in warnings[:5]:
             all_issues.append(f"  Line {w['line']}: {w['message']}")
             all_issues.append(f"    > {w['code']}")
         if len(warnings) > 5:
             all_issues.append(f"  ... and {len(warnings) - 5} more")
+        all_issues.append("")
+        all_issues.append("Use structured logger (CLAUDE.md logging lines 111-127):")
+        all_issues.append("  logger.info('message', { context, traceId })")
 
     if all_issues:
         all_issues.append("")
-        all_issues.append("ACTION REQUIRED: Complete implementations and fix issues.")
+        all_issues.append("ACTION: Complete implementations before continuing.")
         warning_message = "\n".join(all_issues)
 
         # BLOCK patterns (TODO/FIXME) block execution, WARN patterns only warn

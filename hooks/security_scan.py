@@ -48,10 +48,17 @@ CRITICAL_PATTERNS = [
     (r'\bexec\s*\([^)]*\buser', 'exec() with user input - Code injection risk'),
     (r'Function\s*\([^)]*\buser', 'Function() constructor with user input'),
 
-    # Empty catch blocks (silent error swallowing)
-    (r'catch\s*\([^)]*\)\s*\{\s*\}', 'Empty catch block - Never silently swallow errors'),
+    # Empty catch blocks (silent error swallowing) - CLAUDE.md error_handling (lines 100-108)
+    (r'catch\s*\([^)]*\)\s*\{\s*\}', 'Empty catch block - Log with context and re-throw or handle'),
+    (r'catch\s*\([^)]*\)\s*\{\s*return\s+null\s*;?\s*\}', 'catch returning null - Converts error to invalid state'),
+    (r'catch\s*\([^)]*\)\s*\{\s*console\.log\s*\([^)]*\)\s*;?\s*\}', 'catch with only console.log - Logging without handling'),
     (r'except\s*:\s*pass\s*$', 'Bare except with pass - Never silently swallow errors'),
     (r'except\s+\w+\s*:\s*pass\s*$', 'Exception swallowed with pass - Log or re-raise'),
+
+    # Generic error messages - CLAUDE.md error_handling (line 106)
+    (r'throw\s+new\s+Error\s*\(\s*[\'"](?:Error|error|ERROR)[\'"]', 'Generic Error message - Include what failed, why, and input'),
+    (r'throw\s+new\s+Error\s*\(\s*[\'"][\'"]', 'Empty Error message - Include what failed, why, and input'),
+    (r'raise\s+Exception\s*\(\s*[\'"](?:Error|error)[\'"]', 'Generic Exception message - Include context'),
 ]
 
 # HIGH patterns - WARN and require manual review
@@ -200,27 +207,31 @@ def main():
     all_issues = []
 
     if critical:
-        all_issues.append(f"[SECURITY - CRITICAL] {file_path}")
-        all_issues.append("CLAUDE.md security rules violated. Fix these immediately:")
+        all_issues.append(f"[SECURITY CRITICAL] {file_path}")
+        all_issues.append("CLAUDE.md security/error_handling rules (lines 129-152, 100-108) violated:")
         for c in critical[:5]:
             all_issues.append(f"  Line {c['line']}: {c['message']}")
             all_issues.append(f"    > {c['code']}")
         if len(critical) > 5:
             all_issues.append(f"  ... and {len(critical) - 5} more")
         all_issues.append("")
-        all_issues.append("Solutions: Use env vars for secrets, parameterized queries for SQL, proper error handling.")
+        all_issues.append("Required fixes:")
+        all_issues.append("  - Secrets: Use process.env.VAR or secret manager")
+        all_issues.append("  - SQL: Use parameterized queries ($1, ?) not string concat")
+        all_issues.append("  - Errors: catch -> log with context -> re-throw typed error")
+        all_issues.append("  - Error messages: Include what failed, why, what input caused it")
 
     if high:
         if all_issues:
             all_issues.append("")
-        all_issues.append(f"[SECURITY - WARNING] {file_path}")
+        all_issues.append(f"[SECURITY WARNING] {file_path}")
         for h in high[:5]:
             all_issues.append(f"  Line {h['line']}: {h['message']}")
             all_issues.append(f"    > {h['code']}")
         if len(high) > 5:
             all_issues.append(f"  ... and {len(high) - 5} more")
         all_issues.append("")
-        all_issues.append("Consider running pr-review-toolkit:code-reviewer for security review.")
+        all_issues.append("Run pr-review-toolkit:code-reviewer for security-sensitive files (MANDATORY for /auth/, /payment/).")
 
     if all_issues:
         all_issues.append("")
