@@ -218,13 +218,37 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 <agent_system>
 **1% Rule**: If even 1% chance a specialized agent applies, invoke it. No exceptions.
 
-**Principles**:
-- Security-sensitive code (auth/payment/PII) → security review agent MANDATORY
-- Smart contracts → specialist + auditor MANDATORY
-- Build failures → resolver agent before manual debugging
-- Code review before merge → MANDATORY
+**Auto-trigger by file type**:
+| File Type | Agent | Skill |
+|-----------|-------|-------|
+| .sol | smart-contract-specialist + auditor (MANDATORY) | - |
+| .tsx/.jsx | frontend-developer | react-best-practices |
+| .vue/.svelte/.css/.scss | frontend-developer | web-design-guidelines |
+| .md/.rst | doc-updater | - |
 
-**Reference**: See README.md for current agent/skill list and trigger matrix.
+**Auto-trigger by path**:
+| Path | Agent | Priority |
+|------|-------|----------|
+| /auth/, /login/, /password/, /payment/, /token/ | pr-review-toolkit:code-reviewer | MANDATORY |
+| /e2e/ | e2e-runner | Recommended |
+| /docs/ | doc-updater | Recommended |
+
+**Auto-trigger by event**: Build command fails → build-error-resolver
+
+**User intent triggers**:
+| Keywords | Agent/Skill |
+|----------|-------------|
+| "review code/PR", "ready to merge/commit" | pr-review-toolkit:code-reviewer |
+| "test coverage", "missing tests" | pr-review-toolkit:pr-test-analyzer |
+| "error handling", "silent fail" | pr-review-toolkit:silent-failure-hunter |
+| react/nextjs + performance/optimize | react-best-practices |
+| ui/ux + review/audit, accessibility/a11y | web-design-guidelines |
+
+**Agents**: build-error-resolver, doc-updater, e2e-runner, frontend-developer, refactor-cleaner, smart-contract-specialist, smart-contract-auditor
+
+**Skills**: codex, gemini, promptup
+
+**Hooks enforce**: mock detection, security scan, agent/skill reminders
 </agent_system>
 
 <data_persistence>
