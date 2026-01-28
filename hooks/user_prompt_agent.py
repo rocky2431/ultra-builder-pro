@@ -5,7 +5,7 @@ Analyzes user intent and suggests appropriate agents
 
 Keyword triggers:
 - e2e/test flow -> e2e-runner
-- auth/login/password/payment -> security-reviewer
+- auth/login/password/payment -> security warning
 - smart contract -> smart-contract-specialist + auditor
 
 This is a reminder only, does not block.

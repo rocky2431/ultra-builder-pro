@@ -113,7 +113,7 @@ def main():
             reminders.append({
                 'type': 'Security Review',
                 'message': 'Security-sensitive files changed',
-                'action': 'Run security-reviewer agent (MANDATORY)',
+                'action': 'Manual security review MANDATORY before committing',
                 'files': security_files[:5]
             })
 

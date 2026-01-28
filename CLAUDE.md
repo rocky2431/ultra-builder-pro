@@ -241,7 +241,7 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 
 <high_risk_brakes>
 **STOP** for: data migration, funds/keys, breaking API, production config
-Security issues → security-reviewer agent → fix before continuing
+Security issues → ⚠️ manual security review → fix before continuing
 No evidence + significant consequences → Speculation, brake
 </high_risk_brakes>
 

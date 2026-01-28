@@ -188,7 +188,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 | Signal | Agent/Skill Triggered | Priority |
 |--------|----------------------|----------|
 | .sol files | smart-contract-specialist + auditor | MANDATORY |
-| /auth/, /payment/ paths | security-reviewer | MANDATORY |
+| /auth/, /payment/ paths | ⚠️ Security warning (manual review) | MANDATORY |
 | Build command fails | build-error-resolver | Recommended |
 | .tsx/.jsx files | frontend-developer + react-best-practices (skill) | Recommended |
 | "review code/PR" | pr-review-toolkit:code-reviewer | Recommended |
@@ -287,7 +287,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 - Auto-BLOCK on CLAUDE.md rule violations
 - Auto-trigger agents based on context
 - Smart contract files → BOTH specialist + auditor (MANDATORY)
-- Auth/payment paths → security-reviewer (MANDATORY)
+- Auth/payment paths → ⚠️ Security warning + manual review (MANDATORY)
 - Integration with pr-review-toolkit plugin agents
 
 **Architecture Changes**:

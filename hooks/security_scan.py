@@ -9,7 +9,7 @@ CRITICAL (BLOCK):
 - Dangerous functions: eval(), exec()
 - Empty catch blocks
 
-HIGH (WARN + suggest security-reviewer):
+HIGH (WARN + manual review required):
 - innerHTML with dynamic values
 - SSL verification disabled
 - Security rule disable comments
@@ -54,7 +54,7 @@ CRITICAL_PATTERNS = [
     (r'except\s+\w+\s*:\s*pass\s*$', 'Exception swallowed with pass - Log or re-raise'),
 ]
 
-# HIGH patterns - WARN and suggest security-reviewer
+# HIGH patterns - WARN and require manual review
 HIGH_PATTERNS = [
     (r'\.innerHTML\s*=\s*(?![\'"<])', 'Dynamic innerHTML assignment - XSS risk'),
     (r'dangerouslySetInnerHTML\s*=\s*\{', 'dangerouslySetInnerHTML - XSS risk, ensure sanitization'),
@@ -195,7 +195,7 @@ def main():
         if len(high) > 5:
             print(f"  ... and {len(high) - 5} more warnings", file=sys.stderr)
         print("", file=sys.stderr)
-        print("[Agent Reminder] Consider running security-reviewer agent", file=sys.stderr)
+        print("⚠️  Manual security review is MANDATORY before committing.", file=sys.stderr)
         print("", file=sys.stderr)
 
     # Block on critical issues
