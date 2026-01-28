@@ -282,7 +282,61 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 
 ---
 
+## Operational Config
+
+> These are operational settings, not principles. CLAUDE.md contains the principles.
+
+### Git Workflow
+
+- Follow project branch naming conventions
+- Conventional Commits format
+- Include Co-author for AI commits:
+  ```
+  Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+  ```
+
+### Project Structure
+
+```
+New Ultra projects use:
+.ultra/
+├── tasks/    # Task tracking
+├── specs/    # Specifications
+└── docs/     # Project documentation
+```
+
+### Learned Patterns
+
+Patterns extracted via `/learn` are stored in `skills/learned/`:
+
+| Confidence | File Suffix | Description |
+|------------|-------------|-------------|
+| Speculation | `_unverified` | Freshly extracted, needs verification |
+| Inference | No suffix | Human review passed |
+| Fact | No suffix + marked | Multiple successful uses |
+
+Priority: Fact > Inference > Speculation
+
+### Workflow Tools
+
+Multi-step tasks use the Task system:
+- `TaskCreate`: Create new task
+- `TaskList`: View all tasks
+- `TaskGet`: Get task details
+- `TaskUpdate`: Update task status
+
+---
+
 ## Version History
+
+### v5.2.2 (2026-01-29) - Codex Purification Edition
+
+**CLAUDE.md Refactoring**:
+- Removed operational config (moved to README)
+- Removed specific library names
+- Removed specific agent/skill names
+- Result: 322 → 272 lines (-15%)
+- CLAUDE.md is now pure principles only
 
 ### v5.2.1 (2026-01-29) - Hooks Optimization Edition
 
