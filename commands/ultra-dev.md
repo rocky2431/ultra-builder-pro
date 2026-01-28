@@ -154,6 +154,12 @@ Run these agents in parallel using Task tool:
 | `pr-review-toolkit:type-design-analyzer` | Type design, encapsulation, invariants |
 | `pr-review-toolkit:comment-analyzer` | Comment accuracy, technical debt |
 
+**CRITICAL: Wait for ALL agents to complete**:
+1. Launch all 5 agents in parallel (single message with 5 Task tool calls)
+2. **MUST wait for ALL agent results to return**
+3. **DO NOT proceed to Phase 2 until you have received results from ALL 5 agents**
+4. Collect and display each agent's findings
+
 #### Phase 2: Fix Issues
 
 - **If issues found** → Fix all issues, re-run tests
@@ -162,14 +168,28 @@ Run these agents in parallel using Task tool:
 
 #### Phase 3: Code Optimization
 
-After all reviews pass:
+**Only after ALL Phase 1 agents return "PASS" or issues are fixed in Phase 2**:
 
 1. Run `pr-review-toolkit:code-simplifier` agent
-2. Apply simplification suggestions
-3. Verify tests still pass
-4. **If "PASS"** → Continue to Step 5
+2. **Wait for agent result**
+3. Apply simplification suggestions
+4. Verify tests still pass
+5. **If "PASS"** → Continue to Step 5
 
-**Blocking Behavior**: Cannot commit until all PR Review agents pass.
+#### Phase 4: PR Review Verification (BLOCKING)
+
+**Before proceeding to Step 5, verify ALL agents passed**:
+
+- [ ] code-reviewer: PASS
+- [ ] silent-failure-hunter: PASS
+- [ ] pr-test-analyzer: PASS
+- [ ] type-design-analyzer: PASS
+- [ ] comment-analyzer: PASS
+- [ ] code-simplifier: PASS (or suggestions applied)
+
+**If any agent not yet returned → WAIT**
+**If any agent returned issues → return to Phase 2**
+**Only when ALL checked → proceed to Step 5**
 
 ### Step 5: Update Status to Completed (MANDATORY)
 
