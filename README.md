@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.0
+# Ultra Builder Pro 5.2.0
 
 <div align="center">
 
@@ -6,11 +6,12 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.0.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.2.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-9-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-13-red)](agents/)
+[![Agents](https://img.shields.io/badge/agents-10-red)](agents/)
+[![Hooks](https://img.shields.io/badge/hooks-6-yellow)](hooks/)
 
 </div>
 
@@ -108,43 +109,34 @@ Patterns extracted via `/learn` are stored in `skills/learned/` with confidence 
 
 ---
 
-## Agents (13)
+## Agents (10 Custom + Plugins)
 
 > **Default Model**: ALL agents use Opus. No exceptions.
 
-### Immediate Trigger Agents
+### Custom Agents (`~/.claude/agents/`)
 
-Auto-triggered without user prompt:
+| Agent | Purpose | Hook Trigger |
+|-------|---------|--------------|
+| `architect` | System architecture, tech decisions | "design system", "choose library" |
+| `planner` | Implementation planning (3+ files) | "implement oauth", /infrastructure/ |
+| `tdd-guide` | TDD workflow (RED-GREEN-REFACTOR) | "add feature", test files |
+| `build-error-resolver` | Build error quick fix | Build command fails |
+| `e2e-runner` | E2E testing with Playwright | /e2e/, "e2e test" |
+| `frontend-developer` | React/Web3, UI components | .tsx/.jsx/.vue/.svelte |
+| `refactor-cleaner` | Dead code cleanup | "refactor", "dead code" |
+| `doc-updater` | Documentation maintenance | .md files, /docs/ |
+| `smart-contract-specialist` | Solidity, gas optimization | .sol, "solidity" |
+| `smart-contract-auditor` | Contract security audit | .sol, "audit contract" |
 
-| Agent | Trigger Condition |
-|-------|-------------------|
-| `planner` | Complex feature request |
-| `code-reviewer` | Code just written/modified (MANDATORY) |
-| `tdd-guide` | Bug fix or new feature |
-| `architect` | Architectural decision |
-| `security-reviewer` | Security-sensitive code |
+### Plugin Agents (pr-review-toolkit)
 
-### On-Demand Agents
-
-Triggered when needed:
-
-| Agent | Use Case |
-|-------|----------|
-| `build-error-resolver` | Build failure |
-| `e2e-runner` | E2E testing |
-| `refactor-cleaner` | Dead code cleanup |
-| `doc-updater` | Documentation maintenance |
-
-### Domain Agents
-
-Specialized domain experts:
-
-| Agent | Purpose |
-|-------|---------|
-| `backend-architect` | Backend system architecture, API design, microservices |
-| `frontend-developer` | React/Web3 dApps, UI components, wallet integration, UX |
-| `smart-contract-specialist` | Solidity development, gas optimization, DeFi protocols |
-| `smart-contract-auditor` | Security audits, vulnerability detection, exploit analysis |
+| Agent | Purpose | Hook Trigger |
+|-------|---------|--------------|
+| `pr-review-toolkit:code-reviewer` | CLAUDE.md compliance check | "review pr", API paths |
+| `pr-review-toolkit:silent-failure-hunter` | Error handling review | "error handling" |
+| `pr-review-toolkit:pr-test-analyzer` | Test coverage analysis | "test coverage" |
+| `pr-review-toolkit:code-simplifier` | Code simplification | "simplify", "too complex" |
+| `pr-review-toolkit:type-design-analyzer` | Type design analysis | "type design" |
 
 ---
 
@@ -174,13 +166,36 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System
+## Hooks System (6 Hooks)
 
-Configured in `settings.json`:
+Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 
-| Hook | Trigger | Action |
-|------|---------|--------|
-| PostToolUse (Edit) | After editing .ts/.tsx/.js/.jsx files | Warn if console.log found |
+### Blocking Hooks (BLOCK on violation)
+
+| Hook | Trigger | Detection |
+|------|---------|-----------|
+| `mock_detector.py` | Edit/Write | jest.fn(), jest.mock(), InMemoryRepository |
+| `code_quality.py` | Edit/Write | TODO/FIXME, NotImplementedError |
+| `security_scan.py` | Edit/Write | Hardcoded secrets, SQL injection, empty catch |
+
+### Reminder Hooks (Suggest agents)
+
+| Hook | Trigger | Function |
+|------|---------|----------|
+| `agent_reminder.py` | Edit/Write/Bash | Suggest agents based on file type/path |
+| `user_prompt_agent.py` | UserPromptSubmit | Suggest agents based on user intent |
+| `pre_stop_check.py` | Stop | Remind to review uncommitted changes |
+
+### Auto-Trigger Matrix
+
+| Signal | Agent Triggered | Priority |
+|--------|----------------|----------|
+| .sol files | smart-contract-specialist + auditor | MANDATORY |
+| /auth/, /payment/ paths | security-reviewer | MANDATORY |
+| "implement oauth" | planner + security-reviewer | MANDATORY |
+| Build command fails | build-error-resolver | Recommended |
+| Test command fails | tdd-guide | Recommended |
+| .tsx/.jsx files | frontend-developer | Recommended |
 
 ---
 
@@ -214,7 +229,15 @@ Configured in `settings.json`:
 ~/.claude/
 ├── CLAUDE.md                 # Main configuration (Priority Stack)
 ├── README.md                 # This file
-├── settings.json             # Claude Code settings + hooks
+├── settings.json             # Claude Code settings + hooks config
+│
+├── hooks/                    # Automated enforcement (6 hooks)
+│   ├── mock_detector.py      # BLOCK: jest.fn(), InMemoryRepo
+│   ├── code_quality.py       # BLOCK: TODO/FIXME, NotImplemented
+│   ├── security_scan.py      # BLOCK: secrets, SQL injection
+│   ├── agent_reminder.py     # REMIND: file-based agent suggestions
+│   ├── user_prompt_agent.py  # REMIND: intent-based agent suggestions
+│   └── pre_stop_check.py     # REMIND: review before session end
 │
 ├── commands/                 # /ultra-* commands (9)
 │   ├── ultra-init.md
@@ -225,71 +248,77 @@ Configured in `settings.json`:
 │   ├── ultra-deliver.md
 │   ├── ultra-status.md
 │   ├── ultra-think.md
-│   └── learn.md              # NEW: Pattern extraction
+│   └── learn.md
 │
 ├── skills/                   # Domain skills (5)
 │   ├── codex/                # OpenAI Codex CLI
 │   ├── gemini/               # Google Gemini CLI
 │   ├── promptup/             # Prompt engineering
 │   ├── skill-creator/        # Create new skills
-│   └── learned/              # NEW: Extracted patterns
+│   └── learned/              # Extracted patterns
 │
-├── agents/                   # Specialized agents (13)
-│   ├── planner.md            # NEW: Implementation planning
-│   ├── code-reviewer.md      # NEW: Code review (mandatory)
-│   ├── tdd-guide.md          # NEW: TDD workflow
-│   ├── architect.md          # NEW: System architecture
-│   ├── security-reviewer.md  # NEW: Security review
-│   ├── build-error-resolver.md # NEW: Build error fix
-│   ├── e2e-runner.md         # NEW: E2E testing
-│   ├── refactor-cleaner.md   # NEW: Dead code cleanup
-│   ├── doc-updater.md        # NEW: Documentation
-│   ├── backend-architect.md
+├── agents/                   # Custom agents (10)
+│   ├── architect.md          # System architecture
+│   ├── planner.md            # Implementation planning
+│   ├── tdd-guide.md          # TDD workflow
+│   ├── build-error-resolver.md
+│   ├── e2e-runner.md
 │   ├── frontend-developer.md
+│   ├── refactor-cleaner.md
+│   ├── doc-updater.md
 │   ├── smart-contract-specialist.md
 │   └── smart-contract-auditor.md
 │
 └── .ultra-template/          # Project initialization templates
     ├── specs/
-    │   ├── product.md        # Product specification template
-    │   └── architecture.md   # arc42 architecture template
     ├── tasks/
-    │   ├── tasks.json        # Task registry
-    │   └── contexts/         # Task context files
     └── docs/
-        └── research/         # Research reports
 ```
 
 ---
 
 ## Version History
 
+### v5.2.0 (2026-01-29) - Hooks Enforcement Edition
+
+**New Hooks System (6 Python hooks)**:
+- `mock_detector.py`: BLOCK jest.fn(), InMemoryRepository patterns
+- `code_quality.py`: BLOCK TODO/FIXME/NotImplementedError
+- `security_scan.py`: BLOCK hardcoded secrets, SQL injection, empty catch
+- `agent_reminder.py`: Suggest agents based on file type/path
+- `user_prompt_agent.py`: Suggest agents based on user intent
+- `pre_stop_check.py`: Remind to review before session end
+
+**Enforcement Features**:
+- Auto-BLOCK on CLAUDE.md rule violations
+- Auto-trigger agents based on context
+- Smart contract files → BOTH specialist + auditor (MANDATORY)
+- Auth/payment paths → security-reviewer (MANDATORY)
+- Integration with pr-review-toolkit plugin agents
+
+**Architecture Changes**:
+- Hooks enforce rules (not just suggest)
+- settings.json hook configuration
+- CLAUDE.md agent_system block updated
+
 ### v5.0.0 (2026-01-26) - Agent System Edition
 
-**New Agent System (9 new agents)**:
-- `planner`: Implementation planning expert
-- `code-reviewer`: Code review (MANDATORY after code changes)
-- `tdd-guide`: TDD workflow expert
+**New Agent System (10 custom agents)**:
 - `architect`: System architecture expert
-- `security-reviewer`: Security review expert
+- `planner`: Implementation planning expert
+- `tdd-guide`: TDD workflow expert
 - `build-error-resolver`: Build error fix specialist
 - `e2e-runner`: E2E testing expert
+- `frontend-developer`: React/Web3 UI development
 - `refactor-cleaner`: Dead code cleanup
 - `doc-updater`: Documentation maintenance
+- `smart-contract-specialist`: Solidity development
+- `smart-contract-auditor`: Contract security audit
 
 **New Features**:
 - `/learn` command for pattern extraction
 - `skills/learned/` directory for extracted patterns
 - Confidence levels: Speculation → Inference → Fact
-- Hooks system (console.log warning)
-- TDD workflow enforcement
-
-**Architecture Changes**:
-- Agent-first design (from everything-claude-code)
-- Immediate trigger agents (auto-invoked)
-- On-demand agents (user-triggered)
-- Evidence-first principle preserved
-- High-risk brakes preserved
 
 ### v4.5.1 (2026-01-07) - PromptUp Edition
 
