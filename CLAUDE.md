@@ -149,7 +149,7 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 | Secrets | Environment variables or secret manager |
 | Sessions | Secure, HttpOnly, SameSite cookies |
 
-**Trigger**: auth/payment/PII code → security-reviewer MANDATORY
+**Trigger**: auth/payment/PII code → ⚠️ Security warning + manual review MANDATORY
 </security>
 
 <observability>
@@ -195,8 +195,7 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 **Auto-trigger by path**:
 | Path | Agent | Priority |
 |------|-------|----------|
-| /auth/, /login/, /password/, /payment/, /token/ | security-reviewer | MANDATORY |
-| /admin/, /permission/, /role/ | security-reviewer | Recommended |
+| /auth/, /login/, /password/, /payment/, /token/ | ⚠️ Security warning (manual review) | MANDATORY |
 | /e2e/ | e2e-runner | Recommended |
 | /docs/ | doc-updater | Recommended |
 
