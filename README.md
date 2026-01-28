@@ -11,7 +11,7 @@
 [![Commands](https://img.shields.io/badge/commands-9-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-7-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-6-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-9-yellow)](hooks/)
 
 </div>
 
@@ -163,25 +163,33 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (6 Hooks)
+## Hooks System (9 Hooks)
 
 Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 
-### Blocking Hooks (BLOCK on violation)
+### PreToolUse Hooks (BLOCK before execution)
 
 | Hook | Trigger | Detection |
 |------|---------|-----------|
-| `mock_detector.py` | Edit/Write | jest.fn(), jest.mock(), InMemoryRepository |
-| `code_quality.py` | Edit/Write | TODO/FIXME, NotImplementedError |
-| `security_scan.py` | Edit/Write | Hardcoded secrets, SQL injection, empty catch |
+| `block_dangerous_commands.py` | Bash | rm -rf, fork bombs, chmod 777, force push main |
+| `branch_protection.py` | Edit/Write | Direct edits on main/master/production branches |
 
-### Reminder Hooks (Suggest agents)
+### PostToolUse Hooks (BLOCK after execution)
+
+| Hook | Trigger | Detection |
+|------|---------|-----------|
+| `mock_detector.py` | Edit/Write | jest.fn(), vi.fn(), InMemoryRepository, it.skip |
+| `code_quality.py` | Edit/Write | TODO/FIXME, NotImplemented, hardcoded URLs/ports, static state |
+| `security_scan.py` | Edit/Write | Hardcoded secrets, SQL injection, empty catch, bad error handling |
+| `agent_reminder.py` | Edit/Write/Bash | Suggest agents based on file type/path |
+
+### Session Hooks (Context & Validation)
 
 | Hook | Trigger | Function |
 |------|---------|----------|
-| `agent_reminder.py` | Edit/Write/Bash | Suggest agents based on file type/path |
+| `session_context.py` | SessionStart | Load git branch, recent commits, modified files |
 | `user_prompt_agent.py` | UserPromptSubmit | Suggest agents based on user intent |
-| `pre_stop_check.py` | Stop | Remind to review uncommitted changes |
+| `pre_stop_check.py` | Stop | BLOCK if security files unreviewed |
 
 ### Auto-Trigger Matrix
 
@@ -228,13 +236,16 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 ├── README.md                 # This file
 ├── settings.json             # Claude Code settings + hooks config
 │
-├── hooks/                    # Automated enforcement (6 hooks)
-│   ├── mock_detector.py      # BLOCK: jest.fn(), InMemoryRepo
-│   ├── code_quality.py       # BLOCK: TODO/FIXME, NotImplemented
-│   ├── security_scan.py      # BLOCK: secrets, SQL injection
-│   ├── agent_reminder.py     # REMIND: file-based agent suggestions
-│   ├── user_prompt_agent.py  # REMIND: intent-based agent suggestions
-│   └── pre_stop_check.py     # REMIND: review before session end
+├── hooks/                    # Automated enforcement (9 hooks)
+│   ├── block_dangerous_commands.py  # PreToolUse: dangerous bash commands
+│   ├── branch_protection.py         # PreToolUse: protect main/master
+│   ├── mock_detector.py             # PostToolUse: mock patterns, it.skip
+│   ├── code_quality.py              # PostToolUse: TODO, hardcoded config
+│   ├── security_scan.py             # PostToolUse: secrets, SQL, errors
+│   ├── agent_reminder.py            # PostToolUse: agent suggestions
+│   ├── session_context.py           # SessionStart: load dev context
+│   ├── user_prompt_agent.py         # UserPromptSubmit: intent analysis
+│   └── pre_stop_check.py            # Stop: security file review
 │
 ├── commands/                 # /ultra-* commands (9)
 │   ├── ultra-init.md
@@ -273,7 +284,29 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 
 ## Version History
 
-### v5.2.0 (2026-01-29) - Hooks Enforcement Edition
+### v5.2.1 (2026-01-29) - Hooks Optimization Edition
+
+**New Hooks (3 new)**:
+- `block_dangerous_commands.py`: PreToolUse - Block rm -rf, fork bombs, chmod 777, force push main
+- `branch_protection.py`: PreToolUse - Protect main/master/production branches
+- `session_context.py`: SessionStart - Load git context at session start
+
+**Enhanced Detection (aligned with CLAUDE.md 100%)**:
+- `mock_detector.py`: Add it.skip/test.skip detection, allow UI handler mocks
+- `code_quality.py`: Add hardcoded URL/port, static state, local file detection
+- `security_scan.py`: Add catch(e){return null}, catch(e){console.log(e)}, generic Error detection
+
+**Improved Prompts**:
+- Layer-specific solutions (Functional Core vs Imperative Shell)
+- CLAUDE.md line references for each rule
+- Smart false positive reduction (skip config files, comments)
+
+**Hook Output Fixes**:
+- Fix field names: `tool` → `tool_name`, `tool_result` → `tool_response`
+- Fix Stop hook format (no additionalContext support)
+- Add `decision: block` for CRITICAL issues
+
+### v5.2.0 (2026-01-28) - Hooks Enforcement Edition
 
 **New Hooks System (6 Python hooks)**:
 - `mock_detector.py`: BLOCK jest.fn(), InMemoryRepository patterns
