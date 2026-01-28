@@ -33,10 +33,42 @@ BLOCK_PATTERNS = [
 
 # WARNING patterns - alert but don't block
 WARN_PATTERNS = [
+    # Logging
     (r'\bconsole\.(log|warn|error|debug|info)\s*\(', 'console.{} - Use structured logger in production'),
-    (r'localhost:\d+', 'Hardcoded localhost URL - Use environment variable'),
-    (r'127\.0\.0\.1:\d+', 'Hardcoded localhost URL - Use environment variable'),
-    (r'["\']http://localhost', 'Hardcoded localhost URL - Use environment variable'),
+
+    # Hardcoded URLs (CLAUDE.md line 66)
+    (r'localhost:\d+', 'Hardcoded localhost - Use process.env.HOST'),
+    (r'127\.0\.0\.1:\d+', 'Hardcoded localhost - Use process.env.HOST'),
+    (r'["\']http://localhost', 'Hardcoded localhost URL - Use process.env.API_URL'),
+
+    # Hardcoded ports in assignments (CLAUDE.md line 66)
+    (r'(?:port|PORT)\s*[=:]\s*\d{4,5}(?!\d)', 'Hardcoded port - Use process.env.PORT'),
+
+    # Hardcoded URLs in code (not in comments)
+    (r'["\']https?://(?!localhost)[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}[^"\']*["\']',
+     'Hardcoded URL - Use environment variable'),
+
+    # Static variables for state (CLAUDE.md line 68) - architecture violation
+    (r'\bstatic\s+(?:let|var|readonly)\s+\w*(?:state|data|cache|store|queue|buffer)\b',
+     'Static variable for state - Persist to DB/KV store'),
+    (r'\bstatic\s+\w+\s*:\s*(?:Map|Set|Array|Object)\s*[<\[]',
+     'Static collection for state - Use external storage'),
+
+    # Local files for business data (CLAUDE.md line 69)
+    (r'fs\.(?:writeFileSync?|appendFileSync?)\s*\([^)]*(?:user|order|payment|transaction|customer|account)',
+     'Local file for business data - Use DB or object storage'),
+    (r'(?:writeFile|saveFile)\s*\([^)]*(?:\.json|\.csv)[^)]*(?:user|order|payment)',
+     'Local file for business data - Use DB or object storage'),
+]
+
+# Files to skip for certain warnings (config files are expected to have hardcoded values)
+CONFIG_FILE_PATTERNS = [
+    r'\.config\.',
+    r'config/',
+    r'constants\.',
+    r'\.env\.',
+    r'settings\.',
+    r'\.d\.ts$',
 ]
 
 # File extensions to check
@@ -48,17 +80,38 @@ def get_line_number(content: str, match_pos: int) -> int:
     return content[:match_pos].count('\n') + 1
 
 
+def is_config_file(file_path: str) -> bool:
+    """Check if file is a config file (skip URL/port warnings)."""
+    for pattern in CONFIG_FILE_PATTERNS:
+        if re.search(pattern, file_path, re.IGNORECASE):
+            return True
+    return False
+
+
+def is_in_comment(line_content: str) -> bool:
+    """Check if the match is inside a comment."""
+    stripped = line_content.lstrip()
+    return stripped.startswith('//') or stripped.startswith('#') or stripped.startswith('*')
+
+
 def check_file(file_path: str, content: str) -> tuple:
     """Check file content for quality issues. Returns (blocks, warnings)."""
     blocks = []
     warnings = []
+    lines = content.split('\n')
+    is_config = is_config_file(file_path)
 
     # Check blocking patterns
     for pattern, message in BLOCK_PATTERNS:
         for match in re.finditer(pattern, content, re.IGNORECASE):
             line_num = get_line_number(content, match.start())
-            lines = content.split('\n')
             line_content = lines[line_num - 1].strip() if line_num <= len(lines) else ''
+
+            # Skip if in comment (for TODO in explanatory comments)
+            if 'TODO' in message and is_in_comment(line_content):
+                # Only block actionable TODOs, not explanatory ones
+                if not re.search(r'//.*TODO.*:', line_content):
+                    continue
 
             blocks.append({
                 'line': line_num,
@@ -70,8 +123,15 @@ def check_file(file_path: str, content: str) -> tuple:
     for pattern, message in WARN_PATTERNS:
         for match in re.finditer(pattern, content):
             line_num = get_line_number(content, match.start())
-            lines = content.split('\n')
             line_content = lines[line_num - 1].strip() if line_num <= len(lines) else ''
+
+            # Skip config files for URL/port warnings
+            if is_config and ('URL' in message or 'port' in message.lower()):
+                continue
+
+            # Skip comments
+            if is_in_comment(line_content):
+                continue
 
             warnings.append({
                 'line': line_num,
