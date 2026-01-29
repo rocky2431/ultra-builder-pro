@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Branch Protection Hook - PreToolUse
-Warns when editing on protected branches (main/master).
+Asks for confirmation when editing on protected branches (main/master).
 
-Shows warning but allows edits to proceed.
+Prompts user to approve or reject the edit.
 Excludes config directories like ~/.claude/
 """
 
@@ -71,8 +71,8 @@ def main():
         result = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
-                "permissionDecision": "allow",
-                "permissionDecisionReason": f"[WARNING] Editing on protected branch '{current_branch}'. Consider creating a feature branch: git checkout -b feature/your-feature"
+                "permissionDecision": "ask",
+                "permissionDecisionReason": f"Editing on protected branch '{current_branch}'. Allow this edit or create a feature branch first?"
             }
         }
         print(json.dumps(result))
