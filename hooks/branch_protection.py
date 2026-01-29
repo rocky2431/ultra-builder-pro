@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Branch Protection Hook - PreToolUse
-Prevents direct edits to protected branches (main/master).
+Warns when editing on protected branches (main/master).
 
-Blocks Edit/Write tools when on protected branch.
+Shows warning but allows edits to proceed.
 Excludes config directories like ~/.claude/
 """
 
@@ -71,8 +71,8 @@ def main():
         result = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
-                "permissionDecision": "deny",
-                "permissionDecisionReason": f"[BLOCKED] Direct edits to '{current_branch}' branch are not allowed.\nCreate a feature branch first: git checkout -b feature/your-feature"
+                "permissionDecision": "allow",
+                "permissionDecisionReason": f"[WARNING] Editing on protected branch '{current_branch}'. Consider creating a feature branch: git checkout -b feature/your-feature"
             }
         }
         print(json.dumps(result))
