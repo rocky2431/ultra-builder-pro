@@ -10,7 +10,7 @@
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-9-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-7-red)](agents/)
+[![Agents](https://img.shields.io/badge/agents-3-red)](agents/)
 [![Hooks](https://img.shields.io/badge/hooks-9-yellow)](hooks/)
 
 </div>
@@ -109,7 +109,7 @@ Patterns extracted via `/learn` are stored in `skills/learned/` with confidence 
 
 ---
 
-## Agents (7 Custom + Plugins)
+## Agents (3 Custom + Plugins)
 
 > **Default Model**: ALL agents use Opus. No exceptions.
 
@@ -117,11 +117,7 @@ Patterns extracted via `/learn` are stored in `skills/learned/` with confidence 
 
 | Agent | Purpose | Hook Trigger |
 |-------|---------|--------------|
-| `build-error-resolver` | Build error quick fix | Build command fails |
-| `e2e-runner` | E2E testing with Playwright | /e2e/, "e2e test" |
-| `frontend-developer` | React/Web3, UI components | .tsx/.jsx/.vue/.svelte |
 | `refactor-cleaner` | Dead code cleanup | "refactor", "dead code" |
-| `doc-updater` | Documentation maintenance | .md files, /docs/ |
 | `smart-contract-specialist` | Solidity, gas optimization | .sol, "solidity" |
 | `smart-contract-auditor` | Contract security audit | .sol, "audit contract" |
 
@@ -172,7 +168,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 | Hook | Trigger | Detection |
 |------|---------|-----------|
 | `block_dangerous_commands.py` | Bash | rm -rf, fork bombs, chmod 777, force push main |
-| `branch_protection.py` | Edit/Write | Direct edits on main/master/production branches |
+| `branch_protection.py` | Edit/Write | Ask confirmation for edits on main/master/production branches |
 
 ### PostToolUse Hooks (BLOCK after execution)
 
@@ -197,8 +193,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 |--------|----------------------|----------|
 | .sol files | smart-contract-specialist + auditor | MANDATORY |
 | /auth/, /payment/ paths | pr-review-toolkit:code-reviewer | MANDATORY |
-| Build command fails | build-error-resolver | Recommended |
-| .tsx/.jsx files | frontend-developer + react-best-practices (skill) | Recommended |
+| .tsx/.jsx files | react-best-practices (skill) | Recommended |
 | "review code/PR" | pr-review-toolkit:code-reviewer | Recommended |
 | "ready to merge/commit" | pr-review-toolkit:code-reviewer | Recommended |
 
@@ -265,11 +260,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 │   ├── skill-creator/        # Create new skills
 │   └── learned/              # Extracted patterns
 │
-├── agents/                   # Custom agents (7)
-│   ├── build-error-resolver.md
-│   ├── doc-updater.md
-│   ├── e2e-runner.md
-│   ├── frontend-developer.md
+├── agents/                   # Custom agents (3)
 │   ├── refactor-cleaner.md
 │   ├── smart-contract-specialist.md
 │   └── smart-contract-auditor.md
