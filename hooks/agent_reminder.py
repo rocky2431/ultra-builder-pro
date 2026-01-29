@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
 Agent Reminder Hook - PostToolUse
-Enforces CLAUDE.md agent_system rules (lines 238-245)
+Enforces CLAUDE.md agent_system rules
 
 Triggers agent suggestions based on:
 - File types (.sol, .tsx, etc.)
 - File paths (auth, payment, etc.)
-- Build command failures
 
 This is a reminder only, does not block.
 """
@@ -20,15 +19,6 @@ import os
 # NOTE: code-reviewer is NOT auto-triggered per file - only on explicit review request
 FILE_TYPE_AGENTS = {
     '.sol': ['smart-contract-specialist', 'smart-contract-auditor'],
-    '.tsx': ['frontend-developer'],
-    '.jsx': ['frontend-developer'],
-    '.css': ['frontend-developer'],
-    '.scss': ['frontend-developer'],
-    '.less': ['frontend-developer'],
-    '.vue': ['frontend-developer'],
-    '.svelte': ['frontend-developer'],
-    '.md': ['doc-updater'],
-    '.rst': ['doc-updater'],
 }
 
 # Path patterns to agent mapping (case-insensitive)
@@ -51,13 +41,6 @@ PATH_AGENTS = [
     (r'/role/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
     (r'/acl/', ['pr-review-toolkit:code-reviewer'], 'Recommended'),
 
-    # Test paths
-    (r'/e2e/', ['e2e-runner'], 'Recommended'),
-
-    # Documentation paths
-    (r'/docs/', ['doc-updater'], 'Recommended'),
-    (r'readme', ['doc-updater'], 'Recommended'),
-    (r'changelog', ['doc-updater'], 'Recommended'),
 ]
 
 # Skills to suggest based on file type
@@ -70,20 +53,6 @@ FILE_SKILLS = {
     '.scss': ['web-design-guidelines'],
 }
 
-# Build commands that trigger build-error-resolver on failure
-BUILD_COMMANDS = [
-    r'\bnpm\s+run\s+build\b',
-    r'\byarn\s+build\b',
-    r'\bpnpm\s+(?:run\s+)?build\b',
-    r'\bcargo\s+build\b',
-    r'\bgo\s+build\b',
-    r'\bmake\b',
-    r'\btsc\b',
-    r'\bnext\s+build\b',
-    r'\bvite\s+build\b',
-    r'\bgradle\s+build\b',
-    r'\bmvn\s+(?:compile|package|install)\b',
-]
 
 
 
@@ -133,32 +102,12 @@ def get_skills_for_file(file_path: str) -> list:
     return recommendations
 
 
-def check_command_failure(tool_name: str, tool_input: dict, tool_result: dict) -> list:
-    """Check if a Bash command failed and return appropriate agents."""
-    if tool_name != 'Bash':
-        return []
-
-    command = tool_input.get('command', '')
-    exit_code = tool_result.get('exit_code', 0)
-
-    if exit_code == 0:
-        return []
-
-    agents = []
-
-    # Check build commands
-    for pattern in BUILD_COMMANDS:
-        if re.search(pattern, command, re.IGNORECASE):
-            agents.append(('build-error-resolver', 'Build command failed'))
-            break
-
-    return agents
 
 
 def main():
     # Read stdin for hook input
+    input_data = sys.stdin.read()
     try:
-        input_data = sys.stdin.read()
         hook_input = json.loads(input_data)
     except json.JSONDecodeError:
         print(input_data)
@@ -166,8 +115,6 @@ def main():
 
     tool_name = hook_input.get('tool_name')  # 官方文档：字段名是 tool_name
     tool_input = hook_input.get('tool_input', {})
-    tool_result = hook_input.get('tool_response', {})  # 官方文档：字段名是 tool_response
-
     reminders = []
 
     skill_reminders = []
@@ -186,11 +133,6 @@ def main():
         for rec in skill_recs:
             skills_str = ' + '.join(rec['skills'])
             skill_reminders.append(f"[Skill] {skills_str} - {rec['reason']}")
-
-    # Check for command failures (build/test)
-    failed_agents = check_command_failure(tool_name, tool_input, tool_result)
-    for agent, reason in failed_agents:
-        reminders.append(f"[Recommended] {agent} - {reason}")
 
     # Output reminders
     if reminders or skill_reminders:

@@ -4,7 +4,6 @@ User Prompt Agent Hook - UserPromptSubmit
 Analyzes user intent and suggests appropriate agents
 
 Keyword triggers:
-- e2e/test flow -> e2e-runner
 - auth/login/password/payment -> pr-review-toolkit:code-reviewer (MANDATORY)
 - smart contract -> smart-contract-specialist + auditor
 
@@ -29,17 +28,6 @@ INTENT_AGENTS = [
     (r'\b(encrypt|decrypt|hash|salt|crypto)\b',
      'pr-review-toolkit:code-reviewer', 'Cryptography - SECURITY REVIEW MANDATORY'),
 
-    # E2E testing triggers
-    (r'\b(e2e|end-to-end|integration)\s+test\b',
-     'e2e-runner', 'E2E testing task'),
-    (r'\btest\s+(?:the\s+)?(?:user\s+)?flow\b',
-     'e2e-runner', 'User flow testing'),
-    (r'\bplaywright\b',
-     'e2e-runner', 'Playwright testing'),
-    (r'\b(flaky|failing)\s+(?:e2e|integration)\s+test\b',
-     'e2e-runner', 'E2E test debugging'),
-
-
     # Smart contract triggers (BOTH agents for any contract work)
     (r'\b(solidity|smart\s*contract|erc-?20|erc-?721|defi|web3|hardhat|foundry)\b',
      'smart-contract-specialist', 'Smart contract development - BOTH AGENTS MANDATORY'),
@@ -47,20 +35,6 @@ INTENT_AGENTS = [
      'smart-contract-auditor', 'Smart contract security - BOTH AGENTS MANDATORY'),
     (r'\b(audit|vulnerability|exploit|reentrancy|overflow|underflow)\b.*\b(contract|solidity)\b',
      'smart-contract-auditor', 'Contract security audit - PRIORITY'),
-
-    # Frontend triggers
-    (r'\b(ui|ux|component|styled?|css|tailwind|responsive)\b',
-     'frontend-developer', 'Frontend development'),
-    (r'\b(react|vue|svelte|angular|nextjs|nuxt)\b.*\b(component|page|hook)\b',
-     'frontend-developer', 'Frontend framework task'),
-    (r'\b(accessibility|a11y|aria|screen\s*reader)\b',
-     'frontend-developer', 'Accessibility implementation'),
-
-    # Documentation triggers
-    (r'\b(document|readme|docs|api\s+doc)\b',
-     'doc-updater', 'Documentation task'),
-    (r'\b(update|write|generate)\b.*\b(documentation|readme)\b',
-     'doc-updater', 'Documentation update'),
 
     # Refactoring triggers
     (r'\b(refactor|cleanup|clean\s+up|dead\s+code|unused)\b',
@@ -148,8 +122,8 @@ def analyze_prompt(prompt: str) -> tuple:
 
 def main():
     # Read stdin for hook input
+    input_data = sys.stdin.read()
     try:
-        input_data = sys.stdin.read()
         hook_input = json.loads(input_data)
     except json.JSONDecodeError:
         print(input_data)
