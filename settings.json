@@ -126,6 +126,6 @@
     "enabled": false,
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
-  "_comment_project": "Ultra Builder Pro 5.2.0",
-  "_comment_version": "5.2.0 - Hooks enforcement system"
+  "_comment_project": "Ultra Builder Pro 5.3.0",
+  "_comment_version": "5.3.0 - Lean Architecture Edition"
 }

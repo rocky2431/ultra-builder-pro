@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.2.0
+# Ultra Builder Pro 5.3.0
 
 <div align="center">
 
@@ -6,12 +6,12 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.2.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.3.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
-[![Commands](https://img.shields.io/badge/commands-9-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-3-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-9-yellow)](hooks/)
+[![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
+[![Skills](https://img.shields.io/badge/skills-1-orange)](skills/)
+[![Agents](https://img.shields.io/badge/agents-2-red)](agents/)
+[![Hooks](https://img.shields.io/badge/hooks-7-yellow)](hooks/)
 
 </div>
 
@@ -71,7 +71,7 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ---
 
-## Commands (9)
+## Commands (10)
 
 | Command | Purpose | Key Features |
 |---------|---------|--------------|
@@ -83,53 +83,38 @@ If ANY component is fake/mocked/simulated → Quality = 0
 | `/ultra-deliver` | Release preparation | CHANGELOG, build, version bump, tag, push |
 | `/ultra-status` | Progress monitoring | Real-time stats, risk analysis, recommendations |
 | `/ultra-think` | Deep analysis | Structured reasoning, multi-dimension comparison |
+| `/commit` | Standardized commits | Conventional commit format, co-author attribution |
 | `/learn` | Pattern extraction | Extract reusable patterns from session, save to skills/learned/ |
 
 ---
 
-## Skills (5)
+## Skills (1 + Learned Patterns)
 
 | Skill | Purpose | Key Features |
 |-------|---------|--------------|
 | `codex` | OpenAI Codex CLI | Code analysis, refactoring, **can modify code** |
-| `gemini` | Google Gemini CLI | Research, validation, docs; `-y` for code changes |
-| `promptup` | Prompt engineering | Evidence-based principles, boundary detection, diagnostic iteration |
-| `skill-creator` | Create new skills | Workflow guidance, packaging |
 | `learned/` | Extracted patterns | Patterns from `/learn` command with confidence levels |
-
-### Learned Patterns
-
-Patterns extracted via `/learn` are stored in `skills/learned/` with confidence levels:
-
-| Confidence | File Suffix | Description |
-|------------|-------------|-------------|
-| Speculation | `_unverified` | Freshly extracted, needs verification |
-| Inference | No suffix | Human review passed |
-| Fact | No suffix + marked | Multiple successful uses verified |
 
 ---
 
-## Agents (3 Custom + Plugins)
-
-> **Default Model**: ALL agents use Opus. No exceptions.
+## Agents (2 Custom + Plugins)
 
 ### Custom Agents (`~/.claude/agents/`)
 
-| Agent | Purpose | Hook Trigger |
-|-------|---------|--------------|
-| `refactor-cleaner` | Dead code cleanup | "refactor", "dead code" |
-| `smart-contract-specialist` | Solidity, gas optimization | .sol, "solidity" |
-| `smart-contract-auditor` | Contract security audit | .sol, "audit contract" |
+| Agent | Purpose | Trigger |
+|-------|---------|---------|
+| `smart-contract-specialist` | Solidity, gas optimization, secure patterns | .sol files |
+| `smart-contract-auditor` | Contract security audit, vulnerability detection | .sol files |
 
 ### Plugin Agents (pr-review-toolkit)
 
-| Agent | Purpose | Hook Trigger |
-|-------|---------|--------------|
-| `pr-review-toolkit:code-reviewer` | CLAUDE.md compliance check | "review pr", API paths |
-| `pr-review-toolkit:silent-failure-hunter` | Error handling review | "error handling" |
-| `pr-review-toolkit:pr-test-analyzer` | Test coverage analysis | "test coverage" |
-| `pr-review-toolkit:code-simplifier` | Code simplification | "simplify", "too complex" |
-| `pr-review-toolkit:type-design-analyzer` | Type design analysis | "type design" |
+| Agent | Purpose |
+|-------|---------|
+| `pr-review-toolkit:code-reviewer` | CLAUDE.md compliance check |
+| `pr-review-toolkit:silent-failure-hunter` | Error handling review |
+| `pr-review-toolkit:pr-test-analyzer` | Test coverage analysis |
+| `pr-review-toolkit:code-simplifier` | Code simplification |
+| `pr-review-toolkit:type-design-analyzer` | Type design analysis |
 
 ---
 
@@ -159,43 +144,31 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (9 Hooks)
+## Hooks System (7 Hooks)
 
 Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 
-### PreToolUse Hooks (BLOCK before execution)
+### PreToolUse Hooks (Guard before execution)
 
 | Hook | Trigger | Detection |
 |------|---------|-----------|
 | `block_dangerous_commands.py` | Bash | rm -rf, fork bombs, chmod 777, force push main |
 | `branch_protection.py` | Edit/Write | Ask confirmation for edits on main/master/production branches |
 
-### PostToolUse Hooks (BLOCK after execution)
+### PostToolUse Hooks (Quality gate after execution)
 
 | Hook | Trigger | Detection |
 |------|---------|-----------|
-| `mock_detector.py` | Edit/Write | jest.fn(), vi.fn(), InMemoryRepository, it.skip |
 | `code_quality.py` | Edit/Write | TODO/FIXME, NotImplemented, hardcoded URLs/ports, static state |
+| `mock_detector.py` | Edit/Write | jest.fn(), vi.fn(), InMemoryRepository, it.skip |
 | `security_scan.py` | Edit/Write | Hardcoded secrets, SQL injection, empty catch, bad error handling |
-| `agent_reminder.py` | Edit/Write/Bash | Suggest agents based on file type/path |
 
 ### Session Hooks (Context & Validation)
 
 | Hook | Trigger | Function |
 |------|---------|----------|
 | `session_context.py` | SessionStart | Load git branch, recent commits, modified files |
-| `user_prompt_agent.py` | UserPromptSubmit | Suggest agents based on user intent |
 | `pre_stop_check.py` | Stop | BLOCK if security files unreviewed |
-
-### Auto-Trigger Matrix
-
-| Signal | Agent/Skill Triggered | Priority |
-|--------|----------------------|----------|
-| .sol files | smart-contract-specialist + auditor | MANDATORY |
-| /auth/, /payment/ paths | pr-review-toolkit:code-reviewer | MANDATORY |
-| .tsx/.jsx files | react-best-practices (skill) | Recommended |
-| "review code/PR" | pr-review-toolkit:code-reviewer | Recommended |
-| "ready to merge/commit" | pr-review-toolkit:code-reviewer | Recommended |
 
 ---
 
@@ -231,18 +204,16 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 ├── README.md                 # This file
 ├── settings.json             # Claude Code settings + hooks config
 │
-├── hooks/                    # Automated enforcement (9 hooks)
+├── hooks/                    # Automated enforcement (7 hooks)
 │   ├── block_dangerous_commands.py  # PreToolUse: dangerous bash commands
 │   ├── branch_protection.py         # PreToolUse: protect main/master
-│   ├── mock_detector.py             # PostToolUse: mock patterns, it.skip
 │   ├── code_quality.py              # PostToolUse: TODO, hardcoded config
+│   ├── mock_detector.py             # PostToolUse: mock patterns, it.skip
 │   ├── security_scan.py             # PostToolUse: secrets, SQL, errors
-│   ├── agent_reminder.py            # PostToolUse: agent suggestions
 │   ├── session_context.py           # SessionStart: load dev context
-│   ├── user_prompt_agent.py         # UserPromptSubmit: intent analysis
 │   └── pre_stop_check.py            # Stop: security file review
 │
-├── commands/                 # /ultra-* commands (9)
+├── commands/                 # /ultra-* commands (10)
 │   ├── ultra-init.md
 │   ├── ultra-research.md
 │   ├── ultra-plan.md
@@ -251,17 +222,14 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 │   ├── ultra-deliver.md
 │   ├── ultra-status.md
 │   ├── ultra-think.md
+│   ├── commit.md
 │   └── learn.md
 │
-├── skills/                   # Domain skills (5)
+├── skills/                   # Domain skills (1 + learned)
 │   ├── codex/                # OpenAI Codex CLI
-│   ├── gemini/               # Google Gemini CLI
-│   ├── promptup/             # Prompt engineering
-│   ├── skill-creator/        # Create new skills
 │   └── learned/              # Extracted patterns
 │
-├── agents/                   # Custom agents (3)
-│   ├── refactor-cleaner.md
+├── agents/                   # Custom agents (2)
 │   ├── smart-contract-specialist.md
 │   └── smart-contract-auditor.md
 │
@@ -319,6 +287,22 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.3.0 (2026-02-01) - Lean Architecture Edition
+
+**Philosophy**: Apply Anthropic's "Start simple, add complexity only when simpler solutions fall short."
+
+**Removed (redundant - Claude handles natively)**:
+- Agents: build-error-resolver, doc-updater, e2e-runner, frontend-developer, refactor-cleaner
+- Skills: gemini, promptup, skill-creator
+- Hooks: user_prompt_agent.py (routing), agent_reminder.py (routing)
+
+**Improved**:
+- All hooks: standardized error handling (catch → stderr log → safe pass-through)
+- pre_stop_check: added git timeout, marker cleanup, error logging
+- Reduced per-request token overhead (no more routing hook noise)
+
+**Architecture**: CLAUDE.md + Commands + Quality Hooks (three-layer, no bloat)
 
 ### v5.2.2 (2026-01-29) - Codex Purification Edition
 
