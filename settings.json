@@ -45,16 +45,6 @@
   },
   "model": "opus",
   "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/user_prompt_agent.py"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -90,19 +80,6 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/security_scan.py"
-          },
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/agent_reminder.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/agent_reminder.py"
           }
         ]
       }

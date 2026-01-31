@@ -216,34 +216,21 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 </honesty_challenge>
 
 <agent_system>
-**1% Rule**: If even 1% chance a specialized agent applies, invoke it. No exceptions.
-
 **Auto-trigger by file type**:
-| File Type | Agent | Skill |
-|-----------|-------|-------|
-| .sol | smart-contract-specialist + auditor (MANDATORY) | - |
-| .tsx/.jsx | - | react-best-practices |
-| .vue/.svelte/.css/.scss | - | web-design-guidelines |
+| File Type | Agent |
+|-----------|-------|
+| .sol | smart-contract-specialist + smart-contract-auditor (MANDATORY) |
 
 **Auto-trigger by path**:
 | Path | Agent | Priority |
 |------|-------|----------|
 | /auth/, /login/, /password/, /payment/, /token/ | pr-review-toolkit:code-reviewer | MANDATORY |
 
-**User intent triggers**:
-| Keywords | Agent/Skill |
-|----------|-------------|
-| "review code/PR", "ready to merge/commit" | pr-review-toolkit:code-reviewer |
-| "test coverage", "missing tests" | pr-review-toolkit:pr-test-analyzer |
-| "error handling", "silent fail" | pr-review-toolkit:silent-failure-hunter |
-| react/nextjs + performance/optimize | react-best-practices |
-| ui/ux + review/audit, accessibility/a11y | web-design-guidelines |
+**Agents**: smart-contract-specialist, smart-contract-auditor
 
-**Agents**: refactor-cleaner, smart-contract-specialist, smart-contract-auditor
+**Skills**: codex
 
-**Skills**: codex, gemini, promptup
-
-**Hooks enforce**: mock detection, security scan, agent/skill reminders
+**Hooks enforce**: code quality, mock detection, security scan, branch protection, dangerous command blocking
 </agent_system>
 
 <data_persistence>
