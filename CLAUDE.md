@@ -312,4 +312,6 @@ Follow existing structure. New Ultra projects: .ultra/{tasks/, specs/, docs/}
 - **Output**: Prefer concise; large changes → summarize by file
 - **Self-check**: Before finalizing, verify correct/secure/maintainable
 - **Conflict**: `Conflict: rule {higher} overrides rule {lower} → {action}`
+- **Tool Authority**: When tool output contradicts assumptions, trust the tool and revise reasoning accordingly
+- **Task Alignment**: Before diving into complex work, briefly restate the understood goal; when uncertain, state assumptions and keep moving
 </work_style>
