@@ -13,6 +13,7 @@ created, and subsequent triggers allow stop.
 
 Marker file: /tmp/.claude_review_done_<git_hash>
 The hash is based on the set of changed files, so new changes invalidate it.
+Old marker files (>24h) are cleaned up automatically.
 """
 
 import sys
@@ -21,9 +22,29 @@ import subprocess
 import os
 import hashlib
 import tempfile
+import time
+import glob as glob_module
 
 
 MARKER_PREFIX = ".claude_review_done_"
+GIT_TIMEOUT = 10  # seconds
+MARKER_MAX_AGE = 86400  # 24 hours
+
+
+def cleanup_old_markers() -> None:
+    """Remove marker files older than MARKER_MAX_AGE seconds."""
+    try:
+        tmp_dir = tempfile.gettempdir()
+        pattern = os.path.join(tmp_dir, f"{MARKER_PREFIX}*")
+        now = time.time()
+        for path in glob_module.glob(pattern):
+            try:
+                if now - os.path.getmtime(path) > MARKER_MAX_AGE:
+                    os.unlink(path)
+            except OSError:
+                pass
+    except Exception:
+        pass
 
 
 def get_git_status() -> dict:
@@ -40,19 +61,23 @@ def get_git_status() -> dict:
             ['git', 'rev-parse', '--is-inside-work-tree'],
             capture_output=True,
             text=True,
-            cwd=os.getcwd()
+            cwd=os.getcwd(),
+            timeout=GIT_TIMEOUT
         )
         if proc.returncode != 0:
+            print("[pre_stop_check] Not in a git repo, skipping", file=sys.stderr)
             return result
 
         proc = subprocess.run(
             ['git', 'status', '--porcelain'],
             capture_output=True,
             text=True,
-            cwd=os.getcwd()
+            cwd=os.getcwd(),
+            timeout=GIT_TIMEOUT
         )
 
         if proc.returncode != 0:
+            print(f"[pre_stop_check] git status failed: {proc.stderr.strip()}", file=sys.stderr)
             return result
 
         for line in proc.stdout.strip().split('\n'):
@@ -71,8 +96,10 @@ def get_git_status() -> dict:
 
         result['has_changes'] = bool(result['staged'] or result['unstaged'])
 
-    except Exception:
-        pass
+    except subprocess.TimeoutExpired:
+        print("[pre_stop_check] git command timed out, allowing stop", file=sys.stderr)
+    except Exception as e:
+        print(f"[pre_stop_check] Error checking git status: {e}", file=sys.stderr)
 
     return result
 
@@ -99,26 +126,33 @@ def is_review_done(changes_hash: str) -> bool:
     return os.path.exists(get_marker_path(changes_hash))
 
 
-def mark_review_blocked(changes_hash: str) -> None:
+def mark_review_blocked(changes_hash: str) -> bool:
     """Mark that we've blocked once for this set of changes.
 
     On the first block, create a marker file. On the next stop attempt,
     the hook will see the marker and allow stop (review was presumably done).
+    Returns True if marker was created successfully.
     """
     marker_path = get_marker_path(changes_hash)
-    with open(marker_path, 'w') as f:
-        f.write("blocked_once")
+    try:
+        with open(marker_path, 'w') as f:
+            f.write("blocked_once")
+        return True
+    except OSError as e:
+        print(f"[pre_stop_check] Failed to create marker file: {e}", file=sys.stderr)
+        return False
 
 
 def main():
-    input_data = ""
     try:
         input_data = sys.stdin.read()
         json.loads(input_data)
-    except json.JSONDecodeError:
-        print(input_data)
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"[pre_stop_check] Failed to parse input: {e}", file=sys.stderr)
+        print(json.dumps({}))
         return
 
+    cleanup_old_markers()
     git_status = get_git_status()
 
     reminders = []

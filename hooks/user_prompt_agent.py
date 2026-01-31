@@ -122,11 +122,12 @@ def analyze_prompt(prompt: str) -> tuple:
 
 def main():
     # Read stdin for hook input
-    input_data = sys.stdin.read()
     try:
+        input_data = sys.stdin.read()
         hook_input = json.loads(input_data)
-    except json.JSONDecodeError:
-        print(input_data)
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"[user_prompt_agent] Failed to parse input: {e}", file=sys.stderr)
+        print(json.dumps({}))
         return
 
     prompt = hook_input.get('prompt', '')

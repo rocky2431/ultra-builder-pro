@@ -163,11 +163,12 @@ def main():
     try:
         input_data = sys.stdin.read()
         hook_input = json.loads(input_data)
-    except json.JSONDecodeError:
-        print(input_data)
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"[security_scan] Failed to parse input: {e}", file=sys.stderr)
+        print(json.dumps({}))
         return
 
-    tool_name = hook_input.get('tool_name')  # 官方文档：字段名是 tool_name
+    tool_name = hook_input.get('tool_name')
     tool_input = hook_input.get('tool_input', {})
 
     # Only check Edit and Write tools

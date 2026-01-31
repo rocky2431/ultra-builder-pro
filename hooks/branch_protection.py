@@ -38,8 +38,8 @@ def get_current_branch() -> str:
         )
         if result.returncode == 0:
             return result.stdout.strip()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[branch_protection] Failed to get branch: {e}", file=sys.stderr)
     return ''
 
 
@@ -47,7 +47,8 @@ def main():
     try:
         input_data = sys.stdin.read()
         hook_input = json.loads(input_data)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"[branch_protection] Failed to parse input: {e}", file=sys.stderr)
         print(json.dumps({}))
         return
 

@@ -15,7 +15,7 @@ import os
 from datetime import datetime
 
 
-def run_cmd(cmd: list, cwd: str = None) -> str:
+def run_cmd(cmd: list, cwd: str = '') -> str:
     """Run command and return output."""
     try:
         result = subprocess.run(
@@ -27,8 +27,8 @@ def run_cmd(cmd: list, cwd: str = None) -> str:
         )
         if result.returncode == 0:
             return result.stdout.strip()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[session_context] Command failed: {' '.join(cmd)}: {e}", file=sys.stderr)
     return ''
 
 
@@ -98,7 +98,8 @@ def main():
     try:
         input_data = sys.stdin.read()
         hook_input = json.loads(input_data)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"[session_context] Failed to parse input: {e}", file=sys.stderr)
         print(json.dumps({}))
         return
 

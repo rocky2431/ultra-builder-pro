@@ -81,7 +81,8 @@ def main():
     try:
         input_data = sys.stdin.read()
         hook_input = json.loads(input_data)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"[block_dangerous_commands] Failed to parse input: {e}", file=sys.stderr)
         print(json.dumps({}))
         return
 
