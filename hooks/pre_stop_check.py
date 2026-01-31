@@ -7,13 +7,23 @@ Reminds to:
 - Run pr-review-toolkit:code-reviewer for uncommitted changes
 - Run tests before completing
 
-This is a reminder only, does not block.
+Uses a marker file to track review completion, preventing infinite loops.
+First trigger: blocks and reminds. After review completes, marker file is
+created, and subsequent triggers allow stop.
+
+Marker file: /tmp/.claude_review_done_<git_hash>
+The hash is based on the set of changed files, so new changes invalidate it.
 """
 
 import sys
 import json
 import subprocess
 import os
+import hashlib
+import tempfile
+
+
+MARKER_PREFIX = ".claude_review_done_"
 
 
 def get_git_status() -> dict:
@@ -26,7 +36,6 @@ def get_git_status() -> dict:
     }
 
     try:
-        # Check if in a git repo
         proc = subprocess.run(
             ['git', 'rev-parse', '--is-inside-work-tree'],
             capture_output=True,
@@ -36,7 +45,6 @@ def get_git_status() -> dict:
         if proc.returncode != 0:
             return result
 
-        # Get status
         proc = subprocess.run(
             ['git', 'status', '--porcelain'],
             capture_output=True,
@@ -54,11 +62,11 @@ def get_git_status() -> dict:
             status = line[:2]
             filepath = line[3:]
 
-            if status[0] in 'MADRC':  # Staged
+            if status[0] in 'MADRC':
                 result['staged'].append(filepath)
-            if status[1] in 'MD':  # Unstaged modifications
+            if status[1] in 'MD':
                 result['unstaged'].append(filepath)
-            if status == '??':  # Untracked
+            if status == '??':
                 result['untracked'].append(filepath)
 
         result['has_changes'] = bool(result['staged'] or result['unstaged'])
@@ -75,21 +83,46 @@ def get_code_files(files: list) -> list:
     return [f for f in files if os.path.splitext(f)[1].lower() in code_extensions]
 
 
+def get_changes_hash(files: list) -> str:
+    """Generate a hash based on the set of changed files."""
+    content = "\n".join(sorted(files))
+    return hashlib.md5(content.encode()).hexdigest()[:12]
+
+
+def get_marker_path(changes_hash: str) -> str:
+    """Get the marker file path for a given changes hash."""
+    return os.path.join(tempfile.gettempdir(), f"{MARKER_PREFIX}{changes_hash}")
+
+
+def is_review_done(changes_hash: str) -> bool:
+    """Check if review has been completed for this set of changes."""
+    return os.path.exists(get_marker_path(changes_hash))
+
+
+def mark_review_blocked(changes_hash: str) -> None:
+    """Mark that we've blocked once for this set of changes.
+
+    On the first block, create a marker file. On the next stop attempt,
+    the hook will see the marker and allow stop (review was presumably done).
+    """
+    marker_path = get_marker_path(changes_hash)
+    with open(marker_path, 'w') as f:
+        f.write("blocked_once")
+
+
 def main():
-    # Read stdin for hook input
+    input_data = ""
     try:
         input_data = sys.stdin.read()
-        hook_input = json.loads(input_data)
+        json.loads(input_data)
     except json.JSONDecodeError:
         print(input_data)
         return
 
-    # Check git status
     git_status = get_git_status()
 
     reminders = []
 
-    # Check for uncommitted changes
     if git_status['has_changes']:
         all_changed = git_status['staged'] + git_status['unstaged']
         code_files = get_code_files(all_changed)
@@ -99,10 +132,9 @@ def main():
                 'type': 'Code Review',
                 'message': f'{len(code_files)} code file(s) changed but not reviewed',
                 'action': 'Run pr-review-toolkit:code-reviewer agent before completing',
-                'files': code_files[:5]  # Show max 5
+                'files': code_files[:5]
             })
 
-    # Check for security-sensitive files
     security_patterns = ['auth', 'login', 'password', 'payment', 'secret', 'token']
     if git_status['has_changes']:
         all_files = git_status['staged'] + git_status['unstaged']
@@ -117,10 +149,12 @@ def main():
                 'files': security_files[:5]
             })
 
-    # Check for mandatory security review
     has_security_files = any(r['type'] == 'Security Review' for r in reminders)
 
     if reminders:
+        all_changed = git_status['staged'] + git_status['unstaged']
+        changes_hash = get_changes_hash(all_changed)
+
         lines = ["[Pre-Stop Check] Before ending session:"]
 
         for reminder in reminders:
@@ -135,20 +169,19 @@ def main():
 
         message = "\n".join(lines)
 
-        # Security files MUST be reviewed - block stopping
-        if has_security_files:
+        if has_security_files and not is_review_done(changes_hash):
+            # First time: block and create marker
+            mark_review_blocked(changes_hash)
             result = {
                 "decision": "block",
                 "reason": message
             }
             print(json.dumps(result))
         else:
-            # Non-security reminders - warn user but allow stop
-            # Stop hook doesn't support additionalContext, use stderr for user
+            # Either: no security files, or review marker exists (already blocked once)
             print(message, file=sys.stderr)
             print(json.dumps({}))
     else:
-        # No reminders, allow stop
         print(json.dumps({}))
 
 
