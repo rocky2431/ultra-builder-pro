@@ -31,6 +31,8 @@ def main():
     # Read hook input from stdin (JSON with agent info)
     try:
         hook_input = json.loads(sys.stdin.read())
+        if not isinstance(hook_input, dict):
+            hook_input = {}
     except (json.JSONDecodeError, EOFError):
         hook_input = {}
 
@@ -45,8 +47,11 @@ def main():
     if action == "stop":
         entry["turns_used"] = hook_input.get("turns_used", None)
 
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    try:
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except OSError:
+        sys.exit(0)
 
 
 if __name__ == "__main__":
