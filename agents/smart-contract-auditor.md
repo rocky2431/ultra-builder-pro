@@ -35,6 +35,8 @@ description: |
   </example>
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
+memory: user
+maxTurns: 50
 ---
 
 # Smart Contract Security Auditor
@@ -103,6 +105,12 @@ forge test --fuzz-runs 10000 # Fuzz testing
 - [ ] Integer operations safe
 - [ ] External calls checked
 ```
+
+## Memory
+
+Update your agent memory as you discover vulnerability patterns, common issues, false
+positives, and architectural decisions. Write concise notes about what you found and where.
+Consult your memory before starting work.
 
 ## Quality Filter
 

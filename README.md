@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.3.0
+# Ultra Builder Pro 5.4.0
 
 <div align="center">
 
@@ -6,12 +6,12 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.3.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.4.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-1-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-2-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-7-yellow)](hooks/)
+[![Skills](https://img.shields.io/badge/skills-3-orange)](skills/)
+[![Agents](https://img.shields.io/badge/agents-5-red)](agents/)
+[![Hooks](https://img.shields.io/badge/hooks-10-yellow)](hooks/)
 
 </div>
 
@@ -88,23 +88,30 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ---
 
-## Skills (1 + Learned Patterns)
+## Skills (3 + Learned Patterns)
 
-| Skill | Purpose | Key Features |
-|-------|---------|--------------|
-| `codex` | OpenAI Codex CLI | Code analysis, refactoring, **can modify code** |
-| `learned/` | Extracted patterns | Patterns from `/learn` command with confidence levels |
+| Skill | Purpose | User-Invocable |
+|-------|---------|----------------|
+| `codex` | OpenAI Codex CLI integration | Yes |
+| `testing-rules` | TDD discipline, mock detection rules | No (agent-only) |
+| `security-rules` | Input validation, injection prevention rules | No (agent-only) |
+| `learned/` | Extracted patterns from `/learn` | Yes |
 
 ---
 
-## Agents (2 Custom + Plugins)
+## Agents (5 Custom + Plugins)
 
 ### Custom Agents (`~/.claude/agents/`)
 
-| Agent | Purpose | Trigger |
-|-------|---------|---------|
-| `smart-contract-specialist` | Solidity, gas optimization, secure patterns | .sol files |
-| `smart-contract-auditor` | Contract security audit, vulnerability detection | .sol files |
+All agents have **persistent memory** that accumulates patterns across sessions.
+
+| Agent | Purpose | Trigger | Model | Memory |
+|-------|---------|---------|-------|--------|
+| `smart-contract-specialist` | Solidity, gas optimization, secure patterns | .sol files | opus | user |
+| `smart-contract-auditor` | Contract security audit, vulnerability detection | .sol files | opus | user |
+| `code-reviewer` | Code review for quality, security, maintainability | After code changes, pre-commit | inherit | user |
+| `tdd-runner` | Test execution, failure analysis, coverage | "run tests", test suite | haiku | project |
+| `debugger` | Root cause analysis, minimal fix implementation | Errors, test failures | inherit | user |
 
 ### Plugin Agents (pr-review-toolkit)
 
@@ -144,7 +151,7 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (7 Hooks)
+## Hooks System (10 Hooks)
 
 Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 
@@ -163,12 +170,14 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 | `mock_detector.py` | Edit/Write | jest.fn(), vi.fn(), InMemoryRepository, it.skip |
 | `security_scan.py` | Edit/Write | Hardcoded secrets, SQL injection, empty catch, bad error handling |
 
-### Session Hooks (Context & Validation)
+### Session & Lifecycle Hooks
 
 | Hook | Trigger | Function |
 |------|---------|----------|
 | `session_context.py` | SessionStart | Load git branch, recent commits, modified files |
 | `pre_stop_check.py` | Stop | BLOCK if security files unreviewed |
+| `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to debug/subagent-log.jsonl |
+| `pre_compact_context.py` | PreCompact | Preserve task state and git context before compaction |
 
 ---
 
@@ -204,14 +213,16 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 ├── README.md                 # This file
 ├── settings.json             # Claude Code settings + hooks config
 │
-├── hooks/                    # Automated enforcement (7 hooks)
+├── hooks/                    # Automated enforcement (10 hooks)
 │   ├── block_dangerous_commands.py  # PreToolUse: dangerous bash commands
 │   ├── branch_protection.py         # PreToolUse: protect main/master
 │   ├── code_quality.py              # PostToolUse: TODO, hardcoded config
 │   ├── mock_detector.py             # PostToolUse: mock patterns, it.skip
 │   ├── security_scan.py             # PostToolUse: secrets, SQL, errors
 │   ├── session_context.py           # SessionStart: load dev context
-│   └── pre_stop_check.py            # Stop: security file review
+│   ├── pre_stop_check.py            # Stop: security file review
+│   ├── subagent_tracker.py          # SubagentStart/Stop: lifecycle logging
+│   └── pre_compact_context.py       # PreCompact: preserve context
 │
 ├── commands/                 # /ultra-* commands (10)
 │   ├── ultra-init.md
@@ -225,13 +236,18 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 │   ├── commit.md
 │   └── learn.md
 │
-├── skills/                   # Domain skills (1 + learned)
+├── skills/                   # Domain skills (3 + learned)
 │   ├── codex/                # OpenAI Codex CLI
+│   ├── testing-rules/        # TDD rules (agent-only)
+│   ├── security-rules/       # Security rules (agent-only)
 │   └── learned/              # Extracted patterns
 │
-├── agents/                   # Custom agents (2)
+├── agents/                   # Custom agents (5)
 │   ├── smart-contract-specialist.md
-│   └── smart-contract-auditor.md
+│   ├── smart-contract-auditor.md
+│   ├── code-reviewer.md
+│   ├── tdd-runner.md
+│   └── debugger.md
 │
 └── .ultra-template/          # Project initialization templates
     ├── specs/
@@ -287,6 +303,31 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.4.0 (2026-02-07) - Agent & Memory Edition
+
+**New Agents (3)**:
+- `code-reviewer`: Code review specialist with security-rules skill injection
+- `tdd-runner`: Test execution specialist (Haiku model, project memory) with testing-rules injection
+- `debugger`: Root cause analysis specialist with Edit capability
+
+**Agent Memory**: All 5 agents now have persistent memory (`memory: user` or `memory: project`)
+- Accumulates patterns, common issues, and architectural decisions across sessions
+- Each agent loads its MEMORY.md at startup
+
+**New Skills (2, agent-only)**:
+- `testing-rules`: TDD discipline, forbidden mock patterns, coverage requirements
+- `security-rules`: Input validation, injection prevention, security review checklist
+
+**New Hooks (3)**:
+- `subagent_tracker.py`: SubagentStart/Stop lifecycle logging to JSONL
+- `pre_compact_context.py`: PreCompact context preservation (tasks + git state)
+
+**Agent Teams**: Enabled experimental `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`
+
+**CLAUDE.md Updates**:
+- `agent_system`: Added task-type auto-triggers, updated agent/skill/hook counts
+- `work_style`: Added Parallel Delegation, Pre-delegation, Context Isolation protocols
 
 ### v5.3.0 (2026-02-01) - Lean Architecture Edition
 

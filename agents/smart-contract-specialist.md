@@ -35,6 +35,8 @@ description: |
   </example>
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
+memory: user
+maxTurns: 100
 ---
 
 # Smart Contract Development Expert
@@ -93,6 +95,12 @@ interface I{Name} {
 - {consideration 1}
 - {consideration 2}
 ```
+
+## Memory
+
+Update your agent memory as you discover contract patterns, gas optimization techniques,
+common pitfalls, and architectural decisions. Write concise notes about what you found
+and where. Consult your memory before starting work.
 
 ## Quality Filter
 

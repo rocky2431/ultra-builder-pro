@@ -1,7 +1,8 @@
 {
   "cleanupPeriodDays": 30,
   "env": {
-    "MAX_THINKING_TOKENS": "31999"
+    "MAX_THINKING_TOKENS": "31999",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "attribution": {
     "commit": "🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>",
@@ -29,7 +30,8 @@
       "BashOutput",
       "KillShell",
       "ExitPlanMode",
-      "mcp__*"
+      "mcp__*",
+      "mcp__pencil"
     ],
     "deny": [
       "Read(./.env)",
@@ -43,8 +45,26 @@
     ],
     "defaultMode": "default"
   },
-  "model": "opus",
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/code_quality.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/mock_detector.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/security_scan.py"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
@@ -65,21 +85,12 @@
         ]
       }
     ],
-    "PostToolUse": [
+    "SessionStart": [
       {
-        "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/code_quality.py"
-          },
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/mock_detector.py"
-          },
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/security_scan.py"
+            "command": "python3 ~/.claude/hooks/session_context.py"
           }
         ]
       }
@@ -94,12 +105,35 @@
         ]
       }
     ],
-    "SessionStart": [
+    "SubagentStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/session_context.py"
+            "command": "python3 ~/.claude/hooks/subagent_tracker.py start",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/subagent_tracker.py stop",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/pre_compact_context.py",
+            "timeout": 10
           }
         ]
       }
@@ -111,21 +145,23 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "pr-review-toolkit@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
     "clangd-lsp@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true,
-    "jdtls-lsp@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
     "hookify@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true
+    "jdtls-lsp@claude-plugins-official": true,
+    "planning-with-files@planning-with-files": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true
   },
   "language": "Chinese",
   "sandbox": {
     "enabled": false,
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
-  "_comment_project": "Ultra Builder Pro 5.3.0",
-  "_comment_version": "5.3.0 - Lean Architecture Edition"
+  "_comment_project": "Ultra Builder Pro 5.4.0",
+  "_comment_version": "5.4.0 - Agent & Memory Edition"
 }
