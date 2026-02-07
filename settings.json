@@ -52,15 +52,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/code_quality.py"
-          },
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/mock_detector.py"
-          },
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/security_scan.py"
+            "command": "python3 ~/.claude/hooks/post_edit_guard.py"
           }
         ]
       }
@@ -155,7 +147,8 @@
     "ralph-loop@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "vercel@claude-plugins-official": true
+    "vercel@claude-plugins-official": true,
+    "claude-mem@thedotmack": true
   },
   "language": "Chinese",
   "sandbox": {
