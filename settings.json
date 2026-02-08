@@ -52,7 +52,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/post_edit_guard.py"
+            "command": "python3 ~/.claude/hooks/post_edit_guard.py",
+            "timeout": 5
           }
         ]
       }
@@ -63,7 +64,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/block_dangerous_commands.py"
+            "command": "python3 ~/.claude/hooks/block_dangerous_commands.py",
+            "timeout": 5
           }
         ]
       }
@@ -73,7 +75,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/session_context.py"
+            "command": "python3 ~/.claude/hooks/session_context.py",
+            "timeout": 10
           }
         ]
       }
@@ -83,7 +86,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/pre_stop_check.py"
+            "command": "python3 ~/.claude/hooks/pre_stop_check.py",
+            "timeout": 5
           }
         ]
       }
@@ -138,8 +142,7 @@
     "ralph-loop@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "vercel@claude-plugins-official": true,
-    "claude-mem@thedotmack": true
+    "vercel@claude-plugins-official": true
   },
   "language": "Chinese",
   "sandbox": {
