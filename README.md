@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.4.0
+# Ultra Builder Pro 5.4.1
 
 <div align="center">
 
@@ -6,12 +6,12 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.4.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.4.1-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-3-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-5-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-9-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-6-yellow)](hooks/)
 
 </div>
 
@@ -151,32 +151,30 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (10 Hooks)
+## Hooks System (6 Hooks)
 
-Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
+Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks have **timeout** configured to prevent UI freeze.
 
 ### PreToolUse Hooks (Guard before execution)
 
-| Hook | Trigger | Detection |
-|------|---------|-----------|
-| `block_dangerous_commands.py` | Bash | rm -rf, fork bombs, chmod 777, force push main |
+| Hook | Trigger | Detection | Timeout |
+|------|---------|-----------|---------|
+| `block_dangerous_commands.py` | Bash | rm -rf, fork bombs, chmod 777, force push main | 5s |
 
 ### PostToolUse Hooks (Quality gate after execution)
 
-| Hook | Trigger | Detection |
-|------|---------|-----------|
-| `code_quality.py` | Edit/Write | TODO/FIXME, NotImplemented, hardcoded URLs/ports, static state |
-| `mock_detector.py` | Edit/Write | jest.fn(), vi.fn(), InMemoryRepository, it.skip |
-| `security_scan.py` | Edit/Write | Hardcoded secrets, SQL injection, empty catch, bad error handling |
+| Hook | Trigger | Detection | Timeout |
+|------|---------|-----------|---------|
+| `post_edit_guard.py` | Edit/Write | TODO/FIXME, NotImplemented, hardcoded config, mock patterns (jest.fn/InMemory), security (secrets, SQL injection, empty catch) | 5s |
 
 ### Session & Lifecycle Hooks
 
-| Hook | Trigger | Function |
-|------|---------|----------|
-| `session_context.py` | SessionStart | Load git branch, recent commits, modified files |
-| `pre_stop_check.py` | Stop | BLOCK if security files unreviewed |
-| `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to debug/subagent-log.jsonl |
-| `pre_compact_context.py` | PreCompact | Preserve task state and git context before compaction |
+| Hook | Trigger | Function | Timeout |
+|------|---------|----------|---------|
+| `session_context.py` | SessionStart | Load git branch, recent commits, modified files | 10s |
+| `pre_stop_check.py` | Stop | BLOCK if security files unreviewed | 5s |
+| `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to debug/subagent-log.jsonl | 5s |
+| `pre_compact_context.py` | PreCompact | Preserve task state and git context before compaction | 10s |
 
 ---
 
@@ -212,15 +210,13 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 ├── README.md                 # This file
 ├── settings.json             # Claude Code settings + hooks config
 │
-├── hooks/                    # Automated enforcement (9 hooks)
-│   ├── block_dangerous_commands.py  # PreToolUse: dangerous bash commands
-│   ├── code_quality.py              # PostToolUse: TODO, hardcoded config
-│   ├── mock_detector.py             # PostToolUse: mock patterns, it.skip
-│   ├── security_scan.py             # PostToolUse: secrets, SQL, errors
-│   ├── session_context.py           # SessionStart: load dev context
-│   ├── pre_stop_check.py            # Stop: security file review
-│   ├── subagent_tracker.py          # SubagentStart/Stop: lifecycle logging
-│   └── pre_compact_context.py       # PreCompact: preserve context
+├── hooks/                    # Automated enforcement (6 hooks, all with timeout)
+│   ├── block_dangerous_commands.py  # PreToolUse: dangerous bash commands (5s)
+│   ├── post_edit_guard.py           # PostToolUse: quality + mock + security unified (5s)
+│   ├── session_context.py           # SessionStart: load dev context (10s)
+│   ├── pre_stop_check.py            # Stop: security file review (5s)
+│   ├── subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
+│   └── pre_compact_context.py       # PreCompact: preserve context (10s)
 │
 ├── commands/                 # /ultra-* commands (10)
 │   ├── ultra-init.md
@@ -301,6 +297,18 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.4.1 (2026-02-08) - Hooks Hardening
+
+**Hooks Refactoring**:
+- Merged 3 PostToolUse hooks (`code_quality.py`, `mock_detector.py`, `security_scan.py`) into unified `post_edit_guard.py`
+- Removed `branch_protection.py`, simplified `pre_stop_check.py`
+- 9 hooks → 6 hooks (less overhead per tool call)
+
+**Reliability Fix**:
+- Added `timeout` to all hooks (5s default, 10s for SessionStart/PreCompact)
+- Prevents UI freeze when hook scripts stall
+- Fixed non-dict JSON input handling in `subagent_tracker.py`
 
 ### v5.4.0 (2026-02-07) - Agent & Memory Edition
 
