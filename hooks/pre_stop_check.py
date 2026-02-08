@@ -105,9 +105,12 @@ def get_git_status() -> dict:
 
 
 def get_code_files(files: list) -> list:
-    """Filter to code files only."""
-    code_extensions = {'.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs', '.java', '.sol', '.rb'}
-    return [f for f in files if os.path.splitext(f)[1].lower() in code_extensions]
+    """Filter to code files only (excludes .md and other non-code files)."""
+    code_extensions = {'.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs', '.java', '.sol', '.rb', '.vue', '.svelte', '.css', '.scss', '.html', '.json', '.yaml', '.yml', '.toml', '.sh'}
+    excluded_extensions = {'.md', '.txt', '.log'}
+    return [f for f in files
+            if os.path.splitext(f)[1].lower() in code_extensions
+            and os.path.splitext(f)[1].lower() not in excluded_extensions]
 
 
 def get_changes_hash(files: list) -> str:
@@ -155,68 +158,43 @@ def main():
     cleanup_old_markers()
     git_status = get_git_status()
 
-    reminders = []
-
-    if git_status['has_changes']:
-        all_changed = git_status['staged'] + git_status['unstaged']
-        code_files = get_code_files(all_changed)
-
-        if code_files:
-            reminders.append({
-                'type': 'Code Review',
-                'message': f'{len(code_files)} code file(s) changed but not reviewed',
-                'action': 'Run pr-review-toolkit:code-reviewer agent before completing',
-                'files': code_files[:5]
-            })
-
-    security_patterns = ['auth', 'login', 'password', 'payment', 'secret', 'token']
-    if git_status['has_changes']:
-        all_files = git_status['staged'] + git_status['unstaged']
-        security_files = [f for f in all_files
-                        if any(p in f.lower() for p in security_patterns)]
-
-        if security_files:
-            reminders.append({
-                'type': 'Security Review',
-                'message': 'Security-sensitive files changed',
-                'action': 'Run pr-review-toolkit:code-reviewer (MANDATORY)',
-                'files': security_files[:5]
-            })
-
-    has_security_files = any(r['type'] == 'Security Review' for r in reminders)
-
-    if reminders:
-        all_changed = git_status['staged'] + git_status['unstaged']
-        changes_hash = get_changes_hash(all_changed)
-
-        lines = ["[Pre-Stop Check] Before ending session:"]
-
-        for reminder in reminders:
-            lines.append(f"  [{reminder['type']}] {reminder['message']}")
-            lines.append(f"    Action: {reminder['action']}")
-            if reminder.get('files'):
-                for f in reminder['files'][:3]:
-                    lines.append(f"      - {f}")
-
-        lines.append("")
-        lines.append("Use Task tool with subagent_type to invoke agents.")
-
-        message = "\n".join(lines)
-
-        if has_security_files and not is_review_done(changes_hash):
-            # First time: block and create marker
-            mark_review_blocked(changes_hash)
-            result = {
-                "decision": "block",
-                "reason": message
-            }
-            print(json.dumps(result))
-        else:
-            # Either: no security files, or review marker exists (already blocked once)
-            print(message, file=sys.stderr)
-            print(json.dumps({}))
-    else:
+    if not git_status['has_changes']:
         print(json.dumps({}))
+        return
+
+    all_changed = git_status['staged'] + git_status['unstaged']
+    code_files = get_code_files(all_changed)
+
+    if not code_files:
+        print(json.dumps({}))
+        return
+
+    changes_hash = get_changes_hash(all_changed)
+
+    # Already blocked once for this set of changes → allow stop
+    if is_review_done(changes_hash):
+        print(json.dumps({}))
+        return
+
+    # First time: block and create marker
+    mark_review_blocked(changes_hash)
+
+    lines = [
+        f"[Pre-Stop Check] {len(code_files)} code file(s) changed:",
+    ]
+    for f in code_files[:8]:
+        lines.append(f"  - {f}")
+    if len(code_files) > 8:
+        lines.append(f"  ... and {len(code_files) - 8} more")
+
+    lines.append("")
+    lines.append("Run /pr-review-toolkit:code-reviewer all before completing.")
+
+    result = {
+        "decision": "block",
+        "reason": "\n".join(lines)
+    }
+    print(json.dumps(result))
 
 
 if __name__ == '__main__':

@@ -66,15 +66,6 @@
             "command": "python3 ~/.claude/hooks/block_dangerous_commands.py"
           }
         ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/branch_protection.py"
-          }
-        ]
       }
     ],
     "SessionStart": [

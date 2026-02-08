@@ -11,7 +11,7 @@
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-3-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-5-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-10-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-9-yellow)](hooks/)
 
 </div>
 
@@ -160,7 +160,6 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 | Hook | Trigger | Detection |
 |------|---------|-----------|
 | `block_dangerous_commands.py` | Bash | rm -rf, fork bombs, chmod 777, force push main |
-| `branch_protection.py` | Edit/Write | Ask confirmation for edits on main/master/production branches |
 
 ### PostToolUse Hooks (Quality gate after execution)
 
@@ -213,9 +212,8 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`:
 ├── README.md                 # This file
 ├── settings.json             # Claude Code settings + hooks config
 │
-├── hooks/                    # Automated enforcement (10 hooks)
+├── hooks/                    # Automated enforcement (9 hooks)
 │   ├── block_dangerous_commands.py  # PreToolUse: dangerous bash commands
-│   ├── branch_protection.py         # PreToolUse: protect main/master
 │   ├── code_quality.py              # PostToolUse: TODO, hardcoded config
 │   ├── mock_detector.py             # PostToolUse: mock patterns, it.skip
 │   ├── security_scan.py             # PostToolUse: secrets, SQL, errors
@@ -358,7 +356,6 @@ Multi-step tasks use the Task system:
 
 **New Hooks (3 new)**:
 - `block_dangerous_commands.py`: PreToolUse - Block rm -rf, fork bombs, chmod 777, force push main
-- `branch_protection.py`: PreToolUse - Protect main/master/production branches
 - `session_context.py`: SessionStart - Load git context at session start
 
 **Enhanced Detection (aligned with CLAUDE.md 100%)**:
