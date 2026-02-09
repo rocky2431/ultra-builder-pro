@@ -4,7 +4,7 @@ Pre-Stop Check Hook - Stop
 Checks for unreviewed code changes before session ends
 
 Reminds to:
-- Run pr-review-toolkit:code-reviewer for uncommitted changes
+- Run code-reviewer agent for uncommitted changes
 - Run tests before completing
 
 Uses a marker file to track review completion, preventing infinite loops.
@@ -188,7 +188,7 @@ def main():
         lines.append(f"  ... and {len(code_files) - 8} more")
 
     lines.append("")
-    lines.append("Run /pr-review-toolkit:code-reviewer all before completing.")
+    lines.append("Run code-reviewer agent to review changes before completing.")
 
     result = {
         "decision": "block",

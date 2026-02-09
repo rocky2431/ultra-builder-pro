@@ -183,7 +183,7 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 | Secrets | Environment variables or secret manager |
 | Sessions | Secure, HttpOnly, SameSite cookies |
 
-**Trigger**: auth/payment/PII code → pr-review-toolkit:code-reviewer MANDATORY
+**Trigger**: auth/payment/PII code → code-reviewer MANDATORY
 </security>
 
 <observability>
@@ -224,7 +224,7 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 **Auto-trigger by path**:
 | Path | Agent | Priority |
 |------|-------|----------|
-| /auth/, /login/, /password/, /payment/, /token/ | pr-review-toolkit:code-reviewer | MANDATORY |
+| /auth/, /login/, /password/, /payment/, /token/ | code-reviewer | MANDATORY |
 
 **Auto-trigger by task type**:
 | Task | Agent | Reason |
@@ -262,7 +262,7 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 
 <high_risk_brakes>
 **STOP** for: data migration, funds/keys, breaking API, production config
-Security issues → pr-review-toolkit:code-reviewer → fix before continuing
+Security issues → code-reviewer → fix before continuing
 No evidence + significant consequences → Speculation, brake
 </high_risk_brakes>
 

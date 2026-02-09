@@ -371,7 +371,7 @@ def _fmt_security(file_path, critical, high):
             out.append(f"    > {h['code']}")
         if len(high) > 5:
             out.append(f"  ... and {len(high) - 5} more")
-        out.append("Run pr-review-toolkit:code-reviewer for security-sensitive files.")
+        out.append("Run code-reviewer agent for security-sensitive files.")
     return out
 
 
