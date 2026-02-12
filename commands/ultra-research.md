@@ -100,9 +100,14 @@ Write to .ultra/specs/
 Step 1: Requirement Clarification (AskUserQuestion)
 Step 2: Deep Analysis (/ultra-think)
 Step 3: Analysis Validation (show summary with confidence)
-Step 4: Round Satisfaction Rating (1-5 stars, ask user)
-Step 5: Quality Gate
-        - If <4 stars → Iterate (ask: what's missing? back to Step 1)
+Step 4: Round Satisfaction Rating (1-5 stars + feedback, ask user)
+Step 5: Quality Gate (ITERATION LOOP)
+        - If <4 stars:
+          5a. Collect specific feedback (AskUserQuestion: "Which parts need revision? What are your specific expectations?")
+          5b. Revise analysis: incorporate user feedback, redo Step 2 for affected sections
+          5c. Re-present revised analysis (Step 3 again)
+          5d. Re-ask satisfaction rating (Step 4 again)
+          5e. Repeat 5a-5d until ≥4 stars (max 3 iterations, then escalate)
         - If ≥4 stars → Continue to Step 6
 Step 6: Generate Output (MANDATORY - BOTH files required)
         6a. Write to .ultra/specs/ (product.md or architecture.md)
@@ -110,14 +115,20 @@ Step 6: Generate Output (MANDATORY - BOTH files required)
         6c. Verify BOTH files updated before proceeding to next round
 ```
 
+**CRITICAL**: Step 5 is a **mandatory iteration loop**. The round is NOT complete until the user rates ≥4 stars. Simply asking "are you satisfied?" and proceeding is a violation. You MUST:
+1. Collect **specific** feedback on what needs to change
+2. **Actually revise** the analysis based on that feedback
+3. **Re-present** the revised version for user validation
+4. **Re-rate** — only proceed when ≥4 stars
+
 **Rating Definition**:
 
 | Rating | Meaning | Action |
 |--------|---------|--------|
-| 1-2 ⭐ | Serious issues, needs major rework | Iterate |
-| 3 ⭐ | Notable gaps or omissions | Iterate |
-| 4 ⭐ | Acceptable, meets requirements | Continue |
-| 5 ⭐ | Excellent, exceeds expectations | Continue |
+| 1-2 ⭐ | Serious issues, needs major rework | Iterate: collect feedback → revise → re-validate |
+| 3 ⭐ | Notable gaps or omissions | Iterate: collect feedback → revise → re-validate |
+| 4 ⭐ | Acceptable, meets requirements | Continue to Step 6 |
+| 5 ⭐ | Excellent, exceeds expectations | Continue to Step 6 |
 
 **Research Report Format** (written in Step 6):
 
@@ -126,7 +137,7 @@ Step 6: Generate Output (MANDATORY - BOTH files required)
 
 > **Rating**: ⭐⭐⭐⭐ (4/5)
 > **Confidence**: 92%
-> **Iterations**: 1
+> **Iterations**: 2 (initial: 2⭐ → revised: 4⭐)
 > **Completed**: {date}
 
 ## Summary
@@ -137,6 +148,12 @@ Step 6: Generate Output (MANDATORY - BOTH files required)
 
 ## Decisions Made
 [Choices and rationale]
+
+## Iteration History (if iterations > 1)
+| Iteration | Rating | User Feedback | Changes Made |
+|-----------|--------|---------------|--------------|
+| 1 | 2⭐ | "Missing specific deployment topology" | Added deployment topology diagram |
+| 2 | 4⭐ | "Satisfied" | — |
 ```
 
 ### Step 6 Detailed: Generate Output (MANDATORY)
