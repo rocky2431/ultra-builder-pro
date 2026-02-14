@@ -391,6 +391,11 @@ Multi-step tasks use the Task system:
 - All 12 agents switched from `memory: user` to `memory: project`
 - `.gitignore` updated to exclude `.ultra/reviews/`, `.ultra/compact-snapshot.md`, `.ultra/debug/`
 
+**Audit Fixes**:
+- `pre_compact_context.py`: Added `mkdir -p` before writing snapshot (prevents silent failure when `.ultra/` doesn't exist)
+- `settings.json`: Co-Authored-By removed hardcoded model version (aligned with CLAUDE.md)
+- `settings.json`: Version comments updated to 5.6.1, removed redundant `mcp__pencil` permission
+
 ### v5.6.0 (2026-02-14) - System Integration Dimension
 
 **System Integration Dimension** — macro-level integration guarantees complementing existing micro-level component quality:
