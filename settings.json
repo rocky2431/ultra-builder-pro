@@ -5,7 +5,7 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "attribution": {
-    "commit": "🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>",
+    "commit": "🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
     "pr": "🤖 Generated with [Claude Code](https://claude.com/claude-code)"
   },
   "permissions": {
@@ -30,8 +30,7 @@
       "BashOutput",
       "KillShell",
       "ExitPlanMode",
-      "mcp__*",
-      "mcp__pencil"
+      "mcp__*"
     ],
     "deny": [
       "Read(./.env)",
@@ -148,8 +147,8 @@
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
   "skipDangerousModePermissionPrompt": true,
-  "_comment_project": "Ultra Builder Pro 5.5.0",
-  "_comment_version": "5.5.0 - Ultra Review System",
+  "_comment_project": "Ultra Builder Pro 5.6.1",
+  "_comment_version": "5.6.1 - Project Isolation",
   "model": "opus",
   "alwaysThinkingEnabled": true
 }

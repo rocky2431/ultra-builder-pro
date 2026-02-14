@@ -197,6 +197,7 @@ def main():
     # Layer 1: Write full snapshot to disk
     snapshot = build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp)
     try:
+        SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
         SNAPSHOT_PATH.write_text(snapshot, encoding="utf-8")
     except OSError as e:
         print(f"[pre_compact] Failed to write snapshot: {e}", file=sys.stderr)

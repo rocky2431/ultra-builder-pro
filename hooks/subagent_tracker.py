@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Subagent lifecycle tracker.
 
-Logs SubagentStart/Stop events to ~/.claude/debug/subagent-log.jsonl
+Logs SubagentStart/Stop events to .ultra/debug/subagent-log.jsonl (project-level)
 for debugging and cost analysis.
 
 Usage:
