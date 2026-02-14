@@ -54,6 +54,12 @@ Load `references/code-quality-checklist.md` for coverage.
 
 Check error handling, performance/caching, boundary conditions. Flag issues that may cause silent failures or production incidents.
 
+### Step 5.5: Integration & Connectivity
+
+Load `references/integration-checklist.md` for detailed prompts.
+
+Check entry point tracing, contract validation, vertical slice assessment, integration test coverage, and data flow continuity. Flag orphan code, missing contracts, and horizontal-only changes.
+
 ### Step 6: Output Format
 
 ```markdown
@@ -109,3 +115,4 @@ For detailed patterns and checklists, consult:
 - **`references/security-checklist.md`** - Security, reliability, and race condition checks
 - **`references/code-quality-checklist.md`** - Error handling, performance, boundary conditions
 - **`references/removal-plan.md`** - Deletion candidates and iteration planning template
+- **`references/integration-checklist.md`** - Entry point tracing, contract validation, data flow continuity

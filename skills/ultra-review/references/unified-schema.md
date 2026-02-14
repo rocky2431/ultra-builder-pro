@@ -95,6 +95,7 @@ All review agents MUST output findings in this exact format. No deviations.
 | `simplification` | review-simplify |
 | `performance` | review-code, review-simplify |
 | `architecture` | review-code, review-types |
+| `integration` | review-code |
 | `forbidden-pattern` | review-code, review-tests, review-comments |
 
 ### Verdict Rules

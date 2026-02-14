@@ -135,6 +135,7 @@ Find and change the status header line:
   - Boundary: Edge cases handled
   - Exception: Errors handled gracefully
   - Security: No vulnerabilities
+  - Integration: At least one test proving this code connects to upstream/downstream boundary (if applicable)
 - Tests MUST fail initially
 - Run tests to confirm failure
 
@@ -157,6 +158,8 @@ Find and change the status header line:
 | Coverage | ≥80% (project standard) |
 | No mocks on core logic | Domain/service/state paths use real deps |
 | No degradation | No fallback or demo code |
+| Integration test exists | Boundary-crossing code has ≥ 1 real integration test |
+| Entry point reachable | New modules traceable from at least one handler/listener |
 
 **Test double policy**:
 - ❌ Core logic (domain/service/state) → NO mocking
@@ -245,6 +248,8 @@ Add or update the Completion section at the end of the file:
 - [ ] context file: Completion section exists
 - [ ] All tests passing
 - [ ] Ultra Review verdict is NOT `REQUEST_CHANGES`
+- [ ] New modules reachable from at least one entry point (no orphan code)
+- [ ] Boundary-crossing code has integration test
 
 **If any unchecked → fix first, do NOT commit**
 

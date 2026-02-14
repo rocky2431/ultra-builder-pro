@@ -161,12 +161,36 @@ Solution: Run /ultra-research first
 - Too large (>6): Break down into subtasks
 - Too small (<3): Merge with related tasks
 
+**Integration task generation**:
+
+After generating feature tasks, insert these integration tasks:
+
+1. **Walking Skeleton** (always Task #1, Priority P0):
+   - Title: "Walking skeleton: {primary use case} end-to-end"
+   - Type: `architecture`
+   - Must touch all layers: entry point → use case → domain → persistence
+   - Acceptance: One real request returns real data through all layers
+
+2. **Contract Definition** (when specs show component boundaries):
+   - Title: "Define contract: {component A} ↔ {component B}"
+   - Type: `architecture`
+   - Must PRECEDE implementation tasks for both sides
+   - Acceptance: Shared interface/schema exists, contract test validates compatibility
+
+3. **Integration Checkpoint** (every 3-4 feature tasks):
+   - Title: "Integration checkpoint: verify {feature group} connectivity"
+   - Type: `architecture`
+   - Acceptance: All components from recent tasks communicate correctly end-to-end
+
 ### 4. Dependency Analysis
 
 - Build dependency graph
 - Detect cycles (error if found)
 - Order tasks topologically
 - Identify parallel opportunities
+- Validate vertical slicing: Flag any task touching only one layer. If found, split into vertical slices or merge with related tasks
+- Walking skeleton (Task #1) has no dependencies and blocks all feature tasks
+- Contract tasks precede their consumer implementation tasks
 
 ### 5. Save Tasks (MANDATORY)
 
@@ -227,6 +251,10 @@ Output summary:
 - ✅ No circular dependencies
 - ✅ Realistic complexity estimates
 - ✅ Action-verb task titles
+- ✅ Walking skeleton is Task #1
+- ✅ Every feature task touches ≥ 2 layers (vertical slice)
+- ✅ Integration checkpoint every 3-4 feature tasks
+- ✅ Contract tasks precede cross-boundary implementations
 
 ## Integration
 

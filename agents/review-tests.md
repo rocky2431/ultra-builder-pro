@@ -45,6 +45,8 @@ You will receive:
    - New code files without corresponding test files
    - New public methods without test coverage
    - Modified logic without updated tests
+   - Boundary-crossing code without integration test (DB, API, queue tested only via mocks/unit tests)
+   - Use case with external dependency but no Testcontainers/real-endpoint test
 5. **Criticality Scoring** (1-10 → severity mapping):
    - 9-10 = P0 (critical path untested, security bypass untested)
    - 7-8 = P1 (important business logic untested, mock violation)
@@ -65,6 +67,8 @@ You will receive:
 | Error path not tested | P1 |
 | Boundary condition missing | P2 |
 | New code without test file | P1 |
+| Boundary crossing without integration test | P1 |
+| Use case with only unit tests for external deps | P2 |
 | Test naming/organization | P3 |
 
 ## Recommendations

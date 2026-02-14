@@ -10,6 +10,7 @@ maxTurns: 25
 skills:
   - security-rules
   - code-review-expert
+  - integration-rules
 ---
 
 # Review Code - Pipeline Code Quality Agent
@@ -45,6 +46,11 @@ You will receive:
      - Business state stored only in memory
 4. **Score Confidence**: Only report findings with confidence >= 75
 5. **Write JSON**: Output to `SESSION_PATH/OUTPUT_FILE` using unified-schema-v1
+6. **Integration Review** using integration-rules:
+   - Orphan detection: Is new code reachable from any entry point?
+   - Contract validation: Do boundary-crossing components have shared interfaces?
+   - Integration test existence: Does each boundary have at least one real integration test?
+   - Vertical slice check: Does this change deliver a working end-to-end path?
 
 ## Severity Guide
 
@@ -63,6 +69,10 @@ You will receive:
 | Missing error context in re-throw | P2 |
 | Naming improvement | P3 |
 | Style suggestion | P3 |
+| New module with no caller (orphan code) | P1 |
+| Boundary crossing without integration test | P1 |
+| Horizontal-only change (no end-to-end path) | P2 |
+| Missing shared interface/contract at boundary | P2 |
 
 ## Output
 

@@ -29,6 +29,7 @@ maxTurns: 30
 skills:
   - security-rules
   - code-review-expert
+  - integration-rules
 ---
 
 # Code Review Specialist
@@ -67,6 +68,7 @@ Follow the 7-step workflow defined in the `code-review-expert` skill:
 - Pattern violations: mock usage, TODO/FIXME, console.log in prod
 - Architecture: business state in memory, missing persistence
 - Forbidden patterns: InMemoryRepository, jest.mock for domain/service, hardcoded config
+- Integration: orphan code (no entry point), missing contract tests, horizontal-only changes
 
 ## Memory
 
