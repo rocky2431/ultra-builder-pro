@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.5.0
+# Ultra Builder Pro 5.6.0
 
 <div align="center">
 
@@ -6,10 +6,10 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.5.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.6.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
+[![Skills](https://img.shields.io/badge/skills-6-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-12-red)](agents/)
 [![Hooks](https://img.shields.io/badge/hooks-6-yellow)](hooks/)
 
@@ -91,15 +91,16 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 
 ---
 
-## Skills (5 + Learned Patterns)
+## Skills (6 + Learned Patterns)
 
 | Skill | Purpose | User-Invocable |
 |-------|---------|----------------|
 | `ultra-review` | Parallel code review with 6 agents + coordinator | Yes |
 | `codex` | OpenAI Codex CLI integration | Yes |
-| `code-review-expert` | Structured review checklists (SOLID, security, perf) | No (agent-only) |
+| `code-review-expert` | Structured review checklists (SOLID, security, perf, integration) | No (agent-only) |
 | `testing-rules` | TDD discipline, mock detection rules | No (agent-only) |
 | `security-rules` | Input validation, injection prevention rules | No (agent-only) |
+| `integration-rules` | Vertical slice, walking skeleton, contract-first, orphan detection | No (agent-only) |
 | `learned/` | Extracted patterns from `/learn` | Yes |
 
 ---
@@ -124,7 +125,7 @@ Used exclusively by `/ultra-review`. Each agent writes JSON findings to `~/.clau
 
 | Agent | Purpose | Output |
 |-------|---------|--------|
-| `review-code` | CLAUDE.md compliance, code quality, architecture | `review-code.json` |
+| `review-code` | CLAUDE.md compliance, code quality, architecture, integration | `review-code.json` |
 | `review-tests` | Test quality, mock violations, coverage gaps | `review-tests.json` |
 | `review-errors` | Silent failures, empty catches, swallowed errors | `review-errors.json` |
 | `review-types` | Type design, encapsulation, domain modeling | `review-types.json` |
@@ -279,10 +280,11 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- commit.md
 |   |-- learn.md
 |
-|-- skills/                   # Domain skills (5 + learned)
+|-- skills/                   # Domain skills (6 + learned)
 |   |-- ultra-review/         # Parallel review orchestration
 |   |-- codex/                # OpenAI Codex CLI
 |   |-- code-review-expert/   # Structured review checklists (agent-only)
+|   |-- integration-rules/    # System integration rules (agent-only)
 |   |-- testing-rules/        # TDD rules (agent-only)
 |   |-- security-rules/       # Security rules (agent-only)
 |   |-- learned/              # Extracted patterns
@@ -362,6 +364,49 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.6.0 (2026-02-14) - System Integration Dimension
+
+**System Integration Dimension** — macro-level integration guarantees complementing existing micro-level component quality:
+
+**New CLAUDE.md Rules**:
+- `<integration>` block: Vertical Slice, Walking Skeleton, Contract-First, Integration Proof, Orphan Detection
+- `<testing>`: Cross-boundary contract/E2E test layer
+- `<forbidden_patterns>`: Horizontal-only tasks, unwired components, missing contract tests
+- `<red_flags>`: "I'll wire it up later", "It works in isolation", etc.
+- `<verification>`: "Feature complete" requires E2E test, "Component works" requires entry point trace
+
+**New Skill: `integration-rules`** (agent-only):
+- Vertical slice principle with good/bad examples
+- Walking skeleton requirements
+- Contract-first development workflow
+- Integration test requirements per boundary type
+- Orphan detection checklist
+- Injected into `review-code` and `code-reviewer` agents
+
+**New Reference: `integration-checklist.md`**:
+- Entry point tracing, contract validation, vertical slice assessment
+- Integration test coverage matrix, data flow continuity checks
+- Added to `code-review-expert` as Step 5.5
+
+**Enhanced Agents**:
+- `review-code`: +integration-rules skill, +step 6 integration review, +4 severity rows (orphan P1, missing integration test P1, horizontal-only P2, missing contract P2)
+- `code-reviewer`: +integration-rules skill, +integration checks in Additional Checks
+- `review-tests`: +boundary-crossing detection, +2 severity rows
+
+**Enhanced Workflows**:
+- `ultra-plan`: Walking skeleton as Task #1 (P0), contract definition tasks, integration checkpoints every 3-4 tasks, vertical slice validation
+- `ultra-dev`: Integration test dimension in RED phase, integration quality gates, pre-commit orphan/integration checklist
+
+**Schema**: `integration` category added to unified-schema-v1 Category Enum
+
+**Zero additional cost**: Integration checks folded into existing review-code agent via skill injection — no new review agent needed.
+
+### v5.5.1 (2026-02-14) - Codex v6.0 + Review Enhancements
+
+- Codex v6.0 integration
+- `/ultra-review all` mode (force all 6 agents, no auto-skip)
+- `pre_stop_check.py` marker-based escape hatch (block once, allow on second attempt)
 
 ### v5.5.0 (2026-02-14) - Ultra Review System
 
