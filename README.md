@@ -365,7 +365,7 @@ Multi-step tasks use the Task system:
 
 ### v5.5.0 (2026-02-14) - Ultra Review System
 
-**Replaced pr-review-toolkit plugin** with native Ultra Review System:
+**Ultra Review System** — native parallel code review pipeline:
 
 **New Review Pipeline (7 agents)**:
 - `review-code`: CLAUDE.md compliance, code quality, architecture
@@ -397,7 +397,7 @@ Multi-step tasks use the Task system:
 - REQUEST_CHANGES without P0: also blocks with marker escape
 
 **Enhanced: `/ultra-dev` Step 4.5**:
-- Replaced 55-line manual pr-review-toolkit orchestration with `/ultra-review all` invocation (forced full coverage)
+- `/ultra-review all` invocation (forced full coverage)
 - 3-phase flow: Run review > Act on verdict > Verification gate
 
 **CLAUDE.md Updates**:
