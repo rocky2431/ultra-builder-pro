@@ -119,7 +119,7 @@ grep -l "try\|catch\|\.catch\|throw\|Error(" <diff_files>
 
 ### Phase 3: Parallel Execution
 
-Launch ALL selected agents in parallel using the Task tool with `run_in_background: true`.
+Launch ALL selected agents in parallel using multiple Task tool calls in a single message (do NOT use `run_in_background`).
 
 Each agent receives this prompt template:
 
