@@ -35,7 +35,7 @@ description: |
   </example>
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
-memory: user
+memory: project
 maxTurns: 100
 ---
 

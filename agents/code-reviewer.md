@@ -24,7 +24,7 @@ description: |
   </example>
 tools: Read, Grep, Glob, Bash
 model: inherit
-memory: user
+memory: project
 maxTurns: 30
 skills:
   - security-rules

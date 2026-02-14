@@ -10,11 +10,30 @@ Usage:
 """
 
 import json
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-LOG_DIR = Path.home() / ".claude" / "debug"
+
+def get_log_dir() -> Path:
+    """Get project-level log directory (.ultra/debug/ relative to git toplevel).
+
+    Falls back to ~/.claude/debug/ if not in a git repo.
+    """
+    try:
+        proc = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, timeout=3
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            return Path(proc.stdout.strip()) / ".ultra" / "debug"
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    return Path.home() / ".claude" / "debug"
+
+
+LOG_DIR = get_log_dir()
 LOG_FILE = LOG_DIR / "subagent-log.jsonl"
 
 

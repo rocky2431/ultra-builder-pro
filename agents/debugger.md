@@ -23,7 +23,7 @@ description: |
   </example>
 tools: Read, Edit, Bash, Grep, Glob
 model: inherit
-memory: user
+memory: project
 maxTurns: 40
 ---
 

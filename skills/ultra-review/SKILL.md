@@ -42,11 +42,11 @@ ITER = count existing sessions matching this branch + 1  # iteration number
 # 2. Create session directory with full context
 SESSION_ID = "<YYYYMMDD-HHmmss>-<branch>-iter<N>"
 # e.g., "20260214-103000-feat-task-3-auth-iter2"
-SESSION_PATH = "~/.claude/reviews/{SESSION_ID}/"
+SESSION_PATH = ".ultra/reviews/{SESSION_ID}/"
 mkdir -p SESSION_PATH
 
 # 3. Update session index (placeholder — verdict filled in Phase 5)
-# Append entry to ~/.claude/reviews/index.json with verdict="pending"
+# Append entry to .ultra/reviews/index.json with verdict="pending"
 # See Session Index below for full schema
 
 # 4. Cleanup (see Lifecycle Management below)
@@ -221,7 +221,7 @@ When mode is `delta`:
 
 A lightweight index file tracks all sessions for cross-referencing:
 
-**File**: `~/.claude/reviews/index.json`
+**File**: `.ultra/reviews/index.json`
 
 ```json
 {
@@ -347,7 +347,7 @@ This skill integrates with the TDD workflow:
 ## Directory Structure
 
 ```
-~/.claude/reviews/
+.ultra/reviews/
   ├── index.json                                    # Session index (all sessions metadata)
   ├── 20260214-103000-feat-task-3-auth-iter1/       # First review
   │   ├── review-code.json

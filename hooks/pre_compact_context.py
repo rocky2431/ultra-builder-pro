@@ -16,8 +16,28 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-SNAPSHOT_PATH = Path.home() / ".claude" / "compact-snapshot.md"
 GIT_TIMEOUT = 3
+
+
+def get_snapshot_path() -> Path:
+    """Get project-level snapshot path (.ultra/compact-snapshot.md).
+
+    Falls back to ~/.claude/compact-snapshot.md if not in a git repo.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, timeout=GIT_TIMEOUT,
+            cwd=os.getcwd()
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return Path(result.stdout.strip()) / ".ultra" / "compact-snapshot.md"
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    return Path.home() / ".claude" / "compact-snapshot.md"
+
+
+SNAPSHOT_PATH = get_snapshot_path()
 
 
 def run_git(*args):

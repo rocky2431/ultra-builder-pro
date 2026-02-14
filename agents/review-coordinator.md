@@ -5,7 +5,7 @@ description: |
   Used exclusively by /ultra-review after all review agents complete.
 tools: Read, Grep, Glob, Bash, Write
 model: opus
-memory: user
+memory: project
 maxTurns: 15
 ---
 

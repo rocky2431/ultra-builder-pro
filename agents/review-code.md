@@ -5,7 +5,7 @@ description: |
   NOT for interactive use (use code-reviewer for that). Used exclusively by /ultra-review.
 tools: Read, Grep, Glob, Bash, Write
 model: opus
-memory: user
+memory: project
 maxTurns: 25
 skills:
   - security-rules
@@ -24,7 +24,7 @@ Comprehensive code quality audit against CLAUDE.md standards. You cover: securit
 ## Input
 
 You will receive:
-- `SESSION_PATH`: directory to write output (e.g., `~/.claude/reviews/2026-02-14T10-30-00-main/`)
+- `SESSION_PATH`: directory to write output (e.g., `.ultra/reviews/20260214-103000-main-iter1/`)
 - `OUTPUT_FILE`: your output filename (`review-code.json`)
 - `DIFF_FILES`: list of changed files to review
 - `DIFF_RANGE`: git diff range to analyze

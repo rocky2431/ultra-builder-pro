@@ -168,6 +168,24 @@ def get_current_branch() -> str:
         return ""
 
 
+def get_project_reviews_dir() -> Path | None:
+    """Get the project-level reviews directory (.ultra/reviews/ relative to git toplevel).
+
+    Returns None if not in a git repository (safe fallback — skip review checks).
+    """
+    try:
+        proc = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True, text=True,
+            cwd=os.getcwd(), timeout=GIT_TIMEOUT
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            return Path(proc.stdout.strip()) / ".ultra" / "reviews"
+    except (subprocess.TimeoutExpired, Exception):
+        pass
+    return None
+
+
 def check_review_artifacts() -> dict:
     """Check if a recent ultra-review session for the current branch has unresolved P0s.
 
@@ -178,9 +196,10 @@ def check_review_artifacts() -> dict:
         dict with 'needs_review' (bool), optionally 'reason' (str),
         and 'review_passed' (bool) if a recent passing review exists.
     """
-    reviews_dir = Path.home() / ".claude" / "reviews"
-    if not reviews_dir.exists():
+    maybe_reviews_dir = get_project_reviews_dir()
+    if maybe_reviews_dir is None or not maybe_reviews_dir.exists():
         return {'needs_review': False, 'review_passed': False}
+    reviews_dir: Path = maybe_reviews_dir
 
     current_branch = get_current_branch()
 

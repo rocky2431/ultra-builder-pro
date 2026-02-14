@@ -116,6 +116,9 @@ security_warnings_state_*.json
 # Ultra working directories (local)
 .ultra/specs/
 .ultra/tasks/
+.ultra/reviews/
+.ultra/compact-snapshot.md
+.ultra/debug/
 
 # Chrome extension runtime
 chrome/

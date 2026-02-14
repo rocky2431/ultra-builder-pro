@@ -5,7 +5,7 @@ description: |
   Read-only - does NOT modify code. Writes JSON findings to file. Used exclusively by /ultra-review.
 tools: Read, Grep, Glob, Bash, Write
 model: opus
-memory: user
+memory: project
 maxTurns: 20
 ---
 

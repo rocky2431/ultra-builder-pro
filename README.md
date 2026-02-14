@@ -113,15 +113,15 @@ All agents have **persistent memory** that accumulates patterns across sessions.
 
 | Agent | Purpose | Trigger | Model | Memory |
 |-------|---------|---------|-------|--------|
-| `smart-contract-specialist` | Solidity, gas optimization, secure patterns | .sol files | opus | user |
-| `smart-contract-auditor` | Contract security audit, vulnerability detection | .sol files | opus | user |
-| `code-reviewer` | Code review for quality, security, maintainability | After code changes, pre-commit | inherit | user |
+| `smart-contract-specialist` | Solidity, gas optimization, secure patterns | .sol files | opus | project |
+| `smart-contract-auditor` | Contract security audit, vulnerability detection | .sol files | opus | project |
+| `code-reviewer` | Code review for quality, security, maintainability | After code changes, pre-commit | inherit | project |
 | `tdd-runner` | Test execution, failure analysis, coverage | "run tests", test suite | haiku | project |
-| `debugger` | Root cause analysis, minimal fix implementation | Errors, test failures | inherit | user |
+| `debugger` | Root cause analysis, minimal fix implementation | Errors, test failures | inherit | project |
 
 ### Review Pipeline Agents (7) - Ultra Review System
 
-Used exclusively by `/ultra-review`. Each agent writes JSON findings to `~/.claude/reviews/<session>/`.
+Used exclusively by `/ultra-review`. Each agent writes JSON findings to `.ultra/reviews/<session>/` (project-level).
 
 | Agent | Purpose | Output |
 |-------|---------|--------|
@@ -165,7 +165,7 @@ Used exclusively by `/ultra-review`. Each agent writes JSON findings to `~/.clau
 
 ### Session Management
 
-- Sessions tracked in `~/.claude/reviews/index.json` with branch-scoped iteration chains
+- Sessions tracked in `.ultra/reviews/index.json` (project-level) with branch-scoped iteration chains
 - Naming: `<YYYYMMDD-HHmmss>-<branch>-iter<N>>`
 - Auto-cleanup: 7 days for APPROVE/COMMENT, 30 days for REQUEST_CHANGES, max 5 per branch
 
@@ -303,12 +303,14 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- review-simplify.md           # Pipeline (ultra-review)
 |   |-- review-coordinator.md        # Pipeline (ultra-review)
 |
-|-- reviews/                  # Ultra Review output (auto-managed)
-|   |-- index.json                   # Session index (branch-scoped)
-|   |-- <session-id>/               # Per-session findings
-|       |-- review-*.json
-|       |-- SUMMARY.json
-|       |-- SUMMARY.md
+|-- .ultra/                   # Project-level output (in each project)
+|   |-- reviews/                     # Ultra Review output (auto-managed)
+|   |   |-- index.json               # Session index (branch-scoped)
+|   |   |-- <session-id>/           # Per-session findings
+|   |       |-- review-*.json
+|   |       |-- SUMMARY.json
+|   |       |-- SUMMARY.md
+|   |-- compact-snapshot.md          # Context recovery after compaction
 |
 |-- .ultra-template/          # Project initialization templates
     |-- specs/
