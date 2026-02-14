@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.6.0
+# Ultra Builder Pro 5.6.1
 
 <div align="center">
 
@@ -6,7 +6,7 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.6.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.6.1-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-6-orange)](skills/)
@@ -107,7 +107,7 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 
 ## Agents (12)
 
-All agents have **persistent memory** that accumulates patterns across sessions.
+All agents have **project-scoped persistent memory** (`memory: project`) that accumulates patterns per project, preventing cross-project pollution.
 
 ### Interactive Agents (5)
 
@@ -223,8 +223,8 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |------|---------|----------|---------|
 | `session_context.py` | SessionStart | Load git branch, recent commits, modified files | 10s |
 | `pre_stop_check.py` | Stop | Three-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change reminder | 5s |
-| `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to debug/subagent-log.jsonl | 5s |
-| `pre_compact_context.py` | PreCompact | Preserve task state and git context before compaction | 10s |
+| `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
+| `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` (project-level) | 10s |
 
 ---
 
@@ -303,7 +303,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- review-simplify.md           # Pipeline (ultra-review)
 |   |-- review-coordinator.md        # Pipeline (ultra-review)
 |
-|-- .ultra/                   # Project-level output (in each project)
+|-- .ultra/                   # Project-level output (in each project, gitignored)
 |   |-- reviews/                     # Ultra Review output (auto-managed)
 |   |   |-- index.json               # Session index (branch-scoped)
 |   |   |-- <session-id>/           # Per-session findings
@@ -311,6 +311,8 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |       |-- SUMMARY.json
 |   |       |-- SUMMARY.md
 |   |-- compact-snapshot.md          # Context recovery after compaction
+|   |-- debug/                       # Agent lifecycle logs
+|       |-- subagent-log.jsonl
 |
 |-- .ultra-template/          # Project initialization templates
     |-- specs/
@@ -338,9 +340,12 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 ```
 New Ultra projects use:
 .ultra/
-|-- tasks/    # Task tracking
-|-- specs/    # Specifications
-|-- docs/     # Project documentation
+|-- tasks/              # Task tracking
+|-- specs/              # Specifications
+|-- docs/               # Project documentation
+|-- reviews/            # Ultra Review output (auto-generated)
+|-- compact-snapshot.md # Context recovery (auto-generated)
+|-- debug/              # Agent lifecycle logs (auto-generated)
 ```
 
 ### Learned Patterns
@@ -366,6 +371,25 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.6.1 (2026-02-14) - Project Isolation
+
+**Project-Level Artifact Isolation** — all per-project output moved from global `~/.claude/` to project-level `.ultra/`:
+
+| Artifact | Old (global) | New (project-level) |
+|----------|-------------|---------------------|
+| Review output | `~/.claude/reviews/` | `.ultra/reviews/` |
+| Review index | `~/.claude/reviews/index.json` | `.ultra/reviews/index.json` |
+| Compact snapshot | `~/.claude/compact-snapshot.md` | `.ultra/compact-snapshot.md` |
+| Subagent logs | `~/.claude/debug/subagent-log.jsonl` | `.ultra/debug/subagent-log.jsonl` |
+| Agent memory | `~/.claude/agent-memory/` (global) | `projects/<hash>/agent-memory/` (project) |
+
+**Why**: Global storage caused cross-project pollution — pre_stop_check false positives from other projects' reviews, compact-snapshot restoring wrong project context, agent memory carrying irrelevant architecture knowledge.
+
+**Changes**:
+- 3 hooks updated with `git rev-parse --show-toplevel` detection + safe fallback for non-git environments
+- All 12 agents switched from `memory: user` to `memory: project`
+- `.gitignore` updated to exclude `.ultra/reviews/`, `.ultra/compact-snapshot.md`, `.ultra/debug/`
 
 ### v5.6.0 (2026-02-14) - System Integration Dimension
 
@@ -471,8 +495,8 @@ Multi-step tasks use the Task system:
 - `tdd-runner`: Test execution specialist (Haiku model, project memory) with testing-rules injection
 - `debugger`: Root cause analysis specialist with Edit capability
 
-**Agent Memory**: All 5 agents now have persistent memory (`memory: user` or `memory: project`)
-- Accumulates patterns, common issues, and architectural decisions across sessions
+**Agent Memory**: All agents now have persistent memory (`memory: project` since v5.6.1)
+- Accumulates patterns, common issues, and architectural decisions per project
 - Each agent loads its MEMORY.md at startup
 
 **New Skills (2, agent-only)**:
