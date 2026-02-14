@@ -142,12 +142,14 @@
     "typescript-lsp@claude-plugins-official": true,
     "vercel@claude-plugins-official": true
   },
-  "language": "Chinese",
+  "language": "chinese",
   "sandbox": {
     "enabled": false,
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
   "skipDangerousModePermissionPrompt": true,
   "_comment_project": "Ultra Builder Pro 5.5.0",
-  "_comment_version": "5.5.0 - Ultra Review System"
+  "_comment_version": "5.5.0 - Ultra Review System",
+  "model": "opus",
+  "alwaysThinkingEnabled": true
 }
