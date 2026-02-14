@@ -145,7 +145,8 @@ Used exclusively by `/ultra-review`. Each agent writes JSON findings to `~/.clau
 ### Usage Modes
 
 ```
-/ultra-review              # Full review (all 6 agents)
+/ultra-review              # Full review (smart skip based on diff content)
+/ultra-review all          # Force ALL 6 agents, no auto-skip (pre-merge gate)
 /ultra-review quick        # Quick review (review-code only)
 /ultra-review security     # Security focus (review-code + review-errors)
 /ultra-review tests        # Test quality focus (review-tests only)
@@ -169,7 +170,7 @@ Used exclusively by `/ultra-review`. Each agent writes JSON findings to `~/.clau
 
 ### Integration with ultra-dev
 
-Step 4.5 of `/ultra-dev` runs `/ultra-review` as a mandatory quality gate before commit. The `pre_stop_check.py` hook also blocks session stop if unresolved P0 issues exist.
+Step 4.5 of `/ultra-dev` runs `/ultra-review all` (forced full coverage) as a mandatory quality gate before commit. The `pre_stop_check.py` hook also blocks session stop if unresolved P0/P1 issues exist (with marker-based escape hatch on second attempt).
 
 ---
 
@@ -220,7 +221,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 | Hook | Trigger | Function | Timeout |
 |------|---------|----------|---------|
 | `session_context.py` | SessionStart | Load git branch, recent commits, modified files | 10s |
-| `pre_stop_check.py` | Stop | Two-layer check: review artifacts (P0 block) + code change reminder | 5s |
+| `pre_stop_check.py` | Stop | Three-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change reminder | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to debug/subagent-log.jsonl | 5s |
 | `pre_compact_context.py` | PreCompact | Preserve task state and git context before compaction | 10s |
 
@@ -376,7 +377,7 @@ Multi-step tasks use the Task system:
 - `review-coordinator`: Aggregate findings, deduplicate, generate SUMMARY
 
 **New Skill: `/ultra-review`**:
-- Modes: full, quick, security, tests, recheck, delta, custom
+- Modes: full, all, quick, security, tests, recheck, delta, custom
 - Scope options: `--pr NUMBER`, `--range RANGE`
 - Session tracking with branch-scoped index.json and iteration chains
 - Lifecycle management: auto-cleanup by age (7d/30d) and per-branch cap (5)
@@ -388,12 +389,15 @@ Multi-step tasks use the Task system:
 - Injected into code-reviewer agent via frontmatter
 
 **Enhanced: `pre_stop_check.py`**:
-- Two-layer check: review artifacts (index.json branch-scoped) + code change marker fallback
+- Three-layer check: review artifacts (index.json branch-scoped) + incomplete session grace period + code change marker fallback
 - Recency guard: only considers sessions < 2 hours old
-- P0 hard block: prevents session stop with unresolved critical issues
+- Incomplete session < 15min: warn only (agents may still be running)
+- Incomplete session >= 15min: marker-based block (block once, allow on second attempt)
+- P0/P1 block: marker-based escape hatch (block once, allow on second attempt)
+- REQUEST_CHANGES without P0: also blocks with marker escape
 
 **Enhanced: `/ultra-dev` Step 4.5**:
-- Replaced 55-line manual pr-review-toolkit orchestration with `/ultra-review` invocation
+- Replaced 55-line manual pr-review-toolkit orchestration with `/ultra-review all` invocation (forced full coverage)
 - 3-phase flow: Run review > Act on verdict > Verification gate
 
 **CLAUDE.md Updates**:

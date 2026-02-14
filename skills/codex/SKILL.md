@@ -1,222 +1,130 @@
 ---
 name: codex
-description: Use when the user asks to run Codex CLI (codex exec, codex resume) or references OpenAI Codex for code analysis, refactoring, or automated editing
-allowed-tools: Bash, Read, Glob, Grep
-version: "5.0.0"
+description: Run OpenAI Codex CLI for code analysis, generation, refactoring, and review. Supports exec, resume, review subcommands with inline config overrides.
+allowed-tools: Bash, Read, Glob, Grep, AskUserQuestion
+version: "6.0.0"
+argument-hint: "[flags] <prompt> | resume [prompt] | review [--base branch]"
 ---
 
-# Codex Skill Guide
+# Codex Skill v6.0
 
-## Running a Task
+## Argument Parsing
 
-### Defaults
-- **Model**: `gpt-5.2-codex`
-- **Reasoning effort**: `medium`
-- **Sandbox**: `workspace-write`
+Parse user input into: `action`, `flags`, `prompt`.
 
-### Invocation Modes
+| Pattern | Action | Example |
+|---------|--------|---------|
+| `/codex <prompt>` | exec | `/codex "refactor auth module"` |
+| `/codex resume [prompt]` | resume | `/codex resume "continue"` |
+| `/codex review [flags]` | review | `/codex review --base main` |
 
-**Mode 1: Template invocation** (from commands like `/ultra-dev`, `/ultra-test`)
-- Use template config directly, NO user interaction
-- Templates define model/effort/sandbox/prompt
+**Inline flag shortcuts** (parsed from args before prompt):
 
-**Mode 2: Regular invocation** (user requests codex directly)
-1. Display current defaults
-2. Use `AskUserQuestion`:
-   - Option A: "Use default config" (Recommended) - gpt-5.2-codex, medium, workspace-write
-   - Option B: "Custom config" - then ask model/effort/sandbox separately
-3. Execute with chosen config
+| Shortcut | Expands to | Purpose |
+|----------|-----------|---------|
+| `--quick` | `-c model_reasoning_effort="low"` | Fast, simple tasks |
+| `--deep` | `-c model_reasoning_effort="xhigh"` | Maximum reasoning |
+| `--auto` | `--full-auto` | Auto-approve + workspace-write |
+| `--readonly` | `-s read-only` | Analysis only, no writes |
+| `--unsafe` | _(blocked, ask user)_ | Requires explicit confirmation |
+| `-m <model>` | `-m <model>` | Override model directly |
 
-### Configuration Options
+If no flags provided, use config.toml defaults (no hardcoded values).
 
-**Models**:
-- `gpt-5.2-codex` (default, optimized for code)
-- `gpt-5.2` (general purpose)
+---
 
-**Reasoning effort**:
-- `low` - fast, simple tasks
-- `medium` (default) - balanced
-- `high` - complex analysis
-- `xhigh` - maximum reasoning
+## Exec Flow
 
-**Sandbox**:
-- `workspace-write` (default) - can run git/ls for context
-- `read-only` - analysis only, no file access
-- `danger-full-access` - requires explicit user permission
-
-### Command template
-```bash
-codex exec \
-  -m gpt-5.2-codex \
-  -c model_reasoning_effort="medium" \
-  --sandbox workspace-write \
-  --skip-git-repo-check \
-  "prompt here"
-```
-
-### Execution rules
-- **Do NOT use `2>/dev/null`** - stderr contains important error info
-- Run the command and show complete output to user
-- After completion: "You can resume with 'codex resume'"
-
-## Resume Syntax
+**Default**: zero-question execution. Just run it.
 
 ```bash
-# Resume with new prompt (correct syntax)
-codex exec resume --last "new prompt here"
-
-# Resume reading prompt from stdin
-echo "new prompt" | codex exec resume --last -
-
-# Resume with config overrides (flags BEFORE resume)
-codex exec -m gpt-5.2-codex resume --last "prompt"
+codex exec --skip-git-repo-check {flags} "{prompt}"
 ```
+
+**Only ask user if**:
+- `--unsafe` / `danger-full-access` requested → confirm before proceeding
+- Prompt is empty → ask what they want to do
+
+**Rules**:
+- Do NOT hardcode `-m` or `-c model_reasoning_effort` — let config.toml handle defaults
+- Do NOT use `2>/dev/null` — stderr has important info
+- `--skip-git-repo-check` always included (Claude Code workspace may not be a git repo)
+- Show complete output to user
+- Set timeout to 300000ms (5 min) for exec commands
+
+---
+
+## Resume Flow
+
+```bash
+# Resume most recent session
+codex resume --last
+
+# Resume with follow-up prompt
+codex resume --last "{prompt}"
+
+# Resume specific session by ID
+codex resume {session-id} "{prompt}"
+```
+
+**Rules**:
+- Resume inherits original model/sandbox settings unless user overrides with flags
+- If no session exists, inform user and suggest `codex exec` instead
+
+---
+
+## Review Flow
+
+Codex has a built-in review subcommand. Use it directly.
+
+```bash
+# Review uncommitted changes
+codex review --uncommitted
+
+# Review against base branch
+codex review --base main
+
+# Review specific commit
+codex review --commit {sha}
+
+# Review with custom instructions
+codex review "focus on security and error handling"
+```
+
+**When user says "review"**:
+- If on feature branch → default: `codex review --base main`
+- If has uncommitted changes → default: `codex review --uncommitted`
+- If neither → ask what to review
+
+---
 
 ## Quick Reference
 
-| Use case | Command |
-|----------|---------|
-| Analysis | `codex exec -m gpt-5.2-codex --sandbox workspace-write --skip-git-repo-check "prompt"` |
-| With edits | `codex exec -m gpt-5.2-codex --sandbox workspace-write --full-auto --skip-git-repo-check "prompt"` |
-| Resume | `codex exec resume --last "continue with..."` |
-| Code review | `codex exec review` (built-in subcommand) |
+| Intent | Command |
+|--------|---------|
+| Run task | `codex exec --skip-git-repo-check "prompt"` |
+| Fast task | `codex exec --skip-git-repo-check -c model_reasoning_effort="low" "prompt"` |
+| Deep analysis | `codex exec --skip-git-repo-check -c model_reasoning_effort="xhigh" "prompt"` |
+| Auto-execute | `codex exec --skip-git-repo-check --full-auto "prompt"` |
+| Read-only | `codex exec --skip-git-repo-check -s read-only "prompt"` |
+| Model override | `codex exec --skip-git-repo-check -m o3 "prompt"` |
+| Resume last | `codex resume --last` |
+| Resume + prompt | `codex resume --last "continue with..."` |
+| Review branch | `codex review --base main` |
+| Review uncommitted | `codex review --uncommitted` |
+| Review commit | `codex review --commit abc123` |
 
-## Following Up
-
-- After every `codex` command, use `AskUserQuestion` to confirm next steps or whether to resume.
-- When resuming, the session inherits original model/sandbox settings unless overridden.
+---
 
 ## Error Handling
 
-- If `codex exec` exits non-zero, show the error and ask user for direction.
-- `--full-auto` requires explicit confirmation in Mode 2 custom config flow.
-- `--sandbox danger-full-access` requires explicit user permission (separate confirmation).
-- If output shows warnings, summarize and ask how to proceed.
+- Non-zero exit → show error, ask user for direction
+- Timeout → inform user, suggest resume
+- Rate limit → wait and retry once, then inform user
+- If output contains warnings → summarize key warnings
 
----
+## Post-Execution
 
-## Review Templates
-
-Use these predefined templates when commands reference `codex skill with template: <name>`.
-
-### research-review
-
-| Config | Value |
-|--------|-------|
-| Model | gpt-5.2-codex |
-| Effort | medium |
-| Sandbox | read-only |
-
-**Prompt**:
-```
-Review this technical research output against these rules:
-
-[Evidence-First]
-- Every claim must have verifiable source (official docs, benchmarks)
-- Unverified claims must be marked as "Speculation"
-- Priority: 1) Official docs 2) Community practices 3) Inference
-
-[Honesty & Challenge]
-- Detect risk underestimation or wishful thinking
-- Point out logical gaps explicitly
-- No overly optimistic assumptions without evidence
-
-[Architecture Decisions]
-- Critical state requirements addressed?
-- Migration/rollback plan for breaking changes?
-- Persistence/recovery/observability considered?
-
-[Completeness]
-- Missing risks or edge cases not considered
-- Contradictions between sections
-
-Provide specific issues with file:line references.
-Label each finding: Fact | Inference | Speculation
-If no critical issues found, respond with "PASS: No blocking issues".
-```
-
----
-
-### code-review
-
-| Config | Value |
-|--------|-------|
-| Model | gpt-5.2-codex |
-| Effort | **high** |
-| Sandbox | read-only |
-
-**Prompt**:
-```
-Review this code diff against these rules:
-
-[Code Quality]
-- No TODO/FIXME/placeholder in code
-- Modular structure, avoid deep nesting (max 3 levels)
-- No hardcoded secrets or credentials
-
-[Security]
-- No injection vulnerabilities (SQL, XSS, CSRF, command injection)
-- No auth bypass or secrets exposure
-- Input validation at system boundaries
-
-[Architecture]
-- Critical state (funds/permissions/external API) must be persistable/recoverable
-- No in-memory-only storage for critical data
-- Breaking API changes require migration plan
-
-[Logic]
-- No race conditions or incorrect state handling
-- No N+1 queries or memory leaks
-- Spec compliance - implementation matches acceptance criteria
-- Edge cases handled (boundary values, null, empty, error paths)
-
-[Testing in Code]
-- No mocks on core logic (domain/service/state paths must use real deps)
-- Test files included should follow Core Logic NO MOCKING rule
-
-Provide specific issues with file:line references and severity (Critical/High/Medium/Low).
-If no critical/high issues found, respond with "PASS: No blocking issues".
-```
-
----
-
-### test-review
-
-| Config | Value |
-|--------|-------|
-| Model | gpt-5.2-codex |
-| Effort | medium |
-| Sandbox | workspace-write |
-
-**Prompt**:
-```
-Review this test suite against these rules:
-
-[Core Logic Testing - NO MOCKING ALLOWED]
-Core Logic = Domain/service/state machine/funds-permission paths
-- These paths MUST use real implementations, not mocks
-- Repository interfaces: prefer testcontainers with production DB
-- Fallback: SQLite/in-memory only when testcontainers unavailable
-
-[External Systems - Test Doubles ALLOWED]
-- External APIs, third-party services → testcontainers/sandbox/stub OK
-- Must document rationale for each test double
-
-[Coverage]
-- Missing edge cases (null, empty, boundary values, error paths)
-- Untested critical paths (auth flows, payment, data mutations, deletions)
-
-[Anti-Patterns]
-- Flaky tests (time-dependent, order-dependent)
-- Tautology assertions (expect(true).toBe(true))
-- Empty test bodies
-- False confidence - tests that pass but don't verify behavior
-
-[Security Testing]
-- Auth/permission tests exist for protected endpoints
-- Input validation tests for injection vectors
-- Sensitive data handling tests (no plaintext secrets in logs/responses)
-
-Provide specific issues with file:line references.
-If no critical issues found, respond with "PASS: No blocking issues".
-```
+After codex completes:
+- Show a brief summary of what was done
+- Mention: "可以用 `/codex resume` 继续上次会话"

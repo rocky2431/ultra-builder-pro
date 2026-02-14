@@ -170,10 +170,10 @@ Find and change the status header line:
 
 #### Phase 1: Run /ultra-review
 
-Execute the ultra-review skill in full mode:
+Execute the ultra-review skill in `all` mode (force all 6 agents, no auto-skip):
 
 ```
-/ultra-review
+/ultra-review all
 ```
 
 This automatically:

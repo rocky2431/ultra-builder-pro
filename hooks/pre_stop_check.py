@@ -3,17 +3,18 @@
 Pre-Stop Check Hook - Stop
 Checks for unreviewed code changes before session ends.
 
-Two-layer check:
+Three-layer check:
 1. Review artifacts: If a recent (<2h) ultra-review session exists:
-   - P0 unresolved → hard block (must fix)
+   - P0 unresolved → block once, allow on second attempt (marker-based)
    - APPROVE/COMMENT → allow stop (review passed)
-   - Incomplete (no SUMMARY.json but has review JSONs) → block
+   - Incomplete + < 15min old → warn only (agents may still be running)
+   - Incomplete + >= 15min old → block once, allow on second attempt (abandoned)
 2. Code changes (fallback): If no recent review session:
    - First trigger: block + create marker → remind to run review
    - Second trigger: marker exists → allow stop
 
-Marker file: /tmp/.claude_review_done_<git_hash>
-The hash is based on the set of changed files, so new changes invalidate it.
+Marker file: /tmp/.claude_review_done_<git_hash> (code changes)
+             /tmp/.claude_review_session_<session_name> (review sessions)
 Old marker files (>24h) are cleaned up automatically.
 """
 
@@ -29,22 +30,25 @@ from pathlib import Path
 
 
 MARKER_PREFIX = ".claude_review_done_"
+SESSION_MARKER_PREFIX = ".claude_review_session_"
 GIT_TIMEOUT = 10  # seconds
 MARKER_MAX_AGE = 86400  # 24 hours
+INCOMPLETE_GRACE_PERIOD = 900  # 15 min - agents may still be running
 
 
 def cleanup_old_markers() -> None:
     """Remove marker files older than MARKER_MAX_AGE seconds."""
     try:
         tmp_dir = tempfile.gettempdir()
-        pattern = os.path.join(tmp_dir, f"{MARKER_PREFIX}*")
         now = time.time()
-        for path in glob_module.glob(pattern):
-            try:
-                if now - os.path.getmtime(path) > MARKER_MAX_AGE:
-                    os.unlink(path)
-            except OSError:
-                pass
+        for prefix in (MARKER_PREFIX, SESSION_MARKER_PREFIX):
+            pattern = os.path.join(tmp_dir, f"{prefix}*")
+            for path in glob_module.glob(pattern):
+                try:
+                    if now - os.path.getmtime(path) > MARKER_MAX_AGE:
+                        os.unlink(path)
+                except OSError:
+                    pass
     except Exception:
         pass
 
@@ -196,6 +200,7 @@ def check_review_artifacts() -> dict:
             if branch_sessions:
                 latest = sorted(branch_sessions, key=lambda s: s.get('timestamp', ''), reverse=True)[0]
                 session_dir = reviews_dir / latest['id']
+                session_id = latest['id']
 
                 # Recency check
                 try:
@@ -204,14 +209,32 @@ def check_review_artifacts() -> dict:
                 except OSError:
                     pass
 
-                verdict = latest.get('verdict', 'APPROVE')
+                verdict = latest.get('verdict')
                 p0_count = latest.get('p0', 0)
+
+                # Incomplete: coordinator hasn't set verdict yet
+                if verdict is None or verdict == 'pending':
+                    return {
+                        'needs_review': False,
+                        'review_passed': False,
+                        'warn': f"Review session {session_id} still pending (no verdict yet)"
+                    }
 
                 if verdict == 'REQUEST_CHANGES' and p0_count > 0:
                     return {
                         'needs_review': True,
                         'review_passed': False,
+                        'session_id': session_id,
                         'reason': f"Review found {p0_count} P0 critical issue(s) - fix before stopping"
+                    }
+
+                if verdict == 'REQUEST_CHANGES':
+                    # P1-only REQUEST_CHANGES: block once with marker
+                    return {
+                        'needs_review': True,
+                        'review_passed': False,
+                        'session_id': session_id,
+                        'reason': f"Review verdict is REQUEST_CHANGES (P1 issues unresolved)"
                     }
 
                 if verdict in ('APPROVE', 'COMMENT'):
@@ -233,7 +256,8 @@ def check_review_artifacts() -> dict:
 
     # Only consider recent sessions (within SESSION_MAX_AGE)
     try:
-        if time.time() - latest.stat().st_mtime > SESSION_MAX_AGE:
+        session_age = time.time() - latest.stat().st_mtime
+        if session_age > SESSION_MAX_AGE:
             return {'needs_review': False, 'review_passed': False}
     except OSError:
         return {'needs_review': False, 'review_passed': False}
@@ -243,10 +267,19 @@ def check_review_artifacts() -> dict:
     if not summary_json.exists():
         review_files = list(latest.glob("review-*.json"))
         if review_files:
+            # Grace period: agents may still be running
+            if session_age < INCOMPLETE_GRACE_PERIOD:
+                return {
+                    'needs_review': False,
+                    'review_passed': False,
+                    'warn': f"Review session {latest.name} in progress ({len(review_files)} agents done so far)"
+                }
+            # Abandoned: use marker-based block
             return {
                 'needs_review': True,
                 'review_passed': False,
-                'reason': f"Review session {latest.name} incomplete - run review-coordinator"
+                'session_id': latest.name,
+                'reason': f"Review session {latest.name} incomplete ({len(review_files)}/6 agents) - run review-coordinator or delete session"
             }
         return {'needs_review': False, 'review_passed': False}
 
@@ -263,7 +296,17 @@ def check_review_artifacts() -> dict:
         return {
             'needs_review': True,
             'review_passed': False,
+            'session_id': latest.name,
             'reason': f"Review found {p0_count} P0 critical issue(s) - fix before stopping"
+        }
+
+    if verdict == 'REQUEST_CHANGES':
+        # P1-only REQUEST_CHANGES: block once with marker
+        return {
+            'needs_review': True,
+            'review_passed': False,
+            'session_id': latest.name,
+            'reason': f"Review verdict is REQUEST_CHANGES (P1 issues unresolved)"
         }
 
     return {'needs_review': False, 'review_passed': True}
@@ -283,8 +326,34 @@ def main():
     # Check review artifacts first (only recent sessions)
     review_check = check_review_artifacts()
 
-    # Hard block: recent review has unresolved P0s
+    # Warn only (agents still running) — no block, early return
+    if review_check.get('warn'):
+        print(f"[pre_stop_check] {review_check['warn']}", file=sys.stderr)
+        print(json.dumps({}))
+        return
+
+    # Block with escape hatch: marker-based (block once, allow on second attempt)
     if review_check.get('needs_review'):
+        session_id = review_check.get('session_id', 'unknown')
+        marker_path = os.path.join(
+            tempfile.gettempdir(),
+            f"{SESSION_MARKER_PREFIX}{session_id}"
+        )
+
+        if os.path.exists(marker_path):
+            # Second attempt — allow stop, warn user
+            reason = review_check['reason']
+            print(f"[pre_stop_check] Allowing stop (second attempt). Unresolved: {reason}", file=sys.stderr)
+            print(json.dumps({}))
+            return
+
+        # First attempt — block and create marker
+        try:
+            with open(marker_path, 'w') as f:
+                f.write(f"blocked_at={time.time()}")
+        except OSError:
+            pass
+
         result = {
             "decision": "block",
             "reason": f"[Pre-Stop Check] {review_check['reason']}"
