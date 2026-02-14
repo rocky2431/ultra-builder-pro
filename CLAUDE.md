@@ -324,7 +324,7 @@ No evidence + significant consequences → Speculation, brake
 <git_workflow>
 Follow project branch naming. Conventional Commits. Include Co-author for AI commits:
 ```
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 </git_workflow>
 
