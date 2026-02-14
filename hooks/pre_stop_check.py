@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
 Pre-Stop Check Hook - Stop
-Checks for unreviewed code changes before session ends
+Checks for unreviewed code changes before session ends.
 
-Reminds to:
-- Run code-reviewer agent for uncommitted changes
-- Run tests before completing
-
-Uses a marker file to track review completion, preventing infinite loops.
-First trigger: blocks and reminds. After review completes, marker file is
-created, and subsequent triggers allow stop.
+Two-layer check:
+1. Review artifacts: If a recent (<2h) ultra-review session exists:
+   - P0 unresolved → hard block (must fix)
+   - APPROVE/COMMENT → allow stop (review passed)
+   - Incomplete (no SUMMARY.json but has review JSONs) → block
+2. Code changes (fallback): If no recent review session:
+   - First trigger: block + create marker → remind to run review
+   - Second trigger: marker exists → allow stop
 
 Marker file: /tmp/.claude_review_done_<git_hash>
 The hash is based on the set of changed files, so new changes invalidate it.
@@ -24,6 +25,7 @@ import hashlib
 import tempfile
 import time
 import glob as glob_module
+from pathlib import Path
 
 
 MARKER_PREFIX = ".claude_review_done_"
@@ -146,6 +148,127 @@ def mark_review_blocked(changes_hash: str) -> bool:
         return False
 
 
+SESSION_MAX_AGE = 7200  # 2 hours - only consider recent review sessions
+
+
+def get_current_branch() -> str:
+    """Get the current git branch name."""
+    try:
+        proc = subprocess.run(
+            ['git', 'branch', '--show-current'],
+            capture_output=True, text=True,
+            cwd=os.getcwd(), timeout=GIT_TIMEOUT
+        )
+        return proc.stdout.strip() if proc.returncode == 0 else ""
+    except (subprocess.TimeoutExpired, Exception):
+        return ""
+
+
+def check_review_artifacts() -> dict:
+    """Check if a recent ultra-review session for the current branch has unresolved P0s.
+
+    Uses index.json (branch-scoped) with fallback to directory scan (time-scoped).
+    Avoids false positives from old or unrelated review sessions.
+
+    Returns:
+        dict with 'needs_review' (bool), optionally 'reason' (str),
+        and 'review_passed' (bool) if a recent passing review exists.
+    """
+    reviews_dir = Path.home() / ".claude" / "reviews"
+    if not reviews_dir.exists():
+        return {'needs_review': False, 'review_passed': False}
+
+    current_branch = get_current_branch()
+
+    # Strategy 1: Use index.json (preferred — branch-scoped)
+    index_file = reviews_dir / "index.json"
+    if index_file.exists():
+        try:
+            index_data = json.loads(index_file.read_text())
+            sessions = index_data.get('sessions', [])
+
+            # Filter by current branch, sort by timestamp descending
+            branch_sessions = [
+                s for s in sessions
+                if s.get('branch') == current_branch
+            ] if current_branch else sessions
+
+            if branch_sessions:
+                latest = sorted(branch_sessions, key=lambda s: s.get('timestamp', ''), reverse=True)[0]
+                session_dir = reviews_dir / latest['id']
+
+                # Recency check
+                try:
+                    if session_dir.exists() and time.time() - session_dir.stat().st_mtime > SESSION_MAX_AGE:
+                        return {'needs_review': False, 'review_passed': False}
+                except OSError:
+                    pass
+
+                verdict = latest.get('verdict', 'APPROVE')
+                p0_count = latest.get('p0', 0)
+
+                if verdict == 'REQUEST_CHANGES' and p0_count > 0:
+                    return {
+                        'needs_review': True,
+                        'review_passed': False,
+                        'reason': f"Review found {p0_count} P0 critical issue(s) - fix before stopping"
+                    }
+
+                if verdict in ('APPROVE', 'COMMENT'):
+                    return {'needs_review': False, 'review_passed': True}
+
+        except (json.JSONDecodeError, OSError, KeyError) as e:
+            print(f"[pre_stop_check] Failed to read index.json: {e}", file=sys.stderr)
+            # Fall through to directory scan
+
+    # Strategy 2: Fallback — scan directories (time-scoped, no branch filter)
+    sessions = sorted(
+        [d for d in reviews_dir.iterdir() if d.is_dir()],
+        key=lambda d: d.name, reverse=True
+    )
+    if not sessions:
+        return {'needs_review': False, 'review_passed': False}
+
+    latest = sessions[0]
+
+    # Only consider recent sessions (within SESSION_MAX_AGE)
+    try:
+        if time.time() - latest.stat().st_mtime > SESSION_MAX_AGE:
+            return {'needs_review': False, 'review_passed': False}
+    except OSError:
+        return {'needs_review': False, 'review_passed': False}
+
+    summary_json = latest / "SUMMARY.json"
+
+    if not summary_json.exists():
+        review_files = list(latest.glob("review-*.json"))
+        if review_files:
+            return {
+                'needs_review': True,
+                'review_passed': False,
+                'reason': f"Review session {latest.name} incomplete - run review-coordinator"
+            }
+        return {'needs_review': False, 'review_passed': False}
+
+    try:
+        data = json.loads(summary_json.read_text())
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"[pre_stop_check] Failed to read SUMMARY.json: {e}", file=sys.stderr)
+        return {'needs_review': False, 'review_passed': False}
+
+    verdict = data.get('verdict', 'APPROVE')
+    p0_count = data.get('summary', {}).get('by_severity', {}).get('P0', 0)
+
+    if verdict == 'REQUEST_CHANGES' and p0_count > 0:
+        return {
+            'needs_review': True,
+            'review_passed': False,
+            'reason': f"Review found {p0_count} P0 critical issue(s) - fix before stopping"
+        }
+
+    return {'needs_review': False, 'review_passed': True}
+
+
 def main():
     try:
         input_data = sys.stdin.read()
@@ -156,6 +279,25 @@ def main():
         return
 
     cleanup_old_markers()
+
+    # Check review artifacts first (only recent sessions)
+    review_check = check_review_artifacts()
+
+    # Hard block: recent review has unresolved P0s
+    if review_check.get('needs_review'):
+        result = {
+            "decision": "block",
+            "reason": f"[Pre-Stop Check] {review_check['reason']}"
+        }
+        print(json.dumps(result))
+        return
+
+    # Recent review passed → skip code change check entirely
+    if review_check.get('review_passed'):
+        print(json.dumps({}))
+        return
+
+    # No recent review session — fall back to code change detection
     git_status = get_git_status()
 
     if not git_status['has_changes']:
@@ -188,7 +330,7 @@ def main():
         lines.append(f"  ... and {len(code_files) - 8} more")
 
     lines.append("")
-    lines.append("Run code-reviewer agent to review changes before completing.")
+    lines.append("Run /ultra-review or code-reviewer agent to review changes before completing.")
 
     result = {
         "decision": "block",

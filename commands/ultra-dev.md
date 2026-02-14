@@ -1,7 +1,7 @@
 ---
 description: Agile development execution with TDD workflow
 argument-hint: [task-id]
-allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, AskUserQuestion
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Task, AskUserQuestion, Skill
 model: opus
 ---
 
@@ -21,7 +21,7 @@ model: opus
 | 3.2 | TDD: GREEN Phase | Writing minimal code... |
 | 3.3 | TDD: REFACTOR Phase | Refactoring code... |
 | 4 | Quality Gates | Running quality gates... |
-| 4.5 | PR Review Toolkit | Running PR review agents... |
+| 4.5 | Ultra Review | Running ultra-review... |
 | 5 | Update Status to Completed | Updating task status... |
 | 5.5 | Pre-Commit Checklist | Verifying checklist... |
 | 6 | Commit and Merge | Committing and merging... |
@@ -162,64 +162,51 @@ Find and change the status header line:
 - ❌ Core logic (domain/service/state) → NO mocking
 - ✅ External systems → testcontainers/sandbox/stub allowed
 
-### Step 4.5: PR Review Toolkit (Mandatory)
+### Step 4.5: Ultra Review (Mandatory)
 
 **When**: After Quality Gates pass, before commit.
 
 **Process**:
 
-#### Phase 1: Comprehensive Review (parallel)
+#### Phase 1: Run /ultra-review
 
-Run these agents in parallel using Task tool:
+Execute the ultra-review skill in full mode:
 
-| Agent | Focus |
-|-------|-------|
-| `pr-review-toolkit:code-reviewer` | Bugs, logic errors, security, code quality |
-| `pr-review-toolkit:silent-failure-hunter` | Silent failures, inadequate error handling |
-| `pr-review-toolkit:pr-test-analyzer` | Test coverage gaps, missing edge cases |
-| `pr-review-toolkit:type-design-analyzer` | Type design, encapsulation, invariants |
-| `pr-review-toolkit:comment-analyzer` | Comment accuracy, technical debt |
+```
+/ultra-review
+```
 
-**CRITICAL: Wait for ALL agents to complete**:
-1. Launch all 5 agents in parallel (single message with 5 Task tool calls)
-2. **MUST wait for ALL agent results to return**
-3. **DO NOT proceed to Phase 2 until you have received results from ALL 5 agents**
-4. Collect and display each agent's findings
+This automatically:
+1. Launches 6 specialized review agents in parallel (review-code, review-tests, review-errors, review-types, review-comments, review-simplify)
+2. Aggregates and deduplicates findings via review-coordinator
+3. Generates SUMMARY.json with verdict (APPROVE / COMMENT / REQUEST_CHANGES)
+4. Reports top findings to conversation
 
-#### Phase 2: Fix Issues
+#### Phase 2: Act on Verdict
 
-- **If issues found** → Fix all issues, re-run tests
+| Verdict | Action |
+|---------|--------|
+| **APPROVE** | Proceed to Step 5 |
+| **COMMENT** | Review P1 findings, fix if warranted, then proceed |
+| **REQUEST_CHANGES** | Fix ALL P0 issues (mandatory) and P1 issues, re-run tests |
+
 - **If tests fail after fix** → Return to GREEN phase
-- **Repeat Phase 1** until all agents pass
+- **After fixing** → Run `/ultra-review recheck` to verify P0/P1 resolved
+- **Repeat** until verdict is APPROVE or COMMENT with acceptable P1 count
 
-#### Phase 3: Code Optimization
+#### Phase 3: Verification (BLOCKING)
 
-**Only after ALL Phase 1 agents return "PASS" or issues are fixed in Phase 2**:
+**Before proceeding to Step 5**:
 
-1. Run `pr-review-toolkit:code-simplifier` agent
-2. **Wait for agent result**
-3. Apply simplification suggestions
-4. Verify tests still pass
-5. **If "PASS"** → Continue to Step 5
+- [ ] SUMMARY.json verdict is NOT `REQUEST_CHANGES`
+- [ ] All P0 issues resolved
+- [ ] Tests still passing
 
-#### Phase 4: PR Review Verification (BLOCKING)
-
-**Before proceeding to Step 5, verify ALL agents passed**:
-
-- [ ] code-reviewer: PASS
-- [ ] silent-failure-hunter: PASS
-- [ ] pr-test-analyzer: PASS
-- [ ] type-design-analyzer: PASS
-- [ ] comment-analyzer: PASS
-- [ ] code-simplifier: PASS (or suggestions applied)
-
-**If any agent not yet returned → WAIT**
-**If any agent returned issues → return to Phase 2**
-**Only when ALL checked → proceed to Step 5**
+**Note**: `pre_stop_check.py` hook will also block session stop if unresolved P0s exist.
 
 ### Step 5: Update Status to Completed (MANDATORY)
 
-> **Prerequisite**: Step 4 Quality Gates + Step 4.5 PR Review all passed
+> **Prerequisite**: Step 4 Quality Gates + Step 4.5 Ultra Review all passed
 
 **CRITICAL**: BOTH files MUST be updated BEFORE commit. Do not proceed until verified.
 
@@ -257,7 +244,7 @@ Add or update the Completion section at the end of the file:
 - [ ] context file: header = "completed"
 - [ ] context file: Completion section exists
 - [ ] All tests passing
-- [ ] All PR Review agents passed
+- [ ] Ultra Review verdict is NOT `REQUEST_CHANGES`
 
 **If any unchecked → fix first, do NOT commit**
 

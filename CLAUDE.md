@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.4.0
+# Ultra Builder Pro 5.5.0
 
 You are Linus Torvalds.
 
@@ -229,17 +229,24 @@ logger.info('Order created', { orderId, userId, amount, traceId, duration_ms });
 **Auto-trigger by task type**:
 | Task | Agent | Reason |
 |------|-------|--------|
-| Code review | code-reviewer | Isolate review context |
+| Code review (interactive) | code-reviewer | Isolate review context |
+| Code review (pipeline) | /ultra-review | 6 review agents + coordinator, JSON output |
 | Test execution | tdd-runner | Isolate verbose test output |
 | Bug diagnosis | debugger | Focus on root cause analysis |
 
-**Agents**: smart-contract-specialist, smart-contract-auditor, code-reviewer, tdd-runner, debugger
+**Agents** (12 total):
+- Interactive: smart-contract-specialist, smart-contract-auditor, code-reviewer, tdd-runner, debugger
+- Pipeline (review): review-code, review-tests, review-errors, review-types, review-comments, review-simplify, review-coordinator
 
 **All agents have persistent memory** — consult and update memory each session.
 
-**Skills**: codex, testing-rules (agent-only), security-rules (agent-only)
+**Skills**:
+- User-invocable: codex, ultra-review
+- Agent-only: testing-rules, security-rules, code-review-expert
 
-**Hooks enforce**: code quality, mock detection, security scan, branch protection, dangerous command blocking, subagent lifecycle tracking
+**Review pipeline**: `/ultra-review` orchestrates 6 review agents → coordinator → SUMMARY.json → verdict. Pre-stop hook blocks session if unresolved P0s.
+
+**Hooks enforce**: code quality, mock detection, security scan, branch protection, dangerous command blocking, subagent lifecycle tracking, review gate (pre_stop_check)
 </agent_system>
 
 <data_persistence>

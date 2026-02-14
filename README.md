@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.4.1
+# Ultra Builder Pro 5.5.0
 
 <div align="center">
 
@@ -6,11 +6,11 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.4.1-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.5.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-3-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-5-red)](agents/)
+[![Skills](https://img.shields.io/badge/skills-5-orange)](skills/)
+[![Agents](https://img.shields.io/badge/agents-12-red)](agents/)
 [![Hooks](https://img.shields.io/badge/hooks-6-yellow)](hooks/)
 
 </div>
@@ -54,8 +54,8 @@ claude
 > Every line is production code. Every test is production verification."
 
 ```
-Code Quality = Real Implementation × Real Tests × Real Dependencies
-If ANY component is fake/mocked/simulated → Quality = 0
+Code Quality = Real Implementation x Real Tests x Real Dependencies
+If ANY component is fake/mocked/simulated -> Quality = 0
 ```
 
 ---
@@ -63,10 +63,13 @@ If ANY component is fake/mocked/simulated → Quality = 0
 ## Workflow
 
 ```
-/ultra-init → /ultra-research → /ultra-plan → /ultra-dev → /ultra-test → /ultra-deliver
-     ↓              ↓                ↓              ↓             ↓             ↓
+/ultra-init -> /ultra-research -> /ultra-plan -> /ultra-dev -> /ultra-test -> /ultra-deliver
+     |              |                |              |             |             |
   Project       4-Round          Task         TDD Cycle      Quality       Release
-  Setup        Discovery       Breakdown      RED→GREEN      Audit        & Deploy
+  Setup        Discovery       Breakdown      RED>GREEN      Audit        & Deploy
+                                                  |
+                                           /ultra-review
+                                          (Quality Gate)
 ```
 
 ---
@@ -76,9 +79,9 @@ If ANY component is fake/mocked/simulated → Quality = 0
 | Command | Purpose | Key Features |
 |---------|---------|--------------|
 | `/ultra-init` | Initialize project | Auto-detect type/stack, copy templates, git setup |
-| `/ultra-research` | Interactive discovery | 4 rounds (User→Feature→Architecture→Quality), 90%+ confidence |
+| `/ultra-research` | Interactive discovery | 4 rounds (User>Feature>Architecture>Quality), 90%+ confidence |
 | `/ultra-plan` | Task planning | Dependency analysis, complexity assessment, context files |
-| `/ultra-dev` | TDD development | RED→GREEN→REFACTOR, PR Review Toolkit, auto git flow |
+| `/ultra-dev` | TDD development | RED>GREEN>REFACTOR, Ultra Review gate, auto git flow |
 | `/ultra-test` | Quality audit | Anti-Pattern, Coverage gaps, E2E, Performance, Security |
 | `/ultra-deliver` | Release preparation | CHANGELOG, build, version bump, tag, push |
 | `/ultra-status` | Progress monitoring | Real-time stats, risk analysis, recommendations |
@@ -88,22 +91,24 @@ If ANY component is fake/mocked/simulated → Quality = 0
 
 ---
 
-## Skills (3 + Learned Patterns)
+## Skills (5 + Learned Patterns)
 
 | Skill | Purpose | User-Invocable |
 |-------|---------|----------------|
+| `ultra-review` | Parallel code review with 6 agents + coordinator | Yes |
 | `codex` | OpenAI Codex CLI integration | Yes |
+| `code-review-expert` | Structured review checklists (SOLID, security, perf) | No (agent-only) |
 | `testing-rules` | TDD discipline, mock detection rules | No (agent-only) |
 | `security-rules` | Input validation, injection prevention rules | No (agent-only) |
 | `learned/` | Extracted patterns from `/learn` | Yes |
 
 ---
 
-## Agents (5 Custom + Plugins)
-
-### Custom Agents (`~/.claude/agents/`)
+## Agents (12)
 
 All agents have **persistent memory** that accumulates patterns across sessions.
+
+### Interactive Agents (5)
 
 | Agent | Purpose | Trigger | Model | Memory |
 |-------|---------|---------|-------|--------|
@@ -113,15 +118,58 @@ All agents have **persistent memory** that accumulates patterns across sessions.
 | `tdd-runner` | Test execution, failure analysis, coverage | "run tests", test suite | haiku | project |
 | `debugger` | Root cause analysis, minimal fix implementation | Errors, test failures | inherit | user |
 
-### Plugin Agents (pr-review-toolkit)
+### Review Pipeline Agents (7) - Ultra Review System
 
-| Agent | Purpose |
-|-------|---------|
-| `pr-review-toolkit:code-reviewer` | CLAUDE.md compliance check |
-| `pr-review-toolkit:silent-failure-hunter` | Error handling review |
-| `pr-review-toolkit:pr-test-analyzer` | Test coverage analysis |
-| `pr-review-toolkit:code-simplifier` | Code simplification |
-| `pr-review-toolkit:type-design-analyzer` | Type design analysis |
+Used exclusively by `/ultra-review`. Each agent writes JSON findings to `~/.claude/reviews/<session>/`.
+
+| Agent | Purpose | Output |
+|-------|---------|--------|
+| `review-code` | CLAUDE.md compliance, code quality, architecture | `review-code.json` |
+| `review-tests` | Test quality, mock violations, coverage gaps | `review-tests.json` |
+| `review-errors` | Silent failures, empty catches, swallowed errors | `review-errors.json` |
+| `review-types` | Type design, encapsulation, domain modeling | `review-types.json` |
+| `review-comments` | Stale, misleading, or low-value comments | `review-comments.json` |
+| `review-simplify` | Complexity hotspots, simplification opportunities | `review-simplify.json` |
+| `review-coordinator` | Aggregate, deduplicate, generate SUMMARY | `SUMMARY.md` + `SUMMARY.json` |
+
+**Verdict Logic**: P0 > 0 = REQUEST_CHANGES | P1 > 3 = REQUEST_CHANGES | P1 > 0 = COMMENT | else APPROVE
+
+---
+
+## Ultra Review System
+
+### Overview
+
+`/ultra-review` orchestrates parallel code review using 6 specialized agents + 1 coordinator. All findings are written to JSON files to prevent context window pollution.
+
+### Usage Modes
+
+```
+/ultra-review              # Full review (all 6 agents)
+/ultra-review quick        # Quick review (review-code only)
+/ultra-review security     # Security focus (review-code + review-errors)
+/ultra-review tests        # Test quality focus (review-tests only)
+/ultra-review recheck      # Re-check P0/P1 files from last session
+/ultra-review delta        # Review only changes since last review
+```
+
+### Scope Options
+
+```
+/ultra-review --pr 123            # Review PR #123 diff
+/ultra-review --range main..HEAD  # Review specific commit range
+/ultra-review security --pr 42    # Security review scoped to PR #42
+```
+
+### Session Management
+
+- Sessions tracked in `~/.claude/reviews/index.json` with branch-scoped iteration chains
+- Naming: `<YYYYMMDD-HHmmss>-<branch>-iter<N>>`
+- Auto-cleanup: 7 days for APPROVE/COMMENT, 30 days for REQUEST_CHANGES, max 5 per branch
+
+### Integration with ultra-dev
+
+Step 4.5 of `/ultra-dev` runs `/ultra-review` as a mandatory quality gate before commit. The `pre_stop_check.py` hook also blocks session stop if unresolved P0 issues exist.
 
 ---
 
@@ -130,11 +178,11 @@ All agents have **persistent memory** that accumulates patterns across sessions.
 Mandatory for all new code:
 
 ```
-1. RED    → Write failing test first (define expected behavior)
-2. GREEN  → Write minimal code to pass test
-3. REFACTOR → Improve code (keep tests passing)
-4. COVERAGE → Verify 80%+ coverage
-5. COMMIT → Atomic commit (test + implementation together)
+1. RED    -> Write failing test first (define expected behavior)
+2. GREEN  -> Write minimal code to pass test
+3. REFACTOR -> Improve code (keep tests passing)
+4. COVERAGE -> Verify 80%+ coverage
+5. COMMIT -> Atomic commit (test + implementation together)
 ```
 
 ### What NOT to Mock (Core Logic)
@@ -172,7 +220,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 | Hook | Trigger | Function | Timeout |
 |------|---------|----------|---------|
 | `session_context.py` | SessionStart | Load git branch, recent commits, modified files | 10s |
-| `pre_stop_check.py` | Stop | BLOCK if security files unreviewed | 5s |
+| `pre_stop_check.py` | Stop | Two-layer check: review artifacts (P0 block) + code change reminder | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to debug/subagent-log.jsonl | 5s |
 | `pre_compact_context.py` | PreCompact | Preserve task state and git context before compaction | 10s |
 
@@ -189,16 +237,16 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 | E2E | All critical flows pass |
 | Performance | Core Web Vitals pass (frontend) |
 | Security | No critical/high vulnerabilities |
-| Code Review | MANDATORY pr-review-toolkit:code-reviewer |
+| Ultra Review | MANDATORY `/ultra-review` with APPROVE or COMMENT verdict |
 
 ### Code Limits
 
 | Metric | Limit |
 |--------|-------|
-| Function lines | ≤ 50 |
+| Function lines | <= 50 |
 | File lines | 200-400 typical, 800 max |
-| Nesting depth | ≤ 4 |
-| Cyclomatic complexity | ≤ 10 |
+| Nesting depth | <= 4 |
+| Cyclomatic complexity | <= 10 |
 
 ---
 
@@ -206,47 +254,63 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 
 ```
 ~/.claude/
-├── CLAUDE.md                 # Main configuration (Priority Stack)
-├── README.md                 # This file
-├── settings.json             # Claude Code settings + hooks config
-│
-├── hooks/                    # Automated enforcement (6 hooks, all with timeout)
-│   ├── block_dangerous_commands.py  # PreToolUse: dangerous bash commands (5s)
-│   ├── post_edit_guard.py           # PostToolUse: quality + mock + security unified (5s)
-│   ├── session_context.py           # SessionStart: load dev context (10s)
-│   ├── pre_stop_check.py            # Stop: security file review (5s)
-│   ├── subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
-│   └── pre_compact_context.py       # PreCompact: preserve context (10s)
-│
-├── commands/                 # /ultra-* commands (10)
-│   ├── ultra-init.md
-│   ├── ultra-research.md
-│   ├── ultra-plan.md
-│   ├── ultra-dev.md
-│   ├── ultra-test.md
-│   ├── ultra-deliver.md
-│   ├── ultra-status.md
-│   ├── ultra-think.md
-│   ├── commit.md
-│   └── learn.md
-│
-├── skills/                   # Domain skills (3 + learned)
-│   ├── codex/                # OpenAI Codex CLI
-│   ├── testing-rules/        # TDD rules (agent-only)
-│   ├── security-rules/       # Security rules (agent-only)
-│   └── learned/              # Extracted patterns
-│
-├── agents/                   # Custom agents (5)
-│   ├── smart-contract-specialist.md
-│   ├── smart-contract-auditor.md
-│   ├── code-reviewer.md
-│   ├── tdd-runner.md
-│   └── debugger.md
-│
-└── .ultra-template/          # Project initialization templates
-    ├── specs/
-    ├── tasks/
-    └── docs/
+|-- CLAUDE.md                 # Main configuration (Priority Stack)
+|-- README.md                 # This file
+|-- settings.json             # Claude Code settings + hooks config
+|
+|-- hooks/                    # Automated enforcement (6 hooks, all with timeout)
+|   |-- block_dangerous_commands.py  # PreToolUse: dangerous bash commands (5s)
+|   |-- post_edit_guard.py           # PostToolUse: quality + mock + security unified (5s)
+|   |-- session_context.py           # SessionStart: load dev context (10s)
+|   |-- pre_stop_check.py            # Stop: review artifact check + code change reminder (5s)
+|   |-- subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
+|   |-- pre_compact_context.py       # PreCompact: preserve context (10s)
+|
+|-- commands/                 # /ultra-* commands (10)
+|   |-- ultra-init.md
+|   |-- ultra-research.md
+|   |-- ultra-plan.md
+|   |-- ultra-dev.md
+|   |-- ultra-test.md
+|   |-- ultra-deliver.md
+|   |-- ultra-status.md
+|   |-- ultra-think.md
+|   |-- commit.md
+|   |-- learn.md
+|
+|-- skills/                   # Domain skills (5 + learned)
+|   |-- ultra-review/         # Parallel review orchestration
+|   |-- codex/                # OpenAI Codex CLI
+|   |-- code-review-expert/   # Structured review checklists (agent-only)
+|   |-- testing-rules/        # TDD rules (agent-only)
+|   |-- security-rules/       # Security rules (agent-only)
+|   |-- learned/              # Extracted patterns
+|
+|-- agents/                   # Custom agents (12)
+|   |-- smart-contract-specialist.md  # Interactive
+|   |-- smart-contract-auditor.md     # Interactive
+|   |-- code-reviewer.md             # Interactive
+|   |-- tdd-runner.md                # Interactive
+|   |-- debugger.md                  # Interactive
+|   |-- review-code.md               # Pipeline (ultra-review)
+|   |-- review-tests.md              # Pipeline (ultra-review)
+|   |-- review-errors.md             # Pipeline (ultra-review)
+|   |-- review-types.md              # Pipeline (ultra-review)
+|   |-- review-comments.md           # Pipeline (ultra-review)
+|   |-- review-simplify.md           # Pipeline (ultra-review)
+|   |-- review-coordinator.md        # Pipeline (ultra-review)
+|
+|-- reviews/                  # Ultra Review output (auto-managed)
+|   |-- index.json                   # Session index (branch-scoped)
+|   |-- <session-id>/               # Per-session findings
+|       |-- review-*.json
+|       |-- SUMMARY.json
+|       |-- SUMMARY.md
+|
+|-- .ultra-template/          # Project initialization templates
+    |-- specs/
+    |-- tasks/
+    |-- docs/
 ```
 
 ---
@@ -269,9 +333,9 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 ```
 New Ultra projects use:
 .ultra/
-├── tasks/    # Task tracking
-├── specs/    # Specifications
-└── docs/     # Project documentation
+|-- tasks/    # Task tracking
+|-- specs/    # Specifications
+|-- docs/     # Project documentation
 ```
 
 ### Learned Patterns
@@ -298,12 +362,51 @@ Multi-step tasks use the Task system:
 
 ## Version History
 
+### v5.5.0 (2026-02-14) - Ultra Review System
+
+**Replaced pr-review-toolkit plugin** with native Ultra Review System:
+
+**New Review Pipeline (7 agents)**:
+- `review-code`: CLAUDE.md compliance, code quality, architecture
+- `review-tests`: Test quality, mock violations, coverage gaps
+- `review-errors`: Silent failures, empty catches, swallowed errors
+- `review-types`: Type design, encapsulation, domain modeling
+- `review-comments`: Stale, misleading, or low-value comments
+- `review-simplify`: Complexity hotspots, simplification suggestions
+- `review-coordinator`: Aggregate findings, deduplicate, generate SUMMARY
+
+**New Skill: `/ultra-review`**:
+- Modes: full, quick, security, tests, recheck, delta, custom
+- Scope options: `--pr NUMBER`, `--range RANGE`
+- Session tracking with branch-scoped index.json and iteration chains
+- Lifecycle management: auto-cleanup by age (7d/30d) and per-branch cap (5)
+- Verdict logic: P0 > 0 or P1 > 3 = REQUEST_CHANGES, P1 > 0 = COMMENT, else APPROVE
+- Fix flow: auto-fix P0/P1, re-test, recheck cycle
+
+**New Skill: `code-review-expert`** (agent-only):
+- Structured review checklists: SOLID, security, performance, boundary conditions
+- Injected into code-reviewer agent via frontmatter
+
+**Enhanced: `pre_stop_check.py`**:
+- Two-layer check: review artifacts (index.json branch-scoped) + code change marker fallback
+- Recency guard: only considers sessions < 2 hours old
+- P0 hard block: prevents session stop with unresolved critical issues
+
+**Enhanced: `/ultra-dev` Step 4.5**:
+- Replaced 55-line manual pr-review-toolkit orchestration with `/ultra-review` invocation
+- 3-phase flow: Run review > Act on verdict > Verification gate
+
+**CLAUDE.md Updates**:
+- `agent_system`: Listed all 12 agents (5 interactive + 7 pipeline)
+- Added ultra-review and code-review-expert to skills
+- Added review pipeline to auto-trigger table
+
 ### v5.4.1 (2026-02-08) - Hooks Hardening
 
 **Hooks Refactoring**:
 - Merged 3 PostToolUse hooks (`code_quality.py`, `mock_detector.py`, `security_scan.py`) into unified `post_edit_guard.py`
 - Removed `branch_protection.py`, simplified `pre_stop_check.py`
-- 9 hooks → 6 hooks (less overhead per tool call)
+- 9 hooks -> 6 hooks (less overhead per tool call)
 
 **Reliability Fix**:
 - Added `timeout` to all hooks (5s default, 10s for SessionStart/PreCompact)
@@ -345,7 +448,7 @@ Multi-step tasks use the Task system:
 - Hooks: user_prompt_agent.py (routing), agent_reminder.py (routing)
 
 **Improved**:
-- All hooks: standardized error handling (catch → stderr log → safe pass-through)
+- All hooks: standardized error handling (catch -> stderr log -> safe pass-through)
 - pre_stop_check: added git timeout, marker cleanup, error logging
 - Reduced per-request token overhead (no more routing hook noise)
 
@@ -357,7 +460,7 @@ Multi-step tasks use the Task system:
 - Removed operational config (moved to README)
 - Removed specific library names
 - Removed specific agent/skill names
-- Result: 322 → 272 lines (-15%)
+- Result: 322 -> 272 lines (-15%)
 - CLAUDE.md is now pure principles only
 
 ### v5.2.1 (2026-01-29) - Hooks Optimization Edition
@@ -377,7 +480,7 @@ Multi-step tasks use the Task system:
 - Smart false positive reduction (skip config files, comments)
 
 **Hook Output Fixes**:
-- Fix field names: `tool` → `tool_name`, `tool_result` → `tool_response`
+- Fix field names: `tool` -> `tool_name`, `tool_result` -> `tool_response`
 - Fix Stop hook format (no additionalContext support)
 - Add `decision: block` for CRITICAL issues
 
@@ -394,9 +497,8 @@ Multi-step tasks use the Task system:
 **Enforcement Features**:
 - Auto-BLOCK on CLAUDE.md rule violations
 - Auto-trigger agents based on context
-- Smart contract files → BOTH specialist + auditor (MANDATORY)
-- Auth/payment paths → pr-review-toolkit:code-reviewer (MANDATORY)
-- Integration with pr-review-toolkit plugin agents
+- Smart contract files -> BOTH specialist + auditor (MANDATORY)
+- Auth/payment paths -> code-reviewer (MANDATORY)
 
 **Architecture Changes**:
 - Hooks enforce rules (not just suggest)
@@ -420,7 +522,7 @@ Multi-step tasks use the Task system:
 **New Features**:
 - `/learn` command for pattern extraction
 - `skills/learned/` directory for extracted patterns
-- Confidence levels: Speculation → Inference → Fact
+- Confidence levels: Speculation -> Inference -> Fact
 
 ### v4.5.1 (2026-01-07) - PromptUp Edition
 

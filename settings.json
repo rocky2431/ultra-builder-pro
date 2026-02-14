@@ -136,7 +136,6 @@
     "hookify@claude-plugins-official": true,
     "jdtls-lsp@claude-plugins-official": true,
     "planning-with-files@planning-with-files": true,
-    "pr-review-toolkit@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "ralph-loop@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
@@ -148,6 +147,7 @@
     "enabled": false,
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
-  "_comment_project": "Ultra Builder Pro 5.4.0",
-  "_comment_version": "5.4.0 - Agent & Memory Edition"
+  "skipDangerousModePermissionPrompt": true,
+  "_comment_project": "Ultra Builder Pro 5.5.0",
+  "_comment_version": "5.5.0 - Ultra Review System"
 }
