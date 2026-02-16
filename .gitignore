@@ -116,6 +116,7 @@ security_warnings_state_*.json
 # Ultra working directories (local)
 .ultra/specs/
 .ultra/tasks/
+.ultra/memory/
 .ultra/reviews/
 .ultra/compact-snapshot.md
 .ultra/debug/
