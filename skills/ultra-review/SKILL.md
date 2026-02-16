@@ -117,9 +117,9 @@ grep -l "try\|catch\|\.catch\|throw\|Error(" <diff_files>
 **Mode: `delta`** → See Delta Logic below
 **Mode: custom** → Parse agent names from arguments
 
-### Phase 3: Parallel Execution
+### Phase 3: Background Execution (Zero Context Pollution)
 
-Launch ALL selected agents in parallel using multiple Task tool calls in a single message (do NOT use `run_in_background`).
+Launch ALL selected agents in **background mode** (`run_in_background: true`) using multiple Task tool calls in a single message. This prevents agent output from polluting the main conversation context.
 
 Each agent receives this prompt template:
 
@@ -144,27 +144,46 @@ After writing the JSON file, output one line: "Wrote N findings (P0:X P1:X P2:X 
 
 **Important**: Use `subagent_type` matching the agent name (e.g., `review-code`, `review-tests`, etc.).
 
-**Timeout**: Wait up to 5 minutes per agent. If an agent times out, note it as failed and continue.
+**Important**: Set `run_in_background: true` on every Task call. Do NOT read TaskOutput — this avoids injecting agent results into main context.
 
-### Phase 4: Coordination
+### Phase 4: Wait & Coordinate (File-Based)
 
-After ALL agents complete (or timeout), launch review-coordinator:
+**Step 4a: Wait for agents** — Use Bash to block until all agents finish writing:
+
+```bash
+python3 ~/.claude/hooks/review_wait.py {SESSION_PATH} agents {AGENT_COUNT}
+```
+
+This polls for `review-*.json` files every 2 seconds. Timeout: 5 minutes.
+Output is a single status line (~20 tokens), not agent results.
+
+**Step 4b: Launch coordinator in background:**
+
+Launch review-coordinator with `run_in_background: true`:
 
 ```
 You are the review coordinator.
 
 SESSION_PATH: {SESSION_PATH}
-AGENTS_RUN: {list of agents that completed successfully}
+AGENTS_RUN: {list of agents from wait output}
 
 Read all review-*.json files in the session directory, deduplicate findings,
 compute verdict, and generate SUMMARY.md + SUMMARY.json.
 ```
 
+**Step 4c: Wait for coordinator:**
+
+```bash
+python3 ~/.claude/hooks/review_wait.py {SESSION_PATH} summary
+```
+
+Output is a single verdict line (~15 tokens).
+
 ### Phase 5: Report to User
 
-After coordinator completes:
+After `review_wait.py summary` returns:
 
-1. **Read SUMMARY.json** to get verdict and counts
+1. **Read SUMMARY.json** (one Read call, ~500 tokens) to get verdict and counts
 2. **Update index.json** — fill in the placeholder entry with actual verdict, p0, p1, total from SUMMARY.json
 3. Present a concise summary:
 
