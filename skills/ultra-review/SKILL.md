@@ -151,7 +151,7 @@ After writing the JSON file, output one line: "Wrote N findings (P0:X P1:X P2:X 
 **Step 4a: Wait for agents** — Use Bash to block until all agents finish writing:
 
 ```bash
-python3 ~/.claude/hooks/review_wait.py {SESSION_PATH} agents {AGENT_COUNT}
+python3 ~/.claude/skills/ultra-review/scripts/review_wait.py {SESSION_PATH} agents {AGENT_COUNT}
 ```
 
 This polls for `review-*.json` files every 2 seconds. Timeout: 5 minutes.
@@ -174,7 +174,7 @@ compute verdict, and generate SUMMARY.md + SUMMARY.json.
 **Step 4c: Wait for coordinator:**
 
 ```bash
-python3 ~/.claude/hooks/review_wait.py {SESSION_PATH} summary
+python3 ~/.claude/skills/ultra-review/scripts/review_wait.py {SESSION_PATH} summary
 ```
 
 Output is a single verdict line (~15 tokens).
@@ -340,8 +340,14 @@ When user selects "Fix all" or "Fix P0 only" after review:
    - Apply the suggested fix (or implement an equivalent correction)
    - Mark finding as addressed
 4. **Re-run tests** — ensure fixes don't break anything
-5. **Run `/ultra-review recheck`** — verify all P0/P1 resolved
-6. **If new issues introduced** → repeat fix cycle
+5. **Update verdict** — after all P0 fixes applied and tests pass:
+   ```bash
+   python3 ~/.claude/skills/ultra-review/scripts/review_verdict_update.py {SESSION_PATH}
+   ```
+   This recalculates the verdict from current P0/P1 counts and updates both SUMMARY.json and index.json.
+   Without this step, pre_stop_check will block on stale REQUEST_CHANGES verdict.
+6. **Optionally run `/ultra-review recheck`** — for full re-validation (creates new session)
+7. **If new issues introduced** → repeat fix cycle
 
 **Important**: The main agent (not review agents) performs fixes. Review agents are read-only by design.
 

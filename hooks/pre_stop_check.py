@@ -375,7 +375,7 @@ def main():
 
         result = {
             "decision": "block",
-            "reason": f"[Pre-Stop Check] {review_check['reason']}"
+            "reason": f"[Pre-Stop Check] {review_check['reason']}. Stopping anyway on next attempt."
         }
         print(json.dumps(result))
         return
@@ -386,6 +386,12 @@ def main():
         return
 
     # No recent review session — fall back to code change detection
+    # Skip for main/master: merged code was already reviewed on its feature branch
+    current_branch = get_current_branch()
+    if current_branch in ('main', 'master'):
+        print(json.dumps({}))
+        return
+
     git_status = get_git_status()
 
     if not git_status['has_changes']:
@@ -418,7 +424,7 @@ def main():
         lines.append(f"  ... and {len(code_files) - 8} more")
 
     lines.append("")
-    lines.append("Run /ultra-review or code-reviewer agent to review changes before completing.")
+    lines.append("Unreviewed code changes detected. Stopping anyway on next attempt.")
 
     result = {
         "decision": "block",
