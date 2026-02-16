@@ -271,7 +271,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |------|---------|----------|---------|
 | `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner from memory DB | 10s |
 | `session_journal.py` | Stop | Auto-capture session events (branch/files/commits) to SQLite FTS5 + JSONL | 5s |
-| `pre_stop_check.py` | Stop | Three-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change reminder | 5s |
+| `pre_stop_check.py` | Stop | Three-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change detection (skipped on main/master) | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
 | `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` (project-level) | 10s |
 
@@ -315,7 +315,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- session_context.py           # SessionStart: load dev context + last session (10s)
 |   |-- session_journal.py           # Stop: auto-capture session to SQLite + JSONL (5s)
 |   |-- memory_db.py                 # Shared: SQLite FTS5 engine + CLI tool
-|   |-- pre_stop_check.py            # Stop: review artifact check + code change reminder (5s)
+|   |-- pre_stop_check.py            # Stop: review artifact check + code change detection (5s)
 |   |-- subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
 |   |-- pre_compact_context.py       # PreCompact: preserve context (10s)
 |
@@ -333,6 +333,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |
 |-- skills/                   # Domain skills (7 + learned)
 |   |-- ultra-review/         # Parallel review orchestration
+|   |   |-- scripts/          # review_wait.py, review_verdict_update.py
 |   |-- codex/                # OpenAI Codex CLI
 |   |-- recall/               # Cross-session memory search
 |   |-- code-review-expert/   # Structured review checklists (agent-only)
@@ -450,6 +451,13 @@ Multi-step tasks use the Task system:
 - 90-day retention policy with `/recall --cleanup`
 
 **Learned from claude-mem failure**: claude-mem injected ~25k tokens at SessionStart causing context explosion. Our approach: inject 1 line (~50 tokens), search on-demand.
+
+**Ultra Review Improvements**:
+- Background execution: all review agents run with `run_in_background: true` (~535 tokens vs ~7000+)
+- File-based waiting: `review_wait.py` polls for completion instead of TaskOutput reads
+- Verdict update: `review_verdict_update.py` auto-updates SUMMARY.json + index.json after P0 fixes
+- Pre-stop fix: skip code-change fallback on main/master (merged code already reviewed), remove instructional language from block messages to prevent AI re-trigger
+- Scripts moved from `hooks/` to `skills/ultra-review/scripts/` (proper ownership)
 
 ### v5.6.1 (2026-02-14) - Project Isolation
 
