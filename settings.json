@@ -156,8 +156,8 @@
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
   "skipDangerousModePermissionPrompt": true,
-  "_comment_project": "Ultra Builder Pro 5.6.1",
-  "_comment_version": "5.6.1 - Project Isolation",
+  "_comment_project": "Ultra Builder Pro 5.7.0",
+  "_comment_version": "5.7.0 - Cross-Session Memory",
   "model": "opus",
   "alwaysThinkingEnabled": true
 }

@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.6.1
+# Ultra Builder Pro 5.7.0
 
 <div align="center">
 
@@ -6,12 +6,12 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.6.1-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.7.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-6-orange)](skills/)
+[![Skills](https://img.shields.io/badge/skills-7-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-12-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-6-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-7-yellow)](hooks/)
 
 </div>
 
@@ -91,12 +91,13 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 
 ---
 
-## Skills (6 + Learned Patterns)
+## Skills (7 + Learned Patterns)
 
 | Skill | Purpose | User-Invocable |
 |-------|---------|----------------|
 | `ultra-review` | Parallel code review with 6 agents + coordinator | Yes |
 | `codex` | OpenAI Codex CLI integration | Yes |
+| `recall` | Cross-session memory search, save summaries, tags | Yes |
 | `code-review-expert` | Structured review checklists (SOLID, security, perf, integration) | No (agent-only) |
 | `testing-rules` | TDD discipline, mock detection rules | No (agent-only) |
 | `security-rules` | Input validation, injection prevention rules | No (agent-only) |
@@ -175,6 +176,53 @@ Step 4.5 of `/ultra-dev` runs `/ultra-review all` (forced full coverage) as a ma
 
 ---
 
+## Cross-Session Memory
+
+### Overview
+
+Lightweight cross-session memory system that auto-captures session events and provides on-demand retrieval. Designed as a safe alternative to claude-mem — no bulk context injection, no external dependencies.
+
+### Architecture
+
+```
+Stop hook (auto)                    /recall skill (on-demand)
+     |                                     |
+     v                                     v
+session_journal.py ──> SQLite FTS5 <── memory_db.py CLI
+     |                  (memory.db)
+     v
+sessions.jsonl (backup)
+```
+
+### How It Works
+
+1. **Auto-capture** (Stop hook): Every response records branch, cwd, modified files + auto-generates summary from recent git commits
+2. **Merge window**: Multiple stops within 30 minutes merge into one session record
+3. **SessionStart injection**: Injects ONE line (~50 tokens) about the last session — no context explosion
+4. **On-demand search**: `/recall` skill searches the SQLite FTS5 index
+
+### Usage
+
+```
+/recall                          # Recent 5 sessions
+/recall auth bug                 # FTS5 keyword search
+/recall --recent 10              # Recent 10 sessions
+/recall --date 2026-02-16        # Sessions on specific date
+/recall --save "Fixed auth bug"  # Save summary for latest session
+/recall --tags "auth,bugfix"     # Add tags to latest session
+/recall --stats                  # Database statistics
+/recall --cleanup 90             # Delete sessions older than 90 days
+```
+
+### Storage
+
+- **Database**: `.ultra/memory/memory.db` (project-level, SQLite FTS5)
+- **Backup**: `.ultra/memory/sessions.jsonl` (append-only JSONL)
+- **Retention**: 90 days default
+- **Dependencies**: Zero (Python stdlib + SQLite)
+
+---
+
 ## TDD Workflow
 
 Mandatory for all new code:
@@ -201,7 +249,7 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (6 Hooks)
+## Hooks System (7 Hooks)
 
 Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks have **timeout** configured to prevent UI freeze.
 
@@ -221,7 +269,8 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 
 | Hook | Trigger | Function | Timeout |
 |------|---------|----------|---------|
-| `session_context.py` | SessionStart | Load git branch, recent commits, modified files | 10s |
+| `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner from memory DB | 10s |
+| `session_journal.py` | Stop | Auto-capture session events (branch/files/commits) to SQLite FTS5 + JSONL | 5s |
 | `pre_stop_check.py` | Stop | Three-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change reminder | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
 | `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` (project-level) | 10s |
@@ -260,10 +309,12 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |-- README.md                 # This file
 |-- settings.json             # Claude Code settings + hooks config
 |
-|-- hooks/                    # Automated enforcement (6 hooks, all with timeout)
+|-- hooks/                    # Automated enforcement (7 hooks, all with timeout)
 |   |-- block_dangerous_commands.py  # PreToolUse: dangerous bash commands (5s)
 |   |-- post_edit_guard.py           # PostToolUse: quality + mock + security unified (5s)
-|   |-- session_context.py           # SessionStart: load dev context (10s)
+|   |-- session_context.py           # SessionStart: load dev context + last session (10s)
+|   |-- session_journal.py           # Stop: auto-capture session to SQLite + JSONL (5s)
+|   |-- memory_db.py                 # Shared: SQLite FTS5 engine + CLI tool
 |   |-- pre_stop_check.py            # Stop: review artifact check + code change reminder (5s)
 |   |-- subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
 |   |-- pre_compact_context.py       # PreCompact: preserve context (10s)
@@ -280,9 +331,10 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- commit.md
 |   |-- learn.md
 |
-|-- skills/                   # Domain skills (6 + learned)
+|-- skills/                   # Domain skills (7 + learned)
 |   |-- ultra-review/         # Parallel review orchestration
 |   |-- codex/                # OpenAI Codex CLI
+|   |-- recall/               # Cross-session memory search
 |   |-- code-review-expert/   # Structured review checklists (agent-only)
 |   |-- integration-rules/    # System integration rules (agent-only)
 |   |-- testing-rules/        # TDD rules (agent-only)
@@ -304,6 +356,9 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- review-coordinator.md        # Pipeline (ultra-review)
 |
 |-- .ultra/                   # Project-level output (in each project, gitignored)
+|   |-- memory/                      # Cross-session memory (auto-managed)
+|   |   |-- memory.db                # SQLite FTS5 session database
+|   |   |-- sessions.jsonl           # Append-only backup
 |   |-- reviews/                     # Ultra Review output (auto-managed)
 |   |   |-- index.json               # Session index (branch-scoped)
 |   |   |-- <session-id>/           # Per-session findings
@@ -332,7 +387,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 - Conventional Commits format
 - Include Co-author for AI commits:
   ```
-  Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+  Co-Authored-By: Claude <noreply@anthropic.com>
   ```
 
 ### Project Structure
@@ -343,6 +398,7 @@ New Ultra projects use:
 |-- tasks/              # Task tracking
 |-- specs/              # Specifications
 |-- docs/               # Project documentation
+|-- memory/             # Cross-session memory DB + JSONL (auto-generated)
 |-- reviews/            # Ultra Review output (auto-generated)
 |-- compact-snapshot.md # Context recovery (auto-generated)
 |-- debug/              # Agent lifecycle logs (auto-generated)
@@ -371,6 +427,29 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.7.0 (2026-02-16) - Cross-Session Memory
+
+**Cross-Session Memory System** — lightweight auto-capture + on-demand retrieval, designed as safe alternative to claude-mem:
+
+**New Files**:
+- `hooks/memory_db.py`: SQLite FTS5 storage engine + CLI tool (dual-use library)
+- `hooks/session_journal.py`: Stop hook auto-captures branch/files/commits per session
+- `skills/recall/SKILL.md`: `/recall` skill for on-demand memory search, summaries, tags
+
+**Enhanced Files**:
+- `hooks/session_context.py`: +last session one-liner injection at SessionStart (~50 tokens)
+- `CLAUDE.md`: +`<session_memory>` block with proactive recall trigger rules
+- `settings.json`: +session_journal.py in Stop hooks
+
+**Design Principles**:
+- Auto-capture at Stop, on-demand retrieval via `/recall` — no bulk SessionStart injection
+- Zero external dependencies (Python stdlib + SQLite FTS5)
+- 30-minute merge window: multiple stops within same session merge into one record
+- Auto-summary from git commit messages (no AI needed), manual override via `/recall --save`
+- 90-day retention policy with `/recall --cleanup`
+
+**Learned from claude-mem failure**: claude-mem injected ~25k tokens at SessionStart causing context explosion. Our approach: inject 1 line (~50 tokens), search on-demand.
 
 ### v5.6.1 (2026-02-14) - Project Isolation
 
