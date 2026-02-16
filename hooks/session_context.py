@@ -6,6 +6,7 @@ Loads development context at session start.
 Provides:
 - Current git branch and recent commits
 - Modified files status
+- Last session one-liner from memory DB (~50 tokens)
 """
 
 import sys
@@ -13,6 +14,7 @@ import json
 import subprocess
 import os
 from datetime import datetime
+from pathlib import Path
 
 
 def run_cmd(cmd: list, cwd: str = '') -> str:
@@ -94,6 +96,25 @@ def get_project_context() -> list:
     return context
 
 
+def get_last_session_oneliner() -> str:
+    """Get a one-liner about the last session from memory DB.
+
+    Returns empty string if DB doesn't exist or has no records.
+    Adds ~50 tokens to context. Fails silently.
+    """
+    try:
+        result = subprocess.run(
+            ["python3", str(Path(__file__).parent / "memory_db.py"), "oneliner"],
+            capture_output=True, text=True, timeout=3,
+            cwd=os.getcwd()
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
+        pass
+    return ""
+
+
 def main():
     try:
         input_data = sys.stdin.read()
@@ -122,6 +143,12 @@ def main():
     proj_ctx = get_project_context()
     if proj_ctx:
         context_lines.extend(proj_ctx)
+
+    # Add last session one-liner from memory DB
+    last_session = get_last_session_oneliner()
+    if last_session:
+        context_lines.append("")
+        context_lines.append(last_session)
 
     # Output context for AI
     result = {

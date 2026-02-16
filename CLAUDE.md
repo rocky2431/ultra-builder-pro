@@ -316,6 +316,23 @@ No evidence + significant consequences → Speculation, brake
 **Priority**: Fact > Inference > Speculation
 </learned_patterns>
 
+<session_memory>
+**Auto-captured**: Stop hook records branch/files/commits to `.ultra/memory/memory.db` (SQLite FTS5)
+**SessionStart**: Injects last session one-liner (~50 tokens)
+
+**When to `/recall`** (proactive triggers):
+- User references past work: "last time...", "previously..." → `/recall` search keywords
+- Resuming after break: unfamiliar codebase state → `/recall --recent 3`
+- Debugging recurring issue: "happened again" → `/recall` error keywords
+- Architecture decision needed: check prior decisions → `/recall` domain keywords
+
+**When to `/recall --save`**:
+- Completed a significant feature or fix
+- Made an important architecture/design decision
+- Discovered a non-obvious root cause
+- Session has commits (auto-summary exists) but deserves a better human description
+</session_memory>
+
 <workflow_tracking>
 **Tools**: TaskCreate, TaskList, TaskGet, TaskUpdate
 **Rules**: Multi-step commands use Task system; hydrate from .ultra/tasks/; update both session and persistent
