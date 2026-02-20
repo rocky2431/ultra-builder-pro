@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.7.0
+# Ultra Builder Pro 5.8.0
 
 <div align="center">
 
@@ -6,7 +6,7 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.7.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.8.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-7-orange)](skills/)
@@ -180,32 +180,39 @@ Step 4.5 of `/ultra-dev` runs `/ultra-review all` (forced full coverage) as a ma
 
 ### Overview
 
-Lightweight cross-session memory system that auto-captures session events and provides on-demand retrieval. Designed as a safe alternative to claude-mem — no bulk context injection, no external dependencies.
+AI-powered cross-session memory with hybrid search. Auto-captures session events, generates AI summaries via Haiku, and supports semantic + keyword retrieval. Designed as a safe alternative to claude-mem — no bulk context injection.
 
 ### Architecture
 
 ```
-Stop hook (auto)                    /recall skill (on-demand)
+Stop hook (auto)                    /recall skill (forked context)
      |                                     |
      v                                     v
 session_journal.py ──> SQLite FTS5 <── memory_db.py CLI
-     |                  (memory.db)
+     |                  (memory.db)        |
+     |                                     v
+     |-- daemon (10s) ──> Haiku ──> AI summary ──> SQLite + Chroma
+     |
      v
-sessions.jsonl (backup)
+sessions.jsonl (backup)      .ultra/memory/chroma/ (vector embeddings)
 ```
 
 ### How It Works
 
-1. **Auto-capture** (Stop hook): Every response records branch, cwd, modified files + auto-generates summary from recent git commits
-2. **Merge window**: Multiple stops within 30 minutes merge into one session record
-3. **SessionStart injection**: Injects ONE line (~50 tokens) about the last session — no context explosion
-4. **On-demand search**: `/recall` skill searches the SQLite FTS5 index
+1. **Auto-capture** (Stop hook): Every response records branch, cwd, modified files
+2. **AI Summary** (async daemon): Double-fork daemon waits 10s after session stop, extracts transcript, generates 3-8 bullet summary via Haiku (three-tier fallback: claude CLI → Anthropic SDK → git commits)
+3. **Vector Embedding**: After AI summary, auto-upserts to Chroma (local ONNX, no API key)
+4. **Merge window**: Multiple stops within 30 minutes merge into one session record
+5. **SessionStart injection**: Injects ONE line (~50 tokens) about the last session — no context explosion
+6. **Hybrid search**: `/recall` runs in forked context, combines FTS5 keyword + Chroma semantic via RRF
 
 ### Usage
 
 ```
 /recall                          # Recent 5 sessions
-/recall auth bug                 # FTS5 keyword search
+/recall auth bug                 # Hybrid search (FTS5 + semantic RRF)
+/recall --semantic "login flow"  # Pure semantic vector search
+/recall --keyword session_journal # Pure FTS5 keyword search
 /recall --recent 10              # Recent 10 sessions
 /recall --date 2026-02-16        # Sessions on specific date
 /recall --save "Fixed auth bug"  # Save summary for latest session
@@ -217,9 +224,10 @@ sessions.jsonl (backup)
 ### Storage
 
 - **Database**: `.ultra/memory/memory.db` (project-level, SQLite FTS5)
+- **Vectors**: `.ultra/memory/chroma/` (project-level, Chroma + ONNX embeddings)
 - **Backup**: `.ultra/memory/sessions.jsonl` (append-only JSONL)
 - **Retention**: 90 days default
-- **Dependencies**: Zero (Python stdlib + SQLite)
+- **Dependencies**: chromadb (ONNX embeddings), anthropic SDK (optional, for AI summary fallback)
 
 ---
 
@@ -270,7 +278,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 | Hook | Trigger | Function | Timeout |
 |------|---------|----------|---------|
 | `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner from memory DB | 10s |
-| `session_journal.py` | Stop | Auto-capture session events (branch/files/commits) to SQLite FTS5 + JSONL | 5s |
+| `session_journal.py` | Stop | Auto-capture session + spawn AI summary daemon (Haiku, non-blocking) → SQLite + Chroma | 5s |
 | `pre_stop_check.py` | Stop | Three-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change detection (skipped on main/master) | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
 | `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` (project-level) | 10s |
@@ -313,8 +321,8 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- block_dangerous_commands.py  # PreToolUse: dangerous bash commands (5s)
 |   |-- post_edit_guard.py           # PostToolUse: quality + mock + security unified (5s)
 |   |-- session_context.py           # SessionStart: load dev context + last session (10s)
-|   |-- session_journal.py           # Stop: auto-capture session to SQLite + JSONL (5s)
-|   |-- memory_db.py                 # Shared: SQLite FTS5 engine + CLI tool
+|   |-- session_journal.py           # Stop: auto-capture + AI summary daemon → SQLite + Chroma (5s)
+|   |-- memory_db.py                 # Shared: SQLite FTS5 + Chroma vector engine + CLI tool
 |   |-- pre_stop_check.py            # Stop: review artifact check + code change detection (5s)
 |   |-- subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
 |   |-- pre_compact_context.py       # PreCompact: preserve context (10s)
@@ -359,6 +367,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |-- .ultra/                   # Project-level output (in each project, gitignored)
 |   |-- memory/                      # Cross-session memory (auto-managed)
 |   |   |-- memory.db                # SQLite FTS5 session database
+|   |   |-- chroma/                  # Chroma vector embeddings (ONNX)
 |   |   |-- sessions.jsonl           # Append-only backup
 |   |-- reviews/                     # Ultra Review output (auto-managed)
 |   |   |-- index.json               # Session index (branch-scoped)
@@ -399,7 +408,7 @@ New Ultra projects use:
 |-- tasks/              # Task tracking
 |-- specs/              # Specifications
 |-- docs/               # Project documentation
-|-- memory/             # Cross-session memory DB + JSONL (auto-generated)
+|-- memory/             # Cross-session memory DB + Chroma + JSONL (auto-generated)
 |-- reviews/            # Ultra Review output (auto-generated)
 |-- compact-snapshot.md # Context recovery (auto-generated)
 |-- debug/              # Agent lifecycle logs (auto-generated)
@@ -428,6 +437,32 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.8.0 (2026-02-20) - AI Summarization + Vector Search
+
+**AI-Powered Memory Upgrade** — transcript-based summaries, semantic vector search, hybrid retrieval, and forked recall context:
+
+**Enhanced Files**:
+- `hooks/session_journal.py`: +AI summarization via double-fork daemon (non-blocking, 10s delay)
+  - Transcript parsing: extracts user/assistant text from JSONL, dedupes streaming chunks
+  - Three-tier fallback: `claude -p --model haiku` → Anthropic SDK → git commit messages
+  - Daemon clears `CLAUDE*` env vars to avoid inheriting parent session config
+  - Auto-upserts Chroma embedding after AI summary generation
+  - CLI: `--ai-summarize <session_id> <transcript_path>` for manual re-summarize
+- `hooks/memory_db.py`: +Chroma vector search engine (PersistentClient + local ONNX ONNXMiniLM_L6_V2)
+  - `upsert_embedding()`: doc = summary + branch + top 5 files (~256 tokens)
+  - `semantic_search()`: pure vector search via Chroma
+  - `hybrid_search()`: RRF (k=60) fusion of FTS5 keyword + Chroma semantic
+  - `reindex_chroma()`: backfill existing sessions into Chroma
+  - CLI commands: `semantic`, `hybrid`, `reindex-chroma`
+- `skills/recall/SKILL.md`: +`context: fork` (search results don't pollute main conversation)
+  - Default search: hybrid (FTS5 + semantic RRF)
+  - New modes: `--semantic` (pure vector), `--keyword` (pure FTS5)
+  - Progressive retrieval strategy: search → expand query → synthesize
+
+**Dependencies**: chromadb 1.5.0 (local ONNX embeddings, no API key required)
+
+**Design Principle**: Same as v5.7.0 — auto-capture, on-demand retrieval, no bulk injection. AI summarization runs async after session stop, never blocking the hot path.
 
 ### v5.7.0 (2026-02-16) - Cross-Session Memory
 

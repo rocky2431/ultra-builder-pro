@@ -1,5 +1,5 @@
 ---
-description: Initialize Ultra Builder Pro 5.7.0 project with native task management
+description: Initialize Ultra Builder Pro 5.8.0 project with native task management
 argument-hint: <name> <type> <stack> [git]
 allowed-tools: Read, Write, Bash, Grep, Glob, Task, AskUserQuestion
 model: opus
@@ -29,7 +29,7 @@ model: opus
 
 ## Purpose
 
-Initialize Ultra Builder Pro 5.7.0 project structure with native task management.
+Initialize Ultra Builder Pro 5.8.0 project structure with native task management.
 
 ## Arguments
 
@@ -179,7 +179,7 @@ Create `.ultra/tasks/tasks.json`:
   - Exclude `.ultra/backups`
   - Exclude secrets, build artifacts
 - Create basic `README.md` (if not exists)
-- Suggest first commit: `git add . && git commit -m "feat: initialize Ultra Builder Pro 5.7.0"`
+- Suggest first commit: `git add . && git commit -m "feat: initialize Ultra Builder Pro 5.8.0"`
 
 **If user chose "Keep existing Git repository"** or **"Don't use Git"**:
 - Skip Git operations

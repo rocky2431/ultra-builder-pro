@@ -30,7 +30,8 @@
       "BashOutput",
       "KillShell",
       "ExitPlanMode",
-      "mcp__*"
+      "mcp__*",
+      "mcp__pencil"
     ],
     "deny": [
       "Read(./.env)",
@@ -148,16 +149,17 @@
     "ralph-loop@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "vercel@claude-plugins-official": true
+    "vercel@claude-plugins-official": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
+    "document-skills@anthropic-agent-skills": true
   },
   "language": "chinese",
   "sandbox": {
     "enabled": false,
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
+  "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "_comment_project": "Ultra Builder Pro 5.7.0",
-  "_comment_version": "5.7.0 - Cross-Session Memory",
-  "model": "opus",
-  "alwaysThinkingEnabled": true
+  "_comment_project": "Ultra Builder Pro 5.8.0",
+  "_comment_version": "5.8.0 - AI Summarization + Vector Search"
 }

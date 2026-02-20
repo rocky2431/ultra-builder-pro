@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Ultra Memory DB - SQLite FTS5 storage for session memory.
+"""Ultra Memory DB - SQLite FTS5 + Chroma vector storage for session memory.
 
 Dual-use: importable library AND CLI tool.
 
 CLI usage:
   python3 memory_db.py search "keyword" [--limit N]
+  python3 memory_db.py semantic "query" [--limit N]
+  python3 memory_db.py hybrid "query" [--limit N]
   python3 memory_db.py recent [N]
   python3 memory_db.py latest
   python3 memory_db.py date 2026-02-15
   python3 memory_db.py save-summary SESSION_ID "summary text"
   python3 memory_db.py add-tags SESSION_ID "tag1,tag2"
+  python3 memory_db.py reindex-chroma
   python3 memory_db.py cleanup [--days N]
   python3 memory_db.py stats
 """
@@ -346,14 +349,144 @@ def format_oneliner(s: dict) -> str:
     return f"Last session: {date} | {branch} | {file_count} files modified"
 
 
+# -- Chroma Vector Search --
+
+
+def get_chroma_dir() -> Path:
+    """Get Chroma storage directory (.ultra/memory/chroma/)."""
+    toplevel = get_git_toplevel()
+    if toplevel:
+        return Path(toplevel) / ".ultra" / "memory" / "chroma"
+    return Path.home() / ".claude" / "memory" / "chroma"
+
+
+def get_chroma_collection():
+    """Get or create the sessions Chroma collection.
+
+    Uses PersistentClient with local ONNX embedding (ONNXMiniLM_L6_V2).
+    No API key required.
+    """
+    import chromadb
+
+    chroma_dir = get_chroma_dir()
+    chroma_dir.mkdir(parents=True, exist_ok=True)
+    client = chromadb.PersistentClient(path=str(chroma_dir))
+    return client.get_or_create_collection(
+        name="sessions",
+        metadata={"hnsw:space": "cosine"}
+    )
+
+
+def upsert_embedding(session_id: str, summary: str, branch: str,
+                     files: list) -> bool:
+    """Write session embedding to Chroma.
+
+    Document = summary + branch + top 5 files, truncated to 900 chars.
+    """
+    try:
+        file_list = ", ".join(files[:5]) if files else ""
+        doc = f"Branch: {branch}\nFiles: {file_list}\nSummary: {summary}"
+        if len(doc) > 900:
+            doc = doc[:900]
+
+        collection = get_chroma_collection()
+        collection.upsert(
+            ids=[session_id],
+            documents=[doc],
+            metadatas=[{
+                "branch": branch,
+                "file_count": str(len(files)),
+                "summary": summary[:500]
+            }]
+        )
+        return True
+    except Exception:
+        return False
+
+
+def semantic_search(query: str, limit: int = 10) -> list:
+    """Pure vector semantic search via Chroma."""
+    try:
+        collection = get_chroma_collection()
+        results = collection.query(
+            query_texts=[query],
+            n_results=limit
+        )
+
+        conn = init_db()
+        sessions = []
+        if results and results["ids"] and results["ids"][0]:
+            for sid in results["ids"][0]:
+                row = conn.execute(
+                    """SELECT id, started_at, last_active, branch, cwd,
+                              files_modified, summary, tags, stop_count
+                       FROM sessions WHERE id = ?""",
+                    (sid,)
+                ).fetchone()
+                if row:
+                    sessions.append(dict(row))
+        conn.close()
+        return sessions
+    except Exception:
+        return []
+
+
+def hybrid_search(conn: sqlite3.Connection, query: str,
+                  limit: int = 10, k: int = 60) -> list:
+    """Hybrid search: FTS5 + Chroma semantic, merged via RRF.
+
+    RRF (Reciprocal Rank Fusion): score = sum(1/(k+rank)) per result list.
+    Combines keyword precision with semantic recall.
+    """
+    fts_results = search(conn, query, limit=limit * 2)
+    fts_ids = [s["id"] for s in fts_results]
+
+    sem_results = semantic_search(query, limit=limit * 2)
+    sem_ids = [s["id"] for s in sem_results]
+
+    # RRF scoring
+    scores: dict[str, float] = {}
+    for rank, sid in enumerate(fts_ids):
+        scores[sid] = scores.get(sid, 0.0) + 1.0 / (k + rank + 1)
+    for rank, sid in enumerate(sem_ids):
+        scores[sid] = scores.get(sid, 0.0) + 1.0 / (k + rank + 1)
+
+    sorted_ids = sorted(
+        scores.keys(), key=lambda x: scores[x], reverse=True
+    )[:limit]
+
+    session_map: dict[str, dict] = {}
+    for s in fts_results + sem_results:
+        if s["id"] not in session_map:
+            session_map[s["id"]] = s
+
+    return [session_map[sid] for sid in sorted_ids if sid in session_map]
+
+
+def reindex_chroma(conn: sqlite3.Connection) -> int:
+    """Reindex all sessions with summaries into Chroma."""
+    rows = conn.execute(
+        """SELECT id, branch, files_modified, summary
+           FROM sessions WHERE summary != ''"""
+    ).fetchall()
+
+    count = 0
+    for row in rows:
+        files = json.loads(row["files_modified"])
+        if upsert_embedding(row["id"], row["summary"], row["branch"], files):
+            count += 1
+
+    return count
+
+
 # -- CLI Interface --
 
 def cli_main():
     """CLI entry point for direct invocation."""
     if len(sys.argv) < 2:
         print("Usage: memory_db.py <command> [args]")
-        print("Commands: search, recent, latest, date, "
-              "save-summary, add-tags, cleanup, stats")
+        print("Commands: search, semantic, hybrid, recent, latest, date, "
+              "save-summary, add-tags, reindex-chroma, cleanup, stats")
         sys.exit(1)
 
     cmd = sys.argv[1]
@@ -455,6 +588,52 @@ def cli_main():
             result = get_latest(conn)
             if result:
                 print(format_oneliner(result))
+
+        elif cmd == "semantic":
+            if len(sys.argv) < 3:
+                print("Usage: memory_db.py semantic <query> [--limit N]")
+                sys.exit(1)
+            query = sys.argv[2]
+            limit = 10
+            if "--limit" in sys.argv:
+                idx = sys.argv.index("--limit")
+                if idx + 1 < len(sys.argv):
+                    limit = int(sys.argv[idx + 1])
+
+            results = semantic_search(query, limit)
+            if not results:
+                print(f"No semantic results for: {query}")
+            else:
+                print(f"Found {len(results)} session(s) semantically "
+                      f"matching '{query}':\n")
+                for s in results:
+                    print(format_session(s, verbose=True))
+                    print()
+
+        elif cmd == "hybrid":
+            if len(sys.argv) < 3:
+                print("Usage: memory_db.py hybrid <query> [--limit N]")
+                sys.exit(1)
+            query = sys.argv[2]
+            limit = 10
+            if "--limit" in sys.argv:
+                idx = sys.argv.index("--limit")
+                if idx + 1 < len(sys.argv):
+                    limit = int(sys.argv[idx + 1])
+
+            results = hybrid_search(conn, query, limit)
+            if not results:
+                print(f"No hybrid results for: {query}")
+            else:
+                print(f"Found {len(results)} session(s) (hybrid "
+                      f"FTS5+semantic) for '{query}':\n")
+                for s in results:
+                    print(format_session(s, verbose=True))
+                    print()
+
+        elif cmd == "reindex-chroma":
+            count = reindex_chroma(conn)
+            print(f"Reindexed {count} session(s) into Chroma")
 
         else:
             print(f"Unknown command: {cmd}")
