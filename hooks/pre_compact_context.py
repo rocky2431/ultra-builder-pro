@@ -118,6 +118,46 @@ def get_cwd_info():
     return info
 
 
+def get_branch_memory(branch: str) -> list:
+    """Query memory DB directly for recent sessions with summaries on this branch.
+
+    Returns formatted summary lines for inclusion in compact snapshot.
+    """
+    if not branch:
+        return []
+
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        import memory_db
+
+        db_path = memory_db.get_db_path()
+        if not db_path.exists():
+            return []
+
+        conn = memory_db.init_db(db_path)
+        rows = conn.execute(
+            """SELECT id, last_active, summary FROM sessions
+               WHERE branch = ? AND summary != ''
+               ORDER BY last_active DESC LIMIT 5""",
+            (branch,)
+        ).fetchall()
+        conn.close()
+
+        lines = []
+        for row in rows:
+            date = row["last_active"][:10]
+            summary = row["summary"]
+            # Truncate to keep compact
+            if len(summary) > 200:
+                summary = summary[:197] + "..."
+            lines.append(f"- [{date}] {summary}")
+
+        return lines
+    except Exception:
+        pass
+    return []
+
+
 def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp):
     """Build the full snapshot content for disk persistence."""
     lines = [
@@ -149,6 +189,15 @@ def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp):
         lines.append("## Active Tasks")
         for t in (native_tasks or ultra_tasks):
             lines.append(f"- {t}")
+        lines.append("")
+
+    # Inject branch-relevant session memory
+    branch = git_ctx.get("branch", "")
+    branch_mem = get_branch_memory(branch)
+    if branch_mem:
+        lines.append("## Session Memory (this branch)")
+        lines.append("Recent session summaries for context continuity:")
+        lines.extend(branch_mem)
         lines.append("")
 
     lines.append("## Recovery Instructions")

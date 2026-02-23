@@ -115,6 +115,57 @@ def get_last_session_oneliner() -> str:
     return ""
 
 
+def get_branch_memory(branch: str) -> list:
+    """Query memory DB directly for recent sessions with summaries on this branch.
+
+    Returns up to 3 session summaries for context continuity.
+    Adds ~150 tokens. Fails silently.
+    """
+    if not branch:
+        return []
+
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        import memory_db
+
+        db_path = memory_db.get_db_path()
+        if not db_path.exists():
+            return []
+
+        conn = memory_db.init_db(db_path)
+        rows = conn.execute(
+            """SELECT id, last_active, summary FROM sessions
+               WHERE branch = ? AND summary != ''
+               ORDER BY last_active DESC LIMIT 3""",
+            (branch,)
+        ).fetchall()
+        conn.close()
+
+        lines = []
+        for row in rows:
+            date = row["last_active"][:10]
+            summary = row["summary"]
+            # Take first line/sentence, truncate to 120 chars
+            short = summary.split("\n")[0].strip()
+            if short.startswith("- "):
+                short = short[2:]
+            if short.startswith("## "):
+                # Structured summary - grab first bullet instead
+                for s_line in summary.split("\n"):
+                    s_line = s_line.strip()
+                    if s_line.startswith("- ") and len(s_line) > 5:
+                        short = s_line[2:]
+                        break
+            if len(short) > 120:
+                short = short[:117] + "..."
+            lines.append(f"  - [{date}] {short}")
+
+        return lines
+    except Exception:
+        pass
+    return []
+
+
 def main():
     try:
         input_data = sys.stdin.read()
@@ -149,6 +200,19 @@ def main():
     if last_session:
         context_lines.append("")
         context_lines.append(last_session)
+
+    # Add branch-relevant memory (recent sessions on same branch)
+    branch = ''
+    for line in git_ctx:
+        if line.startswith("Branch:"):
+            branch = line.replace("Branch:", "").strip()
+            break
+
+    branch_mem = get_branch_memory(branch)
+    if branch_mem:
+        context_lines.append("")
+        context_lines.append("Related sessions on this branch:")
+        context_lines.extend(branch_mem)
 
     # Output context for AI
     result = {

@@ -310,13 +310,15 @@ def _run_ai_summarize(session_id: str, transcript_path: str,
 def _try_claude_cli(prompt: str) -> str:
     """Tier 1: claude -p --model sonnet --no-session-persistence.
 
-    Uses Claude Code's existing auth (no separate API key needed).
+    Uses Claude Code's existing OAuth auth (Max subscription).
     --no-session-persistence prevents polluting /resume with summary sessions.
-    Clears CLAUDE* env vars to avoid inheriting parent session config.
+    Clears CLAUDE* env vars to avoid nesting detection, and removes
+    ANTHROPIC_API_KEY to force OAuth fallback (the env var may contain
+    a placeholder that causes 401 errors).
     """
     try:
         env = {k: v for k, v in os.environ.items()
-               if not k.startswith("CLAUDE")}
+               if not k.startswith("CLAUDE") and k != "ANTHROPIC_API_KEY"}
         env["PATH"] = os.environ.get("PATH", "/usr/bin:/usr/local/bin")
 
         result = subprocess.run(
@@ -334,10 +336,18 @@ def _try_claude_cli(prompt: str) -> str:
 
 
 def _try_anthropic_sdk(prompt: str) -> str:
-    """Tier 2: Anthropic SDK direct call. Fallback if CLI unavailable."""
+    """Tier 2: Anthropic SDK direct call. Only works with a valid API key.
+
+    Skips if ANTHROPIC_API_KEY looks like a placeholder or is missing.
+    Max subscription users should rely on Tier 1 (claude CLI) instead.
+    """
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key or api_key.startswith("your-") or len(api_key) < 20:
+        return ""
+
     try:
         import anthropic
-        client = anthropic.Anthropic()
+        client = anthropic.Anthropic(api_key=api_key)
         response = client.messages.create(
             model=AI_MODEL_SDK,
             max_tokens=AI_MAX_TOKENS,
