@@ -4,7 +4,7 @@
 Records session events to SQLite + JSONL for cross-session memory.
 Debounced: merges entries within 30-minute windows for same branch+cwd.
 
-Layer 2: AI-generated summary from transcript via Haiku (non-blocking daemon).
+Layer 2: AI-generated summary from transcript via Sonnet (non-blocking daemon).
 Layer 2 fallback: Git commit messages as summary.
 
 Execution target: < 100ms (daemon spawns async, no blocking in hot path).
@@ -24,8 +24,13 @@ import memory_db
 GIT_TIMEOUT = 3
 COMMIT_WINDOW_MIN = 30
 AI_SUMMARIZE_DELAY = 10
-TRANSCRIPT_MAX_CHARS = 8000
-TRANSCRIPT_MAX_MESSAGES = 50
+TRANSCRIPT_HEAD_CHARS = 4000   # First N chars: problem context & initial decisions
+TRANSCRIPT_TAIL_CHARS = 11000  # Last N chars: resolution & recent work
+TRANSCRIPT_MAX_CHARS = 15000   # Total budget (head + tail)
+TRANSCRIPT_MAX_MESSAGES = 100  # Increased from 50 for better coverage
+AI_MODEL_CLI = "sonnet"
+AI_MODEL_SDK = "claude-sonnet-4-6"
+AI_MAX_TOKENS = 1000
 
 
 def run_git(*args) -> str:
@@ -111,8 +116,12 @@ def parse_hook_input(raw: str) -> dict:
 def extract_transcript_text(transcript_path: str) -> str:
     """Extract meaningful user/assistant conversation from JSONL transcript.
 
+    Uses Head + Tail sampling to preserve both:
+    - Beginning: problem context, initial requirements, key decisions
+    - End: resolution, final state, recent work
+
     Skips tool_use, thinking, progress, and file-history-snapshot entries.
-    Returns truncated text suitable for AI summarization (~2000 tokens).
+    Returns truncated text suitable for AI summarization.
     """
     path = Path(transcript_path)
     if not path.exists():
@@ -161,16 +170,39 @@ def extract_transcript_text(transcript_path: str) -> str:
     if not messages:
         return ""
 
-    recent = messages[-TRANSCRIPT_MAX_MESSAGES:]
-    result = "\n".join(recent)
+    # Cap total message count
+    if len(messages) > TRANSCRIPT_MAX_MESSAGES:
+        messages = messages[:TRANSCRIPT_MAX_MESSAGES]
 
-    if len(result) > TRANSCRIPT_MAX_CHARS:
-        result = result[-TRANSCRIPT_MAX_CHARS:]
-        nl = result.find("\n")
-        if 0 < nl < 200:
-            result = result[nl + 1:]
+    full_text = "\n".join(messages)
 
-    return result
+    # If within budget, return as-is
+    if len(full_text) <= TRANSCRIPT_MAX_CHARS:
+        return full_text
+
+    # Head + Tail sampling: keep beginning (problem context) + end (resolution)
+    head_text = "\n".join(messages)
+    head_part = head_text[:TRANSCRIPT_HEAD_CHARS]
+    # Snap to newline boundary
+    nl = head_part.rfind("\n")
+    if nl > TRANSCRIPT_HEAD_CHARS // 2:
+        head_part = head_part[:nl]
+
+    tail_part = head_text[-TRANSCRIPT_TAIL_CHARS:]
+    # Snap to newline boundary
+    nl = tail_part.find("\n")
+    if 0 < nl < 200:
+        tail_part = tail_part[nl + 1:]
+
+    # Check for overlap (short sessions)
+    if len(head_part) + len(tail_part) >= len(full_text):
+        return full_text
+
+    return (
+        head_part
+        + "\n\n[... middle of session omitted ...]\n\n"
+        + tail_part
+    )
 
 
 def spawn_ai_summarize(session_id: str, transcript_path: str,
@@ -224,7 +256,11 @@ def spawn_ai_summarize(session_id: str, transcript_path: str,
 
 def _run_ai_summarize(session_id: str, transcript_path: str,
                       db_path: str, _cwd: str = "") -> None:
-    """Daemon main: wait, extract transcript, summarize, update DB + Chroma."""
+    """Daemon main: wait, extract transcript, summarize, update DB + Chroma.
+
+    Uses Anthropic SDK only (never claude CLI, which creates visible sessions
+    that pollute /resume).
+    """
     import time
     time.sleep(AI_SUMMARIZE_DELAY)
 
@@ -233,9 +269,18 @@ def _run_ai_summarize(session_id: str, transcript_path: str,
         return
 
     prompt = (
-        "Summarize this Claude Code session in 3-8 bullet points. "
-        "Focus on: what was accomplished, key decisions made, problems encountered. "
-        "Keep each bullet under 20 words. Output ONLY the bullet list, no preamble.\n\n"
+        "Summarize this Claude Code session. Use this structure:\n\n"
+        "## Accomplished\n"
+        "- (what was built, fixed, or completed)\n\n"
+        "## Decisions\n"
+        "- (key technical/architectural choices made, and why)\n\n"
+        "## Issues\n"
+        "- (problems encountered, root causes found — omit if none)\n\n"
+        "## Unfinished\n"
+        "- (pending work or next steps — omit if none)\n\n"
+        "Rules: 3-12 bullets total. Each bullet max 30 words. "
+        "Include specific file names, function names, and error messages when relevant. "
+        "Output ONLY the structured summary, no preamble.\n\n"
         f"Session transcript:\n{text}"
     )
 
@@ -263,15 +308,21 @@ def _run_ai_summarize(session_id: str, transcript_path: str,
 
 
 def _try_claude_cli(prompt: str) -> str:
-    """Tier 1: claude -p --model haiku. Clears CLAUDE* env vars."""
+    """Tier 1: claude -p --model sonnet --no-session-persistence.
+
+    Uses Claude Code's existing auth (no separate API key needed).
+    --no-session-persistence prevents polluting /resume with summary sessions.
+    Clears CLAUDE* env vars to avoid inheriting parent session config.
+    """
     try:
         env = {k: v for k, v in os.environ.items()
                if not k.startswith("CLAUDE")}
         env["PATH"] = os.environ.get("PATH", "/usr/bin:/usr/local/bin")
 
         result = subprocess.run(
-            ["claude", "-p", "--model", "haiku", prompt],
-            capture_output=True, text=True, timeout=30, env=env
+            ["claude", "-p", "--model", AI_MODEL_CLI,
+             "--no-session-persistence", prompt],
+            capture_output=True, text=True, timeout=60, env=env
         )
         if result.returncode == 0:
             output = result.stdout.strip()
@@ -283,13 +334,13 @@ def _try_claude_cli(prompt: str) -> str:
 
 
 def _try_anthropic_sdk(prompt: str) -> str:
-    """Tier 2: Anthropic SDK direct call. Requires ANTHROPIC_API_KEY."""
+    """Tier 2: Anthropic SDK direct call. Fallback if CLI unavailable."""
     try:
         import anthropic
         client = anthropic.Anthropic()
         response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=500,
+            model=AI_MODEL_SDK,
+            max_tokens=AI_MAX_TOKENS,
             messages=[{"role": "user", "content": prompt}]
         )
         if response.content:
