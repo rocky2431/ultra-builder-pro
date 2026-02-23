@@ -288,9 +288,18 @@ def _run_ai_summarize(session_id: str, transcript_path: str,
     if not summary:
         return
 
-    # Update SQLite + Chroma
+    # Update SQLite + Chroma (guard: don't overwrite existing summary)
     try:
         conn = memory_db.init_db(Path(db_path))
+
+        # Race-condition guard: another daemon may have written first
+        existing = conn.execute(
+            "SELECT summary FROM sessions WHERE id = ?", (session_id,)
+        ).fetchone()
+        if existing and existing["summary"]:
+            conn.close()
+            return
+
         memory_db.update_summary(conn, session_id, summary)
 
         row = conn.execute(
@@ -392,6 +401,7 @@ def main():
 
     # Write to SQLite (with 30-min merge window)
     session_id = None
+    has_existing_summary = False
     db_path = str(memory_db.get_db_path())
     try:
         conn = memory_db.init_db()
@@ -399,18 +409,24 @@ def main():
             conn, branch, cwd, files_modified
         )
 
-        # Fill commit-based summary as fallback (AI daemon overwrites later)
-        if auto_summary and session_id:
-            current = memory_db.get_latest(conn)
-            if current and not current.get("summary"):
-                memory_db.update_summary(conn, session_id, auto_summary)
+        # Check if session already has an AI-generated summary
+        if session_id:
+            row = conn.execute(
+                "SELECT summary FROM sessions WHERE id = ?", (session_id,)
+            ).fetchone()
+            if row and row["summary"]:
+                has_existing_summary = True
+
+        # Fill commit-based summary as fallback (only if no summary yet)
+        if auto_summary and session_id and not has_existing_summary:
+            memory_db.update_summary(conn, session_id, auto_summary)
 
         conn.close()
     except Exception as e:
         print(f"[session_journal] DB error: {e}", file=sys.stderr)
 
-    # Spawn AI summarize daemon (non-blocking, overwrites commit summary)
-    if transcript_path and session_id:
+    # Spawn AI summarize daemon only if no existing summary
+    if transcript_path and session_id and not has_existing_summary:
         spawn_ai_summarize(session_id, transcript_path, db_path, cwd)
 
     # Append to JSONL (backup)
