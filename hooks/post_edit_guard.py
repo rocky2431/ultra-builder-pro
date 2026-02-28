@@ -197,11 +197,9 @@ SEC_HIGH_PATTERNS = [
 
 # -- Checker: Code Quality --
 
-def check_code_quality(file_path, content, lines):
-    """Returns (blocks, warnings)."""
+def check_code_quality(_file_path, content, lines):
+    """Returns (blocks, warnings). WARN patterns deferred to review-code agent."""
     blocks = []
-    warnings = []
-    is_config = is_config_file(file_path)
 
     for pattern, message in CQ_BLOCK_PATTERNS:
         for match in re.finditer(pattern, content, re.IGNORECASE):
@@ -210,21 +208,8 @@ def check_code_quality(file_path, content, lines):
             # All TODO/FIXME/XXX/HACK are forbidden per CLAUDE.md - no exceptions
             blocks.append({'line': line_num, 'message': message, 'code': line_content[:80]})
 
-    for pattern, message in CQ_WARN_PATTERNS:
-        for match in re.finditer(pattern, content):
-            line_num = get_line_number(content, match.start())
-            line_content = lines[line_num - 1].strip() if line_num <= len(lines) else ''
-            if is_config and ('URL' in message or 'port' in message.lower()):
-                continue
-            if is_in_comment(line_content):
-                continue
-            warnings.append({
-                'line': line_num,
-                'message': message.format(match.group(1) if match.lastindex else ''),
-                'code': line_content[:80],
-            })
-
-    return blocks, warnings
+    # WARN patterns deferred to review-code agent (reduces PostToolUse noise)
+    return blocks, []
 
 
 # -- Checker: Mock Detector --
@@ -243,7 +228,7 @@ def _is_allowed_mock_context(line_content):
     return any(re.search(p, line_content) for p in MOCK_ALLOWED_CONTEXTS)
 
 
-def check_mocks(file_path, content, lines):
+def check_mocks(_file_path, content, lines):
     """Returns list of violations. Only called for test files."""
     violations = []
 
@@ -270,9 +255,8 @@ def check_mocks(file_path, content, lines):
 # -- Checker: Security Scan --
 
 def check_security(file_path, content, lines):
-    """Returns (critical, high)."""
+    """Returns (critical, high). HIGH patterns deferred to review-code agent."""
     critical = []
-    high = []
     _is_test = is_test_file(file_path)
     _is_example = is_example_or_docs(file_path)
 
@@ -288,90 +272,43 @@ def check_security(file_path, content, lines):
 
             critical.append({'line': line_num, 'message': message, 'code': line_content[:80]})
 
-    for pattern, message in SEC_HIGH_PATTERNS:
-        for match in re.finditer(pattern, content, re.IGNORECASE):
-            if _is_test:
-                continue
-            line_num = get_line_number(content, match.start())
-            line_content = lines[line_num - 1].strip() if line_num <= len(lines) else ''
-            high.append({'line': line_num, 'message': message, 'code': line_content[:80]})
-
-    return critical, high
+    # HIGH patterns deferred to review-code agent (reduces PostToolUse noise)
+    return critical, []
 
 
 # -- Output Formatting --
 
 def _fmt_code_quality(file_path, blocks, warnings):
     out = []
-    if blocks:
-        out.append(f"[CODE QUALITY CRITICAL] {file_path}")
-        out.append("CLAUDE.md forbidden_patterns violated:")
-        for b in blocks[:5]:
-            out.append(f"  Line {b['line']}: {b['message']}")
-            out.append(f"    > {b['code']}")
-        if len(blocks) > 5:
-            out.append(f"  ... and {len(blocks) - 5} more")
-        out.append("Complete the implementation NOW or don't commit.")
-    if warnings:
-        if out:
-            out.append("")
-        out.append(f"[CODE QUALITY WARNING] {file_path}")
-        for w in warnings[:5]:
-            out.append(f"  Line {w['line']}: {w['message']}")
-            out.append(f"    > {w['code']}")
-        if len(warnings) > 5:
-            out.append(f"  ... and {len(warnings) - 5} more")
-        out.append("Use structured logger: logger.info('message', { context, traceId })")
+    fname = os.path.basename(file_path)
+    for b in blocks[:5]:
+        out.append(f"[CQ:BLOCK] {fname}:{b['line']} {b['message']}")
+    for w in warnings[:3]:
+        out.append(f"[CQ:WARN] {fname}:{w['line']} {w['message']}")
+    if len(blocks) > 5:
+        out.append(f"[CQ] +{len(blocks)-5} more blocks")
     return out
 
 
 def _fmt_mock_violations(file_path, violations):
     if not violations:
         return []
-    out = [
-        f"[MOCK VIOLATION] {file_path}",
-        "CLAUDE.md forbids mocking Repository/Service/Domain.",
-    ]
+    fname = os.path.basename(file_path)
+    out = []
     for v in violations[:5]:
-        out.append(f"  Line {v['line']}: {v['pattern']}")
-        out.append(f"    > {v['code']}")
+        out.append(f"[MOCK:BLOCK] {fname}:{v['line']} {v['pattern']}")
     if len(violations) > 5:
-        out.append(f"  ... and {len(violations) - 5} more violations")
-    out.extend([
-        "SOLUTIONS:",
-        "  1. Functional Core: Test pure functions directly (input->output)",
-        "  2. Imperative Shell: Use Testcontainers with real DB",
-        "  3. External APIs ONLY: Add '// Test Double rationale: [reason]'",
-    ])
+        out.append(f"[MOCK] +{len(violations)-5} more")
     return out
 
 
 def _fmt_security(file_path, critical, high):
     out = []
-    if critical:
-        out.append(f"[SECURITY CRITICAL] {file_path}")
-        out.append("CLAUDE.md security/error_handling rules violated:")
-        for c in critical[:5]:
-            out.append(f"  Line {c['line']}: {c['message']}")
-            out.append(f"    > {c['code']}")
-        if len(critical) > 5:
-            out.append(f"  ... and {len(critical) - 5} more")
-        out.extend([
-            "Required fixes:",
-            "  - Secrets: Use process.env.VAR or secret manager",
-            "  - SQL: Use parameterized queries ($1, ?)",
-            "  - Errors: catch -> log with context -> re-throw typed error",
-        ])
-    if high:
-        if out:
-            out.append("")
-        out.append(f"[SECURITY WARNING] {file_path}")
-        for h in high[:5]:
-            out.append(f"  Line {h['line']}: {h['message']}")
-            out.append(f"    > {h['code']}")
-        if len(high) > 5:
-            out.append(f"  ... and {len(high) - 5} more")
-        out.append("Run code-reviewer agent for security-sensitive files.")
+    fname = os.path.basename(file_path)
+    for c in critical[:5]:
+        out.append(f"[SEC:CRIT] {fname}:{c['line']} {c['message']}")
+    for h in high[:3]:
+        out.append(f"[SEC:HIGH] {fname}:{h['line']} {h['message']}")
     return out
 
 
@@ -450,8 +387,6 @@ def main():
             has_blocks = True
 
     if all_issues:
-        all_issues.append("")
-        all_issues.append("ACTION REQUIRED: Fix all issues before continuing.")
         warning_message = "\n".join(all_issues)
 
         if has_blocks:

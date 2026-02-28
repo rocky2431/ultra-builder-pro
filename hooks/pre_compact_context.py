@@ -158,6 +158,17 @@ def get_branch_memory(branch: str) -> list:
     return []
 
 
+def get_workflow_state():
+    """Read active workflow state from .ultra/workflow-state.json."""
+    state_file = Path.cwd() / ".ultra" / "workflow-state.json"
+    if not state_file.exists():
+        return None
+    try:
+        return json.loads(state_file.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
 def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp):
     """Build the full snapshot content for disk persistence."""
     lines = [
@@ -189,6 +200,18 @@ def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp):
         lines.append("## Active Tasks")
         for t in (native_tasks or ultra_tasks):
             lines.append(f"- {t}")
+        lines.append("")
+
+    # Inject active workflow state
+    workflow = get_workflow_state()
+    if workflow:
+        lines.append("## Active Workflow")
+        lines.append(f"- Command: {workflow.get('command', '?')}")
+        lines.append(f"- Task: {workflow.get('task_id', '?')}")
+        lines.append(f"- Step: {workflow.get('step', '?')} ({workflow.get('status', '?')})")
+        if workflow.get('review_session'):
+            lines.append(f"- Review: {workflow['review_session']}")
+        lines.append(f"- Resume: Read `.ultra/workflow-state.json` and skip to step {workflow.get('step', '?')}")
         lines.append("")
 
     # Inject branch-relevant session memory
@@ -224,6 +247,10 @@ def build_compact_hint(git_ctx, ultra_tasks, native_tasks):
         parts.append(f"Active tasks: {len(all_tasks)}")
         for t in all_tasks[:3]:
             parts.append(f"  - {t}")
+
+    workflow = get_workflow_state()
+    if workflow:
+        parts.append(f"RESUME: ultra-dev task {workflow.get('task_id')} at step {workflow.get('step')}")
 
     parts.append(f"Full context saved to: {SNAPSHOT_PATH}")
 

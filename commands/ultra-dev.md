@@ -43,6 +43,15 @@ Execute development tasks using TDD workflow.
 
 ## Workflow
 
+### Step 0: Workflow Resume Check (Before Task Selection)
+
+1. Check if `.ultra/workflow-state.json` exists
+2. If yes AND branch matches current branch:
+   - Display: "Resuming task {id} from Step {step}: {status}"
+   - Skip to the step AFTER the last completed checkpoint
+   - If review_session exists, skip re-running review
+3. If no or branch mismatch: proceed normally to Step 1
+
 ### Step 1: Task Selection
 
 1. Read `.ultra/tasks/tasks.json`
@@ -148,6 +157,8 @@ Find and change the status header line:
 - Apply SOLID, DRY, KISS, YAGNI
 - Tests must still pass
 
+**Workflow checkpoint**: Write `{"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"3.3","status":"tdd_complete","ts":"ISO8601"}` to `.ultra/workflow-state.json`
+
 ### Step 4: Quality Gates
 
 **Before marking complete**:
@@ -164,6 +175,19 @@ Find and change the status header line:
 **Test double policy**:
 - ❌ Core logic (domain/service/state) → NO mocking
 - ✅ External systems → testcontainers/sandbox/stub allowed
+
+**Workflow checkpoint**: Write `{"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"4","status":"gates_passed","ts":"ISO8601"}` to `.ultra/workflow-state.json`
+
+### Step 4.4: Context Checkpoint (Before Review)
+
+Before launching ultra-review:
+1. Write workflow state to `.ultra/workflow-state.json`:
+   ```json
+   {"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"4.5","status":"pre_review","ts":"ISO8601"}
+   ```
+2. Run `/compact` to reclaim context for the review phase
+3. After compact, read `.ultra/compact-snapshot.md` + `.ultra/workflow-state.json` to restore context
+4. Proceed to Step 4.5
 
 ### Step 4.5: Ultra Review (Mandatory)
 
@@ -187,15 +211,24 @@ This automatically:
 
 #### Phase 2: Act on Verdict
 
-| Verdict | Action |
-|---------|--------|
-| **APPROVE** | Proceed to Step 5 |
-| **COMMENT** | Review P1 findings, fix if warranted, then proceed |
-| **REQUEST_CHANGES** | Fix ALL P0 issues (mandatory) and P1 issues, re-run tests |
+**MAX_REVIEW_ITERATIONS = 2**
 
-- **If tests fail after fix** → Return to GREEN phase
-- **After fixing** → Run `/ultra-review recheck` to verify P0/P1 resolved
-- **Repeat** until verdict is APPROVE or COMMENT with acceptable P1 count
+| Verdict | Iteration | Action |
+|---------|-----------|--------|
+| APPROVE | any | Proceed to Step 5 |
+| COMMENT | any | Review P1s, fix if warranted, proceed |
+| REQUEST_CHANGES | 1 | Fix ALL P0, re-run tests, `/ultra-review recheck` |
+| REQUEST_CHANGES | 2 | Fix remaining P0s, log unresolved to UNRESOLVED.md, proceed with warning |
+
+If iteration >= 2 and P0s remain:
+- Write `{SESSION_PATH}/UNRESOLVED.md` with remaining P0/P1 findings
+- WARN user: "Review cap reached. N issues remain unresolved."
+- Proceed to Step 5 (pre_stop_check will still enforce its gate)
+
+**Workflow state**: After review completes, write:
+```json
+{"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"4.5","status":"review_done","review_session":"SESSION_ID","review_iteration":N,"ts":"ISO8601"}
+```
 
 #### Phase 3: Verification (BLOCKING)
 
@@ -296,6 +329,8 @@ git checkout main && git pull origin main
 git merge --no-ff feat/task-{id}-{slug}
 git push origin main && git branch -d feat/task-{id}-{slug}
 ```
+
+**Workflow checkpoint**: Write `{"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"6","status":"committed","commit":"SHA","ts":"ISO8601"}` to `.ultra/workflow-state.json`
 
 ### Step 7: Report
 

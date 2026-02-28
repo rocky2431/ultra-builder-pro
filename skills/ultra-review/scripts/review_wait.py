@@ -25,26 +25,37 @@ DEFAULT_TIMEOUT = 300  # 5 minutes
 
 
 def wait_for_agents(session_path: Path, expected_count: int, timeout: int) -> bool:
-    """Wait for expected_count review-*.json files to appear."""
+    """Wait for expected_count review-*.json files to appear.
+
+    Returns structured JSON on stdout:
+    - status: "complete" (all agents) or "partial" (>=1 agent on timeout)
+    - agents_done / agents_missing: lists of agent names
+    - count: number of completed agents
+
+    Exit code: 0 if all complete OR partial (>=1), 1 if 0 agents.
+    """
+    all_agents = ["review-code", "review-tests", "review-errors",
+                  "review-types", "review-comments", "review-simplify"]
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         found = glob.glob(str(session_path / "review-*.json"))
         if len(found) >= expected_count:
             names = [Path(f).stem for f in sorted(found)]
-            print(f"All {expected_count} agents complete: {', '.join(names)}")
+            result = {"status": "complete", "agents_done": names, "agents_missing": [], "count": len(found)}
+            print(json.dumps(result))
             return True
         remaining = int(deadline - time.monotonic())
-        print(
-            f"\r  Waiting: {len(found)}/{expected_count} agents done "
-            f"({remaining}s remaining)",
-            end="", flush=True
-        )
+        sys.stderr.write(f"\r  Waiting: {len(found)}/{expected_count} ({remaining}s remaining)")
+        sys.stderr.flush()
         time.sleep(POLL_INTERVAL)
 
-    # Timeout — report what we have
+    # Timeout — report partial results as structured JSON
     found = glob.glob(str(session_path / "review-*.json"))
-    print(f"\nTimeout: {len(found)}/{expected_count} agents completed")
-    return False
+    found_names = [Path(f).stem for f in sorted(found)]
+    missing = [a for a in all_agents if a not in found_names]
+    result = {"status": "partial", "agents_done": found_names, "agents_missing": missing, "count": len(found)}
+    print(json.dumps(result))
+    return len(found) >= 1  # At least 1 agent = partial success
 
 
 def wait_for_summary(session_path: Path, timeout: int) -> bool:

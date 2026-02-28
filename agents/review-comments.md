@@ -6,7 +6,7 @@ description: |
 tools: Read, Grep, Glob, Bash, Write
 model: opus
 memory: project
-maxTurns: 20
+maxTurns: 12
 ---
 
 # Review Comments - Pipeline Comment Quality Agent

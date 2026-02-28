@@ -6,7 +6,7 @@ description: |
 tools: Read, Grep, Glob, Bash, Write
 model: opus
 memory: project
-maxTurns: 20
+maxTurns: 15
 ---
 
 # Review Simplify - Pipeline Complexity Analyzer

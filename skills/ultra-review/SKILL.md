@@ -146,6 +146,17 @@ After writing the JSON file, output one line: "Wrote N findings (P0:X P1:X P2:X 
 
 **Important**: Set `run_in_background: true` on every Task call. Do NOT read TaskOutput — this avoids injecting agent results into main context.
 
+Maximum 15 findings per agent. If you find more, report only the top 15 by severity (P0 first),
+then confidence. Note total count in your output line: "Wrote 15/23 findings..."
+
+**CRITICAL PROHIBITION**: After launching background agents, you MUST:
+1. Call `review_wait.py` IMMEDIATELY — do NOT process idle notifications
+2. NEVER call TaskOutput for any review agent — their output goes to JSON files only
+3. Ignore all agent idle/completion messages between launch and wait script return
+4. The ONLY information path from agents is: wait script → Read SUMMARY.json
+
+Violation of these rules causes context overflow. The review agents write to files; you read from files.
+
 ### Phase 4: Wait & Coordinate (File-Based)
 
 **Step 4a: Wait for agents** — Use Bash to block until all agents finish writing:
@@ -155,7 +166,10 @@ python3 ~/.claude/skills/ultra-review/scripts/review_wait.py {SESSION_PATH} agen
 ```
 
 This polls for `review-*.json` files every 2 seconds. Timeout: 5 minutes.
-Output is a single status line (~20 tokens), not agent results.
+Output is structured JSON on stdout:
+- `status: "complete"` → all agents done, proceed normally
+- `status: "partial"` → timeout, log missing agents, pass only `agents_done` to coordinator, note partial review in SUMMARY
+- Exit code 1 (0 agents) → skip review, warn user, allow ultra-dev to continue
 
 **Step 4b: Launch coordinator in background:**
 
@@ -333,21 +347,31 @@ write index.json
 
 When user selects "Fix all" or "Fix P0 only" after review:
 
-1. **Read findings from SUMMARY.json** — extract actionable P0/P1 items
-2. **Group by file** — fix file-by-file to minimize context switching
-3. **For each finding**:
-   - Read the file at the specified line
-   - Apply the suggested fix (or implement an equivalent correction)
-   - Mark finding as addressed
-4. **Re-run tests** — ensure fixes don't break anything
+**Step 0: Context Reset** (if verdict is REQUEST_CHANGES):
+- Run `/compact` to clear TDD cycle history from context
+- After compact, read `.ultra/workflow-state.json` to restore task context
+- Read `SUMMARY.json` fresh to get actionable findings
+- Then proceed with fixes below
+
+1. **Read SUMMARY.json** — extract actionable P0/P1 items, sort by severity (P0 first)
+2. **Group by file** — organize findings per file
+3. **For each file with findings**:
+   a. Read the file once
+   b. Apply ALL P0/P1 fixes for that file (batch within same file)
+   c. Run the RELEVANT test file only:
+      - Detect: `foo.ts` → `foo.test.ts` / `foo.spec.ts`
+      - Run: `npx jest <test-file> --bail` or `pytest <test-file> -x`
+   d. If test passes → mark findings as addressed, move to next file
+   e. If test fails from THIS fix → revert file, try alternative approach
+   f. If test fails from pre-existing issue → note it, continue
+4. **After all files fixed**: run FULL test suite once as validation
 5. **Update verdict** — after all P0 fixes applied and tests pass:
    ```bash
    python3 ~/.claude/skills/ultra-review/scripts/review_verdict_update.py {SESSION_PATH}
    ```
    This recalculates the verdict from current P0/P1 counts and updates both SUMMARY.json and index.json.
    Without this step, pre_stop_check will block on stale REQUEST_CHANGES verdict.
-6. **Optionally run `/ultra-review recheck`** — for full re-validation (creates new session)
-7. **If new issues introduced** → repeat fix cycle
+6. **Optionally**: `/ultra-review recheck` (counts as iteration, respects max 2 cap)
 
 **Important**: The main agent (not review agents) performs fixes. Review agents are read-only by design.
 
