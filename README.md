@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.8.0
+# Ultra Builder Pro 5.8.1
 
 <div align="center">
 
@@ -6,7 +6,7 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.8.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.8.1-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-7-orange)](skills/)
@@ -180,7 +180,7 @@ Step 4.5 of `/ultra-dev` runs `/ultra-review all` (forced full coverage) as a ma
 
 ### Overview
 
-AI-powered cross-session memory with hybrid search. Auto-captures session events, generates AI summaries via Haiku, and supports semantic + keyword retrieval. Designed as a safe alternative to claude-mem — no bulk context injection.
+AI-powered cross-session memory with hybrid search. Auto-captures session events, generates AI summaries via Sonnet, and supports semantic + keyword retrieval. Designed as a safe alternative to claude-mem — no bulk context injection.
 
 ### Architecture
 
@@ -200,7 +200,7 @@ sessions.jsonl (backup)      .ultra/memory/chroma/ (vector embeddings)
 ### How It Works
 
 1. **Auto-capture** (Stop hook): Every response records branch, cwd, modified files
-2. **AI Summary** (async daemon): Double-fork daemon waits 10s after session stop, extracts transcript, generates 3-8 bullet summary via Haiku (three-tier fallback: claude CLI → Anthropic SDK → git commits)
+2. **AI Summary** (async daemon): Double-fork daemon waits 10s after session stop, extracts transcript (head+tail sampling: 4K+11K chars), generates structured summary via Sonnet (three-tier fallback: claude CLI → Anthropic SDK → git commits)
 3. **Vector Embedding**: After AI summary, auto-upserts to Chroma (local ONNX, no API key)
 4. **Merge window**: Multiple stops within 30 minutes merge into one session record
 5. **SessionStart injection**: Injects ONE line (~50 tokens) about the last session — no context explosion
@@ -437,6 +437,32 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.8.1 (2026-02-28) - System-Level Optimization
+
+**Context Protection + Pipeline Reliability + Workflow Resilience** — targeting 65% → 80%+ completion rate based on 285-session usage analysis:
+
+**Context Window Protection**:
+- `ultra-dev.md`: Review iteration cap (MAX_REVIEW_ITERATIONS = 2), unresolved findings → UNRESOLVED.md
+- `ultra-review SKILL.md`: CRITICAL PROHIBITION — never call TaskOutput for review agents; findings cap 15/agent
+- `post_edit_guard.py`: Hook output compression (~70%), WARN/HIGH patterns deferred to review-code agent
+- Agent maxTurns reduction: review-errors/types/simplify 20→15, review-comments 20→12
+
+**Pipeline Reliability**:
+- `ultra-dev.md`: Pre-review `/compact` checkpoint (Step 4.4); workflow state checkpoint at steps 3.3/4/4.5/6
+- `review_wait.py`: Structured JSON output with partial success (≥1 agent = success)
+- `ultra-review SKILL.md`: Incremental per-file fix-test flow; Step 0 context reset before fix phase
+
+**Workflow Resilience**:
+- `ultra-dev.md`: Step 0 resume check reads `.ultra/workflow-state.json`, skips completed steps
+- `pre_compact_context.py`: Active Workflow section + RESUME line in compact hint
+
+**CLAUDE.md Optimization**: ~365 → ~280 lines (~25% reduction, zero information loss)
+
+**Enhanced Files** (9):
+- `commands/ultra-dev.md`, `skills/ultra-review/SKILL.md`, `hooks/post_edit_guard.py`
+- `skills/ultra-review/scripts/review_wait.py`, `hooks/pre_compact_context.py`
+- `agents/review-errors.md`, `agents/review-types.md`, `agents/review-comments.md`, `agents/review-simplify.md`
 
 ### v5.8.0 (2026-02-20) - AI Summarization + Vector Search
 
