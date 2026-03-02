@@ -50,7 +50,28 @@ Execute development tasks using TDD workflow.
    - Display: "Resuming task {id} from Step {step}: {status}"
    - Skip to the step AFTER the last completed checkpoint
    - If review_session exists, skip re-running review
-3. If no or branch mismatch: proceed normally to Step 1
+3. If no or branch mismatch: proceed to Step 0.5
+
+### Step 0.5: Design Approval Gate (First Run Only)
+
+**Trigger**: `.ultra/workflow-state.json` does NOT exist (first run, not resume)
+
+1. Check `.ultra/tasks/tasks.json` exists
+   - If missing → "No task plan found. Run /ultra-plan first to create task decomposition." → **EXIT**
+2. Read tasks.json, display overview:
+   - Total tasks, priority distribution (P0/P1/P2), complexity range
+   - Full task list (ID, title, priority, dependencies)
+   - Whether Walking Skeleton is Task #1
+3. Use **AskUserQuestion** to request confirmation:
+   - "Confirm this task breakdown to start implementation?"
+   - Option A: "Confirm, start implementation" → Continue to Step 1
+   - Option B: "Revise plan first" → Suggest /ultra-plan → **EXIT**
+4. On approval, write workflow-state.json:
+   ```json
+   {"command":"ultra-dev","task_id":0,"branch":"","step":"0.5","status":"design_approved","ts":"ISO8601"}
+   ```
+
+**Resume behavior**: When workflow-state.json exists, this gate is skipped (already approved).
 
 ### Step 1: Task Selection
 
@@ -171,6 +192,7 @@ Find and change the status header line:
 | No degradation | No fallback or demo code |
 | Integration test exists | Boundary-crossing code has ≥ 1 real integration test |
 | Entry point reachable | New modules traceable from at least one handler/listener |
+| Spec compliance | Each acceptance criterion in task context file is implemented AND tested |
 
 **Test double policy**:
 - ❌ Core logic (domain/service/state) → NO mocking

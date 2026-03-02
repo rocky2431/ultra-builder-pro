@@ -37,23 +37,62 @@ Systematic root cause analysis and minimal fix implementation.
 
 **DON'T**: Refactor code, add features, rewrite modules (fix the bug, nothing more).
 
-## Process
+## Methodology (4 Phases)
 
-1. **Capture**: Collect error message, stack trace, reproduction steps
-2. **Hypothesize**: Form 2-3 hypotheses about root cause
-3. **Isolate**: Test each hypothesis by reading code, adding debug output
-4. **Fix**: Implement the minimal change that resolves the issue
-5. **Verify**: Confirm the fix resolves the original symptom
+### Phase 1: Root Cause Investigation (MANDATORY — cannot be skipped)
 
-## Debugging Techniques
+**IRON LAW**: You MUST complete Phase 1 before proposing ANY fix.
 
-| Technique | When |
-|-----------|------|
-| Stack trace analysis | Runtime errors with traces |
-| Binary search (git bisect) | Regression bugs |
-| Print debugging | State inspection |
-| Input minimization | Complex reproduction |
-| Dependency check | Version/config issues |
+1. **Read error messages completely** — don't skim, answers are often in the message itself
+2. **Reproduce consistently** — exact steps that trigger the error, every time
+3. **Check recent changes** — `git diff`, dependency updates, config changes
+4. **Instrument at component boundaries** — in multi-component systems, log data at EACH boundary before diagnosing
+5. **Trace data flow backward** — find where the bad value originates, fix at source not symptom
+
+### Phase 2: Pattern Analysis
+
+1. Find a **working example** of similar functionality in the same codebase
+2. Compare **completely** against the reference implementation (read fully, don't skim)
+3. List **every difference**, no matter how small
+4. Understand underlying dependencies (settings, config, assumptions)
+
+### Phase 3: Hypothesis Testing
+
+1. Form a **single hypothesis** clearly: "I think X because Y"
+2. Test with the **smallest possible change** (one variable at a time)
+3. **Verify** result before continuing to next hypothesis
+4. When you don't know — say so. Don't pretend.
+
+### Phase 4: Fix Implementation
+
+1. Write a **failing test case** that captures the bug FIRST
+2. Implement a **single fix** addressing the root cause (not the symptom)
+3. Verify fix works AND no other tests break
+4. If fix succeeds → done
+5. If fix fails → return to Phase 1 with new evidence
+
+## 3-Fix Rule
+
+If **3 consecutive fix attempts fail**, and each reveals new problems in different places:
+
+- **STOP debugging** — this is an architectural issue, not a bug
+- Do NOT attempt fix #4 without architectural discussion
+- Report to user:
+  - What you tried (3 attempts with results)
+  - Why each fix failed
+  - Evidence that this is architectural (problems in different places)
+  - Recommendation: architectural review needed
+
+## Red Flags (STOP — return to Phase 1)
+
+| Thought | Reality |
+|---------|---------|
+| "Quick fix for now, investigate later" | Later = never. Investigate now. |
+| "Just try changing X and see if it works" | Random changes mask root cause. |
+| "I don't fully understand but this might work" | Understanding IS the fix. |
+| Proposing fixes before tracing data flow | Phase 1 not complete. |
+| "One more fix attempt" (when already tried 2+) | Check the 3-Fix Rule. |
+| Each fix reveals new problem in different place | Architectural issue. Stop. |
 
 ## Output Format
 
@@ -63,15 +102,18 @@ Systematic root cause analysis and minimal fix implementation.
 ### Symptom
 {what the user observed}
 
+### Investigation (Phase 1)
+{evidence gathered, data flow traced, boundaries instrumented}
+
 ### Root Cause
-{what actually went wrong and why}
+{what actually went wrong and why — with evidence}
 
 ### Fix Applied
 **File**: `path:line`
 **Change**: {description of minimal fix}
 
 ### Verification
-{evidence that fix resolves the issue}
+{test output proving fix resolves the issue, no regressions}
 ```
 
 ## Rules

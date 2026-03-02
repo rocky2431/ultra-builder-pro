@@ -355,15 +355,24 @@ When user selects "Fix all" or "Fix P0 only" after review:
 
 1. **Read SUMMARY.json** — extract actionable P0/P1 items, sort by severity (P0 first)
 2. **Group by file** — organize findings per file
-3. **For each file with findings**:
+3. **For each file with findings** (with circuit breaker tracking):
    a. Read the file once
    b. Apply ALL P0/P1 fixes for that file (batch within same file)
    c. Run the RELEVANT test file only:
       - Detect: `foo.ts` → `foo.test.ts` / `foo.spec.ts`
       - Run: `npx jest <test-file> --bail` or `pytest <test-file> -x`
    d. If test passes → mark findings as addressed, move to next file
-   e. If test fails from THIS fix → revert file, try alternative approach
+   e. If test fails from THIS fix → increment per-file failure counter, revert, try alternative approach
    f. If test fails from pre-existing issue → note it, continue
+   g. **Circuit Breaker**: If same file has 3 consecutive fix failures (test fails after each attempt):
+      - Display: "Circuit breaker: {filename} — 3 consecutive fix failures. Likely architectural issue, not isolated bug."
+      - Use AskUserQuestion:
+        - A) "Skip this file, continue with others"
+        - B) "Manually inspect this file" (exit auto-fix, user takes over)
+        - C) "Abandon this fix round" (end fix flow, write UNRESOLVED.md)
+   h. **Global Circuit Breaker**: If 3+ files trigger per-file circuit breaker:
+      - Display: "Multiple files failing repeatedly — suggests systematic issue, not isolated bugs."
+      - Recommend ending fix flow, write all unresolved findings to UNRESOLVED.md with tag `ARCHITECTURAL_CONCERN`
 4. **After all files fixed**: run FULL test suite once as validation
 5. **Update verdict** — after all P0 fixes applied and tests pass:
    ```bash

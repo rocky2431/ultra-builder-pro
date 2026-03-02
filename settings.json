@@ -151,7 +151,9 @@
     "typescript-lsp@claude-plugins-official": true,
     "vercel@claude-plugins-official": true,
     "ui-ux-pro-max@ui-ux-pro-max-skill": true,
-    "document-skills@anthropic-agent-skills": true
+    "document-skills@anthropic-agent-skills": true,
+    "superpowers@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true
   },
   "language": "chinese",
   "sandbox": {
@@ -160,6 +162,6 @@
   },
   "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "_comment_project": "Ultra Builder Pro 5.8.1",
-  "_comment_version": "5.8.1 - System-Level Optimization"
+  "_comment_project": "Ultra Builder Pro 5.9.0",
+  "_comment_version": "5.9.0 - Process Discipline Fusion"
 }

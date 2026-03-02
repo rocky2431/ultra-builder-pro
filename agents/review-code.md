@@ -74,6 +74,24 @@ You will receive:
 | Horizontal-only change (no end-to-end path) | P2 |
 | Missing shared interface/contract at boundary | P2 |
 
+7. **Spec Compliance Check** (if `.ultra/tasks/contexts/` directory exists):
+   - Identify current task from branch name (e.g., `feat/task-3-*` → task ID 3)
+   - Read `.ultra/tasks/contexts/task-{id}.md`
+   - Extract Acceptance Criteria section
+   - For each criterion, verify:
+     - Implementation exists in the diff
+     - Test coverage exists for the criterion
+   - Report findings with category: `spec-compliance`
+   - If no task context found → skip silently
+
+## Severity Guide (Spec Compliance)
+
+| Finding | Severity |
+|---------|----------|
+| Acceptance criterion completely missing from implementation | P0 |
+| Criterion partially implemented or untested | P1 |
+| Criterion implemented but edge cases not covered | P2 |
+
 ## Output
 
 Write valid JSON to `SESSION_PATH/OUTPUT_FILE` following `ultra-review-findings-v1` schema.

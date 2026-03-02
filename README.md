@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.8.1
+# Ultra Builder Pro 5.9.0
 
 <div align="center">
 
@@ -6,7 +6,7 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.8.1-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-5.9.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-7-orange)](skills/)
@@ -437,6 +437,35 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v5.9.0 (2026-03-02) - Process Discipline Fusion
+
+**Superpowers 流程纪律融合** — 从 Superpowers 项目吸收关键流程理念，补上 3 个流程盲区：
+
+**Design Approval Gate (P0)**:
+- `ultra-dev.md`: 新增 Step 0.5 — 首次执行时显示任务分解概览，要求用户确认后才能开始实现
+- 防止 "Wrong Approach" (#1 剩余摩擦): 用户必须审视计划再写代码
+- 恢复时自动跳过（已审批过）
+
+**Spec Compliance Check (P1)**:
+- `ultra-dev.md`: Quality Gate 新增第 7 项 — 逐条验证 acceptance criteria 已实现且有测试
+- `review-code.md`: 新增 Step 7 — 从分支名推断 task ID，读取 task context，验证规格合规
+- 新增 `spec-compliance` category（P0: 缺失, P1: 部分实现, P2: 边界未覆盖）
+
+**3-Fix Circuit Breaker (P1)**:
+- `ultra-review SKILL.md`: Fix Flow 增加 per-file 修复计数
+- 同一文件连续 3 次修复失败 → 熔断，请求用户决策（跳过/手动/放弃）
+- 全局 3+ 文件熔断 → 建议架构讨论，标注 `ARCHITECTURAL_CONCERN`
+
+**Systematic Debugging Methodology (P2)**:
+- `debugger.md`: 5 步简单流程 → 4 阶段结构化方法论
+- Phase 1 (Root Cause Investigation) 强制执行，IRON LAW: 未完成调查不得提出修复
+- 3-Fix Rule: 连续 3 次修复失败 → 停止，报告架构问题
+- Red Flags 表: 识别常见捷径思维并强制回到 Phase 1
+
+**Enhanced Files** (4 core + 2 meta):
+- `commands/ultra-dev.md`, `agents/review-code.md`, `skills/ultra-review/SKILL.md`, `agents/debugger.md`
+- `CLAUDE.md`, `README.md`, `settings.json`
 
 ### v5.8.1 (2026-02-28) - System-Level Optimization
 
