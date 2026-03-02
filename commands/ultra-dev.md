@@ -58,6 +58,7 @@ Execute development tasks using TDD workflow.
 
 1. Check `.ultra/tasks/tasks.json` exists
    - If missing → "No task plan found. Run /ultra-plan first to create task decomposition." → **EXIT**
+   - If ANY task has status `completed` or `in_progress` → plan was already approved in a prior run → **skip gate, proceed to Step 1**
 2. Read tasks.json, display overview:
    - Total tasks, priority distribution (P0/P1/P2), complexity range
    - Full task list (ID, title, priority, dependencies)
