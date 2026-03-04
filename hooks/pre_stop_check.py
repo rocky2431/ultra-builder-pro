@@ -3,15 +3,19 @@
 Pre-Stop Check Hook - Stop
 Checks for unreviewed code changes before session ends.
 
-Three-layer check:
+Four-layer check:
+0. Loop guard: If stop_hook_active is True → allow stop immediately (prevent infinite loop)
 1. Review artifacts: If a recent (<2h) ultra-review session exists:
    - P0 unresolved → block once, allow on second attempt (marker-based)
    - APPROVE/COMMENT → allow stop (review passed)
    - Incomplete + < 15min old → warn only (agents may still be running)
    - Incomplete + >= 15min old → block once, allow on second attempt (abandoned)
 2. Code changes (fallback): If no recent review session:
-   - First trigger: block + create marker → remind to run review
+   - First trigger: block + suggest running code-reviewer → create marker
    - Second trigger: marker exists → allow stop
+3. Security-sensitive file detection: auth/payment/token files → MANDATORY review reminder
+
+Uses last_assistant_message to detect incomplete work patterns.
 
 Marker file: /tmp/.claude_review_done_<git_hash> (code changes)
              /tmp/.claude_review_session_<session_name> (review sessions)
@@ -34,6 +38,9 @@ SESSION_MARKER_PREFIX = ".claude_review_session_"
 GIT_TIMEOUT = 10  # seconds
 MARKER_MAX_AGE = 86400  # 24 hours
 INCOMPLETE_GRACE_PERIOD = 900  # 15 min - agents may still be running
+
+SECURITY_PATTERNS = {'auth', 'login', 'password', 'payment', 'secret', 'token', 'credential', 'session'}
+INCOMPLETE_WORK_PATTERNS = ['todo', 'fixme', 'hack', 'unfinished', 'not yet', 'wip', 'work in progress']
 
 
 def cleanup_old_markers() -> None:
@@ -331,14 +338,36 @@ def check_review_artifacts() -> dict:
     return {'needs_review': False, 'review_passed': True}
 
 
+def detect_security_files(files: list) -> list:
+    """Detect security-sensitive files from changed file list."""
+    return [f for f in files
+            if any(p in f.lower() for p in SECURITY_PATTERNS)]
+
+
+def check_incomplete_work(last_message: str) -> bool:
+    """Check if last assistant message suggests incomplete work."""
+    if not last_message:
+        return False
+    lower = last_message.lower()
+    return any(p in lower for p in INCOMPLETE_WORK_PATTERNS)
+
+
 def main():
     try:
         input_data = sys.stdin.read()
-        json.loads(input_data)
+        hook_data = json.loads(input_data)
     except (json.JSONDecodeError, Exception) as e:
         print(f"[pre_stop_check] Failed to parse input: {e}", file=sys.stderr)
         print(json.dumps({}))
         return
+
+    # Layer 0: Loop guard — if already in a hook-triggered continuation, allow stop
+    if hook_data.get("stop_hook_active"):
+        print("[pre_stop_check] stop_hook_active=true, allowing stop", file=sys.stderr)
+        print(json.dumps({}))
+        return
+
+    last_message = hook_data.get("last_assistant_message", "")
 
     cleanup_old_markers()
 
@@ -415,16 +444,34 @@ def main():
     # First time: block and create marker
     mark_review_blocked(changes_hash)
 
+    # Build block message with actionable review suggestions
     lines = [
-        f"[Pre-Stop Check] {len(code_files)} code file(s) changed:",
+        f"[Pre-Stop Check] {len(code_files)} code file(s) changed but not reviewed:",
     ]
     for f in code_files[:8]:
         lines.append(f"  - {f}")
     if len(code_files) > 8:
         lines.append(f"  ... and {len(code_files) - 8} more")
 
+    # Detect security-sensitive files
+    security_files = detect_security_files(code_files)
+    if security_files:
+        lines.append("")
+        lines.append(f"[Security] {len(security_files)} security-sensitive file(s) detected:")
+        for f in security_files[:5]:
+            lines.append(f"  - {f}")
+        lines.append("Action: Run code-reviewer agent (MANDATORY for security files).")
+
+    # Check for incomplete work signals from last assistant message
+    if check_incomplete_work(last_message):
+        lines.append("")
+        lines.append("[Incomplete Work] Last response contains unfinished work indicators.")
+
     lines.append("")
-    lines.append("Unreviewed code changes detected. Stopping anyway on next attempt.")
+    if security_files:
+        lines.append("Run code-reviewer agent for security review before stopping. Stopping anyway on next attempt.")
+    else:
+        lines.append("Consider running /ultra-review or code-reviewer agent. Stopping anyway on next attempt.")
 
     result = {
         "decision": "block",

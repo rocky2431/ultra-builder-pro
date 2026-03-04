@@ -385,6 +385,12 @@ def main():
         pass
 
     hook_data = parse_hook_input(raw_input)
+
+    # Loop guard: if stop_hook_active, this is a re-trigger from a prior block.
+    # Still record the session (side-effect is safe), but skip AI summarize
+    # to avoid redundant daemon spawns.
+    is_retrigger = hook_data.get("stop_hook_active", False)
+
     transcript_path = hook_data.get("transcript_path", "")
 
     # Must be in a git repo
@@ -425,8 +431,8 @@ def main():
     except Exception as e:
         print(f"[session_journal] DB error: {e}", file=sys.stderr)
 
-    # Spawn AI summarize daemon only if no existing summary
-    if transcript_path and session_id and not has_existing_summary:
+    # Spawn AI summarize daemon only if no existing summary and not a re-trigger
+    if transcript_path and session_id and not has_existing_summary and not is_retrigger:
         spawn_ai_summarize(session_id, transcript_path, db_path, cwd)
 
     # Append to JSONL (backup)
@@ -441,6 +447,7 @@ def main():
             "files": files_modified,
             "auto_summary": auto_summary,
             "has_transcript": bool(transcript_path),
+            "is_retrigger": is_retrigger,
         }
         with open(jsonl_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
