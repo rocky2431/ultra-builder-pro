@@ -23,7 +23,7 @@ description: |
   </commentary>
   </example>
 tools: Bash, Read, Grep, Glob
-model: haiku
+model: opus
 memory: project
 maxTurns: 20
 skills:

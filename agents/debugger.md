@@ -21,8 +21,8 @@ description: |
   Debugging requires iterative hypothesis testing - subagent isolates this process.
   </commentary>
   </example>
-tools: Read, Edit, Bash, Grep, Glob
-model: inherit
+tools: Read, Write, Edit, Bash, Grep, Glob
+model: opus
 memory: project
 maxTurns: 40
 ---

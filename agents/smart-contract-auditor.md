@@ -33,10 +33,10 @@ description: |
   Targeted audit - focus on specific vulnerability class.
   </commentary>
   </example>
-tools: Read, Write, Edit, Bash, Grep, Glob
+tools: Read, Write, Bash, Grep, Glob
 model: opus
 memory: project
-maxTurns: 50
+maxTurns: 30
 ---
 
 # Smart Contract Security Auditor

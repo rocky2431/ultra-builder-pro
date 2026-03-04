@@ -36,7 +36,7 @@ description: |
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
 memory: project
-maxTurns: 100
+maxTurns: 50
 ---
 
 # Smart Contract Development Expert

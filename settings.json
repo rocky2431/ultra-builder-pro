@@ -45,6 +45,7 @@
     ],
     "defaultMode": "default"
   },
+  "model": "opus",
   "hooks": {
     "PostToolUse": [
       {
@@ -173,5 +174,5 @@
   "skipDangerousModePermissionPrompt": true,
   "_comment_project": "Ultra Builder Pro 5.9.0",
   "_comment_version": "5.9.0 - Process Discipline Fusion",
-  "model": "opus"
+  "effortLevel": "high"
 }

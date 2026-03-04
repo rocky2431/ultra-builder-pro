@@ -23,7 +23,7 @@ description: |
   </commentary>
   </example>
 tools: Read, Grep, Glob, Bash
-model: inherit
+model: opus
 memory: project
 maxTurns: 30
 skills:
