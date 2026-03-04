@@ -11,7 +11,7 @@
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-7-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-12-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-7-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-8-yellow)](hooks/)
 
 </div>
 
@@ -191,10 +191,13 @@ Stop hook (auto)                    /recall skill (forked context)
 session_journal.py ──> SQLite FTS5 <── memory_db.py CLI
      |                  (memory.db)        |
      |                                     v
-     |-- daemon (10s) ──> Haiku ──> AI summary ──> SQLite + Chroma
+     |-- daemon (10s) ──> Sonnet ──> AI summary ──> SQLite + Chroma
      |
      v
 sessions.jsonl (backup)      .ultra/memory/chroma/ (vector embeddings)
+
+PreCompact ──> compact-snapshot.md ──> SessionStart(compact) ──> post_compact_inject.py
+   (save)       (disk persistence)        (auto-trigger)         (~800 tokens recovery)
 ```
 
 ### How It Works
@@ -204,7 +207,8 @@ sessions.jsonl (backup)      .ultra/memory/chroma/ (vector embeddings)
 3. **Vector Embedding**: After AI summary, auto-upserts to Chroma (local ONNX, no API key)
 4. **Merge window**: Multiple stops within 30 minutes merge into one session record
 5. **SessionStart injection**: Injects ONE line (~50 tokens) about the last session — no context explosion
-6. **Hybrid search**: `/recall` runs in forked context, combines FTS5 keyword + Chroma semantic via RRF
+6. **Post-compact recovery**: `SessionStart(compact)` triggers `post_compact_inject.py` — injects ~800 tokens of git state, active tasks, workflow progress, and session memory for continuity after auto-compact
+7. **Hybrid search**: `/recall` runs in forked context, combines FTS5 keyword + Chroma semantic via RRF
 
 ### Usage
 
@@ -257,7 +261,7 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (7 Hooks)
+## Hooks System (8 Hooks)
 
 Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks have **timeout** configured to prevent UI freeze.
 
@@ -279,9 +283,10 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |------|---------|----------|---------|
 | `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner from memory DB | 10s |
 | `session_journal.py` | Stop | Auto-capture session + spawn AI summary daemon (Haiku, non-blocking) → SQLite + Chroma | 5s |
-| `pre_stop_check.py` | Stop | Three-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change detection (skipped on main/master) | 5s |
+| `pre_stop_check.py` | Stop | Four-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change detection + incomplete work detection via `last_assistant_message` (skipped on main/master) | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
-| `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` (project-level) | 10s |
+| `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` + write freshness marker (project-level) | 10s |
+| `post_compact_inject.py` | SessionStart(compact) | Post-compact context recovery: parse snapshot, inject ~800 tokens of git state/tasks/workflow/memory for continuity | 10s |
 
 ---
 
@@ -317,15 +322,16 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |-- README.md                 # This file
 |-- settings.json             # Claude Code settings + hooks config
 |
-|-- hooks/                    # Automated enforcement (7 hooks, all with timeout)
+|-- hooks/                    # Automated enforcement (8 hooks, all with timeout)
 |   |-- block_dangerous_commands.py  # PreToolUse: dangerous bash commands (5s)
 |   |-- post_edit_guard.py           # PostToolUse: quality + mock + security unified (5s)
 |   |-- session_context.py           # SessionStart: load dev context + last session (10s)
 |   |-- session_journal.py           # Stop: auto-capture + AI summary daemon → SQLite + Chroma (5s)
 |   |-- memory_db.py                 # Shared: SQLite FTS5 + Chroma vector engine + CLI tool
-|   |-- pre_stop_check.py            # Stop: review artifact check + code change detection (5s)
+|   |-- pre_stop_check.py            # Stop: four-layer check + incomplete work detection (5s)
 |   |-- subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
-|   |-- pre_compact_context.py       # PreCompact: preserve context (10s)
+|   |-- pre_compact_context.py       # PreCompact: preserve context + freshness marker (10s)
+|   |-- post_compact_inject.py       # SessionStart(compact): post-compact context recovery (10s)
 |
 |-- commands/                 # /ultra-* commands (10)
 |   |-- ultra-init.md
@@ -438,30 +444,55 @@ Multi-step tasks use the Task system:
 
 ## Version History
 
+### v5.9.1 (2026-03-04) - Hook Hardening + Post-Compact Recovery
+
+**Stop Hook Hardening + Post-Compact Context Recovery + Permission Cleanup**:
+
+**Post-Compact Context Recovery (New)**:
+- `post_compact_inject.py`: New `SessionStart(compact)` hook — injects ~800 tokens of recovery context after auto-compact
+- Parses `compact-snapshot.md` to extract git state, active tasks, workflow progress, session memory
+- Freshness check: marker file (written by PreCompact) → mtime fallback → stale hint
+- `pre_compact_context.py`: Added marker file write (`/tmp/.claude_compact_ts`) for post-compact freshness detection
+
+**Stop Hook Hardening**:
+- `pre_stop_check.py`: Three-layer → four-layer check, added `last_assistant_message` parsing for incomplete work detection (TODO/FIXME/WIP patterns)
+- Added `stop_hook_active` loop guard (prevents Stop hook re-trigger from its own block message)
+- Added security-sensitive file detection (auth/payment/token/credential/session path matching)
+- Restored code-reviewer suggestion in block messages (lost in prior refactor)
+- `session_journal.py`: Added `stop_hook_active` check, skips AI summary daemon spawn on re-trigger
+
+**Permission Cleanup**:
+- Removed `AskUserQuestion` from allow list (fixed UI not displaying — allow caused auto-skip)
+- Added 8 missing tools: Agent, TaskOutput, TaskStop, TeamCreate, TeamDelete, SendMessage, EnterWorktree
+- Removed 4 obsolete entries: Task, SlashCommand, BashOutput, KillShell
+
+**Enhanced Files** (5):
+- `hooks/post_compact_inject.py` (New), `hooks/pre_compact_context.py`, `hooks/pre_stop_check.py`, `hooks/session_journal.py`, `settings.json`
+
 ### v5.9.0 (2026-03-02) - Process Discipline Fusion
 
-**Superpowers 流程纪律融合** — 从 Superpowers 项目吸收关键流程理念，补上 3 个流程盲区：
+**Superpowers Process Discipline Fusion** — absorbed key process principles from the Superpowers project, closing 3 process gaps:
 
 **Design Approval Gate (P0)**:
-- `ultra-dev.md`: 新增 Step 0.5 — 首次执行时显示任务分解概览，要求用户确认后才能开始实现
-- 防止 "Wrong Approach" (#1 剩余摩擦): 用户必须审视计划再写代码
-- 恢复时自动跳过（已审批过）
+- `ultra-dev.md`: Added Step 0.5 — displays task breakdown overview on first run, requires user confirmation before implementation
+- Prevents "Wrong Approach" (#1 remaining friction): user must review plan before writing code
+- Auto-skipped on resume (already approved)
 
 **Spec Compliance Check (P1)**:
-- `ultra-dev.md`: Quality Gate 新增第 7 项 — 逐条验证 acceptance criteria 已实现且有测试
-- `review-code.md`: 新增 Step 7 — 从分支名推断 task ID，读取 task context，验证规格合规
-- 新增 `spec-compliance` category（P0: 缺失, P1: 部分实现, P2: 边界未覆盖）
+- `ultra-dev.md`: Added Quality Gate #7 — verifies each acceptance criterion is implemented and tested
+- `review-code.md`: Added Step 7 — infers task ID from branch name, reads task context, validates spec compliance
+- Added `spec-compliance` category (P0: missing, P1: partially implemented, P2: edge cases uncovered)
 
 **3-Fix Circuit Breaker (P1)**:
-- `ultra-review SKILL.md`: Fix Flow 增加 per-file 修复计数
-- 同一文件连续 3 次修复失败 → 熔断，请求用户决策（跳过/手动/放弃）
-- 全局 3+ 文件熔断 → 建议架构讨论，标注 `ARCHITECTURAL_CONCERN`
+- `ultra-review SKILL.md`: Added per-file fix counter in Fix Flow
+- Same file fails 3 consecutive fixes → circuit break, request user decision (skip/manual/abort)
+- 3+ files circuit-broken globally → suggest architecture discussion, tag `ARCHITECTURAL_CONCERN`
 
 **Systematic Debugging Methodology (P2)**:
-- `debugger.md`: 5 步简单流程 → 4 阶段结构化方法论
-- Phase 1 (Root Cause Investigation) 强制执行，IRON LAW: 未完成调查不得提出修复
-- 3-Fix Rule: 连续 3 次修复失败 → 停止，报告架构问题
-- Red Flags 表: 识别常见捷径思维并强制回到 Phase 1
+- `debugger.md`: 5-step simple flow → 4-phase structured methodology
+- Phase 1 (Root Cause Investigation) enforced, IRON LAW: no fix proposals before investigation complete
+- 3-Fix Rule: 3 consecutive fix failures → stop, report architectural issue
+- Red Flags table: detect common shortcut thinking and force return to Phase 1
 
 **Enhanced Files** (4 core + 2 meta):
 - `commands/ultra-dev.md`, `agents/review-code.md`, `skills/ultra-review/SKILL.md`, `agents/debugger.md`
