@@ -20,7 +20,6 @@
       "WebFetch",
       "NotebookEdit",
       "Agent",
-      "ExitPlanMode",
       "EnterWorktree",
       "Skill",
       "TaskCreate",
