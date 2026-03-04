@@ -13,10 +13,12 @@ import json
 import subprocess
 import os
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 GIT_TIMEOUT = 3
+COMPACT_MARKER = ".claude_compact_ts"
 
 
 def get_snapshot_path() -> Path:
@@ -277,6 +279,14 @@ def main():
         SNAPSHOT_PATH.write_text(snapshot, encoding="utf-8")
     except OSError as e:
         print(f"[pre_compact] Failed to write snapshot: {e}", file=sys.stderr)
+
+    # Write marker file for post_compact_inject.py freshness check
+    try:
+        marker_path = os.path.join(tempfile.gettempdir(), COMPACT_MARKER)
+        with open(marker_path, "w") as f:
+            f.write(timestamp)
+    except OSError:
+        pass
 
     # Layer 2: Output concise hint as additionalContext for compactor
     hint = build_compact_hint(git_ctx, ultra_tasks, native_tasks)
