@@ -1,76 +1,83 @@
 ---
-description: Deep analysis with structured reasoning and human-AI collaboration
+description: Deep analysis with structured adversarial reasoning and human-AI collaboration
 argument-hint: [problem or decision to analyze]
-allowed-tools: Read, Grep, Glob, WebSearch, WebFetch, Task, AskUserQuestion
+allowed-tools: Read, Grep, Glob, Bash, Write, WebSearch, WebFetch, AskUserQuestion, mcp__exa__web_search_exa, mcp__exa__get_code_context_exa, mcp__context7__resolve-library-id, mcp__context7__query-docs
 model: opus
 ---
 
 # /ultra-think
 
-Deep analysis for complex problems and decisions.
+Respond in Chinese per CLAUDE.md. Deep analysis for complex problems and decisions.
 
-## Instructions
+## Problem
 
-Think through this problem thoroughly and in great detail:
-
+<problem>
 $ARGUMENTS
+</problem>
 
-**Core guidance** (high-level, not step-by-step):
-- Consider multiple approaches and show your complete reasoning
-- Try different methods if your first approach doesn't work
-- Challenge your own assumptions and identify blind spots
-- Before concluding, verify your reasoning is sound
+## Analysis Protocol
 
-**Interactive collaboration**:
-- If the problem is ambiguous, ask clarifying questions first
-- Surface implicit requirements and hidden complexities
-- Present trade-offs clearly so the user can make informed decisions
+### Step 1: Scope Check
 
-## Optional Thinking Dimensions
+If the problem is ambiguous or underspecified, ask up to 3 clarifying questions via AskUserQuestion before proceeding. If the problem is simple enough for a direct answer, skip the full framework and respond concisely.
 
-These are reference perspectives, not required steps. Choose what's relevant:
+### Step 2: Evidence Gathering
+
+For any factual claim about technology, APIs, or best practices, verify via Context7/Exa MCP before asserting. Label each assertion:
+- **Fact**: Verified from official source
+- **Inference**: Deduced from facts
+- **Speculation**: Needs verification (list verification steps)
+
+### Step 3: Multi-Perspective Analysis
+
+Generate at least 3 distinct approaches. For each, analyze through whichever lenses are relevant:
 
 - **Technical**: Feasibility, scalability, security, maintainability
 - **Business**: Value, cost, time-to-market, competitive advantage
 - **User**: Needs, experience, edge cases, accessibility
 - **System**: Integration, dependencies, emergent behaviors
-- **Risk**: Failure modes, mitigation, reversibility
 
-## Output Format
+### Step 4: Adversarial Stress-Testing
 
-> Claude responds in Chinese per CLAUDE.md.
+Apply these techniques to pressure-test your reasoning:
 
-Use `<thinking>` for internal reasoning, then provide:
+- **Steel Man**: Before recommending, build the strongest possible case FOR the option you're inclined to reject
+- **Pre-Mortem**: Assume the recommended option has failed in 6 months. List the 3 most likely causes
+- **Sensitivity**: Identify which assumption, if wrong, would reverse your recommendation
+- **Second-Order**: What new problems does the recommended option create 6-12 months out?
 
-```
-## Problem
+### Step 5: Synthesis
+
+Produce a recommendation with quantified confidence (0-100%) and explicit uncertainty bounds.
+
+## Output Structure
+
+Adapt the following to fit the problem type. Skip sections that don't apply.
+
+### Problem Statement
 [1-2 sentences: core decision + key constraints]
 
-## Analysis
-[Choose relevant dimensions, deep analysis]
+### Analysis
+[Deep analysis using relevant lenses from Step 3]
 
-## Comparison
-| Dimension | Option A | Option B |
-|-----------|----------|----------|
-[Quantified comparison, not just qualitative]
+### Options Comparison (if applicable)
+| Criterion | Weight | Option A | Option B | Option C |
+|-----------|--------|----------|----------|----------|
+[Quantified where possible. Omit this table for diagnostic/investigative problems.]
 
-## Recommendation
+### Adversarial Findings
+- **Strongest counter-argument**: [steel man for rejected option]
+- **Pre-mortem top risk**: [most likely failure mode + mitigation]
+- **Assumption sensitivity**: [which assumption is load-bearing]
+
+### Recommendation
 - **Choice**: [option]
-- **Confidence**: High/Medium/Low + rationale
-- **Key Assumptions**: [assumptions the recommendation depends on]
-- **Risk**: [main risk + mitigation]
+- **Confidence**: [X]% because [rationale]
+- **Key Assumptions**: [what must be true for this to work]
+- **What would change my mind**: [specific evidence or outcome that would reverse this recommendation]
 
-## Verification
-[How to verify this decision is correct? What are the test criteria?]
+### Verification Plan
+[Concrete steps to validate this decision: metrics, tests, time-boxed experiments]
 
-## Next Steps
-[Specific actionable items]
-```
-
-## Evidence Requirement
-
-Per CLAUDE.md `<evidence_first>`: External claims require verification (Context7/Exa MCP). Label assertions as:
-- **Fact**: Verified from official source
-- **Inference**: Deduced from facts
-- **Speculation**: Needs verification
-
+### Next Steps
+[Ordered, actionable items]
