@@ -28,8 +28,8 @@ TRANSCRIPT_HEAD_CHARS = 4000   # First N chars: problem context & initial decisi
 TRANSCRIPT_TAIL_CHARS = 11000  # Last N chars: resolution & recent work
 TRANSCRIPT_MAX_CHARS = 15000   # Total budget (head + tail)
 TRANSCRIPT_MAX_MESSAGES = 100  # Increased from 50 for better coverage
-AI_MODEL_CLI = "sonnet"
-AI_MODEL_SDK = "claude-sonnet-4-6"
+AI_MODEL_CLI = "opus"
+AI_MODEL_SDK = "opus"
 AI_MAX_TOKENS = 1000
 
 
