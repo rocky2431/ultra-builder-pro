@@ -143,6 +143,29 @@
           }
         ]
       }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Claude Code needs your input\" with title \"Claude Code\" sound name \"Ping\"'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'find \"$TMPDIR\" -name \".claude_stop_count_*\" -mmin +60 -delete 2>/dev/null; exit 0'",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "statusLine": {

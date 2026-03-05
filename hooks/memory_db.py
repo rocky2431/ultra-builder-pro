@@ -76,6 +76,7 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute("PRAGMA busy_timeout=5000")
 
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS sessions (
@@ -404,7 +405,8 @@ def upsert_embedding(session_id: str, summary: str, branch: str,
         return False
 
 
-def semantic_search(query: str, limit: int = 10) -> list:
+def semantic_search(query: str, limit: int = 10,
+                    conn: sqlite3.Connection | None = None) -> list:
     """Pure vector semantic search via Chroma."""
     try:
         collection = get_chroma_collection()
@@ -413,7 +415,9 @@ def semantic_search(query: str, limit: int = 10) -> list:
             n_results=limit
         )
 
-        conn = init_db()
+        owns_conn = conn is None
+        if owns_conn:
+            conn = init_db()
         sessions = []
         if results and results["ids"] and results["ids"][0]:
             for sid in results["ids"][0]:
@@ -425,7 +429,8 @@ def semantic_search(query: str, limit: int = 10) -> list:
                 ).fetchone()
                 if row:
                     sessions.append(dict(row))
-        conn.close()
+        if owns_conn:
+            conn.close()
         return sessions
     except Exception:
         return []

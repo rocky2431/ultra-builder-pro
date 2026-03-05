@@ -345,6 +345,14 @@ def main():
         print(json.dumps({}))
         return
 
+    # Skip very large files to avoid OOM on regex scanning
+    try:
+        if os.path.getsize(file_path) > 5_000_000:
+            print(json.dumps({}))
+            return
+    except OSError:
+        pass
+
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()

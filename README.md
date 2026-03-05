@@ -11,7 +11,7 @@
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-7-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-12-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-8-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-10-yellow)](hooks/)
 
 </div>
 
@@ -116,9 +116,9 @@ All agents have **project-scoped persistent memory** (`memory: project`) that ac
 |-------|---------|---------|-------|--------|
 | `smart-contract-specialist` | Solidity, gas optimization, secure patterns | .sol files | opus | project |
 | `smart-contract-auditor` | Contract security audit, vulnerability detection | .sol files | opus | project |
-| `code-reviewer` | Code review for quality, security, maintainability | After code changes, pre-commit | inherit | project |
-| `tdd-runner` | Test execution, failure analysis, coverage | "run tests", test suite | haiku | project |
-| `debugger` | Root cause analysis, minimal fix implementation | Errors, test failures | inherit | project |
+| `code-reviewer` | Code review for quality, security, maintainability | After code changes, pre-commit | opus | project |
+| `tdd-runner` | Test execution, failure analysis, coverage | "run tests", test suite | opus | project |
+| `debugger` | Root cause analysis, minimal fix implementation | Errors, test failures | opus | project |
 
 ### Review Pipeline Agents (7) - Ultra Review System
 
@@ -180,7 +180,7 @@ Step 4.5 of `/ultra-dev` runs `/ultra-review all` (forced full coverage) as a ma
 
 ### Overview
 
-AI-powered cross-session memory with hybrid search. Auto-captures session events, generates AI summaries via Sonnet, and supports semantic + keyword retrieval. Designed as a safe alternative to claude-mem — no bulk context injection.
+AI-powered cross-session memory with hybrid search. Auto-captures session events, generates AI summaries via Opus, and supports semantic + keyword retrieval. Designed as a safe alternative to claude-mem — no bulk context injection.
 
 ### Architecture
 
@@ -191,7 +191,7 @@ Stop hook (auto)                    /recall skill (forked context)
 session_journal.py ──> SQLite FTS5 <── memory_db.py CLI
      |                  (memory.db)        |
      |                                     v
-     |-- daemon (10s) ──> Sonnet ──> AI summary ──> SQLite + Chroma
+     |-- daemon (10s) ──> Opus ──> AI summary ──> SQLite + Chroma
      |
      v
 sessions.jsonl (backup)      .ultra/memory/chroma/ (vector embeddings)
@@ -203,7 +203,7 @@ PreCompact ──> compact-snapshot.md ──> SessionStart(compact) ──> pos
 ### How It Works
 
 1. **Auto-capture** (Stop hook): Every response records branch, cwd, modified files
-2. **AI Summary** (async daemon): Double-fork daemon waits 10s after session stop, extracts transcript (head+tail sampling: 4K+11K chars), generates structured summary via Sonnet (three-tier fallback: claude CLI → Anthropic SDK → git commits)
+2. **AI Summary** (async daemon): Double-fork daemon waits 10s after session stop, extracts transcript (head+tail sampling: 4K+11K chars), generates structured summary via Opus (three-tier fallback: claude CLI → Anthropic SDK → git commits)
 3. **Vector Embedding**: After AI summary, auto-upserts to Chroma (local ONNX, no API key)
 4. **Merge window**: Multiple stops within 30 minutes merge into one session record
 5. **SessionStart injection**: Injects ONE line (~50 tokens) about the last session — no context explosion
@@ -261,9 +261,11 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (8 Hooks)
+## Hooks System (10 Hooks)
 
-Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks have **timeout** configured to prevent UI freeze.
+Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks have **timeout** configured to prevent UI freeze. Shared utilities in `hook_utils.py` eliminate ~130 lines of duplication.
+
+**Protocol compliance**: 100% — all hooks follow official Claude Code hook protocol (stdin JSON, stdout JSON, exit codes 0/2).
 
 ### PreToolUse Hooks (Guard before execution)
 
@@ -281,12 +283,26 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 
 | Hook | Trigger | Function | Timeout |
 |------|---------|----------|---------|
-| `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner from memory DB | 10s |
-| `session_journal.py` | Stop | Auto-capture session + spawn AI summary daemon (Haiku, non-blocking) → SQLite + Chroma | 5s |
-| `pre_stop_check.py` | Stop | Four-layer check: review artifacts (P0/P1 block with escape hatch) + incomplete session grace period + code change detection + incomplete work detection via `last_assistant_message` (skipped on main/master) | 5s |
+| `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner + branch memory from DB | 10s |
+| `session_journal.py` | Stop | Auto-capture session + spawn AI summary daemon (Opus, non-blocking) → SQLite + Chroma | 5s |
+| `pre_stop_check.py` | Stop | Five-layer check: `stop_hook_active` fast path + circuit breaker + review artifacts (P0/P1 block) + code change detection + security-sensitive file detection (skipped on main/master) | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
 | `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` + write freshness marker (project-level) | 10s |
 | `post_compact_inject.py` | SessionStart(compact) | Post-compact context recovery: parse snapshot, inject ~800 tokens of git state/tasks/workflow/memory for continuity | 10s |
+
+### Notification & Cleanup Hooks
+
+| Hook | Trigger | Function | Timeout |
+|------|---------|----------|---------|
+| macOS notification | Notification(permission_prompt\|idle_prompt) | Desktop alert with sound when Claude needs user input | 5s |
+| Counter cleanup | SessionEnd | Remove stale stop-count temp files (>60min old) | 5s |
+
+### Shared Utilities
+
+| File | Purpose |
+|------|---------|
+| `hook_utils.py` | Shared functions: `get_snapshot_path()`, `get_workflow_state()`, `parse_hook_input()` — used by pre_compact, post_compact, and other hooks |
+| `memory_db.py` | SQLite FTS5 + Chroma vector engine + CLI tool — used by session_journal, session_context, pre_compact |
 
 ---
 
@@ -322,16 +338,17 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |-- README.md                 # This file
 |-- settings.json             # Claude Code settings + hooks config
 |
-|-- hooks/                    # Automated enforcement (8 hooks, all with timeout)
+|-- hooks/                    # Automated enforcement (10 hooks, all with timeout)
 |   |-- block_dangerous_commands.py  # PreToolUse: dangerous bash commands (5s)
 |   |-- post_edit_guard.py           # PostToolUse: quality + mock + security unified (5s)
 |   |-- session_context.py           # SessionStart: load dev context + last session (10s)
 |   |-- session_journal.py           # Stop: auto-capture + AI summary daemon → SQLite + Chroma (5s)
-|   |-- memory_db.py                 # Shared: SQLite FTS5 + Chroma vector engine + CLI tool
-|   |-- pre_stop_check.py            # Stop: four-layer check + incomplete work detection (5s)
+|   |-- pre_stop_check.py            # Stop: five-layer check + security file detection (5s)
 |   |-- subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
 |   |-- pre_compact_context.py       # PreCompact: preserve context + freshness marker (10s)
 |   |-- post_compact_inject.py       # SessionStart(compact): post-compact context recovery (10s)
+|   |-- hook_utils.py                # Shared: snapshot path, workflow state, input parsing
+|   |-- memory_db.py                 # Shared: SQLite FTS5 + Chroma vector engine + CLI tool
 |
 |-- commands/                 # /ultra-* commands (10)
 |   |-- ultra-init.md
@@ -444,6 +461,33 @@ Multi-step tasks use the Task system:
 
 ## Version History
 
+### v5.9.2 (2026-03-05) - Hook Audit & Model Unification
+
+**Comprehensive hook audit against official docs + community best practices + model unification**:
+
+**Model Unification**:
+- All 12 agents unified to `opus` model (fixed `code-reviewer`/`debugger` inherit, `tdd-runner` haiku)
+- AI summary daemon upgraded from Sonnet to Opus (session_journal.py)
+
+**Hook Audit (20 fixes across 3 tiers)**:
+- **Protocol compliance**: 100% — all hooks follow official Claude Code hook protocol
+- **Security**: fail-closed patterns, DAEMON_ENV_WHITELIST, env sanitization
+- **Performance**: all GIT_TIMEOUT values < hook timeout (session_context.py 10→3s safety fix)
+- **Shared utilities**: `hook_utils.py` eliminates ~130 lines of duplication across hooks
+
+**New Hooks (2)**:
+- `Notification`: macOS desktop alert with sound when Claude needs user input (permission_prompt/idle_prompt)
+- `SessionEnd`: Automatic cleanup of stale stop-count temp files (>60min old)
+
+**Protocol Fixes**:
+- `pre_stop_check.py`: Added `stop_hook_active` fast path (Layer 0a) per official docs — prevents infinite Stop hook loops
+- `session_journal.py`: Fixed stale docstring (Sonnet → Opus), added `stop_hook_active` re-trigger guard
+
+**Enhanced Files** (10):
+- All 10 hook `.py` files audited and updated
+- `settings.json`: +Notification hook, +SessionEnd hook
+- `README.md`: Updated hook count, model references, hooks system section
+
 ### v5.9.1 (2026-03-04) - Hook Hardening + Post-Compact Recovery
 
 **Stop Hook Hardening + Post-Compact Context Recovery + Permission Cleanup**:
@@ -531,7 +575,7 @@ Multi-step tasks use the Task system:
 **Enhanced Files**:
 - `hooks/session_journal.py`: +AI summarization via double-fork daemon (non-blocking, 10s delay)
   - Transcript parsing: extracts user/assistant text from JSONL, dedupes streaming chunks
-  - Three-tier fallback: `claude -p --model haiku` → Anthropic SDK → git commit messages
+  - Three-tier fallback: `claude -p --model opus` → Anthropic SDK → git commit messages
   - Daemon clears `CLAUDE*` env vars to avoid inheriting parent session config
   - Auto-upserts Chroma embedding after AI summary generation
   - CLI: `--ai-summarize <session_id> <transcript_path>` for manual re-summarize

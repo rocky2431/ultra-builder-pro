@@ -11,45 +11,18 @@ This hook provides the detailed recovery: tasks, workflow step, key files, decis
 
 import json
 import os
-import subprocess
 import sys
 import tempfile
 import time
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+from hook_utils import get_snapshot_path, get_workflow_state
+
 GIT_TIMEOUT = 3
-COMPACT_MARKER = ".claude_compact_ts"
+COMPACT_MARKER = f".claude_compact_ts_{os.getuid()}"
 SNAPSHOT_MAX_AGE = 3600  # 1 hour — ignore stale snapshots
 MAX_INJECT_CHARS = 3200  # ~800 tokens budget
-
-
-def get_snapshot_path() -> Path:
-    """Get project-level snapshot path (.ultra/compact-snapshot.md).
-
-    Falls back to ~/.claude/compact-snapshot.md if not in a git repo.
-    """
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, timeout=GIT_TIMEOUT,
-            cwd=os.getcwd()
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return Path(result.stdout.strip()) / ".ultra" / "compact-snapshot.md"
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        pass
-    return Path.home() / ".claude" / "compact-snapshot.md"
-
-
-def get_workflow_state() -> dict | None:
-    """Read active workflow state from .ultra/workflow-state.json."""
-    state_file = Path.cwd() / ".ultra" / "workflow-state.json"
-    if not state_file.exists():
-        return None
-    try:
-        return json.loads(state_file.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return None
 
 
 def check_freshness(snapshot_path: Path) -> bool:

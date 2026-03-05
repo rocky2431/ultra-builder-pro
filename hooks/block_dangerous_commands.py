@@ -19,7 +19,7 @@ import re
 # Dangerous command patterns with explanations
 DANGEROUS_PATTERNS = [
     # Destructive file operations - only block truly dangerous patterns
-    (r'\brm\s+-[rf]*\s*-[rf]*\s+~\s*$', 'Recursive delete on home directory'),
+    (r'\brm\s+-[rf]*\s*-[rf]*\s+~', 'Recursive delete on home directory'),
     (r'\brm\s+-[rf]*\s*-[rf]*\s+/\s*$', 'Recursive delete on root directory'),
     (r'\brm\s+-[rf]*\s+--no-preserve-root', 'Dangerous rm with --no-preserve-root'),
     (r'\brm\s+-[rf]+\s+/(?!Users|home)', 'Recursive delete on system directory'),
@@ -35,6 +35,7 @@ DANGEROUS_PATTERNS = [
     # Dangerous git operations on main
     (r'\bgit\s+push\s+.*--force.*\b(main|master)\b', 'Force push to main/master blocked'),
     (r'\bgit\s+push\s+-f\s+.*\b(main|master)\b', 'Force push to main/master blocked'),
+    (r'\bgit\s+push\s+\S+\s+\+(main|master)\b', 'Force push via refspec to main/master blocked'),
     (r'\bgit\s+reset\s+--hard\b', 'git reset --hard can lose work'),
     (r'\bgit\s+clean\s+-fd', 'git clean -fd removes untracked files'),
 
@@ -49,7 +50,7 @@ DANGEROUS_PATTERNS = [
 
     # Database drops
     (r'\bDROP\s+DATABASE\b', 'DROP DATABASE blocked'),
-    (r'\bDROP\s+TABLE\b.*\*', 'DROP TABLE with wildcard blocked'),
+    (r'\bDROP\s+TABLE\b', 'DROP TABLE blocked'),
 ]
 
 # Warning patterns (allow but warn)
@@ -82,7 +83,18 @@ def main():
         input_data = sys.stdin.read()
         hook_input = json.loads(input_data)
     except (json.JSONDecodeError, Exception) as e:
+        # Fail-closed: security hook must not silently allow on parse error
         print(f"[block_dangerous_commands] Failed to parse input: {e}", file=sys.stderr)
+        result = {
+            "hookSpecificOutput": {
+                "permissionDecision": "ask",
+                "permissionDecisionReason": f"[WARNING] Hook input parse error: {e}"
+            }
+        }
+        print(json.dumps(result))
+        return
+
+    if not isinstance(hook_input, dict):
         print(json.dumps({}))
         return
 

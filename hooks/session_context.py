@@ -25,7 +25,7 @@ def run_cmd(cmd: list, cwd: str = '') -> str:
             capture_output=True,
             text=True,
             cwd=cwd or os.getcwd(),
-            timeout=10
+            timeout=3
         )
         if result.returncode == 0:
             return result.stdout.strip()
@@ -99,18 +99,22 @@ def get_project_context() -> list:
 def get_last_session_oneliner() -> str:
     """Get a one-liner about the last session from memory DB.
 
+    Direct import instead of subprocess for ~100ms faster startup.
     Returns empty string if DB doesn't exist or has no records.
     Adds ~50 tokens to context. Fails silently.
     """
     try:
-        result = subprocess.run(
-            ["python3", str(Path(__file__).parent / "memory_db.py"), "oneliner"],
-            capture_output=True, text=True, timeout=3,
-            cwd=os.getcwd()
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return result.stdout.strip()
-    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
+        sys.path.insert(0, str(Path(__file__).parent))
+        import memory_db
+        db_path = memory_db.get_db_path()
+        if not db_path.exists():
+            return ""
+        conn = memory_db.init_db(db_path)
+        result = memory_db.get_latest(conn)
+        conn.close()
+        if result:
+            return memory_db.format_oneliner(result)
+    except Exception:
         pass
     return ""
 
@@ -172,6 +176,10 @@ def main():
         hook_input = json.loads(input_data)
     except (json.JSONDecodeError, Exception) as e:
         print(f"[session_context] Failed to parse input: {e}", file=sys.stderr)
+        print(json.dumps({}))
+        return
+
+    if not isinstance(hook_input, dict):
         print(json.dumps({}))
         return
 

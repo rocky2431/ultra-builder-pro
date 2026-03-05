@@ -10,51 +10,17 @@ Usage:
 """
 
 import json
-import subprocess
 import os
 import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+from hook_utils import get_snapshot_path, get_workflow_state, run_git
+
 GIT_TIMEOUT = 3
-COMPACT_MARKER = ".claude_compact_ts"
-
-
-def get_snapshot_path() -> Path:
-    """Get project-level snapshot path (.ultra/compact-snapshot.md).
-
-    Falls back to ~/.claude/compact-snapshot.md if not in a git repo.
-    """
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, timeout=GIT_TIMEOUT,
-            cwd=os.getcwd()
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return Path(result.stdout.strip()) / ".ultra" / "compact-snapshot.md"
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        pass
-    return Path.home() / ".claude" / "compact-snapshot.md"
-
-
-SNAPSHOT_PATH = get_snapshot_path()
-
-
-def run_git(*args):
-    """Run git command with timeout, return stdout or empty string."""
-    try:
-        result = subprocess.run(
-            ["git", *args],
-            capture_output=True, text=True, timeout=GIT_TIMEOUT,
-            cwd=os.getcwd()
-        )
-        if result.returncode == 0:
-            return result.stdout.strip()
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        pass
-    return ""
+COMPACT_MARKER = f".claude_compact_ts_{os.getuid()}"
 
 
 def get_git_context():
@@ -160,18 +126,7 @@ def get_branch_memory(branch: str) -> list:
     return []
 
 
-def get_workflow_state():
-    """Read active workflow state from .ultra/workflow-state.json."""
-    state_file = Path.cwd() / ".ultra" / "workflow-state.json"
-    if not state_file.exists():
-        return None
-    try:
-        return json.loads(state_file.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return None
-
-
-def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp):
+def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp, snapshot_path):
     """Build the full snapshot content for disk persistence."""
     lines = [
         f"# Compact Snapshot",
@@ -227,13 +182,13 @@ def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp):
 
     lines.append("## Recovery Instructions")
     lines.append("After compact, read this file to restore context:")
-    lines.append(f"`Read {SNAPSHOT_PATH}`")
+    lines.append(f"`Read {snapshot_path}`")
     lines.append("")
 
     return "\n".join(lines)
 
 
-def build_compact_hint(git_ctx, ultra_tasks, native_tasks):
+def build_compact_hint(git_ctx, ultra_tasks, native_tasks, snapshot_path):
     """Build concise additionalContext for the compactor (keep short)."""
     parts = []
 
@@ -254,29 +209,40 @@ def build_compact_hint(git_ctx, ultra_tasks, native_tasks):
     if workflow:
         parts.append(f"RESUME: ultra-dev task {workflow.get('task_id')} at step {workflow.get('step')}")
 
-    parts.append(f"Full context saved to: {SNAPSHOT_PATH}")
+    parts.append(f"Full context saved to: {snapshot_path}")
 
     return "\n".join(parts)
 
 
 def main():
-    # Consume stdin to avoid broken pipe
+    # Parse stdin for trigger and custom_instructions (PreCompact protocol)
+    hook_data = {}
     try:
-        sys.stdin.read()
-    except Exception:
+        raw = sys.stdin.read()
+        if raw and raw.strip():
+            hook_data = json.loads(raw.strip())
+            if not isinstance(hook_data, dict):
+                hook_data = {}
+    except (json.JSONDecodeError, Exception):
         pass
 
+    trigger = hook_data.get("trigger", "auto")
+    custom_instructions = hook_data.get("custom_instructions", "")
+
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    snapshot_path = get_snapshot_path()
 
     git_ctx = get_git_context()
     ultra_tasks = get_task_context()
     native_tasks = get_native_tasks()
 
     # Layer 1: Write full snapshot to disk
-    snapshot = build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp)
+    snapshot = build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp, snapshot_path)
+    if custom_instructions:
+        snapshot += f"\n## Custom Instructions\n{custom_instructions}\n"
     try:
-        SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        SNAPSHOT_PATH.write_text(snapshot, encoding="utf-8")
+        snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+        snapshot_path.write_text(snapshot, encoding="utf-8")
     except OSError as e:
         print(f"[pre_compact] Failed to write snapshot: {e}", file=sys.stderr)
 
@@ -289,9 +255,9 @@ def main():
         pass
 
     # Layer 2: Output concise hint as additionalContext for compactor
-    hint = build_compact_hint(git_ctx, ultra_tasks, native_tasks)
+    hint = build_compact_hint(git_ctx, ultra_tasks, native_tasks, snapshot_path)
     output = {
-        "additionalContext": f"[PreCompact {timestamp}]\n{hint}"
+        "additionalContext": f"[PreCompact {timestamp} ({trigger})]\n{hint}"
     }
     print(json.dumps(output))
 

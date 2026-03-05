@@ -4,7 +4,7 @@
 Records session events to SQLite + JSONL for cross-session memory.
 Debounced: merges entries within 30-minute windows for same branch+cwd.
 
-Layer 2: AI-generated summary from transcript via Sonnet (non-blocking daemon).
+Layer 2: AI-generated summary from transcript via Opus (non-blocking daemon).
 Layer 2 fallback: Git commit messages as summary.
 
 Execution target: < 100ms (daemon spawns async, no blocking in hot path).
@@ -31,6 +31,12 @@ TRANSCRIPT_MAX_MESSAGES = 100  # Increased from 50 for better coverage
 AI_MODEL_CLI = "opus"
 AI_MODEL_SDK = "opus"
 AI_MAX_TOKENS = 1000
+
+# Env vars allowed in AI summarize daemon (whitelist > blacklist for security)
+DAEMON_ENV_WHITELIST = {
+    "PATH", "HOME", "USER", "SHELL", "LANG", "LC_ALL", "LC_CTYPE",
+    "TMPDIR", "TERM", "LOGNAME", "XDG_RUNTIME_DIR",
+}
 
 
 def run_git(*args) -> str:
@@ -206,11 +212,11 @@ def extract_transcript_text(transcript_path: str) -> str:
 
 
 def spawn_ai_summarize(session_id: str, transcript_path: str,
-                       db_path: str, cwd: str) -> None:
+                       db_path: str) -> None:
     """Spawn a double-fork daemon for non-blocking AI summarization.
 
     Parent returns immediately (<1ms). Daemon waits AI_SUMMARIZE_DELAY
-    seconds, generates summary via Haiku, writes to DB + Chroma.
+    seconds, generates summary via Opus, writes to DB + Chroma.
     """
     try:
         pid = os.fork()
@@ -247,7 +253,7 @@ def spawn_ai_summarize(session_id: str, transcript_path: str,
         pass
 
     try:
-        _run_ai_summarize(session_id, transcript_path, db_path, cwd)
+        _run_ai_summarize(session_id, transcript_path, db_path)
     except Exception:
         pass
 
@@ -255,7 +261,7 @@ def spawn_ai_summarize(session_id: str, transcript_path: str,
 
 
 def _run_ai_summarize(session_id: str, transcript_path: str,
-                      db_path: str, _cwd: str = "") -> None:
+                      db_path: str) -> None:
     """Daemon main: wait, extract transcript, summarize, update DB + Chroma.
 
     Uses Anthropic SDK only (never claude CLI, which creates visible sessions
@@ -317,7 +323,7 @@ def _run_ai_summarize(session_id: str, transcript_path: str,
 
 
 def _try_claude_cli(prompt: str) -> str:
-    """Tier 1: claude -p --model sonnet --no-session-persistence.
+    """Tier 1: claude -p --model opus --no-session-persistence.
 
     Uses Claude Code's existing OAuth auth (Max subscription).
     --no-session-persistence prevents polluting /resume with summary sessions.
@@ -327,8 +333,8 @@ def _try_claude_cli(prompt: str) -> str:
     """
     try:
         env = {k: v for k, v in os.environ.items()
-               if not k.startswith("CLAUDE") and k != "ANTHROPIC_API_KEY"}
-        env["PATH"] = os.environ.get("PATH", "/usr/bin:/usr/local/bin")
+               if k in DAEMON_ENV_WHITELIST}
+        env.setdefault("PATH", "/usr/bin:/usr/local/bin")
 
         result = subprocess.run(
             ["claude", "-p", "--model", AI_MODEL_CLI,
@@ -433,7 +439,7 @@ def main():
 
     # Spawn AI summarize daemon only if no existing summary and not a re-trigger
     if transcript_path and session_id and not has_existing_summary and not is_retrigger:
-        spawn_ai_summarize(session_id, transcript_path, db_path, cwd)
+        spawn_ai_summarize(session_id, transcript_path, db_path)
 
     # Append to JSONL (backup)
     try:
@@ -467,7 +473,7 @@ if __name__ == "__main__":
         tp = sys.argv[3]
         db = str(memory_db.get_db_path())
         print(f"Generating AI summary for session {sid}...")
-        _run_ai_summarize(sid, tp, db, os.getcwd())
+        _run_ai_summarize(sid, tp, db)
         conn = memory_db.init_db()
         result = conn.execute(
             "SELECT summary FROM sessions WHERE id = ?", (sid,)

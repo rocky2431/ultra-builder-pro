@@ -4,16 +4,25 @@
 Logs SubagentStart/Stop events to .ultra/debug/subagent-log.jsonl (project-level)
 for debugging and cost analysis.
 
+Protocol fields:
+  SubagentStart: agent_id, agent_type, session_id
+  SubagentStop: agent_id, agent_type, session_id, agent_transcript_path,
+                last_assistant_message, stop_hook_active
+
 Usage:
   python3 subagent_tracker.py start  # called by SubagentStart hook
   python3 subagent_tracker.py stop   # called by SubagentStop hook
 """
 
 import json
+import random
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+GIT_TIMEOUT = 3
+MAX_LOG_LINES = 5000
 
 
 def get_log_dir() -> Path:
@@ -24,7 +33,7 @@ def get_log_dir() -> Path:
     try:
         proc = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, timeout=3
+            capture_output=True, text=True, timeout=GIT_TIMEOUT
         )
         if proc.returncode == 0 and proc.stdout.strip():
             return Path(proc.stdout.strip()) / ".ultra" / "debug"
@@ -33,44 +42,70 @@ def get_log_dir() -> Path:
     return Path.home() / ".claude" / "debug"
 
 
-LOG_DIR = get_log_dir()
-LOG_FILE = LOG_DIR / "subagent-log.jsonl"
+def rotate_log(log_file: Path) -> None:
+    """Keep last MAX_LOG_LINES entries to prevent unbounded growth."""
+    try:
+        if not log_file.exists():
+            return
+        with open(log_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        if len(lines) <= MAX_LOG_LINES:
+            return
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.writelines(lines[-MAX_LOG_LINES:])
+    except OSError:
+        pass
 
 
 def main():
     if len(sys.argv) < 2:
-        sys.exit(0)
+        print(json.dumps({}))
+        return
 
     action = sys.argv[1]
     if action not in ("start", "stop"):
-        sys.exit(0)
+        print(json.dumps({}))
+        return
 
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Read hook input from stdin (JSON with agent info)
+    # Read hook input from stdin
     try:
-        hook_input = json.loads(sys.stdin.read())
+        raw = sys.stdin.read()
+        hook_input = json.loads(raw) if raw.strip() else {}
         if not isinstance(hook_input, dict):
             hook_input = {}
     except (json.JSONDecodeError, EOFError):
         hook_input = {}
 
+    # Lazy init: avoid module-level subprocess
+    log_dir = get_log_dir()
+    log_file = log_dir / "subagent-log.jsonl"
+    log_dir.mkdir(parents=True, exist_ok=True)
+
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "event": f"subagent_{action}",
-        "agent_name": hook_input.get("agent_name", "unknown"),
-        "session_id": hook_input.get("session_id", "unknown"),
+        "agent_id": hook_input.get("agent_id", "unknown"),
+        "agent_type": hook_input.get("agent_type", "unknown"),
+        "session_id": hook_input.get("session_id", ""),
     }
 
-    # For stop events, try to capture duration info
+    # SubagentStop provides additional fields
     if action == "stop":
-        entry["turns_used"] = hook_input.get("turns_used", None)
+        transcript = hook_input.get("agent_transcript_path", "")
+        if transcript:
+            entry["agent_transcript_path"] = transcript
 
     try:
-        with open(LOG_FILE, "a", encoding="utf-8") as f:
+        with open(log_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     except OSError:
-        sys.exit(0)
+        pass
+
+    # Periodic log rotation (~1% of writes)
+    if random.random() < 0.01:
+        rotate_log(log_file)
+
+    print(json.dumps({}))
 
 
 if __name__ == "__main__":

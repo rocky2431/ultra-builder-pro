@@ -3,23 +3,21 @@
 Pre-Stop Check Hook - Stop
 Checks for unreviewed code changes before session ends.
 
-Four-layer check:
-0. Loop guard: If stop_hook_active is True → allow stop immediately (prevent infinite loop)
+Three-layer check with session-scoped circuit breaker:
+0. Circuit breaker: If blocked >= MAX_STOP_BLOCKS times in this session → allow stop
 1. Review artifacts: If a recent (<2h) ultra-review session exists:
-   - P0 unresolved → block once, allow on second attempt (marker-based)
-   - APPROVE/COMMENT → allow stop (review passed)
+   - P0/P1 unresolved (REQUEST_CHANGES) → block
+   - APPROVE/COMMENT → allow stop
    - Incomplete + < 15min old → warn only (agents may still be running)
-   - Incomplete + >= 15min old → block once, allow on second attempt (abandoned)
+   - Incomplete + >= 15min old → block
 2. Code changes (fallback): If no recent review session:
-   - First trigger: block + suggest running code-reviewer → create marker
-   - Second trigger: marker exists → allow stop
+   - Code files changed but not reviewed → block + suggest running code-reviewer
 3. Security-sensitive file detection: auth/payment/token files → MANDATORY review reminder
 
 Uses last_assistant_message to detect incomplete work patterns.
 
-Marker file: /tmp/.claude_review_done_<git_hash> (code changes)
-             /tmp/.claude_review_session_<session_name> (review sessions)
-Old marker files (>24h) are cleaned up automatically.
+Counter file: /tmp/.claude_stop_count_<session_id>
+Old counter files (>24h) are cleaned up automatically.
 """
 
 import sys
@@ -33,31 +31,64 @@ import glob as glob_module
 from pathlib import Path
 
 
-MARKER_PREFIX = ".claude_review_done_"
-SESSION_MARKER_PREFIX = ".claude_review_session_"
-GIT_TIMEOUT = 10  # seconds
-MARKER_MAX_AGE = 86400  # 24 hours
+STOP_COUNT_PREFIX = ".claude_stop_count_"
+MAX_STOP_BLOCKS = 2  # Block at most 2 times, then allow stop
+GIT_TIMEOUT = 3  # seconds (must be < hook timeout of 5s)
+COUNTER_MAX_AGE = 86400  # 24 hours
 INCOMPLETE_GRACE_PERIOD = 900  # 15 min - agents may still be running
+SESSION_MAX_AGE = 7200  # 2 hours - only consider recent review sessions
 
 SECURITY_PATTERNS = {'auth', 'login', 'password', 'payment', 'secret', 'token', 'credential', 'session'}
 INCOMPLETE_WORK_PATTERNS = ['todo', 'fixme', 'hack', 'unfinished', 'not yet', 'wip', 'work in progress']
 
 
-def cleanup_old_markers() -> None:
-    """Remove marker files older than MARKER_MAX_AGE seconds."""
+# -- Circuit Breaker (session-scoped counter) --
+
+
+def cleanup_old_counters() -> None:
+    """Remove counter files older than COUNTER_MAX_AGE seconds."""
     try:
         tmp_dir = tempfile.gettempdir()
         now = time.time()
-        for prefix in (MARKER_PREFIX, SESSION_MARKER_PREFIX):
-            pattern = os.path.join(tmp_dir, f"{prefix}*")
-            for path in glob_module.glob(pattern):
-                try:
-                    if now - os.path.getmtime(path) > MARKER_MAX_AGE:
-                        os.unlink(path)
-                except OSError:
-                    pass
+        pattern = os.path.join(tmp_dir, f"{STOP_COUNT_PREFIX}*")
+        for path in glob_module.glob(pattern):
+            try:
+                if now - os.path.getmtime(path) > COUNTER_MAX_AGE:
+                    os.unlink(path)
+            except OSError:
+                pass
     except Exception:
         pass
+
+
+def get_stop_count_path(session_id: str) -> str:
+    """Get the counter file path for a session."""
+    return os.path.join(tempfile.gettempdir(), f"{STOP_COUNT_PREFIX}{session_id}")
+
+
+def get_stop_count(session_id: str) -> int:
+    """Read current block count for this session."""
+    try:
+        with open(get_stop_count_path(session_id)) as f:
+            return int(f.read().strip())
+    except (OSError, ValueError):
+        return 0
+
+
+def increment_stop_count(session_id: str) -> int:
+    """Increment and return block count for this session."""
+    count = get_stop_count(session_id) + 1
+    path = get_stop_count_path(session_id)
+    try:
+        with open(path, 'w') as f:
+            f.write(str(count))
+        os.chmod(path, 0o600)
+    except OSError:
+        pass
+    return count
+
+
+# -- Git Helpers --
 
 
 def get_git_status() -> dict:
@@ -72,10 +103,8 @@ def get_git_status() -> dict:
     try:
         proc = subprocess.run(
             ['git', 'rev-parse', '--is-inside-work-tree'],
-            capture_output=True,
-            text=True,
-            cwd=os.getcwd(),
-            timeout=GIT_TIMEOUT
+            capture_output=True, text=True,
+            cwd=os.getcwd(), timeout=GIT_TIMEOUT
         )
         if proc.returncode != 0:
             print("[pre_stop_check] Not in a git repo, skipping", file=sys.stderr)
@@ -83,10 +112,8 @@ def get_git_status() -> dict:
 
         proc = subprocess.run(
             ['git', 'status', '--porcelain'],
-            capture_output=True,
-            text=True,
-            cwd=os.getcwd(),
-            timeout=GIT_TIMEOUT
+            capture_output=True, text=True,
+            cwd=os.getcwd(), timeout=GIT_TIMEOUT
         )
 
         if proc.returncode != 0:
@@ -120,46 +147,13 @@ def get_git_status() -> dict:
 def get_code_files(files: list) -> list:
     """Filter to code files only (excludes .md and other non-code files)."""
     code_extensions = {'.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs', '.java', '.sol', '.rb', '.vue', '.svelte', '.css', '.scss', '.html', '.json', '.yaml', '.yml', '.toml', '.sh'}
-    excluded_extensions = {'.md', '.txt', '.log'}
-    return [f for f in files
-            if os.path.splitext(f)[1].lower() in code_extensions
-            and os.path.splitext(f)[1].lower() not in excluded_extensions]
+    return [f for f in files if os.path.splitext(f)[1].lower() in code_extensions]
 
 
 def get_changes_hash(files: list) -> str:
     """Generate a hash based on the set of changed files."""
     content = "\n".join(sorted(files))
     return hashlib.md5(content.encode()).hexdigest()[:12]
-
-
-def get_marker_path(changes_hash: str) -> str:
-    """Get the marker file path for a given changes hash."""
-    return os.path.join(tempfile.gettempdir(), f"{MARKER_PREFIX}{changes_hash}")
-
-
-def is_review_done(changes_hash: str) -> bool:
-    """Check if review has been completed for this set of changes."""
-    return os.path.exists(get_marker_path(changes_hash))
-
-
-def mark_review_blocked(changes_hash: str) -> bool:
-    """Mark that we've blocked once for this set of changes.
-
-    On the first block, create a marker file. On the next stop attempt,
-    the hook will see the marker and allow stop (review was presumably done).
-    Returns True if marker was created successfully.
-    """
-    marker_path = get_marker_path(changes_hash)
-    try:
-        with open(marker_path, 'w') as f:
-            f.write("blocked_once")
-        return True
-    except OSError as e:
-        print(f"[pre_stop_check] Failed to create marker file: {e}", file=sys.stderr)
-        return False
-
-
-SESSION_MAX_AGE = 7200  # 2 hours - only consider recent review sessions
 
 
 def get_current_branch() -> str:
@@ -173,6 +167,9 @@ def get_current_branch() -> str:
         return proc.stdout.strip() if proc.returncode == 0 else ""
     except (subprocess.TimeoutExpired, Exception):
         return ""
+
+
+# -- Review Artifact Checks --
 
 
 def get_project_reviews_dir() -> Path | None:
@@ -193,11 +190,10 @@ def get_project_reviews_dir() -> Path | None:
     return None
 
 
-def check_review_artifacts() -> dict:
-    """Check if a recent ultra-review session for the current branch has unresolved P0s.
+def check_review_artifacts(branch: str = "") -> dict:
+    """Check if a recent ultra-review session for the current branch has unresolved issues.
 
     Uses index.json (branch-scoped) with fallback to directory scan (time-scoped).
-    Avoids false positives from old or unrelated review sessions.
 
     Returns:
         dict with 'needs_review' (bool), optionally 'reason' (str),
@@ -208,7 +204,7 @@ def check_review_artifacts() -> dict:
         return {'needs_review': False, 'review_passed': False}
     reviews_dir: Path = maybe_reviews_dir
 
-    current_branch = get_current_branch()
+    current_branch = branch or get_current_branch()
 
     # Strategy 1: Use index.json (preferred — branch-scoped)
     index_file = reviews_dir / "index.json"
@@ -250,17 +246,14 @@ def check_review_artifacts() -> dict:
                     return {
                         'needs_review': True,
                         'review_passed': False,
-                        'session_id': session_id,
                         'reason': f"Review found {p0_count} P0 critical issue(s) - fix before stopping"
                     }
 
                 if verdict == 'REQUEST_CHANGES':
-                    # P1-only REQUEST_CHANGES: block once with marker
                     return {
                         'needs_review': True,
                         'review_passed': False,
-                        'session_id': session_id,
-                        'reason': f"Review verdict is REQUEST_CHANGES (P1 issues unresolved)"
+                        'reason': "Review verdict is REQUEST_CHANGES (P1 issues unresolved)"
                     }
 
                 if verdict in ('APPROVE', 'COMMENT'):
@@ -300,11 +293,10 @@ def check_review_artifacts() -> dict:
                     'review_passed': False,
                     'warn': f"Review session {latest.name} in progress ({len(review_files)} agents done so far)"
                 }
-            # Abandoned: use marker-based block
+            # Abandoned
             return {
                 'needs_review': True,
                 'review_passed': False,
-                'session_id': latest.name,
                 'reason': f"Review session {latest.name} incomplete ({len(review_files)}/6 agents) - run review-coordinator or delete session"
             }
         return {'needs_review': False, 'review_passed': False}
@@ -322,20 +314,20 @@ def check_review_artifacts() -> dict:
         return {
             'needs_review': True,
             'review_passed': False,
-            'session_id': latest.name,
             'reason': f"Review found {p0_count} P0 critical issue(s) - fix before stopping"
         }
 
     if verdict == 'REQUEST_CHANGES':
-        # P1-only REQUEST_CHANGES: block once with marker
         return {
             'needs_review': True,
             'review_passed': False,
-            'session_id': latest.name,
-            'reason': f"Review verdict is REQUEST_CHANGES (P1 issues unresolved)"
+            'reason': "Review verdict is REQUEST_CHANGES (P1 issues unresolved)"
         }
 
     return {'needs_review': False, 'review_passed': True}
+
+
+# -- Detection Helpers --
 
 
 def detect_security_files(files: list) -> list:
@@ -352,6 +344,21 @@ def check_incomplete_work(last_message: str) -> bool:
     return any(p in lower for p in INCOMPLETE_WORK_PATTERNS)
 
 
+# -- Main --
+
+
+def block_stop(session_id: str, reason: str) -> None:
+    """Block stop: increment counter and output block decision."""
+    if session_id:
+        count = increment_stop_count(session_id)
+        print(f"[pre_stop_check] Block #{count}/{MAX_STOP_BLOCKS}", file=sys.stderr)
+    result = {
+        "decision": "block",
+        "reason": reason
+    }
+    print(json.dumps(result))
+
+
 def main():
     try:
         input_data = sys.stdin.read()
@@ -361,52 +368,41 @@ def main():
         print(json.dumps({}))
         return
 
-    # Layer 0: Loop guard — if already in a hook-triggered continuation, allow stop
-    if hook_data.get("stop_hook_active"):
+    session_id = hook_data.get("session_id", "")
+    last_message = hook_data.get("last_assistant_message", "")
+
+    cleanup_old_counters()
+
+    # Layer 0a: Protocol fast path — stop_hook_active means Claude already continued once
+    if hook_data.get("stop_hook_active", False):
         print("[pre_stop_check] stop_hook_active=true, allowing stop", file=sys.stderr)
         print(json.dumps({}))
         return
 
-    last_message = hook_data.get("last_assistant_message", "")
+    # Layer 0b: Circuit breaker — max blocks reached → allow stop (prevent infinite loop)
+    if session_id:
+        stop_count = get_stop_count(session_id)
+        if stop_count >= MAX_STOP_BLOCKS:
+            print(f"[pre_stop_check] Circuit breaker: {stop_count}/{MAX_STOP_BLOCKS} blocks reached, allowing stop", file=sys.stderr)
+            print(json.dumps({}))
+            return
 
-    cleanup_old_markers()
+    # Get branch once, reuse across layers (saves ~30ms subprocess call)
+    current_branch = get_current_branch()
 
-    # Check review artifacts first (only recent sessions)
-    review_check = check_review_artifacts()
+    # Layer 1: Check review artifacts (only recent sessions)
+    review_check = check_review_artifacts(branch=current_branch)
 
-    # Warn only (agents still running) — no block, early return
+    # Warn only (agents still running) — no block
     if review_check.get('warn'):
         print(f"[pre_stop_check] {review_check['warn']}", file=sys.stderr)
         print(json.dumps({}))
         return
 
-    # Block with escape hatch: marker-based (block once, allow on second attempt)
+    # Review found issues → block
     if review_check.get('needs_review'):
-        session_id = review_check.get('session_id', 'unknown')
-        marker_path = os.path.join(
-            tempfile.gettempdir(),
-            f"{SESSION_MARKER_PREFIX}{session_id}"
-        )
-
-        if os.path.exists(marker_path):
-            # Second attempt — allow stop, warn user
-            reason = review_check['reason']
-            print(f"[pre_stop_check] Allowing stop (second attempt). Unresolved: {reason}", file=sys.stderr)
-            print(json.dumps({}))
-            return
-
-        # First attempt — block and create marker
-        try:
-            with open(marker_path, 'w') as f:
-                f.write(f"blocked_at={time.time()}")
-        except OSError:
-            pass
-
-        result = {
-            "decision": "block",
-            "reason": f"[Pre-Stop Check] {review_check['reason']}. Stopping anyway on next attempt."
-        }
-        print(json.dumps(result))
+        reason = f"[Pre-Stop Check] {review_check['reason']}."
+        block_stop(session_id, reason)
         return
 
     # Recent review passed → skip code change check entirely
@@ -414,9 +410,8 @@ def main():
         print(json.dumps({}))
         return
 
-    # No recent review session — fall back to code change detection
+    # Layer 2: No recent review session — fall back to code change detection
     # Skip for main/master: merged code was already reviewed on its feature branch
-    current_branch = get_current_branch()
     if current_branch in ('main', 'master'):
         print(json.dumps({}))
         return
@@ -434,16 +429,6 @@ def main():
         print(json.dumps({}))
         return
 
-    changes_hash = get_changes_hash(all_changed)
-
-    # Already blocked once for this set of changes → allow stop
-    if is_review_done(changes_hash):
-        print(json.dumps({}))
-        return
-
-    # First time: block and create marker
-    mark_review_blocked(changes_hash)
-
     # Build block message with actionable review suggestions
     lines = [
         f"[Pre-Stop Check] {len(code_files)} code file(s) changed but not reviewed:",
@@ -453,7 +438,7 @@ def main():
     if len(code_files) > 8:
         lines.append(f"  ... and {len(code_files) - 8} more")
 
-    # Detect security-sensitive files
+    # Layer 3: Detect security-sensitive files
     security_files = detect_security_files(code_files)
     if security_files:
         lines.append("")
@@ -469,15 +454,11 @@ def main():
 
     lines.append("")
     if security_files:
-        lines.append("Run code-reviewer agent for security review before stopping. Stopping anyway on next attempt.")
+        lines.append("Run code-reviewer agent for security review before stopping.")
     else:
-        lines.append("Consider running /ultra-review or code-reviewer agent. Stopping anyway on next attempt.")
+        lines.append("Consider running /ultra-review or code-reviewer agent.")
 
-    result = {
-        "decision": "block",
-        "reason": "\n".join(lines)
-    }
-    print(json.dumps(result))
+    block_stop(session_id, "\n".join(lines))
 
 
 if __name__ == '__main__':
