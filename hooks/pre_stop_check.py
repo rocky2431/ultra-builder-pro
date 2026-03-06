@@ -120,7 +120,7 @@ def get_git_status() -> dict:
             print(f"[pre_stop_check] git status failed: {proc.stderr.strip()}", file=sys.stderr)
             return result
 
-        for line in proc.stdout.strip().split('\n'):
+        for line in proc.stdout.rstrip('\n').split('\n'):
             if not line:
                 continue
 
@@ -411,11 +411,6 @@ def main():
         return
 
     # Layer 2: No recent review session — fall back to code change detection
-    # Skip for main/master: merged code was already reviewed on its feature branch
-    if current_branch in ('main', 'master'):
-        print(json.dumps({}))
-        return
-
     git_status = get_git_status()
 
     if not git_status['has_changes']:

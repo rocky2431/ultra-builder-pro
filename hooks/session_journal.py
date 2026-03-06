@@ -48,7 +48,7 @@ def run_git(*args) -> str:
             cwd=os.getcwd()
         )
         if result.returncode == 0:
-            return result.stdout.strip()
+            return result.stdout.rstrip('\n')
     except (subprocess.TimeoutExpired, FileNotFoundError):
         pass
     return ""
