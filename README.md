@@ -96,7 +96,6 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 | Skill | Purpose | User-Invocable |
 |-------|---------|----------------|
 | `ultra-review` | Parallel code review with 6 agents + coordinator | Yes |
-| `codex` | OpenAI Codex CLI integration | Yes |
 | `recall` | Cross-session memory search, save summaries, tags | Yes |
 | `code-review-expert` | Structured review checklists (SOLID, security, perf, integration) | No (agent-only) |
 | `testing-rules` | TDD discipline, mock detection rules | No (agent-only) |
@@ -362,10 +361,9 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- commit.md
 |   |-- learn.md
 |
-|-- skills/                   # Domain skills (7 + learned)
+|-- skills/                   # Domain skills (6 + learned)
 |   |-- ultra-review/         # Parallel review orchestration
 |   |   |-- scripts/          # review_wait.py, review_verdict_update.py
-|   |-- codex/                # OpenAI Codex CLI
 |   |-- recall/               # Cross-session memory search
 |   |-- code-review-expert/   # Structured review checklists (agent-only)
 |   |-- integration-rules/    # System integration rules (agent-only)

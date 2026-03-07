@@ -141,7 +141,7 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 
 **12 agents**: 5 interactive (smart-contract-specialist/auditor, code-reviewer, tdd-runner, debugger) + 7 pipeline (review-code/tests/errors/types/comments/simplify + coordinator)
 **All agents**: persistent memory — consult and update each session
-**Skills**: User: codex, ultra-review | Agent-only: testing-rules, security-rules, code-review-expert, integration-rules
+**Skills**: User: ultra-review | Agent-only: testing-rules, security-rules, code-review-expert, integration-rules
 **Hooks**: code quality, mock detection, security scan, branch protection, dangerous command blocking, subagent lifecycle, review gate
 </agent_system>
 
