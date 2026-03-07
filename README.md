@@ -9,7 +9,7 @@
 [![Version](https://img.shields.io/badge/version-5.9.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-7-orange)](skills/)
+[![Skills](https://img.shields.io/badge/skills-9-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-12-red)](agents/)
 [![Hooks](https://img.shields.io/badge/hooks-10-yellow)](hooks/)
 
@@ -361,9 +361,13 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- commit.md
 |   |-- learn.md
 |
-|-- skills/                   # Domain skills (6 + learned)
+|-- skills/                   # Domain skills (8 + learned)
 |   |-- ultra-review/         # Parallel review orchestration
 |   |   |-- scripts/          # review_wait.py, review_verdict_update.py
+|   |-- gemini-collab/        # Gemini CLI as independent sub-agent
+|   |   |-- references/       # Prompt templates
+|   |-- codex-collab/         # OpenAI Codex CLI as independent sub-agent
+|   |   |-- references/       # Prompt templates
 |   |-- recall/               # Cross-session memory search
 |   |-- code-review-expert/   # Structured review checklists (agent-only)
 |   |-- integration-rules/    # System integration rules (agent-only)
@@ -458,6 +462,16 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v6.1.0 (2026-03-07) - Multi-AI Collaboration
+
+**Dual AI collaboration skills** — invoke Gemini and Codex as independent sub-agents:
+
+- New `gemini-collab` skill: Gemini CLI as sub-agent for review, project analysis, second opinions
+- New `codex-collab` skill: OpenAI Codex CLI as sub-agent with built-in `codex review` integration
+- File-based output (`.ultra/collab/`): `metadata.json` + `output.md` + `synthesis.md` per session
+- Zero context pollution: all AI output goes through files, Read tool for consumption
+- Shared session directory for cross-AI reference
 
 ### v6.0.0 (2026-03-07) - Consolidation Release
 
