@@ -1,4 +1,4 @@
-# Ultra Builder Pro 5.9.0
+# Ultra Builder Pro 6.0.0
 
 <div align="center">
 
@@ -458,6 +458,19 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v6.0.0 (2026-03-07) - Consolidation Release
+
+**System consolidation and cleanup**:
+
+- Removed codex skill and all references (CLAUDE.md, README.md, skills/codex/)
+- Stop hook hardening: removed main branch bypass, fixed git status path truncation
+- Comprehensive hook audit: 20 fixes, model unification, 2 new hooks (Notification, SessionEnd)
+- Ultra-think rewrite: adversarial reasoning framework
+- All 12 agents unified to opus model
+- Session summary model upgraded to opus
+- Post-compact context injection via SessionStart(compact) hook
+- Permission cleanup: removed obsolete tools, added missing tools
 
 ### v5.9.2 (2026-03-05) - Hook Audit & Model Unification
 
