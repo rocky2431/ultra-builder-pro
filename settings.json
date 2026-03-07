@@ -31,7 +31,8 @@
       "TeamCreate",
       "TeamDelete",
       "SendMessage",
-      "mcp__*"
+      "mcp__*",
+      "mcp__pencil"
     ],
     "deny": [
       "Read(./.env)",
@@ -194,8 +195,8 @@
   },
   "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "_comment_project": "Ultra Builder Pro 5.9.0",
-  "_comment_version": "5.9.0 - Process Discipline Fusion",
+  "_comment_project": "Ultra Builder Pro 6.0.0",
+  "_comment_version": "6.0.0 - Consolidation Release",
   "effortLevel": "high",
   "model": "opus"
 }
