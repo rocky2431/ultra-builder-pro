@@ -39,14 +39,44 @@ codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
 
 Set Bash timeout to 300000ms for both.
 
-## 4. Collect Results
+## 4. Wait for Completion (MANDATORY)
 
-Wait for both background tasks to complete, then read all three files:
+**CRITICAL**: After launching background tasks, you MUST run the wait script. Do NOT read output files or start synthesis until the wait script returns.
+
+```bash
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
+```
+
+The script polls every 3 seconds for up to 5 minutes, checking for output files from both AIs. It returns structured JSON on stdout:
+
+```json
+{
+  "status": "complete",
+  "gemini": {"name": "gemini", "status": "complete", "file": "..."},
+  "codex": {"name": "codex", "status": "complete", "file": "..."},
+  "elapsed_seconds": 45
+}
+```
+
+Possible per-AI status values:
+- `"complete"` — output file exists and is non-empty
+- `"failed"` — error log exists but no output (CLI error)
+- `"empty"` — output file exists but is empty
+- `"pending"` — no output yet (only on timeout)
+
+**After wait returns**, read the JSON output and proceed:
+- Both `complete` → full three-way synthesis
+- One `failed`/`empty` → two-way synthesis (degraded)
+- Both `failed` → Claude-only analysis
+
+## 5. Collect Results
+
+Read all available output files:
 
 ```
 Read ${SESSION_PATH}/claude-analysis.md
-Read ${SESSION_PATH}/gemini-output.md
-Read ${SESSION_PATH}/codex-output.md   (or codex-raw.txt for audit mode — extract findings from raw output)
+Read ${SESSION_PATH}/gemini-output.md    (if gemini status = complete)
+Read ${SESSION_PATH}/codex-output.md     (if codex status = complete, or codex-raw.txt for audit mode)
 ```
 
 For `codex review` raw output: read `codex-raw.txt`, extract the review findings (skip MCP/shell logs), save cleaned content as `codex-output.md`.

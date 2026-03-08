@@ -26,13 +26,17 @@ Orchestrate Claude + Gemini + Codex for independent three-way analysis. Each AI 
 
 ## Orchestration
 
-See `references/orchestration-flow.md` for detailed flow. Summary:
-
-1. **Claude answers FIRST** (writes to file BEFORE reading external AI output)
+1. **Claude answers FIRST** (writes to `${SESSION_PATH}/claude-analysis.md` BEFORE reading external AI output)
 2. **Gemini + Codex run in parallel** (`run_in_background: true`)
-3. **Claude reads all three outputs** via Read tool
-4. **Compute confidence** based on consensus (see `references/confidence-system.md`)
-5. **Write synthesis** to `SESSION_PATH/synthesis.md`
+3. **MANDATORY WAIT** — run `verify_wait.py` to block until both AIs complete:
+   ```bash
+   python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
+   ```
+   Do NOT read output files or start synthesis until this script returns.
+4. **Read the wait script JSON output** — check each AI's status (complete/failed/empty)
+5. **Read available output files** via Read tool
+6. **Compute confidence** based on consensus
+7. **Write synthesis** to `SESSION_PATH/synthesis.md`
 
 ### CRITICAL: Exact CLI Commands
 
