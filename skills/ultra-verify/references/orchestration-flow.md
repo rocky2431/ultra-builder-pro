@@ -56,8 +56,10 @@ Bash timeout MUST be `timeout: 600000` (10 min max for Bash tool — script hand
 
 始终 exit 0，结果通过 JSON `status` 字段表达。超时时才检查 error log 判定失败原因。
 
+**两轮重试**：如果第一轮返回 `"timeout"` 且有 AI 仍为 `"pending"`，再跑一轮同样命令（共 ~20 分钟）。两轮都超时才降级。
+
 **HARD RULES — violation = broken workflow:**
-- This command BLOCKS until both AIs finish or timeout (~10 min)
+- This command BLOCKS until both AIs finish or timeout (~10 min per round, max 2 rounds)
 - Do NOT read gemini-output.md or codex-output.md before this returns
 - Do NOT write synthesis.md before this returns
 - Do NOT skip this step even if you believe the AIs already finished

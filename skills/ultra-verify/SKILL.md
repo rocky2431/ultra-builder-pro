@@ -85,16 +85,26 @@ Violation of these rules causes premature synthesis without external AI input.
 python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 580
 ```
 
-This blocks until both AIs produce output OR timeout. Only two exit条件：
-1. **输出就绪**: 输出文件非空（size > 0）且大小在连续两次轮询间不变（写入完成）
-2. **超时**: 达到 timeout 上限
+脚本每 3 秒轮询，两个退出条件：
+1. **输出就绪**: 输出文件非空（size > 0）且大小在连续两次轮询间不变（写入完成）→ `status: "complete"`
+2. **超时**: 达到 580s 上限 → `status: "timeout"`
 
-始终 exit 0，结果通过 JSON `status` 字段表达（`"complete"` 或 `"timeout"`）。
-Bash timeout MUST be set to `timeout: 600000` (10 min max for Bash tool — script handles its own timeout internally).
+始终 exit 0，结果通过 JSON `status` 字段表达。Bash timeout 设为 `timeout: 600000`。
+
+**两轮重试机制**：如果第一轮返回 `"timeout"` 且有 AI 仍为 `"pending"`，再跑一轮（共 ~20 分钟）：
+
+```
+Round 1 JSON → 解析 status
+  - "complete" → 直接进 Step 4
+  - "timeout" 且有 pending → 再跑一轮同样命令
+    Round 2 JSON → 无论结果直接进 Step 4（用最终 JSON）
+```
+
+两轮都超时才降级。
 
 ### Step 4: Collect + Synthesize (REQUIRES Step 3 JSON)
 
-**Do NOT enter this step without the JSON output from Step 3.**
+**Do NOT enter this step without the JSON output from Step 3（最后一轮的 JSON）。**
 
 1. **Parse the wait script JSON** — extract `gemini.status` and `codex.status`
 2. **Read output files** only for AIs with `"complete"` status
