@@ -7,7 +7,7 @@ Blocks until all expected files appear or timeout. Returns structured JSON on st
 Usage:
     python3 verify_wait.py <session_path> [--timeout SECONDS]
 
-Expected files (agents write atomically via Write tool):
+Expected files (checks for non-empty):
     - gemini-output.md  OR  gemini-error.log (Gemini completed or failed)
     - codex-output.md   OR  codex-raw.txt    OR  codex-error.log (Codex completed or failed)
 
@@ -22,55 +22,69 @@ import sys
 import time
 from pathlib import Path
 
-POLL_INTERVAL = 3  # seconds
+POLL_INTERVAL = 3  # seconds — external CLIs are slower than subagents
 DEFAULT_TIMEOUT = 300  # 5 minutes
 
 
-def _file_size(path: Path) -> int:
-    """Return file size in bytes, or -1 if file does not exist.
-
-    Uses try/except to avoid TOCTOU race between exists() and stat().
-    """
-    try:
-        return path.stat().st_size
-    except FileNotFoundError:
-        return -1
-
-
-def check_gemini(session_path: Path) -> dict:
+def check_gemini(session_path: Path, at_timeout: bool = False) -> dict:
     """Check if Gemini has produced output or error.
 
-    Agents write files atomically via Write tool — if a file exists and is
-    non-empty, the write is complete. No stability checking needed.
+    Args:
+        at_timeout: If True, this is the final check after polling expired.
+                    Empty output files are treated as definitively "empty",
+                    and non-empty error logs take precedence over empty output.
     """
     output = session_path / "gemini-output.md"
     error = session_path / "gemini-error.log"
 
-    if _file_size(output) > 0:
+    if output.exists() and output.stat().st_size > 0:
         return {"name": "gemini", "status": "complete", "file": str(output)}
 
-    if _file_size(error) > 0:
-        return {"name": "gemini", "status": "failed", "file": str(error)}
+    # Error log takes precedence: no output, or output exists but empty at timeout
+    if error.exists() and error.stat().st_size > 0:
+        if not output.exists() or (at_timeout and output.stat().st_size == 0):
+            return {"name": "gemini", "status": "failed", "file": str(error)}
+
+    # During polling: empty file = shell redirect created it, process still writing → pending.
+    # At timeout: empty file with no error = process produced nothing → empty.
+    if at_timeout and output.exists() and output.stat().st_size == 0:
+        return {"name": "gemini", "status": "empty", "file": str(output)}
 
     return {"name": "gemini", "status": "pending", "file": None}
 
 
-def check_codex(session_path: Path) -> dict:
+def check_codex(session_path: Path, at_timeout: bool = False) -> dict:
     """Check if Codex has produced output or error.
 
-    Agents write files atomically via Write tool — if a file exists and is
-    non-empty, the write is complete. No stability checking needed.
+    Args:
+        at_timeout: If True, this is the final check after polling expired.
+                    Empty output files are treated as definitively "empty",
+                    and non-empty error logs take precedence over empty output.
     """
     output = session_path / "codex-output.md"
     raw = session_path / "codex-raw.txt"
     error = session_path / "codex-error.log"
 
-    for f in (output, raw):
-        if _file_size(f) > 0:
-            return {"name": "codex", "status": "complete", "file": str(f)}
+    if output.exists() and output.stat().st_size > 0:
+        return {"name": "codex", "status": "complete", "file": str(output)}
 
-    if _file_size(error) > 0:
-        return {"name": "codex", "status": "failed", "file": str(error)}
+    if raw.exists() and raw.stat().st_size > 0:
+        return {"name": "codex", "status": "complete", "file": str(raw)}
+
+    # Error log takes precedence over empty output/raw files at timeout
+    if error.exists() and error.stat().st_size > 0:
+        has_no_output = not output.exists() and not raw.exists()
+        has_only_empty = at_timeout and all(
+            not f.exists() or f.stat().st_size == 0 for f in (output, raw)
+        )
+        if has_no_output or has_only_empty:
+            return {"name": "codex", "status": "failed", "file": str(error)}
+
+    # At timeout: empty output/raw with no error = process produced nothing
+    if at_timeout:
+        for f in (output, raw):
+            if f.exists() and f.stat().st_size == 0:
+                return {"name": "codex", "status": "empty", "file": str(f)}
 
     return {"name": "codex", "status": "pending", "file": None}
 
@@ -113,19 +127,24 @@ def main():
             sys.exit(0)
 
         remaining = int(deadline - time.monotonic())
-        done_count = int(gemini_done) + int(codex_done)
-        parts = [
-            f"gemini:{gemini['status']}",
-            f"codex:{codex['status']}",
-        ]
+        done_count = sum([gemini_done, codex_done])
+        parts = []
+        if gemini_done:
+            parts.append(f"gemini:{gemini['status']}")
+        else:
+            parts.append("gemini:waiting")
+        if codex_done:
+            parts.append(f"codex:{codex['status']}")
+        else:
+            parts.append("codex:waiting")
 
         sys.stderr.write(f"\r  [{done_count}/2] {' | '.join(parts)} ({remaining}s remaining)  ")
         sys.stderr.flush()
         time.sleep(POLL_INTERVAL)
 
-    # Timeout — final check
-    gemini = check_gemini(session_path)
-    codex = check_codex(session_path)
+    # Timeout — final check: empty files are now definitively empty, errors take precedence
+    gemini = check_gemini(session_path, at_timeout=True)
+    codex = check_codex(session_path, at_timeout=True)
 
     result = {
         "status": "timeout",

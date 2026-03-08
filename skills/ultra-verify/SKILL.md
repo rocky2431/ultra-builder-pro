@@ -39,9 +39,7 @@ Orchestrate Claude + Gemini + Codex for independent three-way analysis. Each AI 
 **After each step**: `TaskUpdate` → `status: "completed"`
 **On context recovery**: `TaskList` → resume from last incomplete step
 
-## Orchestration — STRICT SEQUENTIAL EXECUTION
-
-**RULE: Each step REQUIRES the output of the previous step. Never skip ahead. Never start synthesis without wait script JSON.**
+## Orchestration
 
 ### Step 1: Session Setup + Claude Analysis
 
@@ -53,51 +51,45 @@ mkdir -p "${SESSION_PATH}"
 
 Write Claude's own analysis to `${SESSION_PATH}/claude-analysis.md` FIRST (before reading external AI output).
 
-### Step 2: Launch External AIs (both `run_in_background: true`)
+### Step 2: Launch External AIs
 
-Launch BOTH agents in a **single message** with two parallel `Agent` tool calls. Both MUST use `run_in_background: true`.
+Launch Gemini + Codex in parallel (`run_in_background: true`).
 
-**Gemini** — use `verify-gemini` agent:
-- prompt: include analysis question/scope + output file paths
-- Output: `${SESSION_PATH}/gemini-output.md`
-- Error: `${SESSION_PATH}/gemini-error.log`
+### Step 3: MANDATORY WAIT
 
-**Codex** — use `verify-codex` agent:
-- prompt: include analysis question/scope, mode, + output file paths
-- Output: `${SESSION_PATH}/codex-output.md` (or `codex-raw.txt` for audit)
-- Error: `${SESSION_PATH}/codex-error.log`
-
-Agents handle CLI invocation via their collab skills. Output files are written atomically with the Write tool (complete or absent — no partial writes).
-
-**CRITICAL PROHIBITION** (after launching agents):
-1. Run `verify_wait.py` IMMEDIATELY in the **next message**
-2. NEVER read output files directly — wait for the wait script
-3. Ignore ALL agent completion/idle notifications between launch and wait script return
-4. The ONLY information path: `verify_wait.py` JSON → then Read output files
-
-Violation causes premature synthesis without external AI input.
-
-### Step 3: BLOCKING WAIT
-
-**IMMEDIATELY** after Step 2 (in the very next message), run this **foreground** Bash command:
+Run `verify_wait.py` to block until both AIs complete:
 
 ```bash
-python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 300
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
 ```
 
-This blocks until both AIs produce output (up to 5 minutes). It prints JSON to stdout.
+Do NOT read output files or start synthesis until this script returns.
 
-### Step 4: Collect + Synthesize (REQUIRES Step 3 JSON)
+### Step 4: Collect + Synthesize
 
-**Do NOT enter this step without the JSON output from Step 3.**
+Read the wait script JSON output, read available output files, compute confidence, write synthesis.
 
-1. **Parse the wait script JSON** — extract `gemini.status` and `codex.status`
-2. **Read output files** only for AIs with `"complete"` status
-3. **Compute confidence** — see `references/confidence-system.md`
-4. **Write synthesis** — see `references/collab-protocol.md` for template
+### CRITICAL: Exact CLI Commands
 
-If both AIs failed → Claude-only analysis with explicit warning.
-If one AI failed → two-way synthesis, note missing perspective.
+**Gemini** (correct — `-p` flag for non-interactive):
+```bash
+gemini -p "<prompt>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
+```
+
+**Codex** (correct — must use `codex exec` subcommand, NOT `codex -p` or `codex -q`):
+```bash
+codex exec "<prompt>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
+```
+
+**Codex for audit mode** (use built-in `codex review`):
+```bash
+codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
+```
+
+**FORBIDDEN Codex patterns** (these DO NOT WORK):
+- `codex -p "prompt"` — NO `-p` flag exists
+- `codex -q "prompt"` — NO `-q` flag exists
+- `codex --full-auto -s read-only` — `--full-auto` conflicts with `-s read-only`
 
 ### Session Structure
 
@@ -106,7 +98,7 @@ If one AI failed → two-way synthesis, note missing perspective.
   ├── metadata.json
   ├── claude-analysis.md
   ├── gemini-output.md
-  ├── codex-output.md (or codex-raw.txt for audit)
+  ├── codex-output.md
   └── synthesis.md
 ```
 
