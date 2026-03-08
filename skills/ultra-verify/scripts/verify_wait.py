@@ -26,27 +26,41 @@ POLL_INTERVAL = 3  # seconds — external CLIs are slower than subagents
 DEFAULT_TIMEOUT = 300  # 5 minutes
 
 
-def check_gemini(session_path: Path) -> dict:
-    """Check if Gemini has produced output or error."""
+def check_gemini(session_path: Path, at_timeout: bool = False) -> dict:
+    """Check if Gemini has produced output or error.
+
+    Args:
+        at_timeout: If True, this is the final check after polling expired.
+                    Empty output files are treated as definitively "empty",
+                    and non-empty error logs take precedence over empty output.
+    """
     output = session_path / "gemini-output.md"
     error = session_path / "gemini-error.log"
 
     if output.exists() and output.stat().st_size > 0:
         return {"name": "gemini", "status": "complete", "file": str(output)}
 
-    # Check if error log indicates failure (non-empty error + no output)
-    if error.exists() and error.stat().st_size > 0 and not output.exists():
-        return {"name": "gemini", "status": "failed", "file": str(error)}
+    # Error log takes precedence: no output, or output exists but empty at timeout
+    if error.exists() and error.stat().st_size > 0:
+        if not output.exists() or (at_timeout and output.stat().st_size == 0):
+            return {"name": "gemini", "status": "failed", "file": str(error)}
 
-    # Output file exists but is empty — Gemini ran but produced nothing
-    if output.exists() and output.stat().st_size == 0:
+    # During polling: empty file = shell redirect created it, process still writing → pending.
+    # At timeout: empty file with no error = process produced nothing → empty.
+    if at_timeout and output.exists() and output.stat().st_size == 0:
         return {"name": "gemini", "status": "empty", "file": str(output)}
 
     return {"name": "gemini", "status": "pending", "file": None}
 
 
-def check_codex(session_path: Path) -> dict:
-    """Check if Codex has produced output or error."""
+def check_codex(session_path: Path, at_timeout: bool = False) -> dict:
+    """Check if Codex has produced output or error.
+
+    Args:
+        at_timeout: If True, this is the final check after polling expired.
+                    Empty output files are treated as definitively "empty",
+                    and non-empty error logs take precedence over empty output.
+    """
     output = session_path / "codex-output.md"
     raw = session_path / "codex-raw.txt"
     error = session_path / "codex-error.log"
@@ -57,11 +71,20 @@ def check_codex(session_path: Path) -> dict:
     if raw.exists() and raw.stat().st_size > 0:
         return {"name": "codex", "status": "complete", "file": str(raw)}
 
-    if error.exists() and error.stat().st_size > 0 and not output.exists() and not raw.exists():
-        return {"name": "codex", "status": "failed", "file": str(error)}
+    # Error log takes precedence over empty output/raw files at timeout
+    if error.exists() and error.stat().st_size > 0:
+        has_no_output = not output.exists() and not raw.exists()
+        has_only_empty = at_timeout and all(
+            not f.exists() or f.stat().st_size == 0 for f in (output, raw)
+        )
+        if has_no_output or has_only_empty:
+            return {"name": "codex", "status": "failed", "file": str(error)}
 
-    if output.exists() and output.stat().st_size == 0:
-        return {"name": "codex", "status": "empty", "file": str(output)}
+    # At timeout: empty output/raw with no error = process produced nothing
+    if at_timeout:
+        for f in (output, raw):
+            if f.exists() and f.stat().st_size == 0:
+                return {"name": "codex", "status": "empty", "file": str(f)}
 
     return {"name": "codex", "status": "pending", "file": None}
 
@@ -119,9 +142,9 @@ def main():
         sys.stderr.flush()
         time.sleep(POLL_INTERVAL)
 
-    # Timeout — report what we have
-    gemini = check_gemini(session_path)
-    codex = check_codex(session_path)
+    # Timeout — final check: empty files are now definitively empty, errors take precedence
+    gemini = check_gemini(session_path, at_timeout=True)
+    codex = check_codex(session_path, at_timeout=True)
 
     result = {
         "status": "timeout",

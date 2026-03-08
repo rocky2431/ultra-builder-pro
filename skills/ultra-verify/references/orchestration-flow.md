@@ -2,20 +2,9 @@
 
 Step-by-step execution flow for three-way cross-verification.
 
-## 0. Create Tasks (MANDATORY — before anything else)
+## 0. Workflow Tasks
 
-Create one task per step using `TaskCreate`:
-
-| Step | Subject | activeForm |
-|------|---------|------------|
-| 1 | Session Setup + Claude Analysis | Writing Claude analysis... |
-| 2 | Launch External AIs | Launching Gemini + Codex... |
-| 3 | Wait for Completion | Waiting for AI outputs... |
-| 4 | Collect + Synthesize | Synthesizing results... |
-
-**Before each step**: `TaskUpdate` → `status: "in_progress"`
-**After each step**: `TaskUpdate` → `status: "completed"`
-**Recovery after compact**: Run `TaskList`, find incomplete ultra-verify tasks, resume from last incomplete step.
+See the task table in SKILL.md `## Workflow Tracking (MANDATORY)`. Steps below map to those 4 tasks. Substeps (4a/4b/4c) are part of Task 4, not separate TaskCreate items.
 
 ## 1. Session Setup + Claude Analysis
 
@@ -82,7 +71,11 @@ Possible per-AI status values:
 - One `failed`/`empty` → two-way synthesis (degraded)
 - Both `failed` → Claude-only analysis
 
-## 4. Collect Results
+## 4. Collect + Synthesize
+
+This step covers collecting results, computing confidence, and writing synthesis (substeps 4a-4c).
+
+### 4a. Collect Results
 
 Read all available output files:
 
@@ -94,7 +87,7 @@ Read ${SESSION_PATH}/codex-output.md     (if codex status = complete, or codex-r
 
 For `codex review` raw output: read `codex-raw.txt`, extract the review findings (skip MCP/shell logs), save cleaned content as `codex-output.md`.
 
-## 5. Compute Confidence
+### 4b. Compute Confidence
 
 Compare the three analyses:
 1. Identify points of agreement (consensus items)
@@ -102,7 +95,7 @@ Compare the three analyses:
 3. Identify unique positions (1/3 only)
 4. Apply the confidence system from `confidence-system.md`
 
-## 6. Write Synthesis
+### 4c. Write Synthesis
 
 Write `${SESSION_PATH}/synthesis.md` with:
 - Mode and scope
@@ -131,7 +124,7 @@ Write `${SESSION_PATH}/metadata.json`:
 }
 ```
 
-## 7. Degraded Handling
+## 5. Degraded Handling
 
 If one AI fails:
 - Continue with two-way comparison

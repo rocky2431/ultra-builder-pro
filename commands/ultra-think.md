@@ -1,7 +1,7 @@
 ---
 description: Deep analysis with structured adversarial reasoning and human-AI collaboration
 argument-hint: [problem or decision to analyze]
-allowed-tools: Read, Grep, Glob, Bash, Write, WebSearch, WebFetch, AskUserQuestion, mcp__exa__web_search_exa, mcp__exa__get_code_context_exa, mcp__context7__resolve-library-id, mcp__context7__query-docs
+allowed-tools: Read, Grep, Glob, Bash, Write, Task, WebSearch, WebFetch, AskUserQuestion, mcp__exa__web_search_exa, mcp__exa__get_code_context_exa, mcp__context7__resolve-library-id, mcp__context7__query-docs
 model: opus
 ---
 
@@ -37,7 +37,7 @@ $ARGUMENTS
 
 ### Step 1: Scope Check
 
-If the problem is ambiguous or underspecified, ask up to 3 clarifying questions via AskUserQuestion before proceeding. If the problem is simple enough for a direct answer, skip the full framework and respond concisely.
+If the problem is ambiguous or underspecified, ask up to 3 clarifying questions via AskUserQuestion before proceeding. If the problem is simple enough for a direct answer, skip the full framework and respond concisely — mark all remaining tasks as `completed` with note "skipped: simple answer path".
 
 ### Step 2: Evidence Gathering
 

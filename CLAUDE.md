@@ -195,7 +195,8 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 <workflow_tracking>
 **Tools**: TaskCreate, TaskList, TaskGet, TaskUpdate
 **Rules**: Multi-step commands use Task system; hydrate from .ultra/tasks/; update both session and persistent
-**Auto-task rule**: If a task cannot be completed in a single conversation turn (risk of compact losing progress), create task(s) to track progress. Each major step gets its own TaskCreate; mark in_progress on start, completed on finish. After compact, TaskList → resume from last incomplete task.
+**Auto-task rule**: If a task may trigger context compaction before completion, create task(s) to track progress. Each major step gets its own TaskCreate; mark in_progress on start, completed on finish. After compact, TaskList → resume from last incomplete task.
+**Substep rule**: Only rows in the task table get TaskCreate. Numbered substeps in the body text are narrative — they belong to their parent task, not separate TaskCreate items. If a step is skipped (fast path), still TaskUpdate(completed).
 </workflow_tracking>
 
 <git_workflow>

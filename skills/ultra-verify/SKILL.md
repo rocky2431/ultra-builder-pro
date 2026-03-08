@@ -43,7 +43,13 @@ Orchestrate Claude + Gemini + Codex for independent three-way analysis. Each AI 
 
 ### Step 1: Session Setup + Claude Analysis
 
-Set up `SESSION_PATH` and write Claude's own analysis FIRST (before reading external AI output).
+```bash
+SESSION_ID="$(date +%Y%m%d-%H%M%S)-verify-<mode>"
+SESSION_PATH=".ultra/collab/${SESSION_ID}"
+mkdir -p "${SESSION_PATH}"
+```
+
+Write Claude's own analysis to `${SESSION_PATH}/claude-analysis.md` FIRST (before reading external AI output).
 
 ### Step 2: Launch External AIs
 
