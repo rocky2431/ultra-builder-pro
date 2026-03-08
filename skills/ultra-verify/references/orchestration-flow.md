@@ -50,13 +50,13 @@ python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" -
 
 Bash timeout MUST be `timeout: 600000` (10 min max for Bash tool — script handles its own timeout internally).
 
-**只有两个退出条件：**
-1. **输出就绪**: 输出文件非空（size > 0）且大小在连续两次轮询（3s）间不变（写入完成）→ exit 0, `status: "complete"`
-2. **超时**: 达到 timeout 上限 → exit 0, `status: "timeout"`
+**Two exit conditions:**
+1. **Output ready**: output file non-empty (size > 0) and size unchanged between consecutive polls (3s) → exit 0, `status: "complete"`
+2. **Timeout**: reached timeout limit → exit 0, `status: "timeout"`
 
-始终 exit 0，结果通过 JSON `status` 字段表达。超时时才检查 error log 判定失败原因。
+Always exit 0. Result expressed via JSON `status` field. Error logs only checked at timeout.
 
-**两轮重试**：如果第一轮返回 `"timeout"` 且有 AI 仍为 `"pending"`，再跑一轮同样命令（共 ~20 分钟）。两轮都超时才降级。
+**Two-round retry**: if round 1 returns `"timeout"` with any AI still `"pending"`, run the same command again (~20 min total). Only degrade after both rounds timeout.
 
 **HARD RULES — violation = broken workflow:**
 - This command BLOCKS until both AIs finish or timeout (~10 min per round, max 2 rounds)
