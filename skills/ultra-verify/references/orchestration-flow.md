@@ -20,30 +20,37 @@ Claude writes its own analysis to `${SESSION_PATH}/claude-analysis.md` **BEFORE*
 Write ${SESSION_PATH}/claude-analysis.md
 ```
 
-## 2. Parallel External AI Invocation
+## 2. Parallel External AI Invocation (Agent-based)
 
-Launch Gemini and Codex simultaneously using `run_in_background: true`:
+Launch BOTH agents in a **single message** with two parallel `Agent` tool calls. Both MUST use `run_in_background: true`.
 
-**Gemini:**
+**Gemini** — `verify-gemini` agent:
+- prompt: include analysis question/scope + output file paths
+- Output: `${SESSION_PATH}/gemini-output.md`
+- Error: `${SESSION_PATH}/gemini-error.log`
+
+**Codex** — `verify-codex` agent:
+- prompt: include analysis question/scope, mode, + output file paths
+- Output: `${SESSION_PATH}/codex-output.md` (or `codex-raw.txt` for audit)
+- Error: `${SESSION_PATH}/codex-error.log`
+
+Agents handle CLI invocation internally via their collab skills (`gemini-collab`, `codex-collab`).
+Output files are written atomically with the Write tool (complete or absent — no partial writes).
+
+## 3. BLOCKING WAIT — Strict Dependency Gate
+
+**IMMEDIATELY** after launching Step 2 background tasks, run this as a **foreground** (NOT background) Bash command:
+
 ```bash
-gemini -p "<prompt>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 300
 ```
 
-**Codex:**
-```bash
-codex exec "<prompt>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
-```
-
-For `audit` mode using `codex review`:
-```bash
-codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
-```
-
-Set Bash timeout to 300000ms for both.
-
-## 3. Wait for Completion (MANDATORY)
-
-**CRITICAL**: After launching background tasks, you MUST run the wait script. Do NOT read output files or start synthesis until the wait script returns.
+**HARD RULES — violation = broken workflow:**
+- This command BLOCKS until both AIs finish or timeout (up to 5 min)
+- Do NOT read gemini-output.md or codex-output.md before this returns
+- Do NOT write synthesis.md before this returns
+- Do NOT skip this step even if you believe the AIs already finished
+- The JSON output from this command is the REQUIRED input for Step 4
 
 ```bash
 python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
@@ -66,12 +73,12 @@ Possible per-AI status values:
 - `"empty"` — output file exists but is empty
 - `"pending"` — no output yet (only on timeout)
 
-**After wait returns**, read the JSON output and proceed:
+**After wait returns**, parse the JSON and proceed based on status:
 - Both `complete` → full three-way synthesis
 - One `failed`/`empty` → two-way synthesis (degraded)
 - Both `failed` → Claude-only analysis
 
-## 4. Collect + Synthesize
+## 4. Collect + Synthesize (REQUIRES Step 3 JSON — never start without it)
 
 This step covers collecting results, computing confidence, and writing synthesis (substeps 4a-4c).
 
@@ -137,6 +144,7 @@ If two AIs fail:
 - Set `"degraded": true` + `"agents_responded": ["claude"]`
 - Explicitly warn: "Single-source analysis — no consensus scoring available"
 
-## Bash Timeout
+## Agent Timeout
 
-All external AI calls: `timeout: 300000` (5 minutes). Check partial output on timeout.
+Agents handle their own CLI timeout internally (4 minutes per agent, configured in agent frontmatter `maxTurns: 10`).
+The wait script has its own 5-minute timeout as a safety net.
