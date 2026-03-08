@@ -62,17 +62,12 @@ Launch BOTH commands in a **single message** with two parallel Bash calls. Both 
 gemini -p "<PROMPT>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
 ```
 
-**Codex** (decision/diagnose/estimate modes):
+**Codex** (all modes — always use `codex exec`):
 ```bash
 codex exec "<PROMPT>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
 ```
 
-**Codex** (audit mode only — use built-in review):
-```bash
-codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
-```
-
-**FORBIDDEN**: `codex -p`, `codex -q`, `codex --full-auto -s read-only` — these do not exist.
+**FORBIDDEN**: `codex -p`, `codex -q`, `codex --full-auto -s read-only`, `codex review` — these在 ultra-verify 中不使用。
 
 **CRITICAL PROHIBITION** (after launching background tasks):
 1. Run `verify_wait.py` IMMEDIATELY in the **next message** — do NOT process background task notifications first

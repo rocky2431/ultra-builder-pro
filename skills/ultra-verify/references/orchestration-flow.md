@@ -29,14 +29,9 @@ Launch BOTH commands in a **single message** with two parallel Bash calls. Both 
 gemini -p "<PROMPT>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
 ```
 
-**Codex** (decision/diagnose/estimate):
+**Codex** (all modes — always use `codex exec`):
 ```bash
 codex exec "<PROMPT>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
-```
-
-**Codex** (audit mode only):
-```bash
-codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
 ```
 
 **CRITICAL PROHIBITION** (after launching background tasks):
@@ -101,10 +96,8 @@ Read all available output files:
 ```
 Read ${SESSION_PATH}/claude-analysis.md
 Read ${SESSION_PATH}/gemini-output.md    (if gemini status = complete)
-Read ${SESSION_PATH}/codex-output.md     (if codex status = complete, or codex-raw.txt for audit mode)
+Read ${SESSION_PATH}/codex-output.md     (if codex status = complete)
 ```
-
-For `codex review` raw output: read `codex-raw.txt`, extract the review findings (skip MCP/shell logs), save cleaned content as `codex-output.md`.
 
 ### 4b. Compute Confidence
 
