@@ -2,17 +2,20 @@
 
 Step-by-step execution flow for three-way cross-verification.
 
-## 0. Create Task (MANDATORY — before anything else)
+## 0. Create Tasks (MANDATORY — before anything else)
 
-Create a task to persist state across context compaction:
+Create one task per step using `TaskCreate`:
 
-```
-TaskCreate: "ultra-verify <mode>: <scope>" — status: in_progress
-```
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 1 | Session Setup + Claude Analysis | Writing Claude analysis... |
+| 2 | Launch External AIs | Launching Gemini + Codex... |
+| 3 | Wait for Completion | Waiting for AI outputs... |
+| 4 | Collect + Synthesize | Synthesizing results... |
 
-Store the task ID. Update it at each subsequent step with current progress. This ensures that after a context compact, `TaskList` can recover the session path and current step.
-
-**Recovery after compact**: Run `TaskList`, find the in-progress ultra-verify task, read its last update to determine SESSION_PATH and which step to resume from.
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**Recovery after compact**: Run `TaskList`, find incomplete ultra-verify tasks, resume from last incomplete step.
 
 ## 1. Session Setup + Claude Analysis
 
@@ -26,7 +29,6 @@ Claude writes its own analysis to `${SESSION_PATH}/claude-analysis.md` **BEFORE*
 
 ```
 Write ${SESSION_PATH}/claude-analysis.md
-TaskUpdate: task_id — "Step 1: Claude analysis → ${SESSION_PATH}"
 ```
 
 ## 2. Parallel External AI Invocation
@@ -49,10 +51,6 @@ codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
 ```
 
 Set Bash timeout to 300000ms for both.
-
-```
-TaskUpdate: task_id — "Step 2: Gemini + Codex launched, waiting..."
-```
 
 ## 3. Wait for Completion (MANDATORY)
 
@@ -83,10 +81,6 @@ Possible per-AI status values:
 - Both `complete` → full three-way synthesis
 - One `failed`/`empty` → two-way synthesis (degraded)
 - Both `failed` → Claude-only analysis
-
-```
-TaskUpdate: task_id — "Step 3: Wait done — gemini:<status> codex:<status>"
-```
 
 ## 4. Collect Results
 
@@ -135,10 +129,6 @@ Write `${SESSION_PATH}/metadata.json`:
   "confidence": "<consensus|majority|no_consensus>",
   "degraded": false
 }
-```
-
-```
-TaskUpdate: task_id — status: completed, "Synthesis written. Confidence: <level>"
 ```
 
 ## 7. Degraded Handling

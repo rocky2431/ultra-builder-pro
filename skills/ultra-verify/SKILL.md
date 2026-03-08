@@ -24,33 +24,30 @@ Orchestrate Claude + Gemini + Codex for independent three-way analysis. Each AI 
 /ultra-verify estimate <task>        # Effort estimation — confidence from agreement
 ```
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major step using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 1 | Session Setup + Claude Analysis | Writing Claude analysis... |
+| 2 | Launch External AIs | Launching Gemini + Codex... |
+| 3 | Wait for Completion | Waiting for AI outputs... |
+| 4 | Collect + Synthesize | Synthesizing results... |
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
 ## Orchestration
-
-### Step 0: Create Task (MANDATORY — before anything else)
-
-Create a task to persist state across context compaction:
-
-```
-TaskCreate: "ultra-verify <mode>: <scope>" — status: in_progress
-```
-
-Store the task ID. Update it at each step so recovery is possible after compact.
 
 ### Step 1: Session Setup + Claude Analysis
 
 Set up `SESSION_PATH` and write Claude's own analysis FIRST (before reading external AI output).
 
-```
-TaskUpdate: task_id — "Step 1: Claude analysis written to ${SESSION_PATH}"
-```
-
 ### Step 2: Launch External AIs
 
 Launch Gemini + Codex in parallel (`run_in_background: true`).
-
-```
-TaskUpdate: task_id — "Step 2: Gemini + Codex launched, waiting..."
-```
 
 ### Step 3: MANDATORY WAIT
 
@@ -62,17 +59,9 @@ python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
 
 Do NOT read output files or start synthesis until this script returns.
 
-```
-TaskUpdate: task_id — "Step 3: Wait complete — gemini:<status> codex:<status>"
-```
-
 ### Step 4: Collect + Synthesize
 
 Read the wait script JSON output, read available output files, compute confidence, write synthesis.
-
-```
-TaskUpdate: task_id — status: completed, "Synthesis written. Confidence: <level>"
-```
 
 ### CRITICAL: Exact CLI Commands
 
