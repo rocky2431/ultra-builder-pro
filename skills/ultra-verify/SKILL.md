@@ -67,8 +67,6 @@ gemini -p "<PROMPT>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PA
 codex exec "<PROMPT>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
 ```
 
-**FORBIDDEN**: `codex -p`, `codex -q`, `codex --full-auto -s read-only`, `codex review` — these在 ultra-verify 中不使用。
-
 **CRITICAL PROHIBITION** (after launching background tasks):
 1. Run `verify_wait.py` IMMEDIATELY in the **next message** — do NOT process background task notifications first
 2. NEVER read gemini-output.md or codex-output.md directly — wait for the wait script

@@ -53,11 +53,6 @@ codex exec "Your prompt here" --full-auto -o "${SESSION_PATH}/output.md" 2>"${SE
 codex exec "Analyze this project" -s read-only -o "${SESSION_PATH}/output.md" 2>"${SESSION_PATH}/error.log"
 ```
 
-**FORBIDDEN Codex patterns** (these DO NOT WORK):
-- `codex -p "prompt"` — NO `-p` flag exists, use `codex exec "prompt"`
-- `codex -q "prompt"` — NO `-q` flag exists
-- `codex --full-auto -s read-only` — `--full-auto` implies workspace-write, conflicts with `-s read-only`
-
 ## Output Handling
 
 For `codex review`, the raw output contains MCP startup logs, shell exec logs, and the final review. Read the file and extract from the review summary onward. Save extracted findings as `output.md` alongside `raw.txt`.
