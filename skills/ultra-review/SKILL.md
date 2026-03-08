@@ -8,6 +8,22 @@ user-invocable: true
 
 Orchestrates parallel code review using specialized agents. All findings written to JSON files to prevent context window pollution.
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major step using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 1 | Setup & Scope Detection | Detecting diff scope... |
+| 2 | Agent Selection | Selecting review agents... |
+| 3 | Background Execution | Running review agents... |
+| 4 | Wait & Coordinate | Waiting for agent results... |
+| 5 | Report to User | Generating review report... |
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
 ## Usage
 
 ```

@@ -7,6 +7,24 @@ model: opus
 
 # /ultra-think
 
+## Workflow Tracking (MANDATORY)
+
+**On command start**, create tasks for each major step using `TaskCreate`:
+
+| Step | Subject | activeForm |
+|------|---------|------------|
+| 1 | Scope Check | Clarifying problem... |
+| 2 | Evidence Gathering | Gathering evidence... |
+| 3 | Multi-Perspective Analysis | Analyzing perspectives... |
+| 4 | Adversarial Stress-Testing | Stress-testing reasoning... |
+| 5 | Synthesis | Synthesizing recommendation... |
+
+**Before each step**: `TaskUpdate` → `status: "in_progress"`
+**After each step**: `TaskUpdate` → `status: "completed"`
+**On context recovery**: `TaskList` → resume from last incomplete step
+
+---
+
 Respond in Chinese per CLAUDE.md. Deep analysis for complex problems and decisions.
 
 ## Problem
