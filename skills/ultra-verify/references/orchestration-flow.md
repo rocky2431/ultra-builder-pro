@@ -55,14 +55,20 @@ python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" -
 
 Bash timeout MUST be `timeout: 600000` (10 min max for Bash tool — script handles its own timeout internally).
 
+**只有两个退出条件：**
+1. **输出就绪**: 输出文件非空（size > 0）且大小在连续两次轮询（3s）间不变（写入完成）→ exit 0, `status: "complete"`
+2. **超时**: 达到 timeout 上限 → exit 0, `status: "timeout"`
+
+始终 exit 0，结果通过 JSON `status` 字段表达。超时时才检查 error log 判定失败原因。
+
 **HARD RULES — violation = broken workflow:**
-- This command BLOCKS until both AIs finish or timeout (up to 20 min)
+- This command BLOCKS until both AIs finish or timeout
 - Do NOT read gemini-output.md or codex-output.md before this returns
 - Do NOT write synthesis.md before this returns
 - Do NOT skip this step even if you believe the AIs already finished
 - The JSON output from this command is the REQUIRED input for Step 4
 
-The script polls every 3 seconds, checking for output files with **stability verification** (file size unchanged between consecutive polls to ensure shell redirect has finished writing). It returns structured JSON on stdout:
+JSON output on stdout:
 
 ```json
 {

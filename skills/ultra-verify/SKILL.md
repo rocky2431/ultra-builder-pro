@@ -90,7 +90,11 @@ Violation of these rules causes premature synthesis without external AI input.
 python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 1200
 ```
 
-This blocks until both AIs produce output (up to 20 minutes). It prints JSON to stdout.
+This blocks until both AIs produce output OR timeout. Only two exit条件：
+1. **输出就绪**: 输出文件非空（size > 0）且大小在连续两次轮询间不变（写入完成）
+2. **超时**: 达到 timeout 上限
+
+始终 exit 0，结果通过 JSON `status` 字段表达（`"complete"` 或 `"timeout"`）。
 Bash timeout MUST be set to `timeout: 600000` (10 min max for Bash tool — script handles its own timeout internally).
 
 ### Step 4: Collect + Synthesize (REQUIRES Step 3 JSON)
