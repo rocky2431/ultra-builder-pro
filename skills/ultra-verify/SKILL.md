@@ -26,17 +26,53 @@ Orchestrate Claude + Gemini + Codex for independent three-way analysis. Each AI 
 
 ## Orchestration
 
-1. **Claude answers FIRST** (writes to `${SESSION_PATH}/claude-analysis.md` BEFORE reading external AI output)
-2. **Gemini + Codex run in parallel** (`run_in_background: true`)
-3. **MANDATORY WAIT** — run `verify_wait.py` to block until both AIs complete:
-   ```bash
-   python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
-   ```
-   Do NOT read output files or start synthesis until this script returns.
-4. **Read the wait script JSON output** — check each AI's status (complete/failed/empty)
-5. **Read available output files** via Read tool
-6. **Compute confidence** based on consensus
-7. **Write synthesis** to `SESSION_PATH/synthesis.md`
+### Step 0: Create Task (MANDATORY — before anything else)
+
+Create a task to persist state across context compaction:
+
+```
+TaskCreate: "ultra-verify <mode>: <scope>" — status: in_progress
+```
+
+Store the task ID. Update it at each step so recovery is possible after compact.
+
+### Step 1: Session Setup + Claude Analysis
+
+Set up `SESSION_PATH` and write Claude's own analysis FIRST (before reading external AI output).
+
+```
+TaskUpdate: task_id — "Step 1: Claude analysis written to ${SESSION_PATH}"
+```
+
+### Step 2: Launch External AIs
+
+Launch Gemini + Codex in parallel (`run_in_background: true`).
+
+```
+TaskUpdate: task_id — "Step 2: Gemini + Codex launched, waiting..."
+```
+
+### Step 3: MANDATORY WAIT
+
+Run `verify_wait.py` to block until both AIs complete:
+
+```bash
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
+```
+
+Do NOT read output files or start synthesis until this script returns.
+
+```
+TaskUpdate: task_id — "Step 3: Wait complete — gemini:<status> codex:<status>"
+```
+
+### Step 4: Collect + Synthesize
+
+Read the wait script JSON output, read available output files, compute confidence, write synthesis.
+
+```
+TaskUpdate: task_id — status: completed, "Synthesis written. Confidence: <level>"
+```
 
 ### CRITICAL: Exact CLI Commands
 
