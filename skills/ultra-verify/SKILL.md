@@ -39,7 +39,9 @@ Orchestrate Claude + Gemini + Codex for independent three-way analysis. Each AI 
 **After each step**: `TaskUpdate` → `status: "completed"`
 **On context recovery**: `TaskList` → resume from last incomplete step
 
-## Orchestration
+## Orchestration — STRICT SEQUENTIAL EXECUTION
+
+**RULE: Each step REQUIRES the output of the previous step. Never skip ahead. Never start synthesis without wait script JSON.**
 
 ### Step 1: Session Setup + Claude Analysis
 
@@ -51,45 +53,57 @@ mkdir -p "${SESSION_PATH}"
 
 Write Claude's own analysis to `${SESSION_PATH}/claude-analysis.md` FIRST (before reading external AI output).
 
-### Step 2: Launch External AIs
+### Step 2: Launch External AIs (both `run_in_background: true`, `timeout: 600000`)
 
-Launch Gemini + Codex in parallel (`run_in_background: true`).
+Launch BOTH commands in a **single message** with two parallel Bash calls. Both MUST use `run_in_background: true`.
 
-### Step 3: MANDATORY WAIT
-
-Run `verify_wait.py` to block until both AIs complete:
-
+**Gemini** (all modes):
 ```bash
-python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
+gemini -p "<PROMPT>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
 ```
 
-Do NOT read output files or start synthesis until this script returns.
-
-### Step 4: Collect + Synthesize
-
-Read the wait script JSON output, read available output files, compute confidence, write synthesis.
-
-### CRITICAL: Exact CLI Commands
-
-**Gemini** (correct — `-p` flag for non-interactive):
+**Codex** (decision/diagnose/estimate modes):
 ```bash
-gemini -p "<prompt>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
+codex exec "<PROMPT>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
 ```
 
-**Codex** (correct — must use `codex exec` subcommand, NOT `codex -p` or `codex -q`):
-```bash
-codex exec "<prompt>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
-```
-
-**Codex for audit mode** (use built-in `codex review`):
+**Codex** (audit mode only — use built-in review):
 ```bash
 codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
 ```
 
-**FORBIDDEN Codex patterns** (these DO NOT WORK):
-- `codex -p "prompt"` — NO `-p` flag exists
-- `codex -q "prompt"` — NO `-q` flag exists
-- `codex --full-auto -s read-only` — `--full-auto` conflicts with `-s read-only`
+**FORBIDDEN**: `codex -p`, `codex -q`, `codex --full-auto -s read-only` — these do not exist.
+
+**CRITICAL PROHIBITION** (after launching background tasks):
+1. Run `verify_wait.py` IMMEDIATELY in the **next message** — do NOT process background task notifications first
+2. NEVER read gemini-output.md or codex-output.md directly — wait for the wait script
+3. Ignore ALL background task completion/idle notifications between launch and wait script return
+4. The ONLY information path from external AIs is: `verify_wait.py` JSON → then Read output files
+
+Violation of these rules causes premature synthesis without external AI input.
+
+### Step 3: BLOCKING WAIT
+
+**IMMEDIATELY** after Step 2 (in the very next message), run this **foreground** Bash command:
+
+```bash
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 1200
+```
+
+This blocks until both AIs produce output (up to 20 minutes). It prints JSON to stdout.
+Bash timeout MUST be set to `timeout: 600000` (10 min max for Bash tool — script handles its own timeout internally).
+
+### Step 4: Collect + Synthesize (REQUIRES Step 3 JSON)
+
+**Do NOT enter this step without the JSON output from Step 3.**
+
+1. **Parse the wait script JSON** — extract `gemini.status` and `codex.status`
+2. **Read output files** only for AIs with `"complete"` status
+3. **Compute confidence** — see `references/confidence-system.md`
+4. **Write synthesis** — see `references/collab-protocol.md` for template
+
+If both AIs failed → Claude-only analysis with explicit warning.
+If one AI failed → two-way synthesis, note missing perspective.
 
 ### Session Structure
 

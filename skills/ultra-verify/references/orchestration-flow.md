@@ -22,34 +22,47 @@ Write ${SESSION_PATH}/claude-analysis.md
 
 ## 2. Parallel External AI Invocation
 
-Launch Gemini and Codex simultaneously using `run_in_background: true`:
+Launch BOTH commands in a **single message** with two parallel Bash calls. Both MUST use `run_in_background: true` and `timeout: 600000`.
 
-**Gemini:**
+**Gemini** (all modes):
 ```bash
-gemini -p "<prompt>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
+gemini -p "<PROMPT>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
 ```
 
-**Codex:**
+**Codex** (decision/diagnose/estimate):
 ```bash
-codex exec "<prompt>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
+codex exec "<PROMPT>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
 ```
 
-For `audit` mode using `codex review`:
+**Codex** (audit mode only):
 ```bash
 codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
 ```
 
-Set Bash timeout to 300000ms for both.
+**CRITICAL PROHIBITION** (after launching background tasks):
+1. Run `verify_wait.py` IMMEDIATELY in the **next message**
+2. NEVER read output files directly — wait for the wait script
+3. Ignore ALL background task completion/idle notifications between launch and wait script return
+4. The ONLY information path: `verify_wait.py` JSON → then Read output files
 
-## 3. Wait for Completion (MANDATORY)
+## 3. BLOCKING WAIT — Strict Dependency Gate
 
-**CRITICAL**: After launching background tasks, you MUST run the wait script. Do NOT read output files or start synthesis until the wait script returns.
+**IMMEDIATELY** after launching Step 2 background tasks, run this as a **foreground** (NOT background) Bash command:
 
 ```bash
-python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}"
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 1200
 ```
 
-The script polls every 3 seconds for up to 5 minutes, checking for output files from both AIs. It returns structured JSON on stdout:
+Bash timeout MUST be `timeout: 600000` (10 min max for Bash tool — script handles its own timeout internally).
+
+**HARD RULES — violation = broken workflow:**
+- This command BLOCKS until both AIs finish or timeout (up to 20 min)
+- Do NOT read gemini-output.md or codex-output.md before this returns
+- Do NOT write synthesis.md before this returns
+- Do NOT skip this step even if you believe the AIs already finished
+- The JSON output from this command is the REQUIRED input for Step 4
+
+The script polls every 3 seconds, checking for output files with **stability verification** (file size unchanged between consecutive polls to ensure shell redirect has finished writing). It returns structured JSON on stdout:
 
 ```json
 {
@@ -66,12 +79,12 @@ Possible per-AI status values:
 - `"empty"` — output file exists but is empty
 - `"pending"` — no output yet (only on timeout)
 
-**After wait returns**, read the JSON output and proceed:
+**After wait returns**, parse the JSON and proceed based on status:
 - Both `complete` → full three-way synthesis
 - One `failed`/`empty` → two-way synthesis (degraded)
 - Both `failed` → Claude-only analysis
 
-## 4. Collect + Synthesize
+## 4. Collect + Synthesize (REQUIRES Step 3 JSON — never start without it)
 
 This step covers collecting results, computing confidence, and writing synthesis (substeps 4a-4c).
 
@@ -137,6 +150,9 @@ If two AIs fail:
 - Set `"degraded": true` + `"agents_responded": ["claude"]`
 - Explicitly warn: "Single-source analysis — no consensus scoring available"
 
-## Bash Timeout
+## Timeout Design
 
-All external AI calls: `timeout: 300000` (5 minutes). Check partial output on timeout.
+- External AI Bash calls: `timeout: 600000` (10 minutes max for Bash tool)
+- verify_wait.py: `--timeout 1200` (20 minutes default) — script handles its own timeout internally
+- Codex can take 5-10+ minutes for complex analysis
+- Error logs are ONLY checked at timeout — CLIs write startup info to stderr even on success
