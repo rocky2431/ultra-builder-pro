@@ -45,7 +45,7 @@ codex exec "<PROMPT>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SES
 **IMMEDIATELY** after launching Step 2 background tasks, run this as a **foreground** (NOT background) Bash command:
 
 ```bash
-python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 1200
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 580
 ```
 
 Bash timeout MUST be `timeout: 600000` (10 min max for Bash tool — script handles its own timeout internally).
@@ -57,7 +57,7 @@ Bash timeout MUST be `timeout: 600000` (10 min max for Bash tool — script hand
 始终 exit 0，结果通过 JSON `status` 字段表达。超时时才检查 error log 判定失败原因。
 
 **HARD RULES — violation = broken workflow:**
-- This command BLOCKS until both AIs finish or timeout
+- This command BLOCKS until both AIs finish or timeout (~10 min)
 - Do NOT read gemini-output.md or codex-output.md before this returns
 - Do NOT write synthesis.md before this returns
 - Do NOT skip this step even if you believe the AIs already finished
@@ -152,6 +152,6 @@ If two AIs fail:
 ## Timeout Design
 
 - External AI Bash calls: `timeout: 600000` (10 minutes max for Bash tool)
-- verify_wait.py: `--timeout 1200` (20 minutes default) — script handles its own timeout internally
-- Codex can take 5-10+ minutes for complex analysis
+- verify_wait.py: `--timeout 580` (~10 min, fits within Bash tool's 600s hard limit)
+- Codex typically takes 1-5 minutes, rarely exceeds 10
 - Error logs are ONLY checked at timeout — CLIs write startup info to stderr even on success

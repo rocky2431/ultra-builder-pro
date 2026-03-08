@@ -82,7 +82,7 @@ Violation of these rules causes premature synthesis without external AI input.
 **IMMEDIATELY** after Step 2 (in the very next message), run this **foreground** Bash command:
 
 ```bash
-python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 1200
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 580
 ```
 
 This blocks until both AIs produce output OR timeout. Only two exit条件：

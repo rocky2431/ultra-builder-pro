@@ -26,7 +26,7 @@ import time
 from pathlib import Path
 
 POLL_INTERVAL = 3  # seconds
-DEFAULT_TIMEOUT = 1200  # 20 minutes — Codex can be very slow
+DEFAULT_TIMEOUT = 580  # ~10 min — must fit within Bash tool's 600s hard limit
 
 # Each AI produces exactly one output file
 EXPECTED = {
