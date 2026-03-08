@@ -1,7 +1,8 @@
 ---
 name: ai-collab-base
-description: "Shared collaboration protocol, modes, and prompt templates for AI collab skills. Not user-invocable — consumed by gemini-collab, codex-collab, and ultra-verify."
+description: "Shared collaboration protocol, modes, and prompt templates for AI collab skills. Consumed by gemini-collab, codex-collab, and ultra-verify as a shared foundation."
 user-invocable: false
+disable-model-invocation: true
 ---
 
 # AI Collab Base

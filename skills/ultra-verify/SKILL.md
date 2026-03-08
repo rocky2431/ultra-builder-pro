@@ -1,6 +1,7 @@
 ---
 name: ultra-verify
-description: "Three-way AI cross-verification using Claude + Gemini + Codex. Trigger when the user says 'ultra-verify', 'cross-verify', 'triple review', 'all AIs', 'multi-AI', 'three-way check', or wants independent analysis from all three AI models."
+description: "This skill should be used when the user asks to 'ultra-verify', 'cross-verify', 'triple review', 'all AIs check', 'multi-AI verify', 'three-way check', or wants independent analysis from all three AI models (Claude + Gemini + Codex)."
+argument-hint: "decision|diagnose|audit|estimate <question>"
 user-invocable: true
 ---
 
@@ -25,13 +26,35 @@ Orchestrate Claude + Gemini + Codex for independent three-way analysis. Each AI 
 
 ## Orchestration
 
-See `references/orchestration-flow.md` for the full parallel execution flow. Summary:
+See `references/orchestration-flow.md` for detailed flow. Summary:
 
 1. **Claude answers FIRST** (writes to file BEFORE reading external AI output)
 2. **Gemini + Codex run in parallel** (`run_in_background: true`)
 3. **Claude reads all three outputs** via Read tool
 4. **Compute confidence** based on consensus (see `references/confidence-system.md`)
 5. **Write synthesis** to `SESSION_PATH/synthesis.md`
+
+### CRITICAL: Exact CLI Commands
+
+**Gemini** (correct — `-p` flag for non-interactive):
+```bash
+gemini -p "<prompt>" --yolo > "${SESSION_PATH}/gemini-output.md" 2>"${SESSION_PATH}/gemini-error.log"
+```
+
+**Codex** (correct — must use `codex exec` subcommand, NOT `codex -p` or `codex -q`):
+```bash
+codex exec "<prompt>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SESSION_PATH}/codex-error.log"
+```
+
+**Codex for audit mode** (use built-in `codex review`):
+```bash
+codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/codex-raw.txt"
+```
+
+**FORBIDDEN Codex patterns** (these DO NOT WORK):
+- `codex -p "prompt"` — NO `-p` flag exists
+- `codex -q "prompt"` — NO `-q` flag exists
+- `codex --full-auto -s read-only` — `--full-auto` conflicts with `-s read-only`
 
 ### Session Structure
 
@@ -46,16 +69,12 @@ See `references/orchestration-flow.md` for the full parallel execution flow. Sum
 
 ## Modes
 
-See `references/cross-verify-modes.md` for detailed mode definitions:
-
 - **decision** — Architecture/design decisions with three independent recommendations
 - **diagnose** — Bug diagnosis with three sets of top-3 hypotheses, ranked by consensus
 - **audit** — Code audit with findings graded by consensus count (3=critical, 2=high, 1=investigate)
 - **estimate** — Effort estimation with confidence based on estimate convergence
 
 ## Confidence System
-
-See `references/confidence-system.md`:
 
 | Level | Agreement | Meaning |
 |-------|-----------|---------|
@@ -69,6 +88,11 @@ See `references/confidence-system.md`:
 - **Two AIs fail**: Claude-only analysis with explicit warning about reduced confidence
 - Never block the workflow on external AI failures
 
-## Collaboration Protocol
+## Reference Files
 
-See `references/collab-protocol.md` for shared principles, file output protocol, and session management.
+Read these when you need details beyond what's in this SKILL.md:
+
+- **`references/orchestration-flow.md`** — READ when setting up session dirs, collecting results, or writing metadata.json. Contains session setup commands, parallel invocation patterns, result collection steps, and metadata schema.
+- **`references/cross-verify-modes.md`** — READ when you need mode-specific prompt templates or scoring criteria. Contains detailed definitions for decision/diagnose/audit/estimate modes.
+- **`references/confidence-system.md`** — READ when computing confidence scores. Contains consensus calculation rules and thresholds.
+- **`references/collab-protocol.md`** — READ when writing synthesis reports. Contains core principles, synthesis report template, session management, and error handling.
