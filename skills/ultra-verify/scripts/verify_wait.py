@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
 """Verify Wait - File-based completion waiter for /ultra-verify pipeline.
 
-Polls the session directory for expected AI output files (gemini-output.md, codex-output.md).
-Blocks until all expected files appear or timeout. Returns structured JSON on stdout.
+Polls the session directory for expected AI output files.
+Blocks until both AIs produce output OR timeout. Returns structured JSON on stdout.
+
+Two exit conditions only:
+    1. Both AIs have output (non-empty + stable size) → exit 0, status="complete"
+    2. Timeout → exit 0, status="timeout" (JSON status field tells the story)
 
 Usage:
     python3 verify_wait.py <session_path> [--timeout SECONDS]
 
-Expected files (checks for non-empty + stable size):
-    - gemini-output.md  (Gemini completed)
-    - codex-output.md   OR  codex-raw.txt (Codex completed)
-
-Error logs are ONLY checked at timeout — CLIs may write startup info to stderr
-even on successful runs (e.g., Codex MCP initialization logs).
-
 Exit codes:
-    0 - All AIs completed (success or known failure)
-    1 - Timeout with incomplete results
-    2 - Invalid arguments
+    0 - Always (result expressed via JSON status field)
+    2 - Invalid arguments (missing path, bad --timeout)
 """
 
 import json
@@ -25,87 +21,84 @@ import sys
 import time
 from pathlib import Path
 
-POLL_INTERVAL = 3  # seconds — external CLIs are slower than subagents
+POLL_INTERVAL = 3  # seconds
 DEFAULT_TIMEOUT = 1200  # 20 minutes — Codex can be very slow
-
-OUTPUT_FILES = ("gemini-output.md", "codex-output.md", "codex-raw.txt")
 
 
 def _file_size(path: Path) -> int:
-    """Return file size in bytes, or -1 if file does not exist.
-
-    Uses try/except to avoid TOCTOU race between exists() and stat().
-    """
+    """Return file size in bytes, or -1 if not found."""
     try:
         return path.stat().st_size
     except (FileNotFoundError, OSError):
         return -1
 
 
-def get_output_sizes(session_path: Path) -> dict:
-    """Get current sizes of all output files for stability checking.
+def _is_output_ready(session_path: Path, name: str) -> dict:
+    """Check if an AI has produced non-empty output.
 
-    Shell redirect creates empty file immediately, then content streams in.
-    A file is 'stable' when size > 0 and unchanged between consecutive polls.
+    Returns (status, file) where status is "complete" or "pending".
+    Error logs and empty files are NOT checked here — only at timeout.
     """
-    return {name: _file_size(session_path / name) for name in OUTPUT_FILES}
+    if name == "gemini":
+        output = session_path / "gemini-output.md"
+        size = _file_size(output)
+        if size > 0:
+            return {"name": "gemini", "status": "complete", "file": str(output)}
+        return {"name": "gemini", "status": "pending", "file": None}
 
-
-def check_gemini(session_path: Path, at_timeout: bool = False) -> dict:
-    """Check if Gemini has produced output.
-
-    During polling: only check for positive completion (output exists + non-empty).
-    At timeout: also check error logs and empty files for failure/empty status.
-    Error logs are ignored during polling because CLIs may write startup info to stderr.
-    """
-    output = session_path / "gemini-output.md"
-    error = session_path / "gemini-error.log"
-
-    output_size = _file_size(output)
-
-    if output_size > 0:
-        return {"name": "gemini", "status": "complete", "file": str(output)}
-
-    if at_timeout:
-        error_size = _file_size(error)
-        if error_size > 0:
-            return {"name": "gemini", "status": "failed", "file": str(error)}
-        if output_size == 0:
-            return {"name": "gemini", "status": "empty", "file": str(output)}
-
-    return {"name": "gemini", "status": "pending", "file": None}
-
-
-def check_codex(session_path: Path, at_timeout: bool = False) -> dict:
-    """Check if Codex has produced output.
-
-    During polling: only check for positive completion (output exists + non-empty).
-    At timeout: also check error logs and empty files for failure/empty status.
-    Error logs are ignored during polling because Codex writes MCP startup info to stderr.
-    """
-    output = session_path / "codex-output.md"
-    raw = session_path / "codex-raw.txt"
-    error = session_path / "codex-error.log"
-
-    output_size = _file_size(output)
-    raw_size = _file_size(raw)
-
-    if output_size > 0:
-        return {"name": "codex", "status": "complete", "file": str(output)}
-
-    if raw_size > 0:
-        return {"name": "codex", "status": "complete", "file": str(raw)}
-
-    if at_timeout:
-        error_size = _file_size(error)
-        if error_size > 0:
-            return {"name": "codex", "status": "failed", "file": str(error)}
-        if output_size == 0:
-            return {"name": "codex", "status": "empty", "file": str(output)}
-        if raw_size == 0:
-            return {"name": "codex", "status": "empty", "file": str(raw)}
-
+    # codex: check both possible output files
+    for filename in ("codex-output.md", "codex-raw.txt"):
+        path = session_path / filename
+        if _file_size(path) > 0:
+            return {"name": "codex", "status": "complete", "file": str(path)}
     return {"name": "codex", "status": "pending", "file": None}
+
+
+def _timeout_status(session_path: Path, name: str) -> dict:
+    """Determine final status at timeout. Now check error logs and empty files."""
+    if name == "gemini":
+        output = session_path / "gemini-output.md"
+        error = session_path / "gemini-error.log"
+        if _file_size(output) > 0:
+            return {"name": "gemini", "status": "complete", "file": str(output)}
+        if _file_size(error) > 0:
+            return {"name": "gemini", "status": "failed", "file": str(error)}
+        if _file_size(output) == 0:
+            return {"name": "gemini", "status": "empty", "file": str(output)}
+        return {"name": "gemini", "status": "pending", "file": None}
+
+    # codex
+    for filename in ("codex-output.md", "codex-raw.txt"):
+        path = session_path / filename
+        if _file_size(path) > 0:
+            return {"name": "codex", "status": "complete", "file": str(path)}
+    error = session_path / "codex-error.log"
+    if _file_size(error) > 0:
+        return {"name": "codex", "status": "failed", "file": str(error)}
+    for filename in ("codex-output.md", "codex-raw.txt"):
+        if _file_size(session_path / filename) == 0:
+            return {"name": "codex", "status": "empty", "file": str(session_path / filename)}
+    return {"name": "codex", "status": "pending", "file": None}
+
+
+def _is_stable(name: str, cur: dict, prev: dict) -> bool:
+    """Check if output file size is unchanged between two consecutive polls.
+
+    Shell redirect creates empty file immediately; tee writes incrementally.
+    Stable = size > 0 and unchanged → writing finished.
+    """
+    if name == "gemini":
+        return cur["gemini-output.md"] == prev["gemini-output.md"]
+    # codex: both possible files must be stable
+    return (cur["codex-output.md"] == prev["codex-output.md"]
+            and cur["codex-raw.txt"] == prev["codex-raw.txt"])
+
+
+OUTPUT_FILES = ("gemini-output.md", "codex-output.md", "codex-raw.txt")
+
+
+def _get_sizes(session_path: Path) -> dict:
+    return {name: _file_size(session_path / name) for name in OUTPUT_FILES}
 
 
 def main():
@@ -116,7 +109,6 @@ def main():
     session_path = Path(sys.argv[1])
     timeout = DEFAULT_TIMEOUT
 
-    # Parse optional --timeout
     if "--timeout" in sys.argv:
         idx = sys.argv.index("--timeout")
         if idx + 1 < len(sys.argv):
@@ -131,81 +123,44 @@ def main():
         sys.exit(2)
 
     deadline = time.monotonic() + timeout
+    prev_sizes = _get_sizes(session_path)
 
-    # Track file sizes across polls for stability detection.
-    # Shell redirect creates empty file immediately; content arrives later and may
-    # stream incrementally (e.g., tee). A file is "stable" when its size > 0 and
-    # unchanged between two consecutive polls, meaning the writing process has finished.
-    prev_sizes = get_output_sizes(session_path)
-
+    # Poll loop — exit condition 1: both outputs ready + stable
     while time.monotonic() < deadline:
-        cur_sizes = get_output_sizes(session_path)
-        gemini = check_gemini(session_path)
-        codex = check_codex(session_path)
+        cur_sizes = _get_sizes(session_path)
+        gemini = _is_output_ready(session_path, "gemini")
+        codex = _is_output_ready(session_path, "codex")
 
-        # "complete" requires file size stability (unchanged across consecutive polls)
-        gemini_stable = (
-            gemini["status"] == "complete"
-            and cur_sizes["gemini-output.md"] == prev_sizes["gemini-output.md"]
-        )
-        codex_stable = (
-            codex["status"] == "complete"
-            and cur_sizes["codex-output.md"] == prev_sizes["codex-output.md"]
-            and cur_sizes["codex-raw.txt"] == prev_sizes["codex-raw.txt"]
-        )
-
-        # During polling, only "complete+stable" counts as done.
-        # Error logs are NOT checked during polling — only at timeout.
-        gemini_done = gemini_stable
-        codex_done = codex_stable
+        gemini_done = gemini["status"] == "complete" and _is_stable("gemini", cur_sizes, prev_sizes)
+        codex_done = codex["status"] == "complete" and _is_stable("codex", cur_sizes, prev_sizes)
 
         if gemini_done and codex_done:
-            result = {
-                "status": "complete",
-                "gemini": gemini,
-                "codex": codex,
-                "elapsed_seconds": int(timeout - (deadline - time.monotonic())),
-            }
-            print(json.dumps(result))
+            elapsed = int(timeout - (deadline - time.monotonic()))
+            print(json.dumps({"status": "complete", "gemini": gemini, "codex": codex, "elapsed_seconds": elapsed}))
             sys.exit(0)
 
         prev_sizes = cur_sizes
 
+        # Progress display
         remaining = int(deadline - time.monotonic())
-        done_count = int(gemini_done) + int(codex_done)
         parts = []
-        if gemini_done:
-            parts.append(f"gemini:{gemini['status']}")
-        elif gemini["status"] == "complete":
-            parts.append("gemini:stabilizing")
-        else:
-            parts.append("gemini:waiting")
-        if codex_done:
-            parts.append(f"codex:{codex['status']}")
-        elif codex["status"] == "complete":
-            parts.append("codex:stabilizing")
-        else:
-            parts.append("codex:waiting")
-
+        for name, done, result in [("gemini", gemini_done, gemini), ("codex", codex_done, codex)]:
+            if done:
+                parts.append(f"{name}:complete")
+            elif result["status"] == "complete":
+                parts.append(f"{name}:stabilizing")
+            else:
+                parts.append(f"{name}:waiting")
+        done_count = int(gemini_done) + int(codex_done)
         sys.stderr.write(f"\r  [{done_count}/2] {' | '.join(parts)} ({remaining}s remaining)  ")
         sys.stderr.flush()
         time.sleep(POLL_INTERVAL)
 
-    # Timeout — final check: NOW check error logs for failure detection
-    gemini = check_gemini(session_path, at_timeout=True)
-    codex = check_codex(session_path, at_timeout=True)
-
-    result = {
-        "status": "timeout",
-        "gemini": gemini,
-        "codex": codex,
-        "elapsed_seconds": timeout,
-    }
-    print(json.dumps(result))
-
-    # Exit 0 if at least one completed, exit 1 if both still pending
-    any_done = gemini["status"] != "pending" or codex["status"] != "pending"
-    sys.exit(0 if any_done else 1)
+    # Exit condition 2: timeout — check error logs NOW for final status
+    gemini = _timeout_status(session_path, "gemini")
+    codex = _timeout_status(session_path, "codex")
+    print(json.dumps({"status": "timeout", "gemini": gemini, "codex": codex, "elapsed_seconds": timeout}))
+    sys.exit(0)
 
 
 if __name__ == "__main__":
