@@ -1,0 +1,42 @@
+{
+  "skill_name": "gemini-collab",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/gemini-collab review",
+      "expected_output": "Claude creates a session directory, invokes gemini CLI to review current changes, reads the output file, and presents a synthesis report",
+      "assertions": [
+        "Creates a session directory under .ultra/collab/ with gemini-review in the name",
+        "Uses 'gemini -p' with --yolo flag to invoke Gemini CLI",
+        "Does NOT use '-o text' flag (Gemini outputs to stdout by default)",
+        "Redirects output to a file (> output.md)",
+        "Uses Read tool to read the output file",
+        "Presents a synthesis with Consensus and Divergent Views sections"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/gemini-collab compare 'Should we use Redis or Memcached for our caching layer?'",
+      "expected_output": "Claude answers independently first, then sends the same question to Gemini, reads output, and presents a comparative synthesis",
+      "assertions": [
+        "Claude writes its own answer BEFORE invoking Gemini",
+        "Sends the question to Gemini without revealing Claude's position",
+        "Creates session directory under .ultra/collab/",
+        "Reads Gemini output with Read tool",
+        "Presents both analyses side by side with synthesis"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/gemini-collab understand",
+      "expected_output": "Claude invokes Gemini in sandbox mode to analyze the project, reads output, and synthesizes with its own understanding",
+      "assertions": [
+        "Uses --sandbox flag for read-only analysis",
+        "Uses gemini -p with a project analysis prompt",
+        "Installs from @google/gemini-cli (not @anthropic-ai/gemini-cli)",
+        "Redirects to file, reads with Read tool",
+        "Produces a unified project understanding report"
+      ]
+    }
+  ]
+}

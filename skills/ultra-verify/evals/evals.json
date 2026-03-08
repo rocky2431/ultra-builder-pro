@@ -1,0 +1,51 @@
+{
+  "skill_name": "ultra-verify",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/ultra-verify decision 'Should we use PostgreSQL or MongoDB for our new microservice?'",
+      "expected_output": "Claude answers first, then launches Gemini and Codex in parallel, collects all three analyses, and presents a synthesis with consensus scoring",
+      "assertions": [
+        "Claude writes its own analysis BEFORE reading external AI output",
+        "Launches Gemini and Codex in parallel (run_in_background)",
+        "Creates session directory under .ultra/collab/ with verify-decision in name",
+        "Reads all three output files with Read tool",
+        "Presents confidence level (consensus/majority/no consensus)",
+        "Includes per-AI recommendation summary and trade-off matrix"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/ultra-verify diagnose 'API returns 500 intermittently under load, logs show connection pool exhaustion'",
+      "expected_output": "Three sets of hypotheses collected and ranked by consensus count",
+      "assertions": [
+        "Each AI provides top-3 hypotheses",
+        "Hypotheses ranked by consensus count (3/3 > 2/3 > 1/3)",
+        "Each hypothesis includes evidence and verification steps",
+        "Recommended investigation order based on consensus"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/ultra-verify audit",
+      "expected_output": "Three-way code audit with findings graded by consensus (3=critical, 2=high, 1=investigate)",
+      "assertions": [
+        "Sends same audit prompt to all three AIs",
+        "Findings graded by how many AIs found them",
+        "3/3 findings marked Critical, 2/3 marked High, 1/3 marked Investigate",
+        "Action items prioritized by consensus count"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/ultra-verify estimate 'Implement OAuth2 login with Google and GitHub providers'",
+      "expected_output": "Three effort estimates compared for convergence",
+      "assertions": [
+        "Each AI provides estimate with breakdown and assumptions",
+        "Convergence analysis (within 20% = high confidence)",
+        "Outlier estimates investigated",
+        "Final recommended estimate with confidence level"
+      ]
+    }
+  ]
+}

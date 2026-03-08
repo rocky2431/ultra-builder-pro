@@ -1,8 +1,8 @@
-# Gemini Collab - Prompt Templates
+# Prompt Templates (Generic)
 
-Ready-to-use prompt templates for each collaboration mode. These are starting points — adapt based on specific context.
+Ready-to-use prompt templates for each collaboration mode. These are CLI-agnostic — see agent-specific prompt files for CLI invocation syntax.
 
-## Code Review Prompts
+## Code Review
 
 ### General Review
 ```
@@ -40,7 +40,7 @@ Analyze this code for performance issues:
 Quantify impact where possible (e.g., "O(n^2) loop on line X, problematic for n>1000").
 ```
 
-## Project Understanding Prompts
+## Project Understanding
 
 ### Full Project Analysis
 ```
@@ -71,7 +71,7 @@ Deep-dive into the [MODULE_NAME] module:
 7. Improvement opportunities — what would you refactor?
 ```
 
-## Second Opinion Prompts
+## Second Opinion
 
 ### Architecture Decision
 ```
@@ -107,7 +107,7 @@ Recommend a pattern with:
 - When this pattern would be wrong
 ```
 
-## Comparative Prompts
+## Comparative / Debugging
 
 ### Debugging Hypothesis
 ```

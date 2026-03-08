@@ -1,0 +1,42 @@
+{
+  "skill_name": "codex-collab",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/codex-collab review",
+      "expected_output": "Claude creates a session directory, invokes codex review to review uncommitted changes, reads the output file, and presents a synthesis report",
+      "assertions": [
+        "Creates a session directory under .ultra/collab/ with codex-review in the name",
+        "Uses 'codex review --uncommitted' (not codex exec) for review mode",
+        "Captures output with '2>&1 | tee' (codex review has no -o flag)",
+        "Uses Read tool to read the output file",
+        "Extracts review findings from raw output",
+        "Presents a synthesis with Consensus and Divergent Views sections"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/codex-collab opinion 'Should we use a monorepo or polyrepo?'",
+      "expected_output": "Claude sends the question to Codex via exec mode with sandbox, reads output, and presents both opinions",
+      "assertions": [
+        "Uses 'codex exec' (not codex review) for opinion mode",
+        "Uses --sandbox read-only for analysis-only task",
+        "Uses -o (--output-last-message) to capture clean output",
+        "Does NOT reveal Claude's position in the prompt",
+        "Creates session directory under .ultra/collab/",
+        "Presents both opinions with trade-off analysis"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/codex-collab review --base main with a focus on security",
+      "expected_output": "Claude uses codex exec for custom security review (since scope flags cannot be combined with custom prompts in codex review)",
+      "assertions": [
+        "Uses codex review or codex exec for the security-focused review",
+        "Does NOT use hardcoded model names (uses -m <model> or default)",
+        "All paths use .ultra/collab/ (not /tmp/)",
+        "Reads output with Read tool, not Bash stdout"
+      ]
+    }
+  ]
+}
