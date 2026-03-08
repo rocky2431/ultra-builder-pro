@@ -65,6 +65,7 @@ Solution: Run /ultra-research first
 ### 1. Requirements Analysis
 
 **Load specifications**:
+- `.ultra/specs/discovery.md` - Market context, strategy, assumptions (if exists)
 - `.ultra/specs/product.md` - User stories, features
 - `.ultra/specs/architecture.md` - Technical decisions
 
@@ -259,7 +260,7 @@ Output summary:
 ## Integration
 
 - **Prerequisites**: `/ultra-research` (specs must be complete)
-- **Input**: `.ultra/specs/product.md`, `.ultra/specs/architecture.md`
+- **Input**: `.ultra/specs/discovery.md` (optional), `.ultra/specs/product.md`, `.ultra/specs/architecture.md`
 - **Output**: `.ultra/tasks/tasks.json`, `.ultra/tasks/contexts/*.md`
 - **Next**: `/ultra-dev`
 

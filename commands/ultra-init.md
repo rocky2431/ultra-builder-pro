@@ -142,6 +142,7 @@ Create `.ultra/` by copying from template (`~/.claude/.ultra-template/`):
 
 **Specification-Driven Structure**:
 - `.ultra/specs/` - Specification source of truth
+  - `discovery.md` - Opportunity Space, Market Assessment, Competitive Landscape, Product Strategy, Assumptions & Validation Plan (§1-5)
   - `product.md` - Problem Statement, Personas, User Scenarios, User Stories, Features Out, Success Metrics (§1-6)
   - `architecture.md` - arc42 structure (§1-12)
 
@@ -165,7 +166,7 @@ Create `.ultra/tasks/tasks.json`:
 
 **Copy `~/.claude/.ultra-template/` contents to `.ultra/`:**
 
-- Specs: `specs/product.md`, `specs/architecture.md`
+- Specs: `specs/discovery.md`, `specs/product.md`, `specs/architecture.md`
 - Tasks: `tasks/tasks.json`, `tasks/contexts/TEMPLATE.md`
 - Status: `test-report.json`, `delivery-report.json`
 - Docs: `docs/research/README.md`
@@ -203,6 +204,7 @@ Show in Chinese:
 - Skipping research leads to: vague requirements, wrong tech choices, missing constraints
 
 **Think-Driven Interactive Discovery**:
+  - Round 0: Product Discovery - Opportunity space, market sizing, competitive analysis, strategy (discovery §1-5)
   - Round 1: User & Scenario - Define personas and user scenarios (§1-3)
   - Round 2: Feature Definition - Define features and success metrics (§4-6)
   - Round 3: Architecture Design - Design system architecture (arch §1-6)
@@ -211,6 +213,7 @@ Show in Chinese:
 **ROI**: Thorough research saves significant rework
 
 **After Research Completes**:
+  - .ultra/specs/discovery.md: Validated opportunities, market data, strategy, and assumptions
   - .ultra/specs/product.md: 100% complete (no [NEEDS CLARIFICATION] markers)
   - .ultra/specs/architecture.md: 100% complete with justified decisions
   - Research reports saved to .ultra/docs/research/
@@ -243,12 +246,14 @@ Show in Chinese:
 **DO NOT skip research!** This is the most important phase.
 
 **Think-Driven Interactive Discovery**:
+- Round 0: Product Discovery - Opportunity space, market sizing, competitive analysis, strategy (discovery §1-5)
 - Round 1: User & Scenario - Define personas and user scenarios (§1-3)
 - Round 2: Feature Definition - Define features and success metrics (§4-6)
 - Round 3: Architecture Design - Design system architecture (arch §1-6)
 - Round 4: Quality & Deployment - Define quality and deployment (arch §7-12)
 
 **Output**:
+- ✅ .ultra/specs/discovery.md: Validated opportunities, market data, strategy, and assumptions
 - ✅ .ultra/specs/product.md: 100% complete (all [NEEDS CLARIFICATION] filled)
 - ✅ .ultra/specs/architecture.md: 100% complete with justified decisions
 - ✅ Research reports: Saved to .ultra/docs/research/

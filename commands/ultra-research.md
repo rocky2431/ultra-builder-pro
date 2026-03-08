@@ -15,6 +15,7 @@ model: opus
 |------|---------|------------|
 | 0 | Pre-Research Check | Checking prerequisites... |
 | 0.5 | Project Type Detection | Detecting project type... |
+| R0 | Round 0: Product Discovery & Strategy | Discovering product-market fit... |
 | R1 | Round 1: User & Scenario | Discovering user scenarios... |
 | R2 | Round 2: Feature Definition | Defining features... |
 | R3 | Round 3: Architecture Design | Designing architecture... |
@@ -56,10 +57,13 @@ Use AskUserQuestion to determine research scope:
 
 | Type | Rounds | Focus |
 |------|--------|-------|
-| Full Project | Round 1-4 | Full product + architecture |
-| Feature Only | Round 1-2 | User scenarios + feature definition |
+| Full Project | Round 0-4 | Discovery + product + architecture |
+| Product Only | Round 0-2 | Discovery + user scenarios + features |
+| Feature Only | Round 1-2 | User scenarios + feature definition (skip discovery) |
 | Architecture Change | Round 3-4 | Architecture + deployment |
 | Custom | User selects | Specific rounds |
+
+**Round 0 skip conditions**: Skip Round 0 if user provides existing market research, validated strategy docs, or explicitly states "I already know the market". For Feature Only on existing products, Round 0 is skipped by default.
 
 ---
 
@@ -68,11 +72,19 @@ Use AskUserQuestion to determine research scope:
 ```
 Initiate research
         ↓
-Gather context & ask questions
+Round 0: Product Discovery & Strategy (optional)
+        - Opportunity discovery (OST)
+        - Market sizing (TAM/SAM/SOM)
+        - Competitive landscape
+        - Product strategy canvas
+        - Key assumptions & validation plan
         ↓
-Deep analysis with verification
+Round 1-2: Product Specification
+        - Gather context & ask questions
+        - Deep analysis with verification
+        ↓
+Round 3-4: Architecture Specification
         - Verify claims against official sources
-        - Add production-ready examples
         - Rate confidence levels (must be 90%+)
         ↓
 High-confidence output
@@ -92,7 +104,7 @@ Write to .ultra/specs/
 
 **When**: After /ultra-init, specs need clarification
 
-**Structure**: 4 rounds, each following 6-step cycle
+**Structure**: 5 rounds (Round 0-4), each following 6-step cycle
 
 ### 6-Step Cycle (Every Round)
 
@@ -161,6 +173,7 @@ Step 6: Generate Output (MANDATORY - BOTH files required)
 **CRITICAL**: BOTH spec file AND research report MUST be written. Do not proceed to next round until verified.
 
 **6a. Update Specification File**:
+- Round 0 → Update `.ultra/specs/discovery.md`
 - Round 1-2 → Update `.ultra/specs/product.md`
 - Round 3-4 → Update `.ultra/specs/architecture.md`
 - Replace [NEEDS CLARIFICATION] markers with actual content
@@ -183,10 +196,103 @@ Step 6: Generate Output (MANDATORY - BOTH files required)
 
 | Round | Focus | Spec Output | Report Output |
 |-------|-------|-------------|---------------|
+| 0: Product Discovery | Opportunities, Market, Strategy, Assumptions | discovery.md §1-5 | product-discovery-{date}.md |
 | 1: User & Scenario | Personas, User Scenarios | product.md §1-3 | user-scenario-{date}.md |
 | 2: Feature Definition | User Stories, Features, Metrics | product.md §4-6 | feature-definition-{date}.md |
 | 3: Architecture Design | Context, Strategy, Modules | architecture.md §1-6 | architecture-design-{date}.md |
 | 4: Quality & Deployment | Deployment, Quality, Risks | architecture.md §7-12 | quality-deployment-{date}.md |
+
+### Round 0: Product Discovery & Strategy
+
+**When**: New products, pivots, entering new markets, or when the "why" and "for whom" are not yet validated. Skipped for feature-only work on existing products.
+
+**Questions to answer**:
+
+#### 0.1 Opportunity Discovery (Opportunity Solution Tree)
+
+Based on Teresa Torres' *Continuous Discovery Habits*:
+
+1. **Desired Outcome**: What measurable business/product outcome are we pursuing? (single, clear metric)
+2. **Opportunity Space**: What customer needs, pain points, or desires exist? Frame from customer perspective: "I struggle to..." / "I wish I could..."
+3. **Opportunity Prioritization**: Rank opportunities using Opportunity Score: `Importance x (1 - Satisfaction)` (Dan Olsen). Focus on top 2-3.
+4. **Solution Brainstorm**: For each prioritized opportunity, generate 3+ solutions from PM/Designer/Engineer perspectives. Never commit to the first idea.
+
+**Key principle**: Opportunities, not features. Prioritize problems, not solutions.
+
+#### 0.2 Market Assessment
+
+Estimate market size using dual approach:
+
+1. **Top-Down (TAM)**: Total industry size → narrow to relevant slice
+2. **Bottom-Up (SAM)**: Unit economics (customers x price x frequency) → cross-validate
+3. **SOM**: Realistic achievable share in 1-3 years given competitive position and GTM capacity
+4. **Growth Drivers**: Technology, regulatory, demographic, or behavioral shifts that expand/contract the market
+
+Use WebSearch for current industry data. Cite sources — no unsupported numbers.
+
+| Metric | Current Estimate | 2-3 Year Projection |
+|--------|-----------------|---------------------|
+| TAM    |                 |                     |
+| SAM    |                 |                     |
+| SOM    |                 |                     |
+
+#### 0.3 Competitive Landscape
+
+Analyze competitive environment:
+
+1. **Direct Competitors**: Products solving the same problem for the same segment (2-5 competitors)
+2. **Indirect Competitors / Alternatives**: What customers use today instead (including "do nothing")
+3. **Competitive Advantages**: Where we can win (and where we can't)
+4. **Porter's Five Forces** (brief): Supplier power, Buyer power, New entrants, Substitutes, Rivalry intensity
+
+Output as comparison matrix:
+
+| Dimension | Us | Competitor A | Competitor B | Alternative |
+|-----------|-----|-------------|-------------|-------------|
+| Core value prop | | | | |
+| Target segment | | | | |
+| Pricing model | | | | |
+| Key weakness | | | | |
+
+#### 0.4 Product Strategy (Strategy Canvas, condensed)
+
+Define strategic direction across 5 key dimensions:
+
+1. **Vision**: How can we inspire people? What are we aspiring to achieve? (2-3 sentences, emotional and memorable)
+2. **Target Segments**: Who we serve (defined by problems/JTBD, not demographics) and who we explicitly do NOT serve
+3. **Value Proposition**: For each segment — When [situation], they want [motivation], so they can [outcome]
+4. **Strategic Trade-offs**: What we choose NOT to do and why. This is more important than what we choose to do.
+5. **Defensibility**: What makes this hard to copy? (network effects, data, switching costs, IP, brand)
+
+#### 0.5 Key Assumptions & Validation Plan
+
+Extract and prioritize the riskiest assumptions from 0.1-0.4:
+
+1. **Assumption Extraction**: Surface assumptions across categories:
+   - **Value**: Will users want this?
+   - **Usability**: Can users figure it out?
+   - **Feasibility**: Can we build it?
+   - **Viability**: Does the business case work?
+   - **Go-to-Market**: Can we reach and convert users?
+
+2. **Prioritization**: Map on Impact x Uncertainty matrix. Focus on "leap of faith" assumptions (high impact, high uncertainty).
+
+3. **Experiment Design**: For top 3-5 assumptions, design cheap, fast validation experiments:
+
+| # | Assumption | Category | Method | Success Criteria | Effort | Timeline |
+|---|-----------|----------|--------|-----------------|--------|----------|
+
+**Methods**: Pretotypes (Alberto Savoia), fake doors, landing page tests, concierge MVPs, user interviews, data analysis, A/B tests.
+
+**Decision Framework**:
+- If experiment succeeds → proceed to Round 1 (User & Scenario)
+- If experiment fails → pivot opportunity, re-evaluate, or kill
+
+**Output**: discovery.md §1 (Opportunity Space), §2 (Market Assessment), §3 (Competitive Landscape), §4 (Product Strategy), §5 (Assumptions & Validation Plan)
+
+**Note**: Round 0 actively uses WebSearch to gather real market data, competitor information, and industry reports. Claims without sources are marked as Speculation.
+
+---
 
 ### Round 1: User & Scenario Discovery
 
@@ -283,12 +389,14 @@ Output comparison matrix with:
 ## Success Criteria
 
 **Research Complete When**:
+- ✅ `.ultra/specs/discovery.md` has validated opportunities and strategy (if Round 0 included)
 - ✅ `.ultra/specs/product.md` has NO [NEEDS CLARIFICATION] markers
 - ✅ `.ultra/specs/architecture.md` has justified tech decisions
 - ✅ All selected rounds completed (each round ≥4 stars)
 - ✅ Research reports saved to `.ultra/docs/research/`
 - ✅ **All recommendations have 90%+ confidence**
 - ✅ **All code examples are production-ready**
+- ✅ **Key assumptions identified and validation plan defined** (if Round 0 included)
 
 ---
 
@@ -297,12 +405,13 @@ Output comparison matrix with:
 ```
 📊 Research Quality Summary
 ===========================
+Round 0 (Product Discovery):  ⭐⭐⭐⭐ (4/5), 88%, 1 iteration
 Round 1 (User & Scenario):    ⭐⭐⭐⭐ (4/5), 92%, 1 iteration
 Round 2 (Feature Definition): ⭐⭐⭐⭐⭐ (5/5), 95%, 1 iteration
 Round 3 (Architecture):       ⭐⭐⭐⭐ (4/5), 91%, 2 iterations
 Round 4 (Quality & Deploy):   ⭐⭐⭐⭐ (4/5), 90%, 1 iteration
 
-Overall: 4.25/5 avg, 92% avg confidence
+Overall: 4.20/5 avg, 91% avg confidence
 Status: ✅ Complete (all rounds ≥4 stars)
 Reports: .ultra/docs/research/*.md
 Next: /ultra-plan
@@ -314,6 +423,7 @@ Next: /ultra-plan
 
 | File | Content |
 |------|---------|
+| `.ultra/specs/discovery.md` | Opportunity Space, Market Assessment, Competitive Landscape, Product Strategy, Assumptions & Validation Plan |
 | `.ultra/specs/product.md` | Personas, User Scenarios, User Stories, Features Out, Success Metrics |
 | `.ultra/specs/architecture.md` | arc42 structure (Context, Strategy, Blocks, Runtime, Deployment, Quality, Risks) |
 | `.ultra/docs/research/*.md` | Round-specific analysis reports with confidence scores |
@@ -323,8 +433,9 @@ Next: /ultra-plan
 ## Integration
 
 - **Think**: Each round invokes /ultra-think for deep analysis
-- **MCP**: Round 3 uses Context7 (docs) + Exa (code examples)
+- **MCP**: Round 0 uses WebSearch/Exa (market data, competitors). Round 3 uses Context7 (docs) + Exa (code examples)
 - **Next**: Run /ultra-plan when research complete
+- **Methodology sources**: Round 0 draws from Teresa Torres (OST), Dan Olsen (Opportunity Score), Alberto Savoia (Pretotyping), Marty Cagan (Product Strategy)
 
 ---
 

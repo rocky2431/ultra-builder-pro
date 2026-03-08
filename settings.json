@@ -1,13 +1,163 @@
 {
-  "cleanupPeriodDays": 30,
-  "env": {
-    "MAX_THINKING_TOKENS": "31999",
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  },
+  "_comment_project": "Ultra Builder Pro 6.1.0",
+  "_comment_version": "6.1.0 - Product Discovery Round 0",
+  "alwaysThinkingEnabled": true,
   "attribution": {
     "commit": "🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
     "pr": "🤖 Generated with [Claude Code](https://claude.com/claude-code)"
   },
+  "cleanupPeriodDays": 30,
+  "effortLevel": "high",
+  "enabledPlugins": {
+    "document-skills@anthropic-agent-skills": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true,
+    "obsidian@obsidian-skills": true,
+    "planning-with-files@planning-with-files": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "MAX_THINKING_TOKENS": "31999"
+  },
+  "extraKnownMarketplaces": {
+    "obsidian-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/kepano/obsidian-skills.git"
+      }
+    }
+  },
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "command": "osascript -e 'display notification \"Claude Code needs your input\" with title \"Claude Code\" sound name \"Ping\"'",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "permission_prompt|idle_prompt"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/post_edit_guard.py",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "Edit|Write"
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/pre_compact_context.py",
+            "timeout": 10,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/block_dangerous_commands.py",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "bash -c 'find \"$TMPDIR\" -name \".claude_stop_count_*\" -mmin +60 -delete 2>/dev/null; exit 0'",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/session_context.py",
+            "timeout": 10,
+            "type": "command"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/post_compact_inject.py",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "compact"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/pre_stop_check.py",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/session_journal.py",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/subagent_tracker.py start",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "command": "python3 ~/.claude/hooks/subagent_tracker.py stop",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "language": "chinese",
+  "model": "opus",
   "permissions": {
     "allow": [
       "Bash",
@@ -34,6 +184,7 @@
       "mcp__*",
       "mcp__pencil"
     ],
+    "defaultMode": "default",
     "deny": [
       "Read(./.env)",
       "Read(./.env.local)",
@@ -43,160 +194,16 @@
       "Read(./**/credentials*)",
       "Read(./**/*secret*)",
       "Read(./**/*password*)"
-    ],
-    "defaultMode": "default"
-  },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/post_edit_guard.py",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/block_dangerous_commands.py",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/session_context.py",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/post_compact_inject.py",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/pre_stop_check.py",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/session_journal.py",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SubagentStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/subagent_tracker.py start",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/subagent_tracker.py stop",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/pre_compact_context.py",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "Notification": [
-      {
-        "matcher": "permission_prompt|idle_prompt",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "osascript -e 'display notification \"Claude Code needs your input\" with title \"Claude Code\" sound name \"Ping\"'",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'find \"$TMPDIR\" -name \".claude_stop_count_*\" -mmin +60 -delete 2>/dev/null; exit 0'",
-            "timeout": 5
-          }
-        ]
-      }
     ]
   },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/ccline/ccline",
-    "padding": 0
-  },
-  "enabledPlugins": {
-    "clangd-lsp@claude-plugins-official": true,
-    "hookify@claude-plugins-official": true,
-    "jdtls-lsp@claude-plugins-official": true,
-    "planning-with-files@planning-with-files": true,
-    "pyright-lsp@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "vercel@claude-plugins-official": true,
-    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
-    "document-skills@anthropic-agent-skills": true,
-    "skill-creator@claude-plugins-official": true
-  },
-  "language": "chinese",
   "sandbox": {
-    "enabled": false,
-    "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
+    "_comment": "Set to true for sandboxed bash execution with file system and network isolation",
+    "enabled": false
   },
-  "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "_comment_project": "Ultra Builder Pro 6.0.0",
-  "_comment_version": "6.0.0 - Consolidation Release",
-  "effortLevel": "high",
-  "model": "opus"
+  "statusLine": {
+    "command": "~/.claude/ccline/ccline",
+    "padding": 0,
+    "type": "command"
+  }
 }
