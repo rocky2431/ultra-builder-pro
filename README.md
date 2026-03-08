@@ -1,4 +1,4 @@
-# Ultra Builder Pro 6.0.0
+# Ultra Builder Pro 6.1.0
 
 <div align="center">
 
@@ -6,7 +6,7 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-5.9.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-6.1.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-9-orange)](skills/)
@@ -65,11 +65,14 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 ```
 /ultra-init -> /ultra-research -> /ultra-plan -> /ultra-dev -> /ultra-test -> /ultra-deliver
      |              |                |              |             |             |
-  Project       4-Round          Task         TDD Cycle      Quality       Release
-  Setup        Discovery       Breakdown      RED>GREEN      Audit        & Deploy
-                                                  |
-                                           /ultra-review
-                                          (Quality Gate)
+  Project       5-Round          Task         TDD Cycle      Quality       Release
+  Setup      Discovery R0-4    Breakdown      RED>GREEN      Audit        & Deploy
+               (optional)                        |
+              Round 0: Product Discovery   /ultra-review
+              Round 1: User & Scenario    (Quality Gate)
+              Round 2: Feature Definition
+              Round 3: Architecture
+              Round 4: Quality & Deploy
 ```
 
 ---
@@ -79,7 +82,7 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 | Command | Purpose | Key Features |
 |---------|---------|--------------|
 | `/ultra-init` | Initialize project | Auto-detect type/stack, copy templates, git setup |
-| `/ultra-research` | Interactive discovery | 4 rounds (User>Feature>Architecture>Quality), 90%+ confidence |
+| `/ultra-research` | Interactive discovery | 5 rounds (Discovery>User>Feature>Architecture>Quality), 90%+ confidence |
 | `/ultra-plan` | Task planning | Dependency analysis, complexity assessment, context files |
 | `/ultra-dev` | TDD development | RED>GREEN>REFACTOR, Ultra Review gate, auto git flow |
 | `/ultra-test` | Quality audit | Anti-Pattern, Coverage gaps, E2E, Performance, Security |
@@ -405,7 +408,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |       |-- subagent-log.jsonl
 |
 |-- .ultra-template/          # Project initialization templates
-    |-- specs/
+    |-- specs/                # discovery.md, product.md, architecture.md
     |-- tasks/
     |-- docs/
 ```
@@ -431,7 +434,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 New Ultra projects use:
 .ultra/
 |-- tasks/              # Task tracking
-|-- specs/              # Specifications
+|-- specs/              # Specifications (discovery.md, product.md, architecture.md)
 |-- docs/               # Project documentation
 |-- memory/             # Cross-session memory DB + Chroma + JSONL (auto-generated)
 |-- reviews/            # Ultra Review output (auto-generated)
@@ -463,20 +466,27 @@ Multi-step tasks use the Task system:
 
 ## Version History
 
-### v6.1.0 (2026-03-07) - Multi-AI Collaboration
+### v6.1.0 (2026-03-08) - Product Discovery Round 0
 
-**Dual AI collaboration skills** — invoke Gemini and Codex as independent sub-agents:
+**Product Discovery & Strategy phase** — fills the gap between vague ideas and technical specification. Inspired by [phuryn/pm-skills](https://github.com/phuryn/pm-skills) frameworks:
 
-- New `gemini-collab` skill: Gemini CLI as sub-agent for review, project analysis, second opinions
-- New `codex-collab` skill: OpenAI Codex CLI as sub-agent with built-in `codex review` integration
-- File-based output (`.ultra/collab/`): `metadata.json` + `output.md` + `synthesis.md` per session
-- Zero context pollution: all AI output goes through files, Read tool for consumption
-- Shared session directory for cross-AI reference
+- New Round 0 in `/ultra-research` with 5 sub-steps:
+  - **Opportunity Discovery**: OST framework (Teresa Torres), Opportunity Score prioritization (Dan Olsen)
+  - **Market Assessment**: TAM/SAM/SOM dual estimation (top-down + bottom-up), WebSearch for real data
+  - **Competitive Landscape**: Comparison matrix + Porter's Five Forces brief
+  - **Product Strategy**: Condensed Strategy Canvas (Vision/Segments/Value Prop/Trade-offs/Defensibility)
+  - **Assumptions & Validation Plan**: Risk categorization (Value/Usability/Feasibility/Viability/GTM) + experiment design (Pretotyping, Alberto Savoia)
+- New `discovery.md` spec template in `.ultra-template/specs/`
+- Updated `/ultra-init` and `/ultra-plan` to reference `discovery.md`
+- Round 0 is **optional** — auto-skipped for Feature Only mode or when market research already exists
+- New project type options: "Full Project" (R0-4), "Product Only" (R0-2)
 
 ### v6.0.0 (2026-03-07) - Consolidation Release
 
-**System consolidation and cleanup**:
+**System consolidation, cleanup, and Multi-AI collaboration**:
 
+- New `gemini-collab` skill: Gemini CLI as sub-agent for review, project analysis, second opinions
+- New `codex-collab` skill: OpenAI Codex CLI as sub-agent with built-in `codex review` integration
 - Removed codex skill and all references (CLAUDE.md, README.md, skills/codex/)
 - Stop hook hardening: removed main branch bypass, fixed git status path truncation
 - Comprehensive hook audit: 20 fixes, model unification, 2 new hooks (Notification, SessionEnd)
