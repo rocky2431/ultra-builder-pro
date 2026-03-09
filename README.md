@@ -1,4 +1,4 @@
-# Ultra Builder Pro 6.1.0
+# Ultra Builder Pro 6.3.0
 
 <div align="center">
 
@@ -6,12 +6,12 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-6.1.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-6.3.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-12-orange)](skills/)
+[![Skills](https://img.shields.io/badge/skills-18-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-12-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-10-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-13-yellow)](hooks/)
 
 </div>
 
@@ -94,7 +94,7 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 
 ---
 
-## Skills (10 + Learned Patterns)
+## Skills (18 + Learned Patterns)
 
 | Skill | Purpose | User-Invocable |
 |-------|---------|----------------|
@@ -103,6 +103,13 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 | `gemini-collab` | Gemini CLI as independent sub-agent for review, analysis, opinions | Yes |
 | `codex-collab` | OpenAI Codex CLI as independent sub-agent for review, analysis | Yes |
 | `recall` | Cross-session memory search, save summaries, tags | Yes |
+| `agent-browser` | Browser automation CLI for AI agents | Yes |
+| `find-skills` | Discover and install agent skills | Yes |
+| `use-railway` | Railway infrastructure operations (deploy, provision, manage) | Yes |
+| `vercel-react-best-practices` | React/Next.js performance optimization guidelines | Yes |
+| `vercel-react-native-skills` | React Native/Expo best practices for mobile apps | Yes |
+| `vercel-composition-patterns` | React composition patterns that scale | Yes |
+| `web-design-guidelines` | Web Interface Guidelines compliance review | Yes |
 | `ai-collab-base` | Shared collaboration protocol, modes, prompt templates | No (consumed by collab skills) |
 | `code-review-expert` | Structured review checklists (SOLID, security, perf, integration) | No (agent-only) |
 | `testing-rules` | TDD discipline, mock detection rules | No (agent-only) |
@@ -234,19 +241,27 @@ ultra-verify/            # Orchestration: parallel execution + confidence scorin
 
 ### Overview
 
-AI-powered cross-session memory with hybrid search. Auto-captures session events, generates AI summaries via Opus, and supports semantic + keyword retrieval. Designed as a safe alternative to claude-mem — no bulk context injection.
+AI-powered cross-session memory with hybrid search. Auto-captures session events, generates structured AI summaries via Haiku, and supports semantic + keyword retrieval. Designed as a safe alternative to claude-mem — no bulk context injection.
 
 ### Architecture
 
 ```
+UserPromptSubmit ──> user_prompt_capture.py ──> initial_request (sessions table)
+PostToolUse ──> observation_capture.py ──> observations table (max 20/session)
+
 Stop hook (auto)                    /recall skill (forked context)
      |                                     |
      v                                     v
 session_journal.py ──> SQLite FTS5 <── memory_db.py CLI
      |                  (memory.db)        |
-     |                                     v
-     |-- daemon (10s) ──> Opus ──> AI summary ──> SQLite + Chroma
+     |                  Schema v2:         v
+     |                  - sessions (+ content_session_id, initial_request)
+     |                  - session_summaries (structured JSON)
+     |                  - observations (file changes, test failures)
+     |                  - summaries_fts (FTS5 over summaries)
      |
+     |-- daemon (10s) ──> Haiku ──> structured JSON summary ──> SQLite + Chroma
+     |                    {request, completed, learned, next_steps}
      v
 sessions.jsonl (backup)      .ultra/memory/chroma/ (vector embeddings)
 
@@ -256,13 +271,16 @@ PreCompact ──> compact-snapshot.md ──> SessionStart(compact) ──> pos
 
 ### How It Works
 
-1. **Auto-capture** (Stop hook): Every response records branch, cwd, modified files
-2. **AI Summary** (async daemon): Double-fork daemon waits 10s after session stop, extracts transcript (head+tail sampling: 4K+11K chars), generates structured summary via Opus (three-tier fallback: claude CLI → Anthropic SDK → git commits)
-3. **Vector Embedding**: After AI summary, auto-upserts to Chroma (local ONNX, no API key)
-4. **Merge window**: Multiple stops within 30 minutes merge into one session record
-5. **SessionStart injection**: Injects ONE line (~50 tokens) about the last session — no context explosion
-6. **Post-compact recovery**: `SessionStart(compact)` triggers `post_compact_inject.py` — injects ~800 tokens of git state, active tasks, workflow progress, and session memory for continuity after auto-compact
-7. **Hybrid search**: `/recall` runs in forked context, combines FTS5 keyword + Chroma semantic via RRF
+1. **Initial request capture** (UserPromptSubmit hook): Captures first user prompt per session
+2. **Observation capture** (PostToolUse hook): Records file changes (Edit/Write) and test failures (Bash) — max 20 per session, deduped by content hash
+3. **Auto-capture** (Stop hook): Every response records branch, cwd, modified files
+4. **AI Summary** (async daemon): Double-fork daemon waits 10s after session stop, extracts transcript (head+tail sampling: 4K+11K chars), generates structured JSON summary via Haiku (three-tier fallback: claude CLI → Anthropic SDK → git commits)
+5. **Vector Embedding**: After AI summary, auto-upserts to Chroma (local ONNX, no API key)
+6. **Merge window**: Multiple stops within 30 minutes merge into one session record
+7. **Real session identity**: `content_session_id` from hook protocol for accurate session tracking
+8. **SessionStart injection**: Injects ONE line (~50 tokens) about the last session + up to 3 branch-relevant structured summaries — no context explosion
+9. **Post-compact recovery**: `SessionStart(compact)` triggers `post_compact_inject.py` — injects ~800 tokens of git state, active tasks, workflow progress, and session memory for continuity after auto-compact
+10. **Hybrid search**: `/recall` runs in forked context, combines FTS5 keyword + Chroma semantic via RRF
 
 ### Usage
 
@@ -315,7 +333,7 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (10 Hooks)
+## Hooks System (13 Hooks)
 
 Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks have **timeout** configured to prevent UI freeze. Shared utilities in `hook_utils.py` eliminate ~130 lines of duplication.
 
@@ -332,16 +350,23 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 | Hook | Trigger | Detection | Timeout |
 |------|---------|-----------|---------|
 | `post_edit_guard.py` | Edit/Write | TODO/FIXME, NotImplemented, hardcoded config, mock patterns (jest.fn/InMemory), security (secrets, SQL injection, empty catch) | 5s |
+| `observation_capture.py` | Edit/Write/Bash | Capture file changes and test failures as session observations (max 20/session, deduped) | 5s |
+
+### User Input Hooks
+
+| Hook | Trigger | Function | Timeout |
+|------|---------|----------|---------|
+| `user_prompt_capture.py` | UserPromptSubmit | Capture initial user request per session for structured summaries | 5s |
 
 ### Session & Lifecycle Hooks
 
 | Hook | Trigger | Function | Timeout |
 |------|---------|----------|---------|
 | `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner + branch memory from DB | 10s |
-| `session_journal.py` | Stop | Auto-capture session + spawn AI summary daemon (Opus, non-blocking) → SQLite + Chroma | 5s |
+| `session_journal.py` | Stop | Auto-capture session + spawn AI summary daemon (Haiku, non-blocking) → SQLite + Chroma | 5s |
 | `pre_stop_check.py` | Stop | Five-layer check: `stop_hook_active` fast path + circuit breaker + review artifacts (P0/P1 block) + code change detection + security-sensitive file detection (skipped on main/master) | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
-| `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` + write freshness marker (project-level) | 10s |
+| `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` + write freshness marker + branch memory (project-level) | 10s |
 | `post_compact_inject.py` | SessionStart(compact) | Post-compact context recovery: parse snapshot, inject ~800 tokens of git state/tasks/workflow/memory for continuity | 10s |
 
 ### Notification & Cleanup Hooks
@@ -392,9 +417,11 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |-- README.md                 # This file
 |-- settings.json             # Claude Code settings + hooks config
 |
-|-- hooks/                    # Automated enforcement (10 hooks, all with timeout)
+|-- hooks/                    # Automated enforcement (13 hooks, all with timeout)
 |   |-- block_dangerous_commands.py  # PreToolUse: dangerous bash commands (5s)
 |   |-- post_edit_guard.py           # PostToolUse: quality + mock + security unified (5s)
+|   |-- observation_capture.py       # PostToolUse: session observations (Edit/Write/Bash) (5s)
+|   |-- user_prompt_capture.py       # UserPromptSubmit: initial request capture (5s)
 |   |-- session_context.py           # SessionStart: load dev context + last session (10s)
 |   |-- session_journal.py           # Stop: auto-capture + AI summary daemon → SQLite + Chroma (5s)
 |   |-- pre_stop_check.py            # Stop: five-layer check + security file detection (5s)
@@ -416,7 +443,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- commit.md
 |   |-- learn.md
 |
-|-- skills/                   # Domain skills (11 + learned)
+|-- skills/                   # Domain skills (18 + learned)
 |   |-- ultra-review/         # Parallel review orchestration
 |   |   |-- scripts/          # review_wait.py, review_verdict_update.py
 |   |-- ultra-verify/         # Three-way AI verification (Claude+Gemini+Codex)
@@ -436,6 +463,13 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- integration-rules/    # System integration rules (agent-only)
 |   |-- testing-rules/        # TDD rules (agent-only)
 |   |-- security-rules/       # Security rules (agent-only)
+|   |-- agent-browser/        # Browser automation CLI
+|   |-- find-skills/          # Skill discovery and installation
+|   |-- use-railway/          # Railway infrastructure operations
+|   |-- vercel-react-best-practices/   # React/Next.js optimization
+|   |-- vercel-react-native-skills/    # React Native/Expo best practices
+|   |-- vercel-composition-patterns/   # React composition patterns
+|   |-- web-design-guidelines/         # Web Interface Guidelines
 |   |-- learned/              # Extracted patterns
 |
 |-- agents/                   # Custom agents (12)
@@ -533,6 +567,41 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v6.3.0 (2026-03-09) - Memory System v2
+
+**Structured summaries, real session identity, security hardening**, verified by 3 rounds of ultra-verify (Claude + Gemini + Codex):
+
+**Schema v2 Migration**:
+- New `session_summaries` table: structured JSON fields (`request`, `completed`, `learned`, `next_steps`)
+- New `observations` table: file changes (Edit/Write) + test failures (Bash), max 20/session, deduped by content hash
+- New `summaries_fts` FTS5 index over structured summaries for fast text search
+- `sessions` table: added `content_session_id`, `initial_request` columns
+
+**Real Session Identity**:
+- `content_session_id` from hook protocol replaces merge-window-based ID (fixed stop_count=4306 bug)
+- `stop_hook_active=true` re-triggers skip DB write entirely
+
+**AI Summary Upgrade**:
+- Model: Haiku (cost-effective, structured output) with `max_tokens=1000`
+- Output: structured JSON `{request, completed, learned, next_steps}` — pipe-separated bullets per field
+- Stored in `session_summaries` table (structured) + `sessions.summary` (legacy compat)
+
+**New Hooks (2)**:
+- `user_prompt_capture.py` (UserPromptSubmit): captures initial user request per session
+- `observation_capture.py` (PostToolUse): captures file changes and test failures as session observations
+
+**Proactive Recall Upgrade**:
+- SessionStart: last session one-liner + up to 3 branch-relevant structured summaries
+- PreCompact: `LEFT JOIN session_summaries` for structured summary preference
+
+**Security Hardening**:
+- Path validation, SQL allowlist, daemon error logging, dead code removal
+
+**Enhanced Files** (8):
+- `hooks/session_journal.py`, `hooks/memory_db.py`, `hooks/session_context.py`, `hooks/pre_compact_context.py`
+- `hooks/user_prompt_capture.py` (New), `hooks/observation_capture.py` (New)
+- `CLAUDE.md`, `README.md`
 
 ### v6.2.0 (2026-03-08) - Multi-AI Collaboration Refactor
 
