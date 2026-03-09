@@ -9,6 +9,7 @@ Execution target: < 50ms (single DB write, no AI processing).
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -59,8 +60,23 @@ def main():
             (session_id,)
         ).fetchone()
 
-        if row and (not row["initial_request"] or row["initial_request"] == ""):
-            memory_db.set_initial_request(conn, row["id"], prompt)
+        if row:
+            # Session exists — fill initial_request if empty
+            if not row["initial_request"]:
+                memory_db.set_initial_request(conn, row["id"], prompt)
+        else:
+            # Session not yet created by Stop hook — create minimal shell.
+            # Stop hook's upsert_session will find and merge via content_session_id.
+            now = datetime.now(timezone.utc)
+            sid = now.strftime("%Y%m%d-%H%M%S") + f"-{now.microsecond // 1000:03d}"
+            conn.execute(
+                "INSERT INTO sessions "
+                "(id, started_at, last_active, content_session_id, initial_request) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (sid, now.isoformat(), now.isoformat(),
+                 session_id, prompt[:2000])
+            )
+            conn.commit()
 
         conn.close()
     except Exception:
