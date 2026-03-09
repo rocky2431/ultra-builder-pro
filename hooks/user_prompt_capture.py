@@ -3,6 +3,7 @@
 
 Stores the first user prompt of each session in sessions.initial_request.
 Only writes once per session (ignores subsequent prompts).
+Creates a minimal session shell if Stop hook hasn't run yet.
 
 Execution target: < 50ms (single DB write, no AI processing).
 """
