@@ -40,28 +40,26 @@ codex exec "<PROMPT>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SES
 3. Ignore ALL background task completion/idle notifications between launch and wait script return
 4. The ONLY information path: `verify_wait.py` JSON → then Read output files
 
-## 3. BLOCKING WAIT — Strict Dependency Gate
+## 3. BACKGROUND WAIT — Strict Dependency Gate
 
-**IMMEDIATELY** after launching Step 2 background tasks, run this as a **foreground** (NOT background) Bash command:
+**IMMEDIATELY** after launching Step 2 background tasks, run this as a **background** Bash command:
 
 ```bash
-python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 580
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 1200
 ```
 
-Bash timeout MUST be `timeout: 600000` (10 min max for Bash tool — script handles its own timeout internally).
+Use `run_in_background: true`. Background tasks bypass the Bash tool's 600s foreground limit, allowing a full 20-minute wait.
 
 **Two exit conditions:**
 1. **Output ready**: output file non-empty (size > 0) and size unchanged between consecutive polls (3s) → exit 0, `status: "complete"`
-2. **Timeout**: reached timeout limit → exit 0, `status: "timeout"`
+2. **Timeout**: reached 1200s limit → exit 0, `status: "timeout"`
 
 Always exit 0. Result expressed via JSON `status` field. Error logs only checked at timeout.
 
-**Two-round retry**: if round 1 returns `"timeout"` with any AI still `"pending"`, run the same command again (~20 min total). Only degrade after both rounds timeout.
-
 **HARD RULES — violation = broken workflow:**
-- This command BLOCKS until both AIs finish or timeout (~10 min per round, max 2 rounds)
-- Do NOT read gemini-output.md or codex-output.md before this returns
-- Do NOT write synthesis.md before this returns
+- Wait for the background task completion notification before proceeding
+- Do NOT read gemini-output.md or codex-output.md before this completes
+- Do NOT write synthesis.md before this completes
 - Do NOT skip this step even if you believe the AIs already finished
 - The JSON output from this command is the REQUIRED input for Step 4
 
@@ -153,7 +151,7 @@ If two AIs fail:
 
 ## Timeout Design
 
-- External AI Bash calls: `timeout: 600000` (10 minutes max for Bash tool)
-- verify_wait.py: `--timeout 580` (~10 min, fits within Bash tool's 600s hard limit)
+- External AI Bash calls: `run_in_background: true` (no foreground timeout limit)
+- verify_wait.py: `run_in_background: true`, `--timeout 1200` (20 min)
 - Codex typically takes 1-5 minutes, rarely exceeds 10
 - Error logs are ONLY checked at timeout — CLIs write startup info to stderr even on success

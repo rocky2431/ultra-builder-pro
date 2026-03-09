@@ -26,7 +26,7 @@ import time
 from pathlib import Path
 
 POLL_INTERVAL = 3  # seconds
-DEFAULT_TIMEOUT = 580  # ~10 min — must fit within Bash tool's 600s hard limit
+DEFAULT_TIMEOUT = 1200  # 20 min — runs via run_in_background (no Bash 600s limit)
 
 # Each AI produces exactly one output file
 EXPECTED = {

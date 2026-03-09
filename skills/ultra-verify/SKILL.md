@@ -75,34 +75,27 @@ codex exec "<PROMPT>" -s read-only -o "${SESSION_PATH}/codex-output.md" 2>"${SES
 
 Violation of these rules causes premature synthesis without external AI input.
 
-### Step 3: BLOCKING WAIT
+### Step 3: BACKGROUND WAIT
 
-**IMMEDIATELY** after Step 2 (in the very next message), run this **foreground** Bash command:
+**IMMEDIATELY** after Step 2 (in the very next message), run this as a **background** Bash command:
 
 ```bash
-python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 580
+python3 ~/.claude/skills/ultra-verify/scripts/verify_wait.py "${SESSION_PATH}" --timeout 1200
 ```
 
-The script polls every 3 seconds. Two exit conditions:
-1. **Output ready**: output file non-empty (size > 0) and size unchanged between consecutive polls (write complete) → `status: "complete"`
-2. **Timeout**: reached 580s limit → `status: "timeout"`
+Use `run_in_background: true` (no Bash 600s limit for background tasks). The script polls every 3s for up to 20 minutes.
 
-Always exit 0. Result expressed via JSON `status` field. Set Bash `timeout: 600000`.
+Two exit conditions:
+1. **Output ready**: output file non-empty (size > 0) and size unchanged between consecutive polls → `status: "complete"`
+2. **Timeout**: reached 1200s limit → `status: "timeout"`
 
-**Two-round retry**: if round 1 returns `"timeout"` with any AI still `"pending"`, run the same command again (~20 min total):
+Always exit 0. Result expressed via JSON `status` field.
 
-```
-Round 1 JSON → parse status
-  - "complete" → proceed to Step 4
-  - "timeout" with pending → run wait script again
-    Round 2 JSON → proceed to Step 4 regardless (use final JSON)
-```
-
-Only degrade after both rounds timeout.
+When the background task completes, read the JSON output and proceed to Step 4.
 
 ### Step 4: Collect + Synthesize (REQUIRES Step 3 JSON)
 
-**Do NOT enter this step without the JSON output from Step 3 (the final round's JSON).**
+**Do NOT enter this step without the JSON output from Step 3.**
 
 1. **Parse the wait script JSON** — extract `gemini.status` and `codex.status`
 2. **Read output files** only for AIs with `"complete"` status
