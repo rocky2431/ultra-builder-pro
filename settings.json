@@ -70,6 +70,27 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/observation_capture.py",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/user_prompt_capture.py",
+            "timeout": 3
+          }
+        ]
       }
     ],
     "PreCompact": [

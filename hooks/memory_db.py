@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Ultra Memory DB - SQLite FTS5 + Chroma vector storage for session memory.
+"""Ultra Memory DB v2 - SQLite FTS5 + Chroma vector storage for session memory.
+
+Schema v2 changes:
+- sessions: added content_session_id (real hook session ID), initial_request
+- session_summaries: structured fields (request/completed/learned/next_steps)
+  with status/source tracking. Replaces sessions.summary for new data.
+- observations: lightweight tool-use capture (Write/Edit/test failures)
+- summaries_fts: FTS5 on structured summary fields
+
+Backward compat: old sessions.summary column preserved, read ops check both.
 
 Dual-use: importable library AND CLI tool.
 
@@ -15,8 +24,10 @@ CLI usage:
   python3 memory_db.py reindex-chroma
   python3 memory_db.py cleanup [--days N]
   python3 memory_db.py stats
+  python3 memory_db.py migrate
 """
 
+import hashlib
 import json
 import os
 import sqlite3
@@ -28,6 +39,7 @@ from pathlib import Path
 GIT_TIMEOUT = 3
 DEFAULT_MERGE_WINDOW_MIN = 30
 DEFAULT_RETENTION_DAYS = 90
+SCHEMA_VERSION = 2
 
 
 # -- Path Resolution --
@@ -65,8 +77,128 @@ def get_jsonl_path() -> Path:
 
 # -- Database Init --
 
+_KNOWN_TABLES = {"sessions", "session_summaries", "observations"}
+
+
+def _has_column(conn: sqlite3.Connection, table: str, column: str) -> bool:
+    """Check if a column exists in a table. Table must be in allowlist."""
+    if table not in _KNOWN_TABLES:
+        raise ValueError(f"Unknown table: {table}")
+    cols = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    return any(c[1] == column for c in cols)
+
+
+
+def _migrate_v2(conn: sqlite3.Connection) -> None:
+    """Migrate schema from v1 to v2. Safe to call multiple times."""
+    # Add columns to sessions
+    if not _has_column(conn, "sessions", "content_session_id"):
+        conn.execute(
+            "ALTER TABLE sessions ADD COLUMN content_session_id TEXT DEFAULT ''"
+        )
+    if not _has_column(conn, "sessions", "initial_request"):
+        conn.execute(
+            "ALTER TABLE sessions ADD COLUMN initial_request TEXT DEFAULT ''"
+        )
+
+    # Create session_summaries table
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS session_summaries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            source TEXT NOT NULL DEFAULT 'model',
+            model TEXT DEFAULT '',
+            request TEXT DEFAULT '',
+            completed TEXT DEFAULT '',
+            learned TEXT DEFAULT '',
+            next_steps TEXT DEFAULT '',
+            summary_hash TEXT DEFAULT '',
+            created_at TEXT NOT NULL,
+            UNIQUE(session_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS observations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            kind TEXT NOT NULL,
+            title TEXT NOT NULL,
+            detail TEXT DEFAULT '',
+            tool_name TEXT DEFAULT '',
+            files TEXT DEFAULT '[]',
+            content_hash TEXT DEFAULT '',
+            created_at TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_obs_session
+            ON observations(session_id);
+        CREATE INDEX IF NOT EXISTS idx_obs_kind
+            ON observations(kind);
+        CREATE INDEX IF NOT EXISTS idx_summaries_session
+            ON session_summaries(session_id);
+    """)
+
+    # Create FTS5 on structured summary fields
+    existing_fts = conn.execute(
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' "
+        "AND name='summaries_fts'"
+    ).fetchone()[0]
+    if not existing_fts:
+        conn.executescript("""
+            CREATE VIRTUAL TABLE summaries_fts USING fts5(
+                session_id UNINDEXED,
+                request,
+                completed,
+                learned,
+                next_steps,
+                content=session_summaries,
+                content_rowid=rowid
+            );
+
+            CREATE TRIGGER IF NOT EXISTS summaries_fts_ai
+                AFTER INSERT ON session_summaries BEGIN
+                INSERT INTO summaries_fts(
+                    rowid, session_id, request, completed, learned, next_steps
+                ) VALUES (
+                    new.rowid, new.session_id,
+                    new.request, new.completed, new.learned, new.next_steps
+                );
+            END;
+
+            CREATE TRIGGER IF NOT EXISTS summaries_fts_ad
+                AFTER DELETE ON session_summaries BEGIN
+                INSERT INTO summaries_fts(
+                    summaries_fts, rowid, session_id,
+                    request, completed, learned, next_steps
+                ) VALUES (
+                    'delete', old.rowid, old.session_id,
+                    old.request, old.completed, old.learned, old.next_steps
+                );
+            END;
+
+            CREATE TRIGGER IF NOT EXISTS summaries_fts_au
+                AFTER UPDATE ON session_summaries BEGIN
+                INSERT INTO summaries_fts(
+                    summaries_fts, rowid, session_id,
+                    request, completed, learned, next_steps
+                ) VALUES (
+                    'delete', old.rowid, old.session_id,
+                    old.request, old.completed, old.learned, old.next_steps
+                );
+                INSERT INTO summaries_fts(
+                    rowid, session_id, request, completed, learned, next_steps
+                ) VALUES (
+                    new.rowid, new.session_id,
+                    new.request, new.completed, new.learned, new.next_steps
+                );
+            END;
+        """)
+
+    conn.commit()
+
+
 def init_db(db_path: Path | None = None) -> sqlite3.Connection:
-    """Initialize database with tables and FTS5 index."""
+    """Initialize database with tables, FTS5, and v2 migration."""
     if db_path is None:
         db_path = get_db_path()
 
@@ -77,7 +209,9 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("PRAGMA busy_timeout=5000")
+    conn.execute("PRAGMA foreign_keys=ON")
 
+    # v1 base schema
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS sessions (
             id TEXT PRIMARY KEY,
@@ -118,8 +252,11 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
             VALUES (new.rowid, new.id, new.branch, new.files_modified, new.summary, new.tags);
         END;
     """)
-
     conn.commit()
+
+    # v2 migration (safe to re-run)
+    _migrate_v2(conn)
+
     return conn
 
 
@@ -127,43 +264,75 @@ def init_db(db_path: Path | None = None) -> sqlite3.Connection:
 
 def upsert_session(conn: sqlite3.Connection, branch: str, cwd: str,
                    files_modified: list,
+                   content_session_id: str = "",
                    merge_window_min: int = DEFAULT_MERGE_WINDOW_MIN) -> str:
     """Insert or update session record.
 
-    If a recent entry (within merge_window_min) exists for same branch+cwd,
-    update it (merge files, bump stop_count). Otherwise create new.
+    If content_session_id is provided, use it as the identity key.
+    Otherwise fall back to branch+cwd+time merge window (v1 compat).
 
-    Returns session ID.
+    Returns session ID (our internal timestamp-based ID).
     """
     now = datetime.now(timezone.utc)
-    cutoff = (now - timedelta(minutes=merge_window_min)).isoformat()
 
+    # v2 path: use real session_id from hook protocol
+    if content_session_id:
+        row = conn.execute(
+            "SELECT id, files_modified, stop_count FROM sessions "
+            "WHERE content_session_id = ?",
+            (content_session_id,)
+        ).fetchone()
+
+        if row:
+            existing_files = json.loads(row["files_modified"])
+            merged_files = sorted(set(existing_files + files_modified))
+            conn.execute(
+                "UPDATE sessions SET last_active = ?, files_modified = ?, "
+                "stop_count = ? WHERE id = ?",
+                (now.isoformat(), json.dumps(merged_files),
+                 row["stop_count"] + 1, row["id"])
+            )
+            conn.commit()
+            return row["id"]
+
+        session_id = now.strftime("%Y%m%d-%H%M%S") + f"-{now.microsecond // 1000:03d}"
+        conn.execute(
+            "INSERT INTO sessions "
+            "(id, started_at, last_active, branch, cwd, files_modified, "
+            " content_session_id) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (session_id, now.isoformat(), now.isoformat(),
+             branch, cwd, json.dumps(files_modified), content_session_id)
+        )
+        conn.commit()
+        return session_id
+
+    # v1 fallback: merge window
+    cutoff = (now - timedelta(minutes=merge_window_min)).isoformat()
     row = conn.execute(
-        """SELECT id, files_modified, stop_count FROM sessions
-           WHERE branch = ? AND cwd = ? AND last_active > ?
-           ORDER BY last_active DESC LIMIT 1""",
+        "SELECT id, files_modified, stop_count FROM sessions "
+        "WHERE branch = ? AND cwd = ? AND last_active > ? "
+        "ORDER BY last_active DESC LIMIT 1",
         (branch, cwd, cutoff)
     ).fetchone()
 
     if row:
         existing_files = json.loads(row["files_modified"])
         merged_files = sorted(set(existing_files + files_modified))
-
         conn.execute(
-            """UPDATE sessions
-               SET last_active = ?, files_modified = ?, stop_count = ?
-               WHERE id = ?""",
+            "UPDATE sessions SET last_active = ?, files_modified = ?, "
+            "stop_count = ? WHERE id = ?",
             (now.isoformat(), json.dumps(merged_files),
              row["stop_count"] + 1, row["id"])
         )
         conn.commit()
         return row["id"]
 
-    session_id = now.strftime("%Y%m%d-%H%M%S")
+    session_id = now.strftime("%Y%m%d-%H%M%S") + f"-{now.microsecond // 1000:03d}"
     conn.execute(
-        """INSERT INTO sessions
-           (id, started_at, last_active, branch, cwd, files_modified)
-           VALUES (?, ?, ?, ?, ?, ?)""",
+        "INSERT INTO sessions "
+        "(id, started_at, last_active, branch, cwd, files_modified) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
         (session_id, now.isoformat(), now.isoformat(),
          branch, cwd, json.dumps(files_modified))
     )
@@ -173,10 +342,108 @@ def upsert_session(conn: sqlite3.Connection, branch: str, cwd: str,
 
 def update_summary(conn: sqlite3.Connection, session_id: str,
                    summary: str) -> bool:
-    """Update summary for a session."""
+    """Update legacy summary field for a session (v1 compat)."""
     cursor = conn.execute(
         "UPDATE sessions SET summary = ? WHERE id = ?",
         (summary, session_id)
+    )
+    conn.commit()
+    return cursor.rowcount > 0
+
+
+def save_structured_summary(conn: sqlite3.Connection, session_id: str,
+                            request: str, completed: str,
+                            learned: str, next_steps: str,
+                            source: str = "model",
+                            model: str = "") -> bool:
+    """Save structured summary to session_summaries table.
+
+    Also updates the legacy sessions.summary field for backward compat.
+    Returns True if saved, False if hash matches existing (dedup).
+    """
+    now = datetime.now(timezone.utc).isoformat()
+    content = f"{request}{completed}{learned}{next_steps}"
+    summary_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
+
+    # Dedup: skip if same content hash
+    existing = conn.execute(
+        "SELECT summary_hash FROM session_summaries WHERE session_id = ?",
+        (session_id,)
+    ).fetchone()
+    if existing and existing["summary_hash"] == summary_hash:
+        return False
+
+    # Determine status
+    total_len = len(request) + len(completed) + len(learned) + len(next_steps)
+    status = "ready" if total_len >= 100 else "failed"
+
+    conn.execute(
+        "INSERT INTO session_summaries "
+        "(session_id, status, source, model, request, completed, "
+        " learned, next_steps, summary_hash, created_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+        "ON CONFLICT(session_id) DO UPDATE SET "
+        "status=excluded.status, source=excluded.source, "
+        "model=excluded.model, request=excluded.request, "
+        "completed=excluded.completed, learned=excluded.learned, "
+        "next_steps=excluded.next_steps, summary_hash=excluded.summary_hash, "
+        "created_at=excluded.created_at",
+        (session_id, status, source, model, request, completed,
+         learned, next_steps, summary_hash, now)
+    )
+
+    # Also update legacy summary for backward compat
+    legacy = f"## Accomplished\n{completed}"
+    if learned:
+        legacy += f"\n\n## Decisions\n{learned}"
+    if next_steps:
+        legacy += f"\n\n## Unfinished\n{next_steps}"
+    conn.execute(
+        "UPDATE sessions SET summary = ? WHERE id = ?",
+        (legacy, session_id)
+    )
+
+    conn.commit()
+    return True
+
+
+def save_observation(conn: sqlite3.Connection, session_id: str,
+                     kind: str, title: str, detail: str = "",
+                     tool_name: str = "", files: list | None = None) -> bool:
+    """Save a lightweight observation. Returns False if dedup match."""
+    now = datetime.now(timezone.utc).isoformat()
+    files_json = json.dumps(files or [])
+    content = f"{session_id}{kind}{title}{detail}"
+    content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
+
+    # Dedup: skip if same hash within same session
+    existing = conn.execute(
+        "SELECT id FROM observations "
+        "WHERE session_id = ? AND content_hash = ?",
+        (session_id, content_hash)
+    ).fetchone()
+    if existing:
+        return False
+
+    conn.execute(
+        "INSERT INTO observations "
+        "(session_id, kind, title, detail, tool_name, files, "
+        " content_hash, created_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (session_id, kind, title, detail, tool_name, files_json,
+         content_hash, now)
+    )
+    conn.commit()
+    return True
+
+
+def set_initial_request(conn: sqlite3.Connection, session_id: str,
+                        request: str) -> bool:
+    """Store the initial user prompt for a session."""
+    cursor = conn.execute(
+        "UPDATE sessions SET initial_request = ? "
+        "WHERE id = ? AND (initial_request = '' OR initial_request IS NULL)",
+        (request[:2000], session_id)
     )
     conn.commit()
     return cursor.rowcount > 0
@@ -209,6 +476,15 @@ def cleanup(conn: sqlite3.Connection,
     cursor = conn.execute(
         "DELETE FROM sessions WHERE last_active < ?", (cutoff,)
     )
+    # Cascade deletes summaries and observations via app logic
+    conn.execute(
+        "DELETE FROM session_summaries WHERE session_id NOT IN "
+        "(SELECT id FROM sessions)"
+    )
+    conn.execute(
+        "DELETE FROM observations WHERE session_id NOT IN "
+        "(SELECT id FROM sessions)"
+    )
     conn.commit()
     return cursor.rowcount
 
@@ -216,9 +492,10 @@ def cleanup(conn: sqlite3.Connection,
 # -- Read Operations --
 
 def search(conn: sqlite3.Connection, query: str, limit: int = 10) -> list:
-    """FTS5 search across sessions."""
+    """FTS5 search across sessions (v1) and structured summaries (v2)."""
     safe_query = query.replace('"', '""')
 
+    # Search both old sessions_fts and new summaries_fts
     rows = conn.execute(
         """SELECT s.id, s.started_at, s.last_active, s.branch, s.cwd,
                   s.files_modified, s.summary, s.tags, s.stop_count
@@ -230,16 +507,43 @@ def search(conn: sqlite3.Connection, query: str, limit: int = 10) -> list:
         (f'"{safe_query}"', limit)
     ).fetchall()
 
-    return [dict(r) for r in rows]
+    results = {r["id"]: dict(r) for r in rows}
+
+    # Also search structured summaries
+    try:
+        rows2 = conn.execute(
+            """SELECT ss.session_id, s.started_at, s.last_active, s.branch,
+                      s.cwd, s.files_modified, s.summary, s.tags, s.stop_count
+               FROM summaries_fts sf
+               JOIN session_summaries ss ON sf.rowid = ss.rowid
+               JOIN sessions s ON ss.session_id = s.id
+               WHERE summaries_fts MATCH ?
+               ORDER BY rank
+               LIMIT ?""",
+            (f'"{safe_query}"', limit)
+        ).fetchall()
+        for r in rows2:
+            sid = r["session_id"]
+            if sid not in results:
+                results[sid] = dict(r)
+                results[sid]["id"] = sid
+    except sqlite3.OperationalError:
+        pass  # summaries_fts may not exist yet
+
+    return list(results.values())[:limit]
 
 
 def get_recent(conn: sqlite3.Connection, limit: int = 5) -> list:
-    """Get most recent sessions."""
+    """Get most recent sessions with structured summary if available."""
     rows = conn.execute(
-        """SELECT id, started_at, last_active, branch, cwd,
-                  files_modified, summary, tags, stop_count
-           FROM sessions
-           ORDER BY last_active DESC
+        """SELECT s.id, s.started_at, s.last_active, s.branch, s.cwd,
+                  s.files_modified, s.summary, s.tags, s.stop_count,
+                  ss.request as ss_request, ss.completed as ss_completed,
+                  ss.learned as ss_learned, ss.next_steps as ss_next_steps,
+                  ss.status as ss_status
+           FROM sessions s
+           LEFT JOIN session_summaries ss ON s.id = ss.session_id
+           ORDER BY s.last_active DESC
            LIMIT ?""",
         (limit,)
     ).fetchall()
@@ -256,23 +560,62 @@ def get_latest(conn: sqlite3.Connection) -> dict | None:
 def get_by_date(conn: sqlite3.Connection, date_str: str) -> list:
     """Get sessions from a specific date (YYYY-MM-DD)."""
     rows = conn.execute(
-        """SELECT id, started_at, last_active, branch, cwd,
-                  files_modified, summary, tags, stop_count
-           FROM sessions
-           WHERE started_at LIKE ?
-           ORDER BY started_at DESC""",
+        """SELECT s.id, s.started_at, s.last_active, s.branch, s.cwd,
+                  s.files_modified, s.summary, s.tags, s.stop_count,
+                  ss.request as ss_request, ss.completed as ss_completed,
+                  ss.learned as ss_learned, ss.next_steps as ss_next_steps
+           FROM sessions s
+           LEFT JOIN session_summaries ss ON s.id = ss.session_id
+           WHERE s.started_at LIKE ?
+           ORDER BY s.started_at DESC""",
         (f"{date_str}%",)
     ).fetchall()
 
     return [dict(r) for r in rows]
 
 
+def get_observations(conn: sqlite3.Connection, session_id: str) -> list:
+    """Get observations for a session."""
+    rows = conn.execute(
+        "SELECT * FROM observations WHERE session_id = ? "
+        "ORDER BY created_at",
+        (session_id,)
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_session_by_content_id(conn: sqlite3.Connection,
+                              content_session_id: str) -> dict | None:
+    """Look up session by Claude Code's content_session_id."""
+    row = conn.execute(
+        "SELECT * FROM sessions WHERE content_session_id = ?",
+        (content_session_id,)
+    ).fetchone()
+    return dict(row) if row else None
+
+
 def get_stats(conn: sqlite3.Connection) -> dict:
     """Get memory database statistics."""
     total = conn.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
-    with_summary = conn.execute(
+    with_legacy = conn.execute(
         "SELECT COUNT(*) FROM sessions WHERE summary != ''"
     ).fetchone()[0]
+
+    with_structured = 0
+    try:
+        with_structured = conn.execute(
+            "SELECT COUNT(*) FROM session_summaries WHERE status = 'ready'"
+        ).fetchone()[0]
+    except sqlite3.OperationalError:
+        pass
+
+    obs_count = 0
+    try:
+        obs_count = conn.execute(
+            "SELECT COUNT(*) FROM observations"
+        ).fetchone()[0]
+    except sqlite3.OperationalError:
+        pass
 
     oldest = conn.execute(
         "SELECT started_at FROM sessions ORDER BY started_at ASC LIMIT 1"
@@ -287,12 +630,14 @@ def get_stats(conn: sqlite3.Connection) -> dict:
 
     return {
         "total_sessions": total,
-        "with_summary": with_summary,
-        "without_summary": total - with_summary,
+        "with_legacy_summary": with_legacy,
+        "with_structured_summary": with_structured,
+        "total_observations": obs_count,
         "oldest": oldest[0][:10] if oldest else None,
         "newest": newest[0][:10] if newest else None,
         "branches": [r[0] for r in branches],
         "db_path": str(get_db_path()),
+        "schema_version": SCHEMA_VERSION,
     }
 
 
@@ -312,7 +657,17 @@ def format_session(s: dict, verbose: bool = False) -> str:
         f"Stops: {s.get('stop_count', 1)}"
     )
 
-    if s.get("summary"):
+    # Prefer structured summary
+    if s.get("ss_completed") or s.get("ss_request"):
+        if s.get("ss_request"):
+            lines.append(f"  Request: {s['ss_request']}")
+        if s.get("ss_completed"):
+            lines.append(f"  Completed: {s['ss_completed']}")
+        if s.get("ss_learned"):
+            lines.append(f"  Learned: {s['ss_learned']}")
+        if s.get("ss_next_steps"):
+            lines.append(f"  Next: {s['ss_next_steps']}")
+    elif s.get("summary"):
         lines.append(f"  Summary: {s['summary']}")
 
     if s.get("tags"):
@@ -340,12 +695,17 @@ def format_oneliner(s: dict) -> str:
     branch = s.get("branch", "?")
     file_count = len(files)
 
-    summary = s.get("summary", "")
-    if summary:
-        # Truncate to 60 chars
-        if len(summary) > 60:
-            summary = summary[:57] + "..."
-        return f"Last session: {date} | {branch} | {file_count} files | \"{summary}\""
+    # Prefer structured summary
+    text = ""
+    if s.get("ss_completed"):
+        text = s["ss_completed"]
+    elif s.get("summary"):
+        text = s["summary"]
+
+    if text:
+        if len(text) > 60:
+            text = text[:57] + "..."
+        return f"Last session: {date} | {branch} | {file_count} files | \"{text}\""
 
     return f"Last session: {date} | {branch} | {file_count} files modified"
 
@@ -380,10 +740,7 @@ def get_chroma_collection():
 
 def upsert_embedding(session_id: str, summary: str, branch: str,
                      files: list) -> bool:
-    """Write session embedding to Chroma.
-
-    Document = summary + branch + top 5 files, truncated to 900 chars.
-    """
+    """Write session embedding to Chroma."""
     try:
         file_list = ", ".join(files[:5]) if files else ""
         doc = f"Branch: {branch}\nFiles: {file_list}\nSummary: {summary}"
@@ -438,18 +795,13 @@ def semantic_search(query: str, limit: int = 10,
 
 def hybrid_search(conn: sqlite3.Connection, query: str,
                   limit: int = 10, k: int = 60) -> list:
-    """Hybrid search: FTS5 + Chroma semantic, merged via RRF.
-
-    RRF (Reciprocal Rank Fusion): score = sum(1/(k+rank)) per result list.
-    Combines keyword precision with semantic recall.
-    """
+    """Hybrid search: FTS5 + Chroma semantic, merged via RRF."""
     fts_results = search(conn, query, limit=limit * 2)
     fts_ids = [s["id"] for s in fts_results]
 
     sem_results = semantic_search(query, limit=limit * 2)
     sem_ids = [s["id"] for s in sem_results]
 
-    # RRF scoring
     scores: dict[str, float] = {}
     for rank, sid in enumerate(fts_ids):
         scores[sid] = scores.get(sid, 0.0) + 1.0 / (k + rank + 1)
@@ -491,7 +843,7 @@ def cli_main():
     if len(sys.argv) < 2:
         print("Usage: memory_db.py <command> [args]")
         print("Commands: search, semantic, hybrid, recent, latest, date, "
-              "save-summary, add-tags, reindex-chroma, cleanup, stats")
+              "save-summary, add-tags, reindex-chroma, cleanup, stats, migrate")
         sys.exit(1)
 
     cmd = sys.argv[1]
@@ -583,10 +935,13 @@ def cli_main():
         elif cmd == "stats":
             stats = get_stats(conn)
             print(f"Sessions: {stats['total_sessions']} total "
-                  f"({stats['with_summary']} with summary)")
+                  f"({stats['with_legacy_summary']} legacy, "
+                  f"{stats['with_structured_summary']} structured)")
+            print(f"Observations: {stats['total_observations']}")
             if stats["oldest"]:
                 print(f"Range: {stats['oldest']} -> {stats['newest']}")
             print(f"Branches: {', '.join(stats['branches']) or 'none'}")
+            print(f"Schema: v{stats['schema_version']}")
             print(f"DB: {stats['db_path']}")
 
         elif cmd == "oneliner":
@@ -639,6 +994,13 @@ def cli_main():
         elif cmd == "reindex-chroma":
             count = reindex_chroma(conn)
             print(f"Reindexed {count} session(s) into Chroma")
+
+        elif cmd == "migrate":
+            print(f"Schema v{SCHEMA_VERSION} migration complete.")
+            stats = get_stats(conn)
+            print(f"Sessions: {stats['total_sessions']}")
+            print(f"Structured summaries: {stats['with_structured_summary']}")
+            print(f"Observations: {stats['total_observations']}")
 
         else:
             print(f"Unknown command: {cmd}")

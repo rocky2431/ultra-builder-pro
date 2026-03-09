@@ -2,9 +2,9 @@
 """Session Journal Hook - Stop
 
 Records session events to SQLite + JSONL for cross-session memory.
-Debounced: merges entries within 30-minute windows for same branch+cwd.
+Identity: uses content_session_id from hook protocol; merge window as fallback.
 
-Layer 2: AI-generated summary from transcript via Opus (non-blocking daemon).
+Layer 2: AI-generated structured summary via Haiku (non-blocking daemon).
 Layer 2 fallback: Git commit messages as summary.
 
 Execution target: < 100ms (daemon spawns async, no blocking in hot path).
@@ -28,15 +28,34 @@ TRANSCRIPT_HEAD_CHARS = 4000   # First N chars: problem context & initial decisi
 TRANSCRIPT_TAIL_CHARS = 11000  # Last N chars: resolution & recent work
 TRANSCRIPT_MAX_CHARS = 15000   # Total budget (head + tail)
 TRANSCRIPT_MAX_MESSAGES = 100  # Increased from 50 for better coverage
-AI_MODEL_CLI = "opus"
-AI_MODEL_SDK = "opus"
+AI_MODEL_CLI = "haiku"
 AI_MAX_TOKENS = 1000
+DAEMON_LOG = Path.home() / ".claude" / "memory" / "daemon-errors.log"
+
+# Allowed parent directories for transcript files
+ALLOWED_TRANSCRIPT_DIRS = [
+    Path.home() / ".claude",
+    Path("/tmp"),
+    Path("/private/tmp"),
+]
 
 # Env vars allowed in AI summarize daemon (whitelist > blacklist for security)
 DAEMON_ENV_WHITELIST = {
     "PATH", "HOME", "USER", "SHELL", "LANG", "LC_ALL", "LC_CTYPE",
     "TMPDIR", "TERM", "LOGNAME", "XDG_RUNTIME_DIR",
 }
+
+
+def _validate_transcript_path(transcript_path: str) -> bool:
+    """Validate transcript path is under an allowed directory."""
+    try:
+        resolved = Path(transcript_path).resolve()
+        return any(
+            str(resolved).startswith(str(d.resolve()))
+            for d in ALLOWED_TRANSCRIPT_DIRS
+        )
+    except (OSError, ValueError):
+        return False
 
 
 def run_git(*args) -> str:
@@ -129,6 +148,9 @@ def extract_transcript_text(transcript_path: str) -> str:
     Skips tool_use, thinking, progress, and file-history-snapshot entries.
     Returns truncated text suitable for AI summarization.
     """
+    if not _validate_transcript_path(transcript_path):
+        return ""
+
     path = Path(transcript_path)
     if not path.exists():
         return ""
@@ -216,7 +238,7 @@ def spawn_ai_summarize(session_id: str, transcript_path: str,
     """Spawn a double-fork daemon for non-blocking AI summarization.
 
     Parent returns immediately (<1ms). Daemon waits AI_SUMMARIZE_DELAY
-    seconds, generates summary via Opus, writes to DB + Chroma.
+    seconds, generates structured summary via Haiku, writes to DB + Chroma.
     """
     try:
         pid = os.fork()
@@ -255,17 +277,29 @@ def spawn_ai_summarize(session_id: str, transcript_path: str,
     try:
         _run_ai_summarize(session_id, transcript_path, db_path)
     except Exception:
-        pass
+        _log_daemon_error()
 
     os._exit(0)
 
 
+def _log_daemon_error() -> None:
+    """Write daemon exception to log file (stdio is /dev/null)."""
+    import traceback
+    try:
+        DAEMON_LOG.parent.mkdir(parents=True, exist_ok=True)
+        with open(DAEMON_LOG, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.now(timezone.utc).isoformat()} "
+                    f"{traceback.format_exc()}\n")
+    except OSError:
+        pass
+
+
 def _run_ai_summarize(session_id: str, transcript_path: str,
                       db_path: str) -> None:
-    """Daemon main: wait, extract transcript, summarize, update DB + Chroma.
+    """Daemon main: wait, extract transcript, summarize via Haiku, store structured.
 
-    Uses Anthropic SDK only (never claude CLI, which creates visible sessions
-    that pollute /resume).
+    Output: JSON with request/completed/learned/next_steps fields.
+    Storage: session_summaries table (structured) + sessions.summary (legacy compat).
     """
     import time
     time.sleep(AI_SUMMARIZE_DELAY)
@@ -275,55 +309,122 @@ def _run_ai_summarize(session_id: str, transcript_path: str,
         return
 
     prompt = (
-        "Summarize this Claude Code session. Use this structure:\n\n"
-        "## Accomplished\n"
-        "- (what was built, fixed, or completed)\n\n"
-        "## Decisions\n"
-        "- (key technical/architectural choices made, and why)\n\n"
-        "## Issues\n"
-        "- (problems encountered, root causes found — omit if none)\n\n"
-        "## Unfinished\n"
-        "- (pending work or next steps — omit if none)\n\n"
-        "Rules: 3-12 bullets total. Each bullet max 30 words. "
-        "Include specific file names, function names, and error messages when relevant. "
-        "Output ONLY the structured summary, no preamble.\n\n"
+        "Summarize this Claude Code session as JSON. "
+        "Output ONLY valid JSON, no markdown fences, no preamble.\n\n"
+        "Schema:\n"
+        '{"request": "what the user asked for (1-2 sentences)",'
+        ' "completed": "what was built/fixed/completed (2-5 bullets, pipe-separated)",'
+        ' "learned": "key decisions and insights (1-3 bullets, pipe-separated, empty string if none)",'
+        ' "next_steps": "pending work or follow-ups (1-3 bullets, pipe-separated, empty string if none)"}\n\n'
+        "Rules:\n"
+        "- Each bullet max 30 words\n"
+        "- Include specific file names, function names, and error messages\n"
+        "- Use | as bullet separator within each field\n"
+        "- Empty string for fields with nothing to report\n\n"
         f"Session transcript:\n{text}"
     )
 
-    summary = _try_claude_cli(prompt) or _try_anthropic_sdk(prompt)
-    if not summary:
+    # SDK fallback removed: ANTHROPIC_API_KEY is stripped by DAEMON_ENV_WHITELIST,
+    # so _try_anthropic_sdk would never succeed in the daemon context.
+    raw = _try_claude_cli(prompt)
+    if not raw:
         return
 
-    # Update SQLite + Chroma (guard: don't overwrite existing summary)
+    # Parse structured JSON response
+    parsed = _parse_summary_json(raw)
+    if not parsed:
+        return
+
+    # Store in DB
     try:
         conn = memory_db.init_db(Path(db_path))
 
-        # Race-condition guard: another daemon may have written first
+        # Race-condition guard: check structured summary table
         existing = conn.execute(
-            "SELECT summary FROM sessions WHERE id = ?", (session_id,)
+            "SELECT status FROM session_summaries WHERE session_id = ?",
+            (session_id,)
         ).fetchone()
-        if existing and existing["summary"]:
+        if existing and existing["status"] == "ready":
             conn.close()
             return
 
-        memory_db.update_summary(conn, session_id, summary)
+        saved = memory_db.save_structured_summary(
+            conn, session_id,
+            request=parsed["request"],
+            completed=parsed["completed"],
+            learned=parsed["learned"],
+            next_steps=parsed["next_steps"],
+            source="model",
+            model=AI_MODEL_CLI,
+        )
 
-        row = conn.execute(
-            "SELECT branch, files_modified FROM sessions WHERE id = ?",
-            (session_id,)
-        ).fetchone()
-        if row:
-            files = json.loads(row["files_modified"])
-            memory_db.upsert_embedding(
-                session_id, summary, row["branch"], files
-            )
+        if saved:
+            # Build legacy summary text for Chroma embedding
+            legacy = parsed["completed"]
+            if parsed["learned"]:
+                legacy += " | " + parsed["learned"]
+
+            row = conn.execute(
+                "SELECT branch, files_modified FROM sessions WHERE id = ?",
+                (session_id,)
+            ).fetchone()
+            if row:
+                files = json.loads(row["files_modified"])
+                memory_db.upsert_embedding(
+                    session_id, legacy, row["branch"], files
+                )
         conn.close()
     except Exception:
-        pass
+        _log_daemon_error()
+
+
+def _parse_summary_json(raw: str) -> dict | None:
+    """Parse AI summary response as JSON. Handles markdown fences and whitespace."""
+    text = raw.strip()
+
+    # Strip markdown code fences if present
+    if text.startswith("```"):
+        first_nl = text.find("\n")
+        if first_nl > 0:
+            text = text[first_nl + 1:]
+        if text.endswith("```"):
+            text = text[:-3].rstrip()
+
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        # Try to extract JSON from surrounding text
+        start = text.find("{")
+        end = text.rfind("}")
+        if start >= 0 and end > start:
+            try:
+                data = json.loads(text[start:end + 1])
+            except json.JSONDecodeError:
+                return None
+        else:
+            return None
+
+    if not isinstance(data, dict):
+        return None
+
+    # Extract fields with defaults
+    result = {
+        "request": str(data.get("request", "")).strip(),
+        "completed": str(data.get("completed", "")).strip(),
+        "learned": str(data.get("learned", "")).strip(),
+        "next_steps": str(data.get("next_steps", "")).strip(),
+    }
+
+    # Validate: must have at least request + completed with meaningful content
+    total = len(result["request"]) + len(result["completed"])
+    if total < 20:
+        return None
+
+    return result
 
 
 def _try_claude_cli(prompt: str) -> str:
-    """Tier 1: claude -p --model opus --no-session-persistence.
+    """Tier 1: claude -p --model haiku --no-session-persistence.
 
     Uses Claude Code's existing OAuth auth (Max subscription).
     --no-session-persistence prevents polluting /resume with summary sessions.
@@ -350,35 +451,6 @@ def _try_claude_cli(prompt: str) -> str:
     return ""
 
 
-def _try_anthropic_sdk(prompt: str) -> str:
-    """Tier 2: Anthropic SDK direct call. Only works with a valid API key.
-
-    Skips if ANTHROPIC_API_KEY looks like a placeholder or is missing.
-    Max subscription users should rely on Tier 1 (claude CLI) instead.
-    """
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key or api_key.startswith("your-") or len(api_key) < 20:
-        return ""
-
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=AI_MODEL_SDK,
-            max_tokens=AI_MAX_TOKENS,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        if response.content:
-            block = response.content[0]
-            if block.type == "text":
-                text = block.text.strip()
-                if len(text) > 20:
-                    return text
-    except Exception:
-        pass
-    return ""
-
-
 # -- Main Entry Points --
 
 
@@ -392,11 +464,14 @@ def main():
 
     hook_data = parse_hook_input(raw_input)
 
-    # Loop guard: if stop_hook_active, this is a re-trigger from a prior block.
-    # Still record the session (side-effect is safe), but skip AI summarize
-    # to avoid redundant daemon spawns.
+    # v2: skip DB write entirely on re-trigger (root cause of stop_count=4306)
     is_retrigger = hook_data.get("stop_hook_active", False)
+    if is_retrigger:
+        print(json.dumps({}))
+        return
 
+    # v2: use real session_id from hook protocol
+    content_session_id = hook_data.get("session_id", "")
     transcript_path = hook_data.get("transcript_path", "")
 
     # Must be in a git repo
@@ -411,34 +486,45 @@ def main():
     # Fallback summary from git commits
     auto_summary = get_recent_commits()
 
-    # Write to SQLite (with 30-min merge window)
+    # Write to SQLite (v2: use content_session_id if available)
     session_id = None
     has_existing_summary = False
     db_path = str(memory_db.get_db_path())
     try:
         conn = memory_db.init_db()
         session_id = memory_db.upsert_session(
-            conn, branch, cwd, files_modified
+            conn, branch, cwd, files_modified,
+            content_session_id=content_session_id
         )
 
-        # Check if session already has an AI-generated summary
+        # Check if session already has a structured or legacy summary
         if session_id:
             row = conn.execute(
                 "SELECT summary FROM sessions WHERE id = ?", (session_id,)
             ).fetchone()
-            if row and row["summary"]:
+            if row and row["summary"] and len(row["summary"]) > 100:
                 has_existing_summary = True
+            # Also check structured summaries
+            try:
+                ss = conn.execute(
+                    "SELECT status FROM session_summaries WHERE session_id = ?",
+                    (session_id,)
+                ).fetchone()
+                if ss and ss["status"] == "ready":
+                    has_existing_summary = True
+            except Exception:
+                pass
 
         # Fill commit-based summary as fallback (only if no summary yet)
         if auto_summary and session_id and not has_existing_summary:
             memory_db.update_summary(conn, session_id, auto_summary)
 
         conn.close()
-    except Exception as e:
-        print(f"[session_journal] DB error: {e}", file=sys.stderr)
+    except Exception:
+        print("[session_journal] DB write failed", file=sys.stderr)
 
-    # Spawn AI summarize daemon only if no existing summary and not a re-trigger
-    if transcript_path and session_id and not has_existing_summary and not is_retrigger:
+    # Spawn AI summarize daemon only if no existing summary
+    if transcript_path and session_id and not has_existing_summary:
         spawn_ai_summarize(session_id, transcript_path, db_path)
 
     # Append to JSONL (backup)
@@ -448,12 +534,12 @@ def main():
         entry = {
             "ts": datetime.now(timezone.utc).isoformat(),
             "sid": session_id,
+            "content_sid": content_session_id,
             "branch": branch,
             "cwd": cwd,
             "files": files_modified,
             "auto_summary": auto_summary,
             "has_transcript": bool(transcript_path),
-            "is_retrigger": is_retrigger,
         }
         with open(jsonl_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
@@ -475,13 +561,25 @@ if __name__ == "__main__":
         print(f"Generating AI summary for session {sid}...")
         _run_ai_summarize(sid, tp, db)
         conn = memory_db.init_db()
-        result = conn.execute(
-            "SELECT summary FROM sessions WHERE id = ?", (sid,)
+        # Check structured summary first, then legacy
+        ss = conn.execute(
+            "SELECT status, request, completed, learned, next_steps "
+            "FROM session_summaries WHERE session_id = ?", (sid,)
         ).fetchone()
-        conn.close()
-        if result and result["summary"]:
-            print(f"Summary generated:\n{result['summary']}")
+        if ss and ss["status"] == "ready":
+            print(f"Structured summary generated:")
+            print(f"  Request: {ss['request']}")
+            print(f"  Completed: {ss['completed']}")
+            print(f"  Learned: {ss['learned']}")
+            print(f"  Next steps: {ss['next_steps']}")
         else:
-            print("No summary generated (check transcript path and API access)")
+            result = conn.execute(
+                "SELECT summary FROM sessions WHERE id = ?", (sid,)
+            ).fetchone()
+            if result and result["summary"]:
+                print(f"Legacy summary:\n{result['summary']}")
+            else:
+                print("No summary generated (check transcript path and API access)")
+        conn.close()
     else:
         main()

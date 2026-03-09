@@ -120,8 +120,9 @@ def get_last_session_oneliner() -> str:
 
 
 def get_branch_memory(branch: str) -> list:
-    """Query memory DB directly for recent sessions with summaries on this branch.
+    """Query memory DB for recent sessions with summaries on this branch.
 
+    Prefers structured summaries (session_summaries.completed) over legacy.
     Returns up to 3 session summaries for context continuity.
     Adds ~150 tokens. Fails silently.
     """
@@ -138,9 +139,12 @@ def get_branch_memory(branch: str) -> list:
 
         conn = memory_db.init_db(db_path)
         rows = conn.execute(
-            """SELECT id, last_active, summary FROM sessions
-               WHERE branch = ? AND summary != ''
-               ORDER BY last_active DESC LIMIT 3""",
+            """SELECT s.id, s.last_active, s.summary,
+                      ss.completed as ss_completed, ss.request as ss_request
+               FROM sessions s
+               LEFT JOIN session_summaries ss ON s.id = ss.session_id
+               WHERE s.branch = ? AND (s.summary != '' OR ss.status = 'ready')
+               ORDER BY s.last_active DESC LIMIT 3""",
             (branch,)
         ).fetchall()
         conn.close()
@@ -148,18 +152,24 @@ def get_branch_memory(branch: str) -> list:
         lines = []
         for row in rows:
             date = row["last_active"][:10]
-            summary = row["summary"]
-            # Take first line/sentence, truncate to 120 chars
-            short = summary.split("\n")[0].strip()
-            if short.startswith("- "):
-                short = short[2:]
-            if short.startswith("## "):
-                # Structured summary - grab first bullet instead
-                for s_line in summary.split("\n"):
-                    s_line = s_line.strip()
-                    if s_line.startswith("- ") and len(s_line) > 5:
-                        short = s_line[2:]
-                        break
+
+            # Prefer structured summary
+            if row["ss_completed"]:
+                short = row["ss_completed"]
+            elif row["summary"]:
+                summary = row["summary"]
+                short = summary.split("\n")[0].strip()
+                if short.startswith("- "):
+                    short = short[2:]
+                if short.startswith("## "):
+                    for s_line in summary.split("\n"):
+                        s_line = s_line.strip()
+                        if s_line.startswith("- ") and len(s_line) > 5:
+                            short = s_line[2:]
+                            break
+            else:
+                continue
+
             if len(short) > 120:
                 short = short[:117] + "..."
             lines.append(f"  - [{date}] {short}")
