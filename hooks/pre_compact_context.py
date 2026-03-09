@@ -87,8 +87,9 @@ def get_cwd_info():
 
 
 def get_branch_memory(branch: str) -> list:
-    """Query memory DB directly for recent sessions with summaries on this branch.
+    """Query memory DB for recent sessions with summaries on this branch.
 
+    Prefers structured summaries (session_summaries.completed) over legacy.
     Returns formatted summary lines for inclusion in compact snapshot.
     """
     if not branch:
@@ -104,9 +105,12 @@ def get_branch_memory(branch: str) -> list:
 
         conn = memory_db.init_db(db_path)
         rows = conn.execute(
-            """SELECT id, last_active, summary FROM sessions
-               WHERE branch = ? AND summary != ''
-               ORDER BY last_active DESC LIMIT 5""",
+            """SELECT s.id, s.last_active, s.summary,
+                      ss.completed as ss_completed, ss.request as ss_request
+               FROM sessions s
+               LEFT JOIN session_summaries ss ON s.id = ss.session_id
+               WHERE s.branch = ? AND (s.summary != '' OR ss.status = 'ready')
+               ORDER BY s.last_active DESC LIMIT 5""",
             (branch,)
         ).fetchall()
         conn.close()
@@ -114,8 +118,15 @@ def get_branch_memory(branch: str) -> list:
         lines = []
         for row in rows:
             date = row["last_active"][:10]
-            summary = row["summary"]
-            # Truncate to keep compact
+
+            # Prefer structured summary
+            if row["ss_completed"]:
+                summary = row["ss_completed"]
+            elif row["summary"]:
+                summary = row["summary"]
+            else:
+                continue
+
             if len(summary) > 200:
                 summary = summary[:197] + "..."
             lines.append(f"- [{date}] {summary}")
