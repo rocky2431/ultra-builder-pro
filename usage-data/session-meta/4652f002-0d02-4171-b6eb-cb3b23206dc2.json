@@ -1,0 +1,38 @@
+{
+  "session_id": "4652f002-0d02-4171-b6eb-cb3b23206dc2",
+  "project_path": "/Users/rocky243/.claude-mem/observer-sessions",
+  "start_time": "2026-02-07T07:32:54.898Z",
+  "duration_minutes": 1,
+  "user_message_count": 3,
+  "assistant_message_count": 3,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 9,
+  "output_tokens": 3,
+  "first_prompt": "Hello memory agent, you are continuing to observe the primary Claude session.  <observed_from_primary_session>   <user_request>我直接在raliway上部署了 你看下</user_request>   <requested_at>2026-02-07</requested_…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    7.7
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-02-07T07:32:54.898Z",
+    "2026-02-07T07:33:01.132Z",
+    "2026-02-07T07:33:18.630Z"
+  ]
+}

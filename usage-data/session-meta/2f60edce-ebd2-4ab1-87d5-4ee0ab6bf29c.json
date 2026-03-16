@@ -1,0 +1,44 @@
+{
+  "session_id": "2f60edce-ebd2-4ab1-87d5-4ee0ab6bf29c",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-banckend",
+  "start_time": "2026-02-14T02:49:33.165Z",
+  "duration_minutes": 99,
+  "user_message_count": 2,
+  "assistant_message_count": 53,
+  "tool_counts": {
+    "Grep": 8,
+    "Read": 7,
+    "Task": 2,
+    "Edit": 3,
+    "Bash": 6
+  },
+  "languages": {
+    "Python": 10
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 5031,
+  "output_tokens": 6075,
+  "first_prompt": "为啥现在point排行榜还是没有啊 明明已经有积分产生了一个地址？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    116.69
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 24,
+  "lines_removed": 1,
+  "files_modified": 2,
+  "message_hours": [
+    12,
+    12
+  ],
+  "user_message_timestamps": [
+    "2026-02-14T04:13:22.149Z",
+    "2026-02-14T04:20:55.229Z"
+  ]
+}

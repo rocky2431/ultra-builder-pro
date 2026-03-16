@@ -1,0 +1,67 @@
+{
+  "session_id": "15d9feea-38ca-4f4e-b300-48aff2d54227",
+  "project_path": "/Users/rocky243/paimon.finance/nft-paimon-frontend",
+  "start_time": "2026-03-03T07:19:36.613Z",
+  "duration_minutes": 28,
+  "user_message_count": 7,
+  "assistant_message_count": 150,
+  "tool_counts": {
+    "Agent": 1,
+    "Skill": 1,
+    "WebFetch": 1,
+    "Read": 23,
+    "TaskCreate": 4,
+    "TaskUpdate": 8,
+    "Edit": 28,
+    "Grep": 15,
+    "Write": 4,
+    "Bash": 15
+  },
+  "languages": {
+    "TypeScript": 52,
+    "Markdown": 3
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 51162,
+  "output_tokens": 29629,
+  "first_prompt": "这几个页面丑的天本地咧的 为什么还有紫色 不要有除了蓝色白色绿色之外的颜色 参考一下之前的card样式行不行啊 完了背景是白色的 pp页面的背景是啥样的 card样式啥样的 完了你看看这些信息是不是有点分散 用户知道什么是什么吗 能不能正确的呈现 你在干嘛 使用 web-design-guidelines 重新好好的想一下怎么做",
+  "user_interruptions": 0,
+  "user_response_times": [
+    86.593,
+    47.854,
+    206.113,
+    43.273,
+    18.082
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "Other": 2,
+    "Command Failed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": true,
+  "lines_added": 866,
+  "lines_removed": 63,
+  "files_modified": 16,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-03-03T07:23:29.452Z",
+    "2026-03-03T07:25:19.950Z",
+    "2026-03-03T07:36:10.048Z",
+    "2026-03-03T07:37:51.635Z",
+    "2026-03-03T07:41:49.013Z",
+    "2026-03-03T07:43:31.732Z",
+    "2026-03-03T07:45:34.602Z"
+  ]
+}

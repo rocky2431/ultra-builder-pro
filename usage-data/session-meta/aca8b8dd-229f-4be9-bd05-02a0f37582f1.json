@@ -1,0 +1,71 @@
+{
+  "session_id": "aca8b8dd-229f-4be9-bd05-02a0f37582f1",
+  "project_path": "/Users/rocky243/testing-project/nanobot",
+  "start_time": "2026-02-12T08:50:51.819Z",
+  "duration_minutes": 30,
+  "user_message_count": 10,
+  "assistant_message_count": 67,
+  "tool_counts": {
+    "Bash": 7,
+    "Glob": 4,
+    "Read": 8,
+    "Task": 1,
+    "Write": 2,
+    "AskUserQuestion": 2,
+    "Skill": 1,
+    "TaskCreate": 7,
+    "TaskUpdate": 8
+  },
+  "languages": {
+    "Markdown": 4,
+    "JSON": 2
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 121,
+  "output_tokens": 3460,
+  "first_prompt": "详细给我解释一下当前的项目",
+  "user_interruptions": 1,
+  "user_response_times": [
+    24.364,
+    586.616,
+    343.132,
+    2.208,
+    27.7,
+    27.699,
+    27.699
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 124,
+  "lines_removed": 0,
+  "files_modified": 2,
+  "message_hours": [
+    16,
+    16,
+    16,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T08:50:55.883Z",
+    "2026-02-12T08:50:55.883Z",
+    "2026-02-12T08:54:10.997Z",
+    "2026-02-12T09:05:07.545Z",
+    "2026-02-12T09:13:06.734Z",
+    "2026-02-12T09:18:07.120Z",
+    "2026-02-12T09:20:01.097Z",
+    "2026-02-12T09:20:26.589Z",
+    "2026-02-12T09:20:26.588Z",
+    "2026-02-12T09:20:26.588Z"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "session_id": "f012736b-f6d4-44b9-8f8a-74fe4c0f170d",
+  "project_path": "/Users/rocky243",
+  "start_time": "2026-03-07T04:20:53.754Z",
+  "duration_minutes": 1,
+  "user_message_count": 7,
+  "assistant_message_count": 2,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 6,
+  "output_tokens": 211,
+  "first_prompt": "你是谁",
+  "user_interruptions": 0,
+  "user_response_times": [
+    10.5,
+    10.5,
+    10.5
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    12,
+    12,
+    12,
+    12,
+    12,
+    12,
+    12
+  ],
+  "user_message_timestamps": [
+    "2026-03-07T04:21:02.714Z",
+    "2026-03-07T04:21:02.714Z",
+    "2026-03-07T04:21:02.714Z",
+    "2026-03-07T04:21:34.874Z",
+    "2026-03-07T04:21:52.369Z",
+    "2026-03-07T04:21:52.369Z",
+    "2026-03-07T04:21:52.369Z"
+  ]
+}

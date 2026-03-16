@@ -1,0 +1,50 @@
+{
+  "session_id": "914d3d1e-bf9f-4d05-9892-7661ba27a171",
+  "project_path": "/Users/rocky243/paimon.finance/nft-paimon-frontend",
+  "start_time": "2026-02-16T14:41:45.432Z",
+  "duration_minutes": 9,
+  "user_message_count": 2,
+  "assistant_message_count": 34,
+  "tool_counts": {
+    "Bash": 7,
+    "Task": 2,
+    "EnterPlanMode": 1,
+    "Read": 6,
+    "Grep": 1,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 5,
+    "CSS": 1,
+    "Markdown": 1
+  },
+  "git_commits": 1,
+  "git_pushes": 0,
+  "input_tokens": 52,
+  "output_tokens": 3222,
+  "first_prompt": "取消暗色模式吧 删除暗色模式所有的代码 然后我需要知道一个事情 就是当前几个页面的背景色都不一样是为什么？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    94.178
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 75,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    22,
+    22
+  ],
+  "user_message_timestamps": [
+    "2026-02-16T14:41:45.432Z",
+    "2026-02-16T14:44:03.296Z"
+  ]
+}

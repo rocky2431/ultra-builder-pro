@@ -1,0 +1,80 @@
+{
+  "session_id": "dbd473ff-122b-436d-9085-b2e63dc806ab",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-14T03:20:46.485Z",
+  "duration_minutes": 39,
+  "user_message_count": 12,
+  "assistant_message_count": 149,
+  "tool_counts": {
+    "Read": 25,
+    "Glob": 7,
+    "Grep": 4,
+    "Bash": 17,
+    "Write": 1,
+    "Task": 2,
+    "AskUserQuestion": 2,
+    "Edit": 21
+  },
+  "languages": {
+    "Markdown": 33,
+    "Python": 14
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 239,
+  "output_tokens": 9795,
+  "first_prompt": "你看 我执行dev命令的时候 生成任务还是pr 这是为啥？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    85.956,
+    65.654,
+    18.216,
+    101.756,
+    265,
+    125.593,
+    112.898,
+    79.574,
+    79.849,
+    257.092
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Command Failed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 243,
+  "lines_removed": 31,
+  "files_modified": 6,
+  "message_hours": [
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-02-14T03:22:23.170Z",
+    "2026-02-14T03:24:44.207Z",
+    "2026-02-14T03:26:06.010Z",
+    "2026-02-14T03:26:28.255Z",
+    "2026-02-14T03:28:38.484Z",
+    "2026-02-14T03:34:25.835Z",
+    "2026-02-14T03:37:25.564Z",
+    "2026-02-14T03:37:54.823Z",
+    "2026-02-14T03:44:45.189Z",
+    "2026-02-14T03:47:55.626Z",
+    "2026-02-14T03:49:39.124Z",
+    "2026-02-14T03:57:25.662Z"
+  ]
+}

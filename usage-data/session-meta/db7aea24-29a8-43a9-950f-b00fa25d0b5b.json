@@ -1,0 +1,55 @@
+{
+  "session_id": "db7aea24-29a8-43a9-950f-b00fa25d0b5b",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-21T13:55:12.539Z",
+  "duration_minutes": 303,
+  "user_message_count": 6,
+  "assistant_message_count": 89,
+  "tool_counts": {
+    "Read": 18,
+    "Grep": 8,
+    "Edit": 18,
+    "Bash": 14
+  },
+  "languages": {
+    "JSON": 4,
+    "TypeScript": 32
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 129,
+  "output_tokens": 3823,
+  "first_prompt": "Implement the following plan:  # Fix P0: airi-brain typecheck + Bridge enriched response delivery  ## Context  二次复检发现 2 个 P0 阻断： 1. `services/airi-brain` 无法 typecheck（33 个 TS 错误） 2. Bridge 的 enriched…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    349.274,
+    9.246,
+    9.24,
+    9.24
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 69,
+  "lines_removed": 33,
+  "files_modified": 14,
+  "message_hours": [
+    21,
+    22,
+    2,
+    2,
+    2,
+    2
+  ],
+  "user_message_timestamps": [
+    "2026-02-21T13:55:12.514Z",
+    "2026-02-21T14:06:29.903Z",
+    "2026-02-21T18:58:01.076Z",
+    "2026-02-21T18:58:23.913Z",
+    "2026-02-21T18:58:23.907Z",
+    "2026-02-21T18:58:23.907Z"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "underlying_goal": "No goal expressed - user immediately exited the session",
+  "goal_categories": {
+    "warmup_minimal": 1
+  },
+  "outcome": "unclear_from_transcript",
+  "user_satisfaction_counts": {},
+  "claude_helpfulness": "unhelpful",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "none",
+  "brief_summary": "User opened a Claude Code session and immediately exited without making any requests.",
+  "session_id": "398eba06-b35a-41c3-bbf2-6a202d7b3c55"
+}

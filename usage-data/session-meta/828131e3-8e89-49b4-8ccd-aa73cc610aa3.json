@@ -1,0 +1,63 @@
+{
+  "session_id": "828131e3-8e89-49b4-8ccd-aa73cc610aa3",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-14T02:33:41.152Z",
+  "duration_minutes": 7,
+  "user_message_count": 7,
+  "assistant_message_count": 53,
+  "tool_counts": {
+    "Read": 7,
+    "Glob": 4,
+    "TaskCreate": 4,
+    "TaskUpdate": 7,
+    "Bash": 3,
+    "Write": 9,
+    "Edit": 4
+  },
+  "languages": {
+    "JSON": 2,
+    "Python": 4,
+    "Markdown": 14
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 67,
+  "output_tokens": 13058,
+  "first_prompt": "Implement the following plan:  # Ultra Review System - 全面替换 pr-review-toolkit 插件  ## Context  ### 为什么要做这件事  Usage report (2026-02-07 ~ 02-14) 揭示了三个致命瓶颈： 1. **Context 溢出**：6 个插件 agent 的结果全部以消息回传主对话，在 m…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    103.175,
+    103.175,
+    103.175,
+    109.182,
+    109.182,
+    109.182
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 1100,
+  "lines_removed": 5,
+  "files_modified": 12,
+  "message_hours": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
+  ],
+  "user_message_timestamps": [
+    "2026-02-14T02:33:41.121Z",
+    "2026-02-14T02:40:42.117Z",
+    "2026-02-14T02:40:42.117Z",
+    "2026-02-14T02:40:42.117Z",
+    "2026-02-14T02:40:48.124Z",
+    "2026-02-14T02:40:48.124Z",
+    "2026-02-14T02:40:48.124Z"
+  ]
+}

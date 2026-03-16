@@ -1,0 +1,49 @@
+{
+  "session_id": "bff6c037-a923-4164-aa20-a565e1228724",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you",
+  "start_time": "2026-02-12T11:58:01.863Z",
+  "duration_minutes": 12,
+  "user_message_count": 1,
+  "assistant_message_count": 85,
+  "tool_counts": {
+    "TaskList": 1,
+    "Read": 8,
+    "Edit": 18,
+    "Task": 2,
+    "Bash": 11,
+    "TaskUpdate": 7,
+    "Glob": 2,
+    "Grep": 2,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "Python": 18,
+    "JSON": 3,
+    "Markdown": 5
+  },
+  "git_commits": 2,
+  "git_pushes": 1,
+  "input_tokens": 123,
+  "output_tokens": 2146,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Other": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 211,
+  "lines_removed": 38,
+  "files_modified": 7,
+  "message_hours": [
+    19
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T11:58:01.863Z"
+  ]
+}

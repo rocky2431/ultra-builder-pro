@@ -1,0 +1,49 @@
+{
+  "session_id": "fc8c8ae4-e64d-4088-adf3-2eba1a6d73de",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-08T07:25:25.833Z",
+  "duration_minutes": 10,
+  "user_message_count": 4,
+  "assistant_message_count": 30,
+  "tool_counts": {
+    "Task": 2,
+    "EnterPlanMode": 1,
+    "Read": 10,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 10,
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 46,
+  "output_tokens": 3567,
+  "first_prompt": "这里的分发归集的逻辑都非常的反人性，和之前的修改一样能理解什么意思吗 就是常用的token 加上自定义token 或者在设置里面加上一个自定义token设置 完了设置了可以应用到全局 里能理解我什么意思吧 先",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 103,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-02-08T07:25:25.917Z",
+    "2026-02-08T07:25:25.832Z",
+    "2026-02-08T07:25:25.917Z",
+    "2026-02-08T07:27:17.255Z"
+  ]
+}

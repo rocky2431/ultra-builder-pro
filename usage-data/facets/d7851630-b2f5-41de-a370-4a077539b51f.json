@@ -1,0 +1,17 @@
+{
+  "underlying_goal": "Continue a previous session where Task 19 was completed; handle leftover review notifications and check project status",
+  "goal_categories": {
+    "warmup_minimal": 1
+  },
+  "outcome": "fully_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 1
+  },
+  "claude_helpfulness": "slightly_helpful",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "good_explanations",
+  "brief_summary": "User continued a compacted session and received leftover task notifications; Claude correctly identified them as stale and confirmed project status before user exited.",
+  "session_id": "d7851630-b2f5-41de-a370-4a077539b51f"
+}

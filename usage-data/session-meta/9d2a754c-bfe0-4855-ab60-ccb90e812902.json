@@ -1,0 +1,55 @@
+{
+  "session_id": "9d2a754c-bfe0-4855-ab60-ccb90e812902",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-12T09:14:33.121Z",
+  "duration_minutes": 7,
+  "user_message_count": 6,
+  "assistant_message_count": 46,
+  "tool_counts": {
+    "Glob": 2,
+    "Grep": 1,
+    "Read": 6,
+    "Bash": 6,
+    "Task": 1,
+    "Edit": 5
+  },
+  "languages": {
+    "Markdown": 11
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 90,
+  "output_tokens": 1635,
+  "first_prompt": "当前 ultra-research流程是什么 每一轮都干嘛的",
+  "user_interruptions": 0,
+  "user_response_times": [
+    82.244,
+    15.483,
+    124.308
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 28,
+  "lines_removed": 11,
+  "files_modified": 1,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T09:14:50.581Z",
+    "2026-02-12T09:15:18.963Z",
+    "2026-02-12T09:17:17.816Z",
+    "2026-02-12T09:18:20.241Z",
+    "2026-02-12T09:18:43.661Z",
+    "2026-02-12T09:21:07.544Z"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "session_id": "e2c2cb7b-ebc1-4286-8a9e-225a12e8116a",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-banckend",
+  "start_time": "2026-02-20T12:02:56.776Z",
+  "duration_minutes": 36,
+  "user_message_count": 5,
+  "assistant_message_count": 51,
+  "tool_counts": {
+    "Read": 7,
+    "Bash": 8,
+    "Write": 8
+  },
+  "languages": {
+    "JSON": 2
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 89,
+  "output_tokens": 9364,
+  "first_prompt": "搞完了 开始创建query吧 我应该怎么做？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    141.759,
+    234.671,
+    950.669,
+    469.853
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "File Too Large": 2,
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 375,
+  "lines_removed": 0,
+  "files_modified": 8,
+  "message_hours": [
+    20,
+    20,
+    20,
+    20,
+    20
+  ],
+  "user_message_timestamps": [
+    "2026-02-20T12:02:56.776Z",
+    "2026-02-20T12:07:49.378Z",
+    "2026-02-20T12:12:21.987Z",
+    "2026-02-20T12:30:01.499Z",
+    "2026-02-20T12:38:13.404Z"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "session_id": "74a71013-1d9f-42c1-9257-d3ed2f5dfe73",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-14T13:22:29.751Z",
+  "duration_minutes": 31,
+  "user_message_count": 13,
+  "assistant_message_count": 73,
+  "tool_counts": {
+    "Read": 10,
+    "Edit": 1,
+    "Bash": 13,
+    "Grep": 2,
+    "EnterPlanMode": 1,
+    "Task": 1,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "Markdown": 5,
+    "JSON": 2,
+    "Python": 5
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 151,
+  "output_tokens": 4093,
+  "first_prompt": "claude.md 文档现在好像有点过大 在不损失任何信息密度的前提下有哪些可以精简的 先和我讨论 不要先修改",
+  "user_interruptions": 0,
+  "user_response_times": [
+    141.557,
+    69.739,
+    70.866,
+    31.056,
+    11.978,
+    787.347,
+    92.297,
+    64.243
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "Command Failed": 1,
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 85,
+  "lines_removed": 1,
+  "files_modified": 2,
+  "message_hours": [
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-02-14T13:22:36.782Z",
+    "2026-02-14T13:22:36.782Z",
+    "2026-02-14T13:22:36.782Z",
+    "2026-02-14T13:24:19.380Z",
+    "2026-02-14T13:27:58.582Z",
+    "2026-02-14T13:29:29.048Z",
+    "2026-02-14T13:31:01.833Z",
+    "2026-02-14T13:31:57.994Z",
+    "2026-02-14T13:32:30.083Z",
+    "2026-02-14T13:45:42.033Z",
+    "2026-02-14T13:46:10.479Z",
+    "2026-02-14T13:48:15.615Z",
+    "2026-02-14T13:50:10.718Z"
+  ]
+}

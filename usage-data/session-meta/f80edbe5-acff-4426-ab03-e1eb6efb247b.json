@@ -1,0 +1,48 @@
+{
+  "session_id": "f80edbe5-acff-4426-ab03-e1eb6efb247b",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-24T07:49:46.302Z",
+  "duration_minutes": 9,
+  "user_message_count": 2,
+  "assistant_message_count": 77,
+  "tool_counts": {
+    "Read": 12,
+    "Edit": 27,
+    "Write": 1,
+    "Bash": 3,
+    "Grep": 1
+  },
+  "languages": {
+    "Python": 9,
+    "TypeScript": 25,
+    "JSON": 6
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 95,
+  "output_tokens": 5517,
+  "first_prompt": "这里ai模型为啥没有显示出来配置啊",
+  "user_interruptions": 0,
+  "user_response_times": [
+    107.005
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Other": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 462,
+  "lines_removed": 11,
+  "files_modified": 11,
+  "message_hours": [
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-02-24T07:49:46.302Z",
+    "2026-02-24T07:55:36.398Z"
+  ]
+}

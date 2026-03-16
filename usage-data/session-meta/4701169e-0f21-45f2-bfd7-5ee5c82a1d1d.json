@@ -1,0 +1,47 @@
+{
+  "session_id": "4701169e-0f21-45f2-bfd7-5ee5c82a1d1d",
+  "project_path": "/Users/rocky243/.claude-mem/observer-sessions",
+  "start_time": "2026-02-07T06:48:22.120Z",
+  "duration_minutes": 2,
+  "user_message_count": 6,
+  "assistant_message_count": 6,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 18,
+  "output_tokens": 29,
+  "first_prompt": "Hello memory agent, you are continuing to observe the primary Claude session.  <observed_from_primary_session>   <user_request>还是这个问题 你看下loge日志</user_request>   <requested_at>2026-02-07</requested_at>…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    10.906,
+    12.292,
+    13.719,
+    15.911
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    14,
+    14,
+    14,
+    14,
+    14,
+    14
+  ],
+  "user_message_timestamps": [
+    "2026-02-07T06:48:22.120Z",
+    "2026-02-07T06:48:26.795Z",
+    "2026-02-07T06:48:46.314Z",
+    "2026-02-07T06:49:09.681Z",
+    "2026-02-07T06:49:31.550Z",
+    "2026-02-07T06:49:58.147Z"
+  ]
+}

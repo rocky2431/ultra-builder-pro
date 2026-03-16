@@ -1,0 +1,44 @@
+{
+  "session_id": "75ecc9f5-9d2c-454d-9e5f-800be7e40ecd",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you/backend",
+  "start_time": "2026-02-12T03:42:51.268Z",
+  "duration_minutes": 7,
+  "user_message_count": 1,
+  "assistant_message_count": 46,
+  "tool_counts": {
+    "TaskList": 1,
+    "Bash": 14,
+    "TaskUpdate": 9,
+    "Read": 2,
+    "Edit": 5,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "JSON": 2,
+    "Markdown": 5
+  },
+  "git_commits": 2,
+  "git_pushes": 1,
+  "input_tokens": 56,
+  "output_tokens": 726,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 9,
+  "lines_removed": 10,
+  "files_modified": 2,
+  "message_hours": [
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T03:42:51.268Z"
+  ]
+}

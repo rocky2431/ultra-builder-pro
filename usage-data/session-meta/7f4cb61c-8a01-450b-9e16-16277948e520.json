@@ -1,0 +1,54 @@
+{
+  "session_id": "7f4cb61c-8a01-450b-9e16-16277948e520",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-23T19:20:11.593Z",
+  "duration_minutes": 32,
+  "user_message_count": 6,
+  "assistant_message_count": 29,
+  "tool_counts": {
+    "Read": 2,
+    "Bash": 13,
+    "Edit": 2
+  },
+  "languages": {
+    "Python": 4
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 47,
+  "output_tokens": 523,
+  "first_prompt": "Implement the following plan:  # Fix: Memory System Summary Overwrite + Data Cleanup  ## Context  Three issues with the cross-session memory system: 1. `/clear` triggers Stop hook which re-spawns AI d…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    754.271,
+    16.76,
+    1074.671,
+    1074.669,
+    1074.669
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 24,
+  "lines_removed": 8,
+  "files_modified": 1,
+  "message_hours": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+  ],
+  "user_message_timestamps": [
+    "2026-02-23T19:20:11.553Z",
+    "2026-02-23T19:33:47.961Z",
+    "2026-02-23T19:34:23.826Z",
+    "2026-02-23T19:52:26.177Z",
+    "2026-02-23T19:52:26.175Z",
+    "2026-02-23T19:52:26.175Z"
+  ]
+}

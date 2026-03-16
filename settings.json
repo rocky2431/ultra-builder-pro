@@ -206,7 +206,8 @@
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "ui-ux-pro-max@ui-ux-pro-max-skill": true,
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "pua@pua-skills": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
@@ -219,6 +220,12 @@
       "source": {
         "source": "github",
         "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "pua-skills": {
+      "source": {
+        "source": "github",
+        "repo": "tanweai/pua"
       }
     }
   },

@@ -1,0 +1,15 @@
+{
+  "underlying_goal": "No discernible goal - user ran plugin command and immediately exited",
+  "goal_categories": {
+    "warmup_minimal": 1
+  },
+  "outcome": "unclear_from_transcript",
+  "user_satisfaction_counts": {},
+  "claude_helpfulness": "unhelpful",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "none",
+  "brief_summary": "User ran a /plugin command and immediately exited the session without any interaction with Claude.",
+  "session_id": "5997c5a6-0b6e-4ed3-8776-f84ae98680b7"
+}

@@ -1,0 +1,75 @@
+{
+  "session_id": "2e1939d7-83a2-40a0-9e52-7b0c35d5941f",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio/packages/database",
+  "start_time": "2026-02-12T07:48:36.424Z",
+  "duration_minutes": 206,
+  "user_message_count": 9,
+  "assistant_message_count": 126,
+  "tool_counts": {
+    "Read": 12,
+    "Edit": 14,
+    "Bash": 13,
+    "Task": 3,
+    "Write": 3,
+    "mcp__Railway__list-services": 1,
+    "mcp__Railway__deploy": 4,
+    "mcp__Railway__get-logs": 3,
+    "mcp__Railway__list-deployments": 1,
+    "Glob": 5,
+    "EnterPlanMode": 1,
+    "AskUserQuestion": 1,
+    "Grep": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 24,
+    "Shell": 2,
+    "Markdown": 2
+  },
+  "git_commits": 3,
+  "git_pushes": 3,
+  "input_tokens": 7362,
+  "output_tokens": 6222,
+  "first_prompt": "<task-notification> <task-id>ae581a5</task-id> <status>completed</status> <summary>Agent \"Verify frontend build\" completed</summary> <result>TypeScript 类型检查结果如下:  **总计 16 个 TS 错误，全部位于测试文件中，生产代码零错误。**…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    36.24,
+    356.62,
+    315.304,
+    55.597,
+    69.366
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 392,
+  "lines_removed": 85,
+  "files_modified": 10,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15,
+    16,
+    16,
+    16,
+    16,
+    19
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T07:48:36.424Z",
+    "2026-02-12T07:49:34.744Z",
+    "2026-02-12T07:58:17.369Z",
+    "2026-02-12T07:59:14.738Z",
+    "2026-02-12T08:06:30.017Z",
+    "2026-02-12T08:12:33.199Z",
+    "2026-02-12T08:13:48.317Z",
+    "2026-02-12T08:15:16.646Z",
+    "2026-02-12T11:06:37.598Z"
+  ]
+}

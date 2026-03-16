@@ -1,0 +1,62 @@
+{
+  "session_id": "2da7fe85-be94-4a48-966b-18f072a6c569",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/KouriChat",
+  "start_time": "2026-02-15T09:20:11.459Z",
+  "duration_minutes": 4,
+  "user_message_count": 7,
+  "assistant_message_count": 54,
+  "tool_counts": {
+    "Bash": 16,
+    "Glob": 4,
+    "Read": 20,
+    "Write": 1,
+    "Edit": 1
+  },
+  "languages": {
+    "Markdown": 7,
+    "JSON": 1,
+    "Python": 10
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 74,
+  "output_tokens": 2332,
+  "first_prompt": "No prompt",
+  "user_interruptions": 1,
+  "user_response_times": [
+    68.098,
+    68.098,
+    69.642,
+    72.578,
+    72.578
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Other": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 115,
+  "lines_removed": 1,
+  "files_modified": 1,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-15T09:20:14.374Z",
+    "2026-02-15T09:20:14.374Z",
+    "2026-02-15T09:23:00.297Z",
+    "2026-02-15T09:23:00.297Z",
+    "2026-02-15T09:23:01.841Z",
+    "2026-02-15T09:23:04.777Z",
+    "2026-02-15T09:23:04.777Z"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "session_id": "54d1726c-0cf3-433f-bf08-80473069ebd6",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you",
+  "start_time": "2026-02-16T13:30:10.964Z",
+  "duration_minutes": 23,
+  "user_message_count": 5,
+  "assistant_message_count": 190,
+  "tool_counts": {
+    "Read": 43,
+    "Glob": 9,
+    "TaskCreate": 7,
+    "TaskUpdate": 14,
+    "Edit": 23,
+    "Write": 8,
+    "Bash": 8,
+    "Grep": 5,
+    "Task": 1
+  },
+  "languages": {
+    "Python": 61,
+    "TypeScript": 13
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 1126,
+  "output_tokens": 21908,
+  "first_prompt": "Implement the following plan:  # Fix Plan: Wire 4 Orphan Modules into Application Lifecycle  ## Context  审计发现 4 个模块代码完整但未接入 lifecycle（共 ~1480 行死代码）： 1. **行为触发器** - 影响 3 个核心用户场景（卡壳检测、久坐提醒、频繁切换） 2. **写作…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    32.534,
+    110.642,
+    110.642,
+    110.642
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 1155,
+  "lines_removed": 107,
+  "files_modified": 14,
+  "message_hours": [
+    21,
+    21,
+    21,
+    21,
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-02-16T13:30:10.927Z",
+    "2026-02-16T13:50:02.415Z",
+    "2026-02-16T13:53:03.086Z",
+    "2026-02-16T13:53:03.086Z",
+    "2026-02-16T13:53:03.086Z"
+  ]
+}

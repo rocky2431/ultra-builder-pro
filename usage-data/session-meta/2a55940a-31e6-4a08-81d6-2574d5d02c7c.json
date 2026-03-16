@@ -1,0 +1,67 @@
+{
+  "session_id": "2a55940a-31e6-4a08-81d6-2574d5d02c7c",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you",
+  "start_time": "2026-02-11T00:54:24.213Z",
+  "duration_minutes": 22,
+  "user_message_count": 7,
+  "assistant_message_count": 86,
+  "tool_counts": {
+    "Read": 4,
+    "TaskList": 1,
+    "AskUserQuestion": 2,
+    "Write": 3,
+    "TaskUpdate": 17,
+    "Task": 3,
+    "TaskCreate": 7,
+    "Grep": 1,
+    "Bash": 7,
+    "Glob": 2
+  },
+  "languages": {
+    "Markdown": 5,
+    "JSON": 2
+  },
+  "git_commits": 1,
+  "git_pushes": 0,
+  "input_tokens": 112,
+  "output_tokens": 5410,
+  "first_prompt": "先创建远程仓库 个人的私人远程仓库",
+  "user_interruptions": 0,
+  "user_response_times": [
+    46.209,
+    46.209,
+    102.608,
+    120.218,
+    120.218,
+    120.218
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 551,
+  "lines_removed": 0,
+  "files_modified": 3,
+  "message_hours": [
+    8,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9
+  ],
+  "user_message_timestamps": [
+    "2026-02-11T00:54:24.213Z",
+    "2026-02-11T01:01:41.846Z",
+    "2026-02-11T01:01:41.846Z",
+    "2026-02-11T01:13:45.909Z",
+    "2026-02-11T01:16:28.244Z",
+    "2026-02-11T01:16:28.244Z",
+    "2026-02-11T01:16:28.244Z"
+  ]
+}

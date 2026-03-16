@@ -1,0 +1,56 @@
+{
+  "session_id": "b79718dc-8ff1-4354-a95c-962ecfc0648e",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you/backend",
+  "start_time": "2026-02-11T03:06:17.079Z",
+  "duration_minutes": 116,
+  "user_message_count": 6,
+  "assistant_message_count": 67,
+  "tool_counts": {
+    "TaskList": 1,
+    "Read": 4,
+    "Edit": 6,
+    "Task": 2,
+    "Bash": 14,
+    "TaskUpdate": 10,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "Python": 3,
+    "JSON": 2,
+    "Markdown": 5
+  },
+  "git_commits": 2,
+  "git_pushes": 1,
+  "input_tokens": 103,
+  "output_tokens": 1818,
+  "first_prompt": "<task-notification> <task-id>aa9b79d</task-id> <status>completed</status> <summary>Agent \"Test coverage analysis task 3\" completed</summary> <result>Now I have a thorough understanding of the implemen…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    4.691
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 74,
+  "lines_removed": 13,
+  "files_modified": 3,
+  "message_hours": [
+    11,
+    13,
+    13,
+    13,
+    13,
+    13
+  ],
+  "user_message_timestamps": [
+    "2026-02-11T03:06:17.079Z",
+    "2026-02-11T05:00:47.672Z",
+    "2026-02-11T05:01:06.820Z",
+    "2026-02-11T05:01:21.253Z",
+    "2026-02-11T05:01:32.608Z",
+    "2026-02-11T05:01:41.512Z"
+  ]
+}

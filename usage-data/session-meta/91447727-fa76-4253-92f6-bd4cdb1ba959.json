@@ -1,0 +1,59 @@
+{
+  "session_id": "91447727-fa76-4253-92f6-bd4cdb1ba959",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-banckend",
+  "start_time": "2026-02-09T01:53:25.872Z",
+  "duration_minutes": 414,
+  "user_message_count": 6,
+  "assistant_message_count": 117,
+  "tool_counts": {
+    "Read": 6,
+    "Edit": 2,
+    "Bash": 52,
+    "TaskUpdate": 7,
+    "Grep": 6,
+    "Glob": 1
+  },
+  "languages": {
+    "TypeScript": 4,
+    "Python": 4
+  },
+  "git_commits": 2,
+  "git_pushes": 2,
+  "input_tokens": 148,
+  "output_tokens": 4275,
+  "first_prompt": "现在显示正常 但是没有数据啊 为什么？当前的事件的数据了？都没有啊 事件监听的数据还没更新完了？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    34.416,
+    15.137,
+    15.065,
+    15.137
+  ],
+  "tool_errors": 6,
+  "tool_error_categories": {
+    "Other": 6
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 7,
+  "lines_removed": 11,
+  "files_modified": 2,
+  "message_hours": [
+    9,
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-09T01:53:25.872Z",
+    "2026-02-09T08:39:25.911Z",
+    "2026-02-09T08:46:37.738Z",
+    "2026-02-09T08:47:35.691Z",
+    "2026-02-09T08:47:35.619Z",
+    "2026-02-09T08:47:35.691Z"
+  ]
+}

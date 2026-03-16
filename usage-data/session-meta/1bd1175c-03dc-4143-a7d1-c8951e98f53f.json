@@ -1,0 +1,45 @@
+{
+  "session_id": "1bd1175c-03dc-4143-a7d1-c8951e98f53f",
+  "project_path": "/Users/rocky243",
+  "start_time": "2026-03-07T01:20:14.658Z",
+  "duration_minutes": 1,
+  "user_message_count": 3,
+  "assistant_message_count": 7,
+  "tool_counts": {
+    "ToolSearch": 1,
+    "Glob": 1,
+    "Bash": 2
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 19,
+  "output_tokens": 494,
+  "first_prompt": "把codex也删除吧",
+  "user_interruptions": 1,
+  "user_response_times": [
+    4.1,
+    13.151
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    9,
+    9,
+    9
+  ],
+  "user_message_timestamps": [
+    "2026-03-07T01:20:21.991Z",
+    "2026-03-07T01:20:34.224Z",
+    "2026-03-07T01:20:43.275Z"
+  ]
+}

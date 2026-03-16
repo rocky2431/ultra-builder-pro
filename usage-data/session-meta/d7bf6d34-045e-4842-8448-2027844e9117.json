@@ -1,0 +1,55 @@
+{
+  "session_id": "d7bf6d34-045e-4842-8448-2027844e9117",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you",
+  "start_time": "2026-02-16T08:13:40.985Z",
+  "duration_minutes": 19,
+  "user_message_count": 5,
+  "assistant_message_count": 44,
+  "tool_counts": {
+    "Task": 6,
+    "EnterPlanMode": 1,
+    "Read": 15,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 7,
+    "Python": 7,
+    "CSS": 1,
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 86,
+  "output_tokens": 3800,
+  "first_prompt": "看下当前的整个项目是否所有板块都串联起来了 持久话是否都做到了 是否符合我们的最终目标 对照 @.ultra/specs/product.md 和 @.ultra/specs/architecture.md ， 原子化的扫描只有诚实的给到我置信度90%以上的答案",
+  "user_interruptions": 0,
+  "user_response_times": [
+    243.727
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 208,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-16T08:13:41.218Z",
+    "2026-02-16T08:13:40.982Z",
+    "2026-02-16T08:13:41.218Z",
+    "2026-02-16T08:14:29.053Z",
+    "2026-02-16T08:22:31.083Z"
+  ]
+}

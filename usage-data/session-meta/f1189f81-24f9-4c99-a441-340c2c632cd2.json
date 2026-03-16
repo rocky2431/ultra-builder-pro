@@ -1,0 +1,67 @@
+{
+  "session_id": "f1189f81-24f9-4c99-a441-340c2c632cd2",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-09T09:32:55.527Z",
+  "duration_minutes": 120,
+  "user_message_count": 9,
+  "assistant_message_count": 84,
+  "tool_counts": {
+    "Read": 15,
+    "Glob": 1,
+    "AskUserQuestion": 2,
+    "Bash": 22,
+    "Grep": 1,
+    "Write": 1,
+    "Edit": 1
+  },
+  "languages": {
+    "JSON": 1,
+    "Python": 8,
+    "Markdown": 4
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 130,
+  "output_tokens": 3080,
+  "first_prompt": "当前的自动压缩失败是为什么 明明显示自动压缩但是失败了 是什么原因造成的有可能的 hook的问题？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    666.117,
+    666.117,
+    666.117,
+    745.334,
+    117.984,
+    1126.47
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 200,
+  "lines_removed": 1,
+  "files_modified": 2,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    18,
+    19
+  ],
+  "user_message_timestamps": [
+    "2026-02-09T09:33:47.382Z",
+    "2026-02-09T09:51:06.643Z",
+    "2026-02-09T09:51:06.643Z",
+    "2026-02-09T09:51:06.643Z",
+    "2026-02-09T09:52:25.860Z",
+    "2026-02-09T09:55:23.705Z",
+    "2026-02-09T09:57:34.975Z",
+    "2026-02-09T10:16:57.271Z",
+    "2026-02-09T11:32:48.594Z"
+  ]
+}

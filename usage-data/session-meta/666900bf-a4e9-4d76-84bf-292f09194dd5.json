@@ -1,0 +1,82 @@
+{
+  "session_id": "666900bf-a4e9-4d76-84bf-292f09194dd5",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-03-08T10:18:58.364Z",
+  "duration_minutes": 22,
+  "user_message_count": 16,
+  "assistant_message_count": 135,
+  "tool_counts": {
+    "ToolSearch": 1,
+    "Bash": 13,
+    "TaskCreate": 16,
+    "TaskUpdate": 9,
+    "Agent": 12,
+    "Read": 11,
+    "Write": 1,
+    "Edit": 17,
+    "Glob": 1,
+    "Grep": 4
+  },
+  "languages": {
+    "Markdown": 10,
+    "TypeScript": 16
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 207,
+  "output_tokens": 34827,
+  "first_prompt": "/ultra-verify 原子化的扫描整个项目 看看当前项目是否达成生产级别要求 前后端是否完全对齐 是否达成完善的从钱包管理到批量扩散（抗审查）到拟人交互的全流程 是否密钥安全",
+  "user_interruptions": 0,
+  "user_response_times": [
+    30.413,
+    132.911,
+    191.715
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 439,
+  "lines_removed": 59,
+  "files_modified": 4,
+  "message_hours": [
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18
+  ],
+  "user_message_timestamps": [
+    "2026-03-08T10:21:36.641Z",
+    "2026-03-08T10:21:36.641Z",
+    "2026-03-08T10:23:48.383Z",
+    "2026-03-08T10:23:51.827Z",
+    "2026-03-08T10:23:51.858Z",
+    "2026-03-08T10:24:42.124Z",
+    "2026-03-08T10:24:45.778Z",
+    "2026-03-08T10:24:45.809Z",
+    "2026-03-08T10:24:45.838Z",
+    "2026-03-08T10:24:52.293Z",
+    "2026-03-08T10:24:52.322Z",
+    "2026-03-08T10:25:17.439Z",
+    "2026-03-08T10:25:17.467Z",
+    "2026-03-08T10:25:54.838Z",
+    "2026-03-08T10:30:35.433Z",
+    "2026-03-08T10:36:41.390Z"
+  ]
+}

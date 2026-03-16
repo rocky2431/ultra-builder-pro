@@ -1,0 +1,64 @@
+{
+  "session_id": "8c3cd59d-449b-4a22-9b7a-a5a902337830",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-23T17:54:08.218Z",
+  "duration_minutes": 15,
+  "user_message_count": 6,
+  "assistant_message_count": 174,
+  "tool_counts": {
+    "Read": 34,
+    "Glob": 1,
+    "TaskCreate": 7,
+    "TaskUpdate": 19,
+    "Bash": 24,
+    "Write": 9,
+    "Edit": 24,
+    "Task": 1,
+    "Grep": 1,
+    "Skill": 1
+  },
+  "languages": {
+    "JSON": 1,
+    "TypeScript": 61,
+    "CSS": 2
+  },
+  "git_commits": 1,
+  "git_pushes": 0,
+  "input_tokens": 200,
+  "output_tokens": 9304,
+  "first_prompt": "Implement the following plan:  # the-ai-U 前端优化计划 (对标 airi)  ## Context  the-ai-U 是一个 Electron + React 19 + Python 桌面 AI 伴侣应用，对标参考项目 [moeru-ai/airi](https://github.com/moeru-ai/airi)。经 5 位专家 agent 团队分析…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    20.555,
+    7.499,
+    7.497,
+    7.497
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "Command Failed": 2
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 650,
+  "lines_removed": 40,
+  "files_modified": 15,
+  "message_hours": [
+    1,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "user_message_timestamps": [
+    "2026-02-23T17:54:08.155Z",
+    "2026-02-23T18:07:42.311Z",
+    "2026-02-23T18:07:48.821Z",
+    "2026-02-23T18:08:39.729Z",
+    "2026-02-23T18:08:39.727Z",
+    "2026-02-23T18:08:39.727Z"
+  ]
+}

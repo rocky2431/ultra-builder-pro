@@ -1,0 +1,41 @@
+{
+  "session_id": "f6618764-fb8f-4401-8480-95e798b40ff0",
+  "project_path": "/Users/rocky243/.claude-mem/observer-sessions",
+  "start_time": "2026-02-07T12:04:55.260Z",
+  "duration_minutes": 1,
+  "user_message_count": 4,
+  "assistant_message_count": 4,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 12,
+  "output_tokens": 9,
+  "first_prompt": "Hello memory agent, you are continuing to observe the primary Claude session.  <observed_from_primary_session>   <user_request>当前数据库里面我的账户密码是多少啊 我应该么记错啊 为啥不对啊</user_request>   <requested_at>2026-02-07…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    2.076,
+    16.086
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    20,
+    20,
+    20,
+    20
+  ],
+  "user_message_timestamps": [
+    "2026-02-07T12:04:55.260Z",
+    "2026-02-07T12:05:01.209Z",
+    "2026-02-07T12:05:12.224Z",
+    "2026-02-07T12:05:37.238Z"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "session_id": "5651b088-6601-4cff-a3c9-02bfa472179c",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-12T04:00:34.361Z",
+  "duration_minutes": 9,
+  "user_message_count": 6,
+  "assistant_message_count": 76,
+  "tool_counts": {
+    "Task": 2,
+    "Read": 16,
+    "mcp__Railway__get-logs": 10,
+    "Grep": 3,
+    "Bash": 1,
+    "EnterPlanMode": 1,
+    "Glob": 1,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 15,
+    "JSON": 1,
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 120,
+  "output_tokens": 2397,
+  "first_prompt": "在任务创建的时候还是失败了 为什么 或者说是后端成功了 前端失败了？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    17.833
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 57,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    12,
+    12,
+    12,
+    12,
+    12,
+    12
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T04:00:34.684Z",
+    "2026-02-12T04:00:34.359Z",
+    "2026-02-12T04:00:34.684Z",
+    "2026-02-12T04:01:08.288Z",
+    "2026-02-12T04:06:14.523Z",
+    "2026-02-12T04:07:26.389Z"
+  ]
+}

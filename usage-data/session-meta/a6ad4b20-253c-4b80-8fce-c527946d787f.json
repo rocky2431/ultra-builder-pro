@@ -1,0 +1,41 @@
+{
+  "session_id": "a6ad4b20-253c-4b80-8fce-c527946d787f",
+  "project_path": "/Users/rocky243",
+  "start_time": "2026-02-15T08:29:36.617Z",
+  "duration_minutes": 7,
+  "user_message_count": 2,
+  "assistant_message_count": 17,
+  "tool_counts": {
+    "Glob": 1,
+    "Bash": 4
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 99,
+  "output_tokens": 402,
+  "first_prompt": "当前软件被隔离了 解除隔离",
+  "user_interruptions": 0,
+  "user_response_times": [
+    329.415
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-15T08:29:59.240Z",
+    "2026-02-15T08:35:56.061Z"
+  ]
+}

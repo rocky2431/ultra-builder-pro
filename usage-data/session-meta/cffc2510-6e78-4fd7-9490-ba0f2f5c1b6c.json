@@ -1,0 +1,37 @@
+{
+  "session_id": "cffc2510-6e78-4fd7-9490-ba0f2f5c1b6c",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-07T09:16:24.808Z",
+  "duration_minutes": 2,
+  "user_message_count": 1,
+  "assistant_message_count": 6,
+  "tool_counts": {
+    "Read": 2,
+    "Glob": 1
+  },
+  "languages": {
+    "TypeScript": 2
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 18,
+  "output_tokens": 386,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-07T09:16:24.808Z"
+  ]
+}

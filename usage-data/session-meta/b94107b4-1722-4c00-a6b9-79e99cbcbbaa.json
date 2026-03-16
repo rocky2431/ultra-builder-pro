@@ -1,0 +1,49 @@
+{
+  "session_id": "b94107b4-1722-4c00-a6b9-79e99cbcbbaa",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-banckend",
+  "start_time": "2026-02-08T07:18:13.890Z",
+  "duration_minutes": 28,
+  "user_message_count": 2,
+  "assistant_message_count": 117,
+  "tool_counts": {
+    "Task": 1,
+    "Read": 21,
+    "Grep": 27,
+    "Bash": 19,
+    "Glob": 2,
+    "Edit": 2
+  },
+  "languages": {
+    "TypeScript": 11,
+    "Python": 10
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 137,
+  "output_tokens": 2284,
+  "first_prompt": "图片1的报错 图片二的赎回资产显示还是0 然后事件监听到的日志在那边看 为什么当前的资产购买的事件没有被监听到 然后当前的holder地址是0",
+  "user_interruptions": 0,
+  "user_response_times": [
+    163.962
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "Other": 1,
+    "Command Failed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 10,
+  "lines_removed": 4,
+  "files_modified": 2,
+  "message_hours": [
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-02-08T07:22:16.266Z",
+    "2026-02-08T07:28:57.018Z"
+  ]
+}

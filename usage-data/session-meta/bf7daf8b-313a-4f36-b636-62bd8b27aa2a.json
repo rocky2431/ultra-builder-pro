@@ -1,0 +1,77 @@
+{
+  "session_id": "bf7daf8b-313a-4f36-b636-62bd8b27aa2a",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-17T14:14:36.830Z",
+  "duration_minutes": 29,
+  "user_message_count": 14,
+  "assistant_message_count": 87,
+  "tool_counts": {
+    "TaskList": 1,
+    "Bash": 18,
+    "Skill": 1,
+    "Read": 6,
+    "Glob": 1,
+    "Edit": 7,
+    "Task": 2,
+    "TaskUpdate": 9,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "JSON": 8,
+    "Markdown": 5
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 133,
+  "output_tokens": 2459,
+  "first_prompt": "<task-notification> <task-id>ae72885</task-id> <status>completed</status> <summary>Agent \"Review error handling\" completed</summary> <result>Wrote 2 findings (P0:0 P1:0 P2:2 P3:0) to /Users/rocky243/t…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    709.342,
+    709.341,
+    709.341
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 41,
+  "lines_removed": 11,
+  "files_modified": 3,
+  "message_hours": [
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22
+  ],
+  "user_message_timestamps": [
+    "2026-02-17T14:14:36.830Z",
+    "2026-02-17T14:15:18.459Z",
+    "2026-02-17T14:31:11.853Z",
+    "2026-02-17T14:31:18.235Z",
+    "2026-02-17T14:31:21.855Z",
+    "2026-02-17T14:31:26.239Z",
+    "2026-02-17T14:31:30.231Z",
+    "2026-02-17T14:31:35.068Z",
+    "2026-02-17T14:31:39.877Z",
+    "2026-02-17T14:31:45.042Z",
+    "2026-02-17T14:31:49.605Z",
+    "2026-02-17T14:43:43.921Z",
+    "2026-02-17T14:43:43.920Z",
+    "2026-02-17T14:43:43.920Z"
+  ]
+}

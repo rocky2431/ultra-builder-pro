@@ -1,0 +1,64 @@
+{
+  "session_id": "7d78dfd4-fcc3-4074-ba6d-1dbf2736d4a1",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-14T13:12:04.381Z",
+  "duration_minutes": 10,
+  "user_message_count": 8,
+  "assistant_message_count": 104,
+  "tool_counts": {
+    "Read": 11,
+    "Edit": 31,
+    "Bash": 17,
+    "Write": 2,
+    "Grep": 4,
+    "Glob": 1
+  },
+  "languages": {
+    "Markdown": 44
+  },
+  "git_commits": 1,
+  "git_pushes": 0,
+  "input_tokens": 162,
+  "output_tokens": 6373,
+  "first_prompt": "Implement the following plan:  # Ultra Builder Pro 5.6.0: System Integration Dimension  ## Context  Ultra Builder Pro 当前是\"微观完美主义\"系统——确保每个函数有测试、每个错误被处理、每个类型正确定义。但缺少\"宏观系统完整性保障\"：组件能独立通过测试，但端到端数据流未串通。  **…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    55.521,
+    66.665,
+    55.89,
+    11.951,
+    11.951,
+    11.951
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Other": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 268,
+  "lines_removed": 18,
+  "files_modified": 12,
+  "message_hours": [
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-02-14T13:12:04.346Z",
+    "2026-02-14T13:15:55.652Z",
+    "2026-02-14T13:17:14.884Z",
+    "2026-02-14T13:19:26.152Z",
+    "2026-02-14T13:20:48.132Z",
+    "2026-02-14T13:22:23.319Z",
+    "2026-02-14T13:22:23.319Z",
+    "2026-02-14T13:22:23.319Z"
+  ]
+}

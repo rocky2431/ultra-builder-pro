@@ -1,0 +1,83 @@
+{
+  "session_id": "2a7d4753-1423-4027-8f85-2f535cca7977",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-18T18:30:13.243Z",
+  "duration_minutes": 21,
+  "user_message_count": 14,
+  "assistant_message_count": 123,
+  "tool_counts": {
+    "Bash": 34,
+    "Edit": 10,
+    "Read": 9,
+    "Glob": 2,
+    "Skill": 1,
+    "Task": 1,
+    "Write": 2,
+    "TaskUpdate": 9,
+    "Grep": 3,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "TypeScript": 6,
+    "JSON": 8,
+    "Markdown": 7
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 163,
+  "output_tokens": 3571,
+  "first_prompt": "<task-notification> <task-id>ab0c07f</task-id> <status>completed</status> <summary>Agent \"Review test quality\" completed</summary> <result>Wrote 6 findings (P0:0 P1:3 P2:3 P3:0) to .ultra/reviews/2026…",
+  "user_interruptions": 1,
+  "user_response_times": [
+    84.153,
+    84.154,
+    82.397,
+    82.397,
+    82.397
+  ],
+  "tool_errors": 4,
+  "tool_error_categories": {
+    "Command Failed": 2,
+    "Other": 1,
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 247,
+  "lines_removed": 14,
+  "files_modified": 7,
+  "message_hours": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "user_message_timestamps": [
+    "2026-02-18T18:30:13.244Z",
+    "2026-02-18T18:32:58.818Z",
+    "2026-02-18T18:35:27.430Z",
+    "2026-02-18T18:35:27.431Z",
+    "2026-02-18T18:49:05.637Z",
+    "2026-02-18T18:49:10.514Z",
+    "2026-02-18T18:49:15.413Z",
+    "2026-02-18T18:49:19.756Z",
+    "2026-02-18T18:49:24.965Z",
+    "2026-02-18T18:49:28.849Z",
+    "2026-02-18T18:49:34.043Z",
+    "2026-02-18T18:51:00.977Z",
+    "2026-02-18T18:51:00.977Z",
+    "2026-02-18T18:51:00.977Z"
+  ]
+}

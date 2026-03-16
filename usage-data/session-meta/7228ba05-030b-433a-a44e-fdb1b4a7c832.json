@@ -1,0 +1,43 @@
+{
+  "session_id": "7228ba05-030b-433a-a44e-fdb1b4a7c832",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-banckend",
+  "start_time": "2026-02-09T09:21:38.391Z",
+  "duration_minutes": 7,
+  "user_message_count": 2,
+  "assistant_message_count": 24,
+  "tool_counts": {
+    "Bash": 9,
+    "Read": 1
+  },
+  "languages": {
+    "TypeScript": 1
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 41,
+  "output_tokens": 158,
+  "first_prompt": "你这里的快速购买的资产不对啊 怎么是选中资产的最大值？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    154.085
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-09T09:21:38.391Z",
+    "2026-02-09T09:27:30.683Z"
+  ]
+}

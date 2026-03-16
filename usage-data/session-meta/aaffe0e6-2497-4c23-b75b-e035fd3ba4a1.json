@@ -1,0 +1,38 @@
+{
+  "session_id": "aaffe0e6-2497-4c23-b75b-e035fd3ba4a1",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-03-08T06:58:47.452Z",
+  "duration_minutes": 18,
+  "user_message_count": 1,
+  "assistant_message_count": 14,
+  "tool_counts": {
+    "ToolSearch": 1,
+    "WebFetch": 6,
+    "Bash": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 1369,
+  "output_tokens": 929,
+  "first_prompt": "https://github.com/phuryn/pm-skills 你仔细的看下这个项目 对于ultra build 的 研究阶段是否有帮助？",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Other": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": true,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-03-08T07:16:09.601Z"
+  ]
+}

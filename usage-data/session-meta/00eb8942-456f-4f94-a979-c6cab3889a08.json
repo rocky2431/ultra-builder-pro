@@ -1,0 +1,63 @@
+{
+  "session_id": "00eb8942-456f-4f94-a979-c6cab3889a08",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-25T08:38:12.184Z",
+  "duration_minutes": 3785,
+  "user_message_count": 7,
+  "assistant_message_count": 70,
+  "tool_counts": {
+    "Bash": 10,
+    "TaskOutput": 2,
+    "Read": 17,
+    "Task": 2,
+    "Glob": 2,
+    "Grep": 8,
+    "Write": 1,
+    "Edit": 2
+  },
+  "languages": {
+    "Python": 11,
+    "TypeScript": 2
+  },
+  "git_commits": 1,
+  "git_pushes": 0,
+  "input_tokens": 116,
+  "output_tokens": 5268,
+  "first_prompt": "打开前后端我看下",
+  "user_interruptions": 0,
+  "user_response_times": [
+    69.822,
+    1651.701,
+    115.714
+  ],
+  "tool_errors": 4,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Other": 3
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 92,
+  "lines_removed": 1,
+  "files_modified": 3,
+  "message_hours": [
+    16,
+    16,
+    17,
+    15,
+    15,
+    7,
+    7
+  ],
+  "user_message_timestamps": [
+    "2026-02-25T08:38:18.339Z",
+    "2026-02-25T08:39:50.031Z",
+    "2026-02-25T09:11:54.683Z",
+    "2026-02-27T07:17:14.557Z",
+    "2026-02-27T07:17:28.030Z",
+    "2026-02-27T23:40:15.345Z",
+    "2026-02-27T23:42:38.980Z"
+  ]
+}

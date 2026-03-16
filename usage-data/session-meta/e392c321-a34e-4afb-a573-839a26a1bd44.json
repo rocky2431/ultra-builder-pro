@@ -1,0 +1,50 @@
+{
+  "session_id": "e392c321-a34e-4afb-a573-839a26a1bd44",
+  "project_path": "/Users/rocky243/testing-project/nanobot",
+  "start_time": "2026-02-13T07:08:51.579Z",
+  "duration_minutes": 0,
+  "user_message_count": 6,
+  "assistant_message_count": 9,
+  "tool_counts": {
+    "Read": 2,
+    "Bash": 2
+  },
+  "languages": {
+    "JSON": 1,
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 15,
+  "output_tokens": 87,
+  "first_prompt": "No prompt",
+  "user_interruptions": 1,
+  "user_response_times": [
+    3.515
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-02-13T07:08:51.921Z",
+    "2026-02-13T07:08:51.576Z",
+    "2026-02-13T07:08:51.921Z",
+    "2026-02-13T07:08:57.965Z",
+    "2026-02-13T07:08:57.965Z",
+    "2026-02-13T07:09:16.112Z"
+  ]
+}

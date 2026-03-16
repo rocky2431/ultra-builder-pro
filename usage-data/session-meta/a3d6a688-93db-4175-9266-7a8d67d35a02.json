@@ -1,0 +1,61 @@
+{
+  "session_id": "a3d6a688-93db-4175-9266-7a8d67d35a02",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-03-06T05:08:06.629Z",
+  "duration_minutes": 1214,
+  "user_message_count": 8,
+  "assistant_message_count": 32,
+  "tool_counts": {
+    "ToolSearch": 4,
+    "Read": 3,
+    "Glob": 6,
+    "Grep": 5,
+    "Bash": 1
+  },
+  "languages": {
+    "Markdown": 2,
+    "JSON": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 68,
+  "output_tokens": 8216,
+  "first_prompt": "为啥我进入计划模式之后 启动计划的时候不会生成task 是设置里面有问题吗 自从你从todolist升级成task之后总是有的时候不生成task是什么原因啊？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    119.004,
+    59.461
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Other": 2
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    13,
+    13,
+    13,
+    13,
+    13,
+    9,
+    9,
+    9
+  ],
+  "user_message_timestamps": [
+    "2026-03-06T05:10:05.402Z",
+    "2026-03-06T05:10:10.324Z",
+    "2026-03-06T05:11:49.185Z",
+    "2026-03-06T05:14:12.517Z",
+    "2026-03-06T05:15:49.657Z",
+    "2026-03-07T01:22:07.466Z",
+    "2026-03-07T01:22:11.763Z",
+    "2026-03-07T01:22:21.306Z"
+  ]
+}

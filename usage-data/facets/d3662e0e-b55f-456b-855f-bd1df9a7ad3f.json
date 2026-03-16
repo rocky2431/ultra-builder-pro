@@ -1,0 +1,20 @@
+{
+  "underlying_goal": "Start the project locally to preview it, then shut it down",
+  "goal_categories": {
+    "run_project": 1,
+    "stop_project": 1
+  },
+  "outcome": "fully_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 1
+  },
+  "claude_helpfulness": "very_helpful",
+  "session_type": "single_task",
+  "friction_counts": {
+    "buggy_code": 1
+  },
+  "friction_detail": "Initial server start failed because dependencies were not installed, requiring an extra install step.",
+  "primary_success": "good_debugging",
+  "brief_summary": "User wanted to start and then stop their dev server; Claude handled a missing dependency issue and completed both tasks.",
+  "session_id": "d3662e0e-b55f-456b-855f-bd1df9a7ad3f"
+}

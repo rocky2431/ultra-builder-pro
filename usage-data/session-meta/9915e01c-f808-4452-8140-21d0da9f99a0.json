@@ -1,0 +1,60 @@
+{
+  "session_id": "9915e01c-f808-4452-8140-21d0da9f99a0",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-21T09:15:16.166Z",
+  "duration_minutes": 42,
+  "user_message_count": 6,
+  "assistant_message_count": 55,
+  "tool_counts": {
+    "Read": 13,
+    "Task": 7,
+    "Glob": 8,
+    "Write": 1,
+    "AskUserQuestion": 1,
+    "Edit": 3,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "Markdown": 14,
+    "TypeScript": 2,
+    "JSON": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 47398,
+  "output_tokens": 9360,
+  "first_prompt": "我需要你原子化的扫描前后端 看看当前的前端是不是真正的和后端对齐了 每一个关键配置的UI和功能都更上了 能够达成 @INTEGRATION_PLAN.md 中的目标和效果 仔细思考 先诚实的给到我一个置信度90%以上的计划",
+  "user_interruptions": 1,
+  "user_response_times": [
+    323.819,
+    20.039
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Too Large": 1,
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 390,
+  "lines_removed": 18,
+  "files_modified": 1,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-21T09:15:17.019Z",
+    "2026-02-21T09:15:16.164Z",
+    "2026-02-21T09:15:17.019Z",
+    "2026-02-21T09:17:25.307Z",
+    "2026-02-21T09:33:31.144Z",
+    "2026-02-21T09:57:42.589Z"
+  ]
+}

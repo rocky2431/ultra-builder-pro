@@ -1,0 +1,15 @@
+{
+  "underlying_goal": "User opened a session but did not make any requests, only ran local commands to check MCP and exit",
+  "goal_categories": {
+    "warmup_minimal": 1
+  },
+  "outcome": "unclear_from_transcript",
+  "user_satisfaction_counts": {},
+  "claude_helpfulness": "unhelpful",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "none",
+  "brief_summary": "User opened session, attempted to reconnect MCP plugin (failed), then exited without making any requests.",
+  "session_id": "e1895b0a-d73a-4c26-902c-f27a1343fcc2"
+}

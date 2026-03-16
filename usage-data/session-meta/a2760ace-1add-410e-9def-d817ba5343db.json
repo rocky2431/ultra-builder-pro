@@ -1,0 +1,44 @@
+{
+  "session_id": "a2760ace-1add-410e-9def-d817ba5343db",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-dex-contract",
+  "start_time": "2026-02-14T04:50:47.829Z",
+  "duration_minutes": 2,
+  "user_message_count": 4,
+  "assistant_message_count": 4,
+  "tool_counts": {
+    "Bash": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 10,
+  "output_tokens": 28,
+  "first_prompt": "拉去最新的代码",
+  "user_interruptions": 0,
+  "user_response_times": [
+    80.033,
+    80.033,
+    80.033
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    12,
+    12,
+    12,
+    12
+  ],
+  "user_message_timestamps": [
+    "2026-02-14T04:50:56.916Z",
+    "2026-02-14T04:52:31.178Z",
+    "2026-02-14T04:52:31.178Z",
+    "2026-02-14T04:52:31.178Z"
+  ]
+}

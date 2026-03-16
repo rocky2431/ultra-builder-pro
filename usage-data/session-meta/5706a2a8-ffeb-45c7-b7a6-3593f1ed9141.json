@@ -1,0 +1,82 @@
+{
+  "session_id": "5706a2a8-ffeb-45c7-b7a6-3593f1ed9141",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-12T06:16:52.837Z",
+  "duration_minutes": 65,
+  "user_message_count": 13,
+  "assistant_message_count": 151,
+  "tool_counts": {
+    "Task": 6,
+    "Read": 22,
+    "Grep": 15,
+    "Edit": 7,
+    "Bash": 10,
+    "Write": 2,
+    "mcp__Railway__deploy": 3,
+    "Glob": 1,
+    "mcp__Railway__list-deployments": 1,
+    "mcp__Railway__get-logs": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 30,
+    "Markdown": 1
+  },
+  "git_commits": 3,
+  "git_pushes": 3,
+  "input_tokens": 251,
+  "output_tokens": 7008,
+  "first_prompt": "这个钱包的总数不对",
+  "user_interruptions": 0,
+  "user_response_times": [
+    344.25,
+    1054.654,
+    111.671,
+    65.611,
+    101.886,
+    30.678,
+    269.565,
+    260.375
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 336,
+  "lines_removed": 30,
+  "files_modified": 3,
+  "message_hours": [
+    14,
+    14,
+    14,
+    14,
+    14,
+    14,
+    14,
+    14,
+    14,
+    14,
+    14,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T06:16:53.040Z",
+    "2026-02-12T06:16:52.835Z",
+    "2026-02-12T06:16:53.040Z",
+    "2026-02-12T06:17:07.234Z",
+    "2026-02-12T06:21:12.669Z",
+    "2026-02-12T06:28:49.840Z",
+    "2026-02-12T06:47:00.655Z",
+    "2026-02-12T06:50:25.996Z",
+    "2026-02-12T06:52:43.586Z",
+    "2026-02-12T06:54:50.829Z",
+    "2026-02-12T06:55:34.541Z",
+    "2026-02-12T07:01:43.146Z",
+    "2026-02-12T07:09:15.600Z"
+  ]
+}

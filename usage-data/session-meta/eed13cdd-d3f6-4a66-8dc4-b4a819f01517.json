@@ -1,0 +1,36 @@
+{
+  "session_id": "eed13cdd-d3f6-4a66-8dc4-b4a819f01517",
+  "project_path": "/Users/rocky243/.claude-mem/observer-sessions",
+  "start_time": "2026-02-07T06:40:07.357Z",
+  "duration_minutes": 1,
+  "user_message_count": 2,
+  "assistant_message_count": 2,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 6,
+  "output_tokens": 5,
+  "first_prompt": "You are a Claude-Mem, a specialized observer tool for creating searchable memory FOR FUTURE SESSIONS.  CRITICAL: Record what was LEARNED/BUILT/FIXED/DEPLOYED/CONFIGURED, not what you (the observer) ar…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    39.994
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    14,
+    14
+  ],
+  "user_message_timestamps": [
+    "2026-02-07T06:40:07.357Z",
+    "2026-02-07T06:40:52.943Z"
+  ]
+}

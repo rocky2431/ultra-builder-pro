@@ -1,0 +1,63 @@
+{
+  "session_id": "f58a4717-f9a1-4cae-b040-3858d0fff60e",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-20T06:40:05.820Z",
+  "duration_minutes": 215,
+  "user_message_count": 8,
+  "assistant_message_count": 115,
+  "tool_counts": {
+    "Grep": 5,
+    "Read": 13,
+    "Glob": 2,
+    "Edit": 18,
+    "Bash": 17,
+    "TaskUpdate": 10,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "TypeScript": 17,
+    "JSON": 8,
+    "Markdown": 6
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 139,
+  "output_tokens": 9629,
+  "first_prompt": "<task-notification> <task-id>a29c742</task-id> <status>completed</status> <summary>Agent \"Review type design\" completed</summary> <result>Wrote 4 findings (P0:0 P1:0 P2:3 P3:1) to /Users/rocky243/test…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    4.012
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Other": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 127,
+  "lines_removed": 23,
+  "files_modified": 6,
+  "message_hours": [
+    14,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18,
+    18
+  ],
+  "user_message_timestamps": [
+    "2026-02-20T06:40:05.820Z",
+    "2026-02-20T10:14:00.083Z",
+    "2026-02-20T10:14:08.116Z",
+    "2026-02-20T10:14:18.465Z",
+    "2026-02-20T10:14:24.373Z",
+    "2026-02-20T10:14:30.610Z",
+    "2026-02-20T10:14:45.044Z",
+    "2026-02-20T10:14:51.118Z"
+  ]
+}

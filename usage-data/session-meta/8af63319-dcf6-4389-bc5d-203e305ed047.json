@@ -1,0 +1,68 @@
+{
+  "session_id": "8af63319-dcf6-4389-bc5d-203e305ed047",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-03-07T07:59:11.664Z",
+  "duration_minutes": 54,
+  "user_message_count": 10,
+  "assistant_message_count": 70,
+  "tool_counts": {
+    "ToolSearch": 6,
+    "Read": 15,
+    "Agent": 2,
+    "Write": 4,
+    "Glob": 1,
+    "Skill": 2,
+    "Bash": 6,
+    "TaskCreate": 9,
+    "TaskUpdate": 3
+  },
+  "languages": {
+    "Markdown": 8,
+    "JSON": 3,
+    "TypeScript": 5
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 150,
+  "output_tokens": 20065,
+  "first_prompt": "当前的语音模式应该怎么搞 和gemini 以及 codex 讨论下 当前前端的语音模式有问题 很难用 参考一下 参考一下gpt那个语音模式的交互体验  能理解我什么意思吗",
+  "user_interruptions": 0,
+  "user_response_times": [
+    1206.753,
+    168.664,
+    101.708
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 379,
+  "lines_removed": 0,
+  "files_modified": 4,
+  "message_hours": [
+    15,
+    15,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-03-07T07:59:11.774Z",
+    "2026-03-07T07:59:11.613Z",
+    "2026-03-07T08:17:14.654Z",
+    "2026-03-07T08:17:14.654Z",
+    "2026-03-07T08:40:55.135Z",
+    "2026-03-07T08:43:40.924Z",
+    "2026-03-07T08:43:55.030Z",
+    "2026-03-07T08:45:27.265Z",
+    "2026-03-07T08:48:22.940Z",
+    "2026-03-07T08:51:48.189Z"
+  ]
+}

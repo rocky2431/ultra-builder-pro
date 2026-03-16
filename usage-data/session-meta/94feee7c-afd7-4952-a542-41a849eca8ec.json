@@ -1,0 +1,46 @@
+{
+  "session_id": "94feee7c-afd7-4952-a542-41a849eca8ec",
+  "project_path": "/Users/rocky243/testing-project/wemeet",
+  "start_time": "2026-02-13T07:55:43.426Z",
+  "duration_minutes": 52,
+  "user_message_count": 3,
+  "assistant_message_count": 24,
+  "tool_counts": {
+    "Bash": 5,
+    "Glob": 2,
+    "TaskCreate": 7,
+    "TaskUpdate": 2,
+    "AskUserQuestion": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 31,
+  "output_tokens": 255,
+  "first_prompt": "No prompt",
+  "user_interruptions": 1,
+  "user_response_times": [
+    3037.553
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15,
+    15,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-13T07:55:56.841Z",
+    "2026-02-13T07:55:56.841Z",
+    "2026-02-13T08:47:21.321Z"
+  ]
+}

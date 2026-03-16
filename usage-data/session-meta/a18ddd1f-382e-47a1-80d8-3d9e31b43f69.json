@@ -1,0 +1,58 @@
+{
+  "session_id": "a18ddd1f-382e-47a1-80d8-3d9e31b43f69",
+  "project_path": "/Users/rocky243/paimon.finance/nft-paimon-frontend",
+  "start_time": "2026-02-16T15:31:46.507Z",
+  "duration_minutes": 11,
+  "user_message_count": 6,
+  "assistant_message_count": 72,
+  "tool_counts": {
+    "Glob": 5,
+    "Grep": 6,
+    "Bash": 1,
+    "Read": 14,
+    "Edit": 6,
+    "mcp__exa__web_search_exa": 2,
+    "WebFetch": 2,
+    "mcp__exa__get_code_context_exa": 2
+  },
+  "languages": {
+    "TypeScript": 19,
+    "CSS": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 119,
+  "output_tokens": 2526,
+  "first_prompt": "mint 这里面的涂层顺序有问题 然后透明度80%设置",
+  "user_interruptions": 0,
+  "user_response_times": [
+    292.126
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Other": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": true,
+  "lines_added": 14,
+  "lines_removed": 7,
+  "files_modified": 5,
+  "message_hours": [
+    23,
+    23,
+    23,
+    23,
+    23,
+    23
+  ],
+  "user_message_timestamps": [
+    "2026-02-16T15:31:47.120Z",
+    "2026-02-16T15:31:46.503Z",
+    "2026-02-16T15:31:47.120Z",
+    "2026-02-16T15:32:35.175Z",
+    "2026-02-16T15:36:07.167Z",
+    "2026-02-16T15:41:06.364Z"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "session_id": "265b8e36-5866-46c4-b243-8f849c6c05a2",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-23T14:51:43.841Z",
+  "duration_minutes": 36,
+  "user_message_count": 4,
+  "assistant_message_count": 63,
+  "tool_counts": {
+    "Bash": 8,
+    "Grep": 10,
+    "Read": 19,
+    "EnterPlanMode": 1,
+    "Task": 4,
+    "Glob": 1,
+    "Write": 1,
+    "AskUserQuestion": 1,
+    "Edit": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 18,
+    "Markdown": 3
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 83,
+  "output_tokens": 4762,
+  "first_prompt": "我们之前不是改成aisdk了吗 现在是两个sdk并行？",
+  "user_interruptions": 1,
+  "user_response_times": [
+    141.278,
+    36.022,
+    13.521
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 354,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    22,
+    22,
+    22,
+    23
+  ],
+  "user_message_timestamps": [
+    "2026-02-23T14:51:43.842Z",
+    "2026-02-23T14:55:50.010Z",
+    "2026-02-23T14:57:08.616Z",
+    "2026-02-23T15:27:16.271Z"
+  ]
+}

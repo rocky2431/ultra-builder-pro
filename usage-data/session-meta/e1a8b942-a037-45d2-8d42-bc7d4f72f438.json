@@ -1,0 +1,51 @@
+{
+  "session_id": "e1a8b942-a037-45d2-8d42-bc7d4f72f438",
+  "project_path": "/Users/rocky243/paimon.finance/nft-paimon-frontend",
+  "start_time": "2026-02-10T02:40:16.380Z",
+  "duration_minutes": 82,
+  "user_message_count": 4,
+  "assistant_message_count": 113,
+  "tool_counts": {
+    "Read": 21,
+    "Glob": 1,
+    "Write": 21,
+    "Edit": 16,
+    "Task": 2,
+    "Bash": 9
+  },
+  "languages": {
+    "TypeScript": 53,
+    "JSON": 2
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 159,
+  "output_tokens": 5716,
+  "first_prompt": "Implement the following plan:  # PP Staking & Points System - Implementation Plan  ## Context  用户持有 PP 代币后，需要通过质押（Staking）获取积分（Points）。合约系统基于 `paimon-point-contract`，包含 StakingModule（灵活/锁仓质押）和 PointsH…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    432.44,
+    3382.691
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 3112,
+  "lines_removed": 31,
+  "files_modified": 21,
+  "message_hours": [
+    10,
+    10,
+    11,
+    12
+  ],
+  "user_message_timestamps": [
+    "2026-02-10T02:40:16.349Z",
+    "2026-02-10T02:51:05.860Z",
+    "2026-02-10T03:04:10.053Z",
+    "2026-02-10T04:01:49.283Z"
+  ]
+}

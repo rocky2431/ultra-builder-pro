@@ -1,0 +1,34 @@
+{
+  "session_id": "7a4e8ee0-6985-4d9d-9be9-3c970feaee8e",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-03-12T08:08:23.124Z",
+  "duration_minutes": 0,
+  "user_message_count": 1,
+  "assistant_message_count": 4,
+  "tool_counts": {
+    "Bash": 2
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 12,
+  "output_tokens": 375,
+  "first_prompt": "带开前后端",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-03-12T08:08:30.209Z"
+  ]
+}

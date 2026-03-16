@@ -1,0 +1,67 @@
+{
+  "session_id": "d59e7bb8-968b-415b-b7e7-d2bf05feae47",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-12T01:45:53.363Z",
+  "duration_minutes": 134,
+  "user_message_count": 9,
+  "assistant_message_count": 183,
+  "tool_counts": {
+    "Bash": 16,
+    "mcp__Railway__check-railway-status": 1,
+    "mcp__Railway__list-services": 1,
+    "Read": 24,
+    "mcp__Railway__deploy": 5,
+    "mcp__Railway__get-logs": 7,
+    "Grep": 12,
+    "mcp__Railway__list-deployments": 10,
+    "TaskOutput": 3,
+    "Edit": 9,
+    "Glob": 3
+  },
+  "languages": {
+    "Shell": 1,
+    "TypeScript": 31
+  },
+  "git_commits": 3,
+  "git_pushes": 4,
+  "input_tokens": 254,
+  "output_tokens": 3364,
+  "first_prompt": "<task-notification> <task-id>b5b3476</task-id> <output-file>/private/tmp/claude-501/-Users-rocky243-paimon-finance-web3studio/tasks/b5b3476.output</output-file> <status>completed</status> <summary>Bac…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    323.462,
+    298.857,
+    44.714
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 13,
+  "lines_removed": 16,
+  "files_modified": 6,
+  "message_hours": [
+    9,
+    10,
+    10,
+    10,
+    10,
+    11,
+    11,
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T01:45:53.364Z",
+    "2026-02-12T02:12:47.314Z",
+    "2026-02-12T02:12:52.902Z",
+    "2026-02-12T02:12:56.712Z",
+    "2026-02-12T02:12:59.926Z",
+    "2026-02-12T03:40:29.379Z",
+    "2026-02-12T03:47:27.246Z",
+    "2026-02-12T03:58:54.268Z",
+    "2026-02-12T03:59:59.358Z"
+  ]
+}

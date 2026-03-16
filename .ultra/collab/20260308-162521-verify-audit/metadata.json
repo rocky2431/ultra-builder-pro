@@ -1,0 +1,16 @@
+{
+  "id": "20260308-162521-verify-audit",
+  "agent": "ultra-verify",
+  "mode": "audit",
+  "models": {
+    "claude": "claude-opus-4-6",
+    "gemini": "default (from session 1)",
+    "codex": "gpt-5.4"
+  },
+  "scope": "AI collab skill files (ai-collab-base, gemini-collab, codex-collab, ultra-verify)",
+  "timestamp": "2026-03-08T16:25:21Z",
+  "confidence": "majority",
+  "degraded": true,
+  "agents_responded": ["claude", "gemini", "codex"],
+  "notes": "Gemini output from session 1 (20260308-162046); Gemini retry failed (pipe+positional conflict); Codex succeeded on second attempt with -o flag"
+}

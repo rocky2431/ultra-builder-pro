@@ -1,0 +1,47 @@
+{
+  "session_id": "6bd7c021-d20f-4afc-98a8-0585819205a1",
+  "project_path": "/Users/rocky243/vc-saas/Flowise",
+  "start_time": "2026-03-11T07:13:00.982Z",
+  "duration_minutes": 3,
+  "user_message_count": 5,
+  "assistant_message_count": 10,
+  "tool_counts": {
+    "Agent": 1,
+    "Read": 3,
+    "Write": 1
+  },
+  "languages": {
+    "Markdown": 3,
+    "JSON": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 16,
+  "output_tokens": 2557,
+  "first_prompt": "No prompt",
+  "user_interruptions": 1,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 110,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-03-11T07:13:04.511Z",
+    "2026-03-11T07:13:04.511Z",
+    "2026-03-11T07:13:05.684Z",
+    "2026-03-11T07:13:09.414Z",
+    "2026-03-11T07:13:09.414Z"
+  ]
+}

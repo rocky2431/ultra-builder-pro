@@ -1,0 +1,71 @@
+{
+  "session_id": "cf55b3c2-b6d4-4481-bf75-09c8cdb4dc91",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-17T17:57:22.370Z",
+  "duration_minutes": 35,
+  "user_message_count": 11,
+  "assistant_message_count": 252,
+  "tool_counts": {
+    "Read": 27,
+    "Bash": 32,
+    "TaskCreate": 12,
+    "TaskUpdate": 23,
+    "Edit": 25,
+    "Task": 8,
+    "Grep": 9,
+    "Write": 15,
+    "Skill": 1,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "JSON": 14,
+    "Markdown": 9,
+    "TypeScript": 44
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 296,
+  "output_tokens": 16216,
+  "first_prompt": "<task-notification> <task-id>aac731f</task-id> <status>completed</status> <summary>Agent \"Review simplification opportunities\" completed</summary> <result>Wrote 3 findings (P0:0 P1:0 P2:2 P3:1) to /Us…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    3.706
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 1986,
+  "lines_removed": 41,
+  "files_modified": 11,
+  "message_hours": [
+    1,
+    1,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ],
+  "user_message_timestamps": [
+    "2026-02-17T17:57:25.590Z",
+    "2026-02-17T17:57:25.590Z",
+    "2026-02-17T18:15:35.653Z",
+    "2026-02-17T18:30:56.785Z",
+    "2026-02-17T18:31:29.722Z",
+    "2026-02-17T18:31:36.914Z",
+    "2026-02-17T18:31:42.075Z",
+    "2026-02-17T18:31:46.272Z",
+    "2026-02-17T18:31:50.741Z",
+    "2026-02-17T18:31:54.608Z",
+    "2026-02-17T18:31:59.089Z"
+  ]
+}

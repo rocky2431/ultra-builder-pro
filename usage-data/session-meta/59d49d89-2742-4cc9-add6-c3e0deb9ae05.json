@@ -1,0 +1,54 @@
+{
+  "session_id": "59d49d89-2742-4cc9-add6-c3e0deb9ae05",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-07T05:04:35.154Z",
+  "duration_minutes": 4,
+  "user_message_count": 7,
+  "assistant_message_count": 8,
+  "tool_counts": {
+    "WebSearch": 2,
+    "WebFetch": 2
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 16,
+  "output_tokens": 193,
+  "first_prompt": "查看claudecode最近的20个更新 看下更新了那些功能",
+  "user_interruptions": 0,
+  "user_response_times": [
+    63.905,
+    63.904,
+    63.904,
+    113.235,
+    113.235,
+    113.235
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": true,
+  "uses_web_fetch": true,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13
+  ],
+  "user_message_timestamps": [
+    "2026-02-07T05:04:57.527Z",
+    "2026-02-07T05:07:37.854Z",
+    "2026-02-07T05:07:37.853Z",
+    "2026-02-07T05:07:37.853Z",
+    "2026-02-07T05:08:27.184Z",
+    "2026-02-07T05:08:27.184Z",
+    "2026-02-07T05:08:27.184Z"
+  ]
+}

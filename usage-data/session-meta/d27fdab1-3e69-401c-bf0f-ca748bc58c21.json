@@ -1,0 +1,32 @@
+{
+  "session_id": "d27fdab1-3e69-401c-bf0f-ca748bc58c21",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-09T08:50:54.853Z",
+  "duration_minutes": 0,
+  "user_message_count": 1,
+  "assistant_message_count": 3,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 9,
+  "output_tokens": 30,
+  "first_prompt": "当前是自动压缩上下文的吗？",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-09T08:51:08.889Z"
+  ]
+}

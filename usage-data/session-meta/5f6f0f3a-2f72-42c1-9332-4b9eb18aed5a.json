@@ -1,0 +1,54 @@
+{
+  "session_id": "5f6f0f3a-2f72-42c1-9332-4b9eb18aed5a",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-16T07:25:18.118Z",
+  "duration_minutes": 3,
+  "user_message_count": 7,
+  "assistant_message_count": 18,
+  "tool_counts": {
+    "Bash": 1,
+    "Read": 7
+  },
+  "languages": {
+    "Markdown": 7
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 85,
+  "output_tokens": 310,
+  "first_prompt": "先查看下当前的项目结构和 @PROJECT_ANALYSIS.md 里面的是一致的吗？",
+  "user_interruptions": 2,
+  "user_response_times": [
+    35.638,
+    35.638
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "File Too Large": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-02-16T07:25:21.135Z",
+    "2026-02-16T07:25:21.135Z",
+    "2026-02-16T07:25:23.999Z",
+    "2026-02-16T07:26:09.550Z",
+    "2026-02-16T07:28:17.672Z",
+    "2026-02-16T07:28:17.672Z",
+    "2026-02-16T07:28:23.233Z"
+  ]
+}

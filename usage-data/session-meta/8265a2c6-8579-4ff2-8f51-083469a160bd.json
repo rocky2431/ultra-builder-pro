@@ -1,0 +1,83 @@
+{
+  "session_id": "8265a2c6-8579-4ff2-8f51-083469a160bd",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-23T12:22:00.104Z",
+  "duration_minutes": 49,
+  "user_message_count": 14,
+  "assistant_message_count": 224,
+  "tool_counts": {
+    "Read": 25,
+    "TaskCreate": 12,
+    "TaskUpdate": 23,
+    "Edit": 28,
+    "Bash": 22,
+    "Task": 11,
+    "Glob": 2,
+    "Write": 5,
+    "Grep": 1,
+    "Skill": 1,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "JSON": 6,
+    "Markdown": 7,
+    "TypeScript": 45
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 3760,
+  "output_tokens": 15003,
+  "first_prompt": "<task-notification> <task-id>a9ef0c226810faa06</task-id> <tool-use-id>toolu_0195uWNfF68FzbXQwZs1h9ey</tool-use-id> <status>completed</status> <summary>Agent \"Review comments quality\" completed</summar…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    3.78,
+    5.584,
+    20.552,
+    20.551,
+    20.551
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Command Failed": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 605,
+  "lines_removed": 28,
+  "files_modified": 13,
+  "message_hours": [
+    20,
+    20,
+    20,
+    20,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-02-23T12:22:03.310Z",
+    "2026-02-23T12:22:03.310Z",
+    "2026-02-23T12:35:20.750Z",
+    "2026-02-23T12:36:05.585Z",
+    "2026-02-23T13:09:25.235Z",
+    "2026-02-23T13:09:36.445Z",
+    "2026-02-23T13:09:56.610Z",
+    "2026-02-23T13:10:26.026Z",
+    "2026-02-23T13:10:37.200Z",
+    "2026-02-23T13:10:44.387Z",
+    "2026-02-23T13:10:51.899Z",
+    "2026-02-23T13:11:22.944Z",
+    "2026-02-23T13:11:22.943Z",
+    "2026-02-23T13:11:22.943Z"
+  ]
+}

@@ -1,4 +1,4 @@
-# Ultra Builder Pro 6.3.0
+# Ultra Builder Pro 6.4.0
 
 <div align="center">
 
@@ -6,11 +6,11 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-6.3.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-6.4.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-18-orange)](skills/)
-[![Agents](https://img.shields.io/badge/agents-12-red)](agents/)
+[![Agents](https://img.shields.io/badge/agents-11-red)](agents/)
 [![Hooks](https://img.shields.io/badge/hooks-13-yellow)](hooks/)
 
 </div>

@@ -1,0 +1,39 @@
+{
+  "session_id": "bcd4177f-6c12-4c9f-bf50-1b1007bf397e",
+  "project_path": "/Users/rocky243",
+  "start_time": "2026-03-06T08:46:08.742Z",
+  "duration_minutes": 1,
+  "user_message_count": 2,
+  "assistant_message_count": 3,
+  "tool_counts": {
+    "ToolSearch": 1,
+    "Bash": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 9,
+  "output_tokens": 271,
+  "first_prompt": "解除boringNotch的隔离限制",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-03-06T08:46:54.901Z",
+    "2026-03-06T08:47:00.162Z"
+  ]
+}

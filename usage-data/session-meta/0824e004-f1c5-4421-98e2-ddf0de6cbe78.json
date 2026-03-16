@@ -1,0 +1,50 @@
+{
+  "session_id": "0824e004-f1c5-4421-98e2-ddf0de6cbe78",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-03-09T02:59:25.033Z",
+  "duration_minutes": 18,
+  "user_message_count": 4,
+  "assistant_message_count": 38,
+  "tool_counts": {
+    "Read": 11,
+    "Bash": 9,
+    "Edit": 4
+  },
+  "languages": {
+    "Python": 1,
+    "Markdown": 12,
+    "JSON": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 1410,
+  "output_tokens": 7411,
+  "first_prompt": "现在有注入上下文吗 之前的",
+  "user_interruptions": 0,
+  "user_response_times": [
+    38.629,
+    86.313,
+    760.154
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 22,
+  "lines_removed": 8,
+  "files_modified": 1,
+  "message_hours": [
+    10,
+    11,
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-03-09T02:59:44.333Z",
+    "2026-03-09T03:00:35.618Z",
+    "2026-03-09T03:02:10.260Z",
+    "2026-03-09T03:15:13.887Z"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "session_id": "b74b4620-6fcd-4c87-b30f-59f64e87182a",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-banckend",
+  "start_time": "2026-03-06T05:10:50.176Z",
+  "duration_minutes": 2,
+  "user_message_count": 1,
+  "assistant_message_count": 28,
+  "tool_counts": {
+    "Grep": 7,
+    "Read": 6,
+    "Glob": 1,
+    "Edit": 2,
+    "Bash": 3
+  },
+  "languages": {
+    "Python": 8
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 1964,
+  "output_tokens": 4290,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "File Not Found": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 37,
+  "lines_removed": 3,
+  "files_modified": 1,
+  "message_hours": [
+    13
+  ],
+  "user_message_timestamps": [
+    "2026-03-06T05:10:50.176Z"
+  ]
+}

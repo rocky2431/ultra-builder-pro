@@ -1,0 +1,44 @@
+{
+  "session_id": "2f33d51d-4735-4240-b0eb-ddbbbfe8b6a9",
+  "project_path": "/Users/rocky243/.claude-mem/observer-sessions",
+  "start_time": "2026-02-07T09:49:51.727Z",
+  "duration_minutes": 2,
+  "user_message_count": 6,
+  "assistant_message_count": 6,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 18,
+  "output_tokens": 14,
+  "first_prompt": "Hello memory agent, you are continuing to observe the primary Claude session.  <observed_from_primary_session>   <user_request>刷新一下看看现在 quick-actions 购买资产还有没有问题</user_request>   <requested_at>2026-02-…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    47.428
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-07T09:49:51.727Z",
+    "2026-02-07T09:50:01.136Z",
+    "2026-02-07T09:50:10.067Z",
+    "2026-02-07T09:51:00.849Z",
+    "2026-02-07T09:51:11.142Z",
+    "2026-02-07T09:51:22.135Z"
+  ]
+}

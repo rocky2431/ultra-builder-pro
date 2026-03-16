@@ -1,0 +1,76 @@
+{
+  "session_id": "eb6f8939-4e1c-4f54-8c14-3d67f06c380a",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-23T18:44:11.470Z",
+  "duration_minutes": 20,
+  "user_message_count": 11,
+  "assistant_message_count": 67,
+  "tool_counts": {
+    "Read": 6,
+    "Glob": 1,
+    "Bash": 18,
+    "Task": 1,
+    "Edit": 8
+  },
+  "languages": {
+    "Python": 11,
+    "Markdown": 3
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 100,
+  "output_tokens": 7057,
+  "first_prompt": "再次看下当前的记忆机制是什么",
+  "user_interruptions": 0,
+  "user_response_times": [
+    33.673,
+    52.91,
+    143.633,
+    142.851,
+    144.422,
+    48.659,
+    15.679,
+    15.678,
+    15.678,
+    15.654,
+    41.734
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "Command Failed": 1,
+    "Other": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 186,
+  "lines_removed": 59,
+  "files_modified": 4,
+  "message_hours": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3,
+    3,
+    3
+  ],
+  "user_message_timestamps": [
+    "2026-02-23T18:44:51.290Z",
+    "2026-02-23T18:46:45.104Z",
+    "2026-02-23T18:49:21.468Z",
+    "2026-02-23T18:53:24.125Z",
+    "2026-02-23T18:56:06.629Z",
+    "2026-02-23T18:59:53.078Z",
+    "2026-02-23T19:03:08.756Z",
+    "2026-02-23T19:03:08.755Z",
+    "2026-02-23T19:03:08.755Z",
+    "2026-02-23T19:03:52.735Z",
+    "2026-02-23T19:04:36.508Z"
+  ]
+}

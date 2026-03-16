@@ -55,7 +55,7 @@ All review agents MUST output findings in this exact format. No deviations.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `$schema` | string | YES | Always `"ultra-review-findings-v1"` |
-| `agent` | string | YES | Agent name: `review-code`, `review-tests`, `review-errors`, `review-types`, `review-comments`, `review-simplify` |
+| `agent` | string | YES | Agent name: `review-code`, `review-tests`, `review-errors`, `review-comments`, `review-design` |
 | `session` | string | YES | Session ID provided in the task prompt |
 | `timestamp` | string | YES | ISO 8601 timestamp when review completed |
 | `scope` | object | YES | What was analyzed |

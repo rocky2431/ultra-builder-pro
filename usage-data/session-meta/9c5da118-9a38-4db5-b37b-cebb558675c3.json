@@ -1,0 +1,52 @@
+{
+  "session_id": "9c5da118-9a38-4db5-b37b-cebb558675c3",
+  "project_path": "/Users/rocky243/.claude-mem/observer-sessions",
+  "start_time": "2026-02-08T08:07:39.533Z",
+  "duration_minutes": 8,
+  "user_message_count": 7,
+  "assistant_message_count": 25,
+  "tool_counts": {
+    "Skill": 5,
+    "EnterPlanMode": 1,
+    "ExitPlanMode": 3
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 123,
+  "output_tokens": 25,
+  "first_prompt": "<observed_from_primary_session>   <what_happened>Read</what_happened>   <occurred_at>2026-02-08T08:04:04.654Z</occurred_at>   <working_directory>/Users/rocky243/paimon.finance/paimon-banckend</working…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    206.116
+  ],
+  "tool_errors": 8,
+  "tool_error_categories": {
+    "Other": 8
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-08T08:07:39.533Z",
+    "2026-02-08T08:08:12.693Z",
+    "2026-02-08T08:09:40.086Z",
+    "2026-02-08T08:14:23.414Z",
+    "2026-02-08T08:14:49.553Z",
+    "2026-02-08T08:15:07.404Z",
+    "2026-02-08T08:15:19.483Z"
+  ]
+}

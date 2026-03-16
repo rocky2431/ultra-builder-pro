@@ -1,0 +1,38 @@
+{
+  "session_id": "e779b616-b7fd-410a-949b-6f703fe919ae",
+  "project_path": "/Users/rocky243/testing-project/auto-coding-gui/Aperant",
+  "start_time": "2026-03-08T13:48:03.952Z",
+  "duration_minutes": 9,
+  "user_message_count": 1,
+  "assistant_message_count": 13,
+  "tool_counts": {
+    "Read": 3,
+    "Agent": 3
+  },
+  "languages": {
+    "Markdown": 1,
+    "Python": 2
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 25,
+  "output_tokens": 5131,
+  "first_prompt": "No prompt",
+  "user_interruptions": 1,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-03-08T13:48:03.952Z"
+  ]
+}

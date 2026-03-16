@@ -1,0 +1,61 @@
+{
+  "name": "phase2-plugin-sdk",
+  "description": "Phase 2: 补全 Plugin-SDK — WebSocket transport、capability 协议、配置验证",
+  "createdAt": 1772763932387,
+  "leadAgentId": "team-lead@phase2-plugin-sdk",
+  "leadSessionId": "ebd1af61-616b-49c9-92a8-6d89953594d7",
+  "members": [
+    {
+      "agentId": "team-lead@phase2-plugin-sdk",
+      "name": "team-lead",
+      "agentType": "tech-lead",
+      "model": "claude-opus-4-6",
+      "joinedAt": 1772763932387,
+      "tmuxPaneId": "",
+      "cwd": "/Users/rocky243/testing-project/aiGFproject/anima",
+      "subscriptions": []
+    },
+    {
+      "agentId": "ws-transport@phase2-plugin-sdk",
+      "name": "ws-transport",
+      "agentType": "general-purpose",
+      "model": "claude-opus-4-6",
+      "prompt": "你是 AIRI 项目的系统工程师。项目在 /Users/rocky243/testing-project/aiGFproject/anima。\n\n## 任务: 实现 Plugin-SDK 的 WebSocket transport\n\n### 背景\nPlugin-SDK 当前只支持 in-memory transport。WebSocket transport 需要完成才能让远程插件通过 server-runtime 连接。\n\n### 当前代码位置\n\n1. **Transport 类型定义**: `packages/plugin-sdk/src/plugin-host/transports/index.ts`\n   - `{ kind: 'websocket', url: string, protocols?: string[] }` 已定义\n\n2. **Node runtime**: `packages/plugin-sdk/src/plugin-host/runtimes/node/index.ts`\n   - `case 'websocket': throw new Error(...)` ← 需要实现\n\n3. **WebSocket channel**: `packages/plugin-sdk/src/channels/remote/websocket/index.ts`\n   - 骨架代码 + TODO，使用 `@moeru/eventa/adapters/websocket/native`\n\n4. **Alpha scope guard**: `packages/plugin-sdk/src/plugin-host/core.ts:490-492`\n   - `if (transport.kind !== 'in-memory') throw new Error(...)` ← 需要移除\n\n5. **参考实现**: `packages/server-sdk/src/client.ts`\n   - 完整的 WebSocket client，使用 `crossws/websocket` + `superjson`\n   - 有 auto-reconnect、heartbeat、event routing\n\n### 实现步骤\n\n**Step 1: 理解 eventa WebSocket adapter**\n- 读取 `node_modules/@moeru/eventa/adapters/websocket/` 了解 API\n- 如果 adapter 不存在或 API 不清楚，搜索项目中其他使用 eventa websocket 的地方\n\n**Step 2: 实现 WebSocket channel**\n修改 `packages/plugin-sdk/src/channels/remote/websocket/index.ts`:\n- `createWebSocketHostChannel(ws)` 返回一个可以通过 WebSocket 发送/接收 eventa 事件的 context\n- 使用 `@moeru/eventa` 的 WebSocket adapter（如果存在）\n- 或者手工桥接：WebSocket message → eventa emit, eventa on → WebSocket send\n\n**Step 3: 实现 Node runtime WebSocket case**\n修改 `packages/plugin-sdk/src/plugin-host/runtimes/node/index.ts`:\n- `case 'websocket':` 创建 WebSocket 连接 → 用 Step 2 的 channel 包装\n\n关键：\n- 连接到 `transport.url`（通常是 `ws://localhost:6121/ws`）\n- 创建 WebSocket 实例后传给 `createWebSocketHostChannel()`\n- 返回 EventContext\n\n**Step 4: 移除 alpha scope guard**\n修改 `packages/plugin-sdk/src/plugin-host/core.ts`:\n- 删除 L490-492 的 `if (transport.kind !== 'in-memory') throw` 检查\n- 保持其他 transport kind 的错误（worker、electron 仍未实现）\n\n**Step 5: 测试**\n在 `packages/plugin-sdk/src/plugin-host/core.test.ts` 中添加 WebSocket transport 测试：\n- 可以 mock WebSocket 或跳过实际网络连接\n- 至少验证 `createPluginContext({ kind: 'websocket', url: '...' })` 不再抛错\n- 如果能启动 server-runtime 做 integration test 更好，但不强制\n\n### 验证\n1. `pnpm -F @proj-airi/plugin-sdk typecheck`\n2. `pnpm exec vitest run packages/plugin-sdk/`\n3. 确保现有 in-memory 测试不被破坏\n\n### 重要原则\n- 使用 crossws/websocket (与 server-sdk 一致)\n- 如果 eventa 没有现成的 WebSocket adapter，手工桥接也可以\n- 不要引入不必要的依赖\n- 保持代码简洁，不要过度抽象",
+      "color": "blue",
+      "planModeRequired": false,
+      "joinedAt": 1772764024064,
+      "tmuxPaneId": "in-process",
+      "cwd": "/Users/rocky243/testing-project/aiGFproject/anima",
+      "subscriptions": [],
+      "backendType": "in-process"
+    },
+    {
+      "agentId": "explore-capability@phase2-plugin-sdk",
+      "name": "explore-capability",
+      "agentType": "Explore",
+      "model": "haiku",
+      "prompt": "Thoroughly explore the plugin-sdk capability offer/accept protocol implementation. I need to understand:\n\n1. What capability-related types, events, and protocol definitions exist in `packages/plugin-protocol/`\n2. What capability-related code exists in `packages/plugin-sdk/src/plugin/apis/protocol.ts` and nearby files\n3. How capabilities are currently registered/offered/accepted in `packages/plugin-sdk/src/plugin-host/core.ts`\n4. What `protocolCapabilityWait`, `protocolCapabilitySnapshot` and similar exports are\n5. What the `CapabilityDescriptor` type looks like\n6. Any existing tests for capability functionality\n\nSearch thoroughly across:\n- `packages/plugin-protocol/src/`\n- `packages/plugin-sdk/src/plugin/`  \n- `packages/plugin-sdk/src/plugin-host/`\n\nReturn complete file contents for all capability-related code.",
+      "color": "green",
+      "planModeRequired": false,
+      "joinedAt": 1772764207710,
+      "tmuxPaneId": "in-process",
+      "cwd": "/Users/rocky243/testing-project/aiGFproject/anima",
+      "subscriptions": [],
+      "backendType": "in-process"
+    },
+    {
+      "agentId": "explore-config@phase2-plugin-sdk",
+      "name": "explore-config",
+      "agentType": "Explore",
+      "model": "haiku",
+      "prompt": "Thoroughly explore the plugin-sdk configuration validate/plan/commit protocol implementation. I need to understand:\n\n1. What configuration-related types, events, and protocol definitions exist in `packages/plugin-protocol/`\n2. Configuration-related code in `packages/plugin-sdk/src/plugin/apis/` - especially any config validation, plan, or commit related files\n3. How module configuration is handled in `packages/plugin-sdk/src/plugin-host/core.ts` - search for `moduleConfiguration`, `config`, `ModuleConfigEnvelope`\n4. The xstate lifecycle machine in `packages/plugin-sdk/src/plugin-host/lifecycle.ts` or similar - how config states are modeled\n5. What `protocolModuleConfigEnvelope` and related exports are\n6. Any existing tests for configuration functionality\n\nSearch thoroughly across:\n- `packages/plugin-protocol/src/`\n- `packages/plugin-sdk/src/plugin/`\n- `packages/plugin-sdk/src/plugin-host/`\n\nReturn complete file contents for all configuration-related code.",
+      "color": "yellow",
+      "planModeRequired": false,
+      "joinedAt": 1772764211638,
+      "tmuxPaneId": "in-process",
+      "cwd": "/Users/rocky243/testing-project/aiGFproject/anima",
+      "subscriptions": [],
+      "backendType": "in-process"
+    }
+  ]
+}

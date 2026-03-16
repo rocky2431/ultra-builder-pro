@@ -1,0 +1,19 @@
+{
+  "underlying_goal": "Understand why a financial calculation displayed incorrectly on the dashboard and fix the API to return proper data fields",
+  "goal_categories": {
+    "debugging_investigation": 1,
+    "code_fix": 1,
+    "deployment": 1
+  },
+  "outcome": "mostly_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 2
+  },
+  "claude_helpfulness": "very_helpful",
+  "session_type": "iterative_refinement",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "good_debugging",
+  "brief_summary": "User asked why a dashboard calculation looked wrong; Claude identified the root cause (API missing layer1_cash/deployed fields), applied a 2-line fix, pushed and triggered Railway deployment which was still in progress when user exited.",
+  "session_id": "349cb3fd-608a-4afa-a30d-9e4fd68d206b"
+}

@@ -1,0 +1,63 @@
+{
+  "session_id": "c6d35dbf-8523-40a5-9769-2bf7156886ab",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-18T19:36:28.043Z",
+  "duration_minutes": 1,
+  "user_message_count": 10,
+  "assistant_message_count": 35,
+  "tool_counts": {
+    "TaskList": 1,
+    "Read": 11,
+    "Glob": 1,
+    "TaskCreate": 9,
+    "TaskUpdate": 1
+  },
+  "languages": {
+    "TypeScript": 11
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 53,
+  "output_tokens": 1003,
+  "first_prompt": "<task-notification> <task-id>a472b50</task-id> <status>completed</status> <summary>Agent \"Review error handling\" completed</summary> <result>Wrote 7 findings (P0:0 P1:5 P2:2 P3:0) to /Users/rocky243/t…",
+  "user_interruptions": 3,
+  "user_response_times": [
+    4.954,
+    2.548,
+    2.833,
+    2.852
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+  ],
+  "user_message_timestamps": [
+    "2026-02-18T19:37:14.465Z",
+    "2026-02-18T19:37:14.979Z",
+    "2026-02-18T19:37:14.975Z",
+    "2026-02-18T19:37:17.255Z",
+    "2026-02-18T19:37:17.540Z",
+    "2026-02-18T19:37:17.559Z",
+    "2026-02-18T19:37:18.471Z",
+    "2026-02-18T19:37:30.517Z",
+    "2026-02-18T19:37:30.517Z",
+    "2026-02-18T19:37:30.517Z"
+  ]
+}

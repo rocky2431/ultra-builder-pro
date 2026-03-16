@@ -35,7 +35,7 @@ def wait_for_agents(session_path: Path, expected_count: int, timeout: int) -> bo
     Exit code: 0 if all complete OR partial (>=1), 1 if 0 agents.
     """
     all_agents = ["review-code", "review-tests", "review-errors",
-                  "review-types", "review-comments", "review-simplify"]
+                  "review-design", "review-comments"]
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         found = glob.glob(str(session_path / "review-*.json"))

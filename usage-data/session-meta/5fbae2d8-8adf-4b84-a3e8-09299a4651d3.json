@@ -1,0 +1,56 @@
+{
+  "session_id": "5fbae2d8-8adf-4b84-a3e8-09299a4651d3",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you/frontend",
+  "start_time": "2026-02-12T12:23:33.499Z",
+  "duration_minutes": 16,
+  "user_message_count": 6,
+  "assistant_message_count": 116,
+  "tool_counts": {
+    "Read": 16,
+    "Edit": 22,
+    "Task": 4,
+    "TaskUpdate": 9,
+    "Grep": 2,
+    "Bash": 9,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "TypeScript": 32,
+    "JSON": 2,
+    "Markdown": 4
+  },
+  "git_commits": 2,
+  "git_pushes": 1,
+  "input_tokens": 174,
+  "output_tokens": 2897,
+  "first_prompt": "<task-notification> <task-id>adfd46e</task-id> <status>completed</status> <summary>Agent \"Code review for chat UI\" completed</summary> <result>No TypeScript errors in the new files. Now I have all the…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    3.032
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 121,
+  "lines_removed": 31,
+  "files_modified": 10,
+  "message_hours": [
+    20,
+    20,
+    20,
+    20,
+    20,
+    20
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T12:23:33.499Z",
+    "2026-02-12T12:38:57.527Z",
+    "2026-02-12T12:39:07.945Z",
+    "2026-02-12T12:39:17.299Z",
+    "2026-02-12T12:39:27.535Z",
+    "2026-02-12T12:39:39.661Z"
+  ]
+}

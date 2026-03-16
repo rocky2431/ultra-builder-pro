@@ -1,0 +1,69 @@
+{
+  "session_id": "728c126f-6c98-4d3f-b258-ecbd3cb33e29",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-21T06:56:12.650Z",
+  "duration_minutes": 116,
+  "user_message_count": 7,
+  "assistant_message_count": 175,
+  "tool_counts": {
+    "Task": 7,
+    "TaskCreate": 3,
+    "TaskUpdate": 7,
+    "Read": 20,
+    "Bash": 47,
+    "Edit": 15,
+    "Write": 16,
+    "AskUserQuestion": 1,
+    "EnterPlanMode": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 36,
+    "JSON": 5,
+    "Markdown": 2
+  },
+  "git_commits": 1,
+  "git_pushes": 2,
+  "input_tokens": 225,
+  "output_tokens": 14052,
+  "first_prompt": "Implement the following plan:  # 前端-后端对齐计划  ## Context  后端已完成 24 个 task，构建了 7 个核心包（context-engine, persona-engine, skills-engine, cron-service, mcp-hub, desktop-shell, server-runtime）。但前端 4 个模块（Memory…",
+  "user_interruptions": 1,
+  "user_response_times": [
+    323.221,
+    27.658,
+    548.73,
+    443.966,
+    2587,
+    26.095
+  ],
+  "tool_errors": 6,
+  "tool_error_categories": {
+    "Command Failed": 5,
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 1788,
+  "lines_removed": 18,
+  "files_modified": 20,
+  "message_hours": [
+    14,
+    15,
+    15,
+    15,
+    15,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-21T06:56:12.637Z",
+    "2026-02-21T07:27:41.846Z",
+    "2026-02-21T07:29:20.354Z",
+    "2026-02-21T07:38:43.146Z",
+    "2026-02-21T07:47:21.251Z",
+    "2026-02-21T08:31:25.993Z",
+    "2026-02-21T08:51:48.543Z"
+  ]
+}

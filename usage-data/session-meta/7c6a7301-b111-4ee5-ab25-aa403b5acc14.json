@@ -1,0 +1,57 @@
+{
+  "session_id": "7c6a7301-b111-4ee5-ab25-aa403b5acc14",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-03-06T02:04:29.262Z",
+  "duration_minutes": 6,
+  "user_message_count": 7,
+  "assistant_message_count": 47,
+  "tool_counts": {
+    "ToolSearch": 3,
+    "Grep": 1,
+    "Glob": 1,
+    "Read": 5,
+    "Bash": 13,
+    "Edit": 3
+  },
+  "languages": {
+    "JSON": 2,
+    "Python": 6
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 259,
+  "output_tokens": 12101,
+  "first_prompt": "还是要看下stophook现在的逻辑 好像现在都不触发了为什么？",
+  "user_interruptions": 0,
+  "user_response_times": [
+    42.673,
+    13.298
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 2,
+  "lines_removed": 7,
+  "files_modified": 2,
+  "message_hours": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
+  ],
+  "user_message_timestamps": [
+    "2026-03-06T02:05:05.107Z",
+    "2026-03-06T02:05:10.611Z",
+    "2026-03-06T02:06:04.720Z",
+    "2026-03-06T02:07:21.594Z",
+    "2026-03-06T02:07:25.440Z",
+    "2026-03-06T02:07:33.155Z",
+    "2026-03-06T02:09:54.487Z"
+  ]
+}

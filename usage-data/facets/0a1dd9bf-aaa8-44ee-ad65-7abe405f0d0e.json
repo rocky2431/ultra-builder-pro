@@ -1,0 +1,17 @@
+{
+  "underlying_goal": "Start and then stop the project's frontend and backend services",
+  "goal_categories": {
+    "dev_server_management": 2
+  },
+  "outcome": "fully_achieved",
+  "user_satisfaction_counts": {
+    "likely_satisfied": 2
+  },
+  "claude_helpfulness": "very_helpful",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "fast_accurate_search",
+  "brief_summary": "User asked to start then stop the project's frontend and backend, and Claude executed both tasks smoothly.",
+  "session_id": "0a1dd9bf-aaa8-44ee-ad65-7abe405f0d0e"
+}

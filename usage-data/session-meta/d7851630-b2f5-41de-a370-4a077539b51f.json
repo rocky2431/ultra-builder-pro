@@ -1,0 +1,52 @@
+{
+  "session_id": "d7851630-b2f5-41de-a370-4a077539b51f",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-20T16:40:34.537Z",
+  "duration_minutes": 1,
+  "user_message_count": 9,
+  "assistant_message_count": 10,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 30,
+  "output_tokens": 103,
+  "first_prompt": "<task-notification> <task-id>a3aca6a</task-id> <tool-use-id>toolu_01FJ1vVvdbhJgomNvdo9PCUF</tool-use-id> <status>completed</status> <summary>Agent \"Review test quality\" completed</summary> <result>Wro…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    37.125,
+    37.125,
+    37.125
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "user_message_timestamps": [
+    "2026-02-20T16:40:34.537Z",
+    "2026-02-20T16:40:49.044Z",
+    "2026-02-20T16:40:57.186Z",
+    "2026-02-20T16:41:02.481Z",
+    "2026-02-20T16:41:06.302Z",
+    "2026-02-20T16:41:11.490Z",
+    "2026-02-20T16:41:53.001Z",
+    "2026-02-20T16:41:53.001Z",
+    "2026-02-20T16:41:53.001Z"
+  ]
+}

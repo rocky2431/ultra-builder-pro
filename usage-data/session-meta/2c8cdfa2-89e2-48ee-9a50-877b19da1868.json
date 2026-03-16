@@ -1,0 +1,36 @@
+{
+  "session_id": "2c8cdfa2-89e2-48ee-9a50-877b19da1868",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you/frontend",
+  "start_time": "2026-02-14T13:09:55.693Z",
+  "duration_minutes": 3,
+  "user_message_count": 1,
+  "assistant_message_count": 4,
+  "tool_counts": {
+    "ExitPlanMode": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 12,
+  "output_tokens": 36,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-02-14T13:09:55.693Z"
+  ]
+}

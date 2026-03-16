@@ -1,0 +1,68 @@
+{
+  "session_id": "53b380d8-e012-45f8-aac5-4e6e2ceafb76",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-20T11:36:52.386Z",
+  "duration_minutes": 83,
+  "user_message_count": 11,
+  "assistant_message_count": 54,
+  "tool_counts": {
+    "Read": 4,
+    "TaskUpdate": 8,
+    "Edit": 3,
+    "Grep": 3,
+    "Bash": 13,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "Markdown": 5,
+    "JSON": 2
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 78,
+  "output_tokens": 3976,
+  "first_prompt": "<task-notification> <task-id>a1d716f</task-id> <status>completed</status> <summary>Agent \"Review comments quality\" completed</summary> <result>Wrote 4 findings (P0:0 P1:0 P2:4 P3:0) to .ultra/reviews/…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    3249.313,
+    3249.313,
+    3249.313
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 8,
+  "lines_removed": 3,
+  "files_modified": 1,
+  "message_hours": [
+    19,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20
+  ],
+  "user_message_timestamps": [
+    "2026-02-20T11:36:52.386Z",
+    "2026-02-20T12:04:00.499Z",
+    "2026-02-20T12:04:21.396Z",
+    "2026-02-20T12:04:26.642Z",
+    "2026-02-20T12:04:48.502Z",
+    "2026-02-20T12:04:54.288Z",
+    "2026-02-20T12:05:08.380Z",
+    "2026-02-20T12:05:15.198Z",
+    "2026-02-20T12:59:49.606Z",
+    "2026-02-20T12:59:49.606Z",
+    "2026-02-20T12:59:49.606Z"
+  ]
+}

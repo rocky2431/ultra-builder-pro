@@ -1,0 +1,49 @@
+{
+  "session_id": "a1190db1-521f-4092-b5bd-a46acb81f523",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U/desktop",
+  "start_time": "2026-02-24T06:21:21.439Z",
+  "duration_minutes": 9,
+  "user_message_count": 2,
+  "assistant_message_count": 34,
+  "tool_counts": {
+    "Task": 2,
+    "EnterPlanMode": 1,
+    "Read": 13,
+    "TaskUpdate": 2,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "Markdown": 2,
+    "TypeScript": 11,
+    "CSS": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 48,
+  "output_tokens": 6722,
+  "first_prompt": "No prompt",
+  "user_interruptions": 1,
+  "user_response_times": [
+    31.094
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 249,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    14,
+    14
+  ],
+  "user_message_timestamps": [
+    "2026-02-24T06:21:21.439Z",
+    "2026-02-24T06:30:01.477Z"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "session_id": "a18c6c89-a75e-4f0b-a27c-46c9916bc9f3",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-03-08T14:01:35.498Z",
+  "duration_minutes": 47,
+  "user_message_count": 7,
+  "assistant_message_count": 115,
+  "tool_counts": {
+    "ToolSearch": 2,
+    "TaskCreate": 14,
+    "TaskUpdate": 21,
+    "Bash": 5,
+    "Agent": 8,
+    "Write": 3,
+    "Read": 19,
+    "Edit": 6
+  },
+  "languages": {
+    "Markdown": 5,
+    "TypeScript": 19
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 35209,
+  "output_tokens": 24468,
+  "first_prompt": "/ultra-verify 原子化的扫描前后端 看下是否对齐，并且重点看下当前的工作流是否能跑通，是否能大概抗审查（在BSC上）模拟真人的交互，优质的生产级别项目能够胜任当前链上的大规模交互。 诚实的给到我一个置信度90%以上的结论",
+  "user_interruptions": 0,
+  "user_response_times": [
+    891.99,
+    38.326
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 570,
+  "lines_removed": 15,
+  "files_modified": 6,
+  "message_hours": [
+    22,
+    22,
+    22,
+    22,
+    22,
+    22,
+    22
+  ],
+  "user_message_timestamps": [
+    "2026-03-08T14:04:23.746Z",
+    "2026-03-08T14:04:23.746Z",
+    "2026-03-08T14:22:37.314Z",
+    "2026-03-08T14:22:40.564Z",
+    "2026-03-08T14:22:43.684Z",
+    "2026-03-08T14:37:39.152Z",
+    "2026-03-08T14:39:48.442Z"
+  ]
+}

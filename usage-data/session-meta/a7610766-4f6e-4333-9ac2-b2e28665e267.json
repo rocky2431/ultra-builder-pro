@@ -1,0 +1,48 @@
+{
+  "session_id": "a7610766-4f6e-4333-9ac2-b2e28665e267",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-bsc-contracts",
+  "start_time": "2026-03-09T07:39:51.775Z",
+  "duration_minutes": 5,
+  "user_message_count": 3,
+  "assistant_message_count": 19,
+  "tool_counts": {
+    "Bash": 5,
+    "ToolSearch": 1,
+    "TaskCreate": 5,
+    "TaskUpdate": 2,
+    "Glob": 1,
+    "Read": 1
+  },
+  "languages": {
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 39,
+  "output_tokens": 1809,
+  "first_prompt": "拉去最新代码",
+  "user_interruptions": 0,
+  "user_response_times": [
+    134.974,
+    134.974
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-03-09T07:39:59.817Z",
+    "2026-03-09T07:42:28.856Z",
+    "2026-03-09T07:42:28.856Z"
+  ]
+}

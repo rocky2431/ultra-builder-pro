@@ -1,0 +1,79 @@
+{
+  "session_id": "3e8c017a-eaa2-4efc-af2e-ef870d6f0dd6",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-12T04:09:08.355Z",
+  "duration_minutes": 91,
+  "user_message_count": 11,
+  "assistant_message_count": 199,
+  "tool_counts": {
+    "Read": 34,
+    "Bash": 21,
+    "Edit": 38,
+    "Task": 6,
+    "Grep": 14,
+    "mcp__Railway__deploy": 2,
+    "Glob": 1,
+    "mcp__Railway__list-deployments": 2,
+    "EnterPlanMode": 1,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "JSON": 1,
+    "TypeScript": 70,
+    "Markdown": 2
+  },
+  "git_commits": 2,
+  "git_pushes": 2,
+  "input_tokens": 311,
+  "output_tokens": 3577,
+  "first_prompt": "Implement the following plan:  # Fix: Task Creation Missing Feedback + Silent Error Swallowing  ## Context  Task creation appears to \"fail\" for two reasons: 1. **Custom template**: Backend returns 400…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    854.148,
+    2095.521,
+    51.557,
+    167.703,
+    803.042,
+    153.961
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "Command Failed": 1,
+    "File Not Found": 1,
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 125,
+  "lines_removed": 57,
+  "files_modified": 15,
+  "message_hours": [
+    12,
+    12,
+    12,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13,
+    13
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T04:09:08.331Z",
+    "2026-02-12T04:10:27.246Z",
+    "2026-02-12T04:27:06.790Z",
+    "2026-02-12T05:02:40.229Z",
+    "2026-02-12T05:06:21.673Z",
+    "2026-02-12T05:06:52.359Z",
+    "2026-02-12T05:12:11.066Z",
+    "2026-02-12T05:15:43.621Z",
+    "2026-02-12T05:21:00.673Z",
+    "2026-02-12T05:35:04.322Z",
+    "2026-02-12T05:37:51.869Z"
+  ]
+}

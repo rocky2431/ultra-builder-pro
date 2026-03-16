@@ -1,0 +1,9 @@
+[
+  {
+    "from": "team-lead",
+    "text": "优先输出关键发现，不必等完整报告。重点关注：memory.db 容量、FTS5 查询性能、session 摘要生成开销对多 agent 协作的影响。",
+    "summary": "加快 memory-analyst 进度，输出关键发现",
+    "timestamp": "2026-03-16T11:48:44.393Z",
+    "read": false
+  }
+]

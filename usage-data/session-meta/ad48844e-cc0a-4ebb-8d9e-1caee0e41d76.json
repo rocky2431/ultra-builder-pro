@@ -1,0 +1,59 @@
+{
+  "session_id": "ad48844e-cc0a-4ebb-8d9e-1caee0e41d76",
+  "project_path": "/Users/rocky243/paimon.finance/nft-paimon-frontend",
+  "start_time": "2026-02-12T07:35:48.680Z",
+  "duration_minutes": 8,
+  "user_message_count": 6,
+  "assistant_message_count": 50,
+  "tool_counts": {
+    "Bash": 8,
+    "Read": 11,
+    "Glob": 5,
+    "Grep": 5
+  },
+  "languages": {
+    "TypeScript": 9,
+    "JSON": 2
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 84,
+  "output_tokens": 568,
+  "first_prompt": "远程分支跟新吗？当前的",
+  "user_interruptions": 0,
+  "user_response_times": [
+    33.477,
+    167.941,
+    25.717,
+    15.575,
+    75.144
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Other": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    15,
+    15,
+    15,
+    15,
+    15,
+    15
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T07:36:20.858Z",
+    "2026-02-12T07:37:07.511Z",
+    "2026-02-12T07:40:03.724Z",
+    "2026-02-12T07:40:38.892Z",
+    "2026-02-12T07:42:00.079Z",
+    "2026-02-12T07:43:54.685Z"
+  ]
+}

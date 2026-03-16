@@ -1,0 +1,38 @@
+{
+  "session_id": "05871556-ed69-4cc5-b9f0-30e7b85681a1",
+  "project_path": "/Users/rocky243/.claude-mem/observer-sessions",
+  "start_time": "2026-02-09T09:27:31.544Z",
+  "duration_minutes": 2,
+  "user_message_count": 3,
+  "assistant_message_count": 3,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 9,
+  "output_tokens": 10,
+  "first_prompt": "Hello memory agent, you are continuing to observe the primary Claude session.  <observed_from_primary_session>   <user_request>你这里的快速购买的资产不对啊 怎么是选中资产的最大值？</user_request>   <requested_at>2026-02-09</re…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    64
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    17,
+    17,
+    17
+  ],
+  "user_message_timestamps": [
+    "2026-02-09T09:27:31.544Z",
+    "2026-02-09T09:27:38.798Z",
+    "2026-02-09T09:28:51.234Z"
+  ]
+}

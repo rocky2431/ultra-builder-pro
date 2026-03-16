@@ -1,0 +1,9 @@
+[
+  {
+    "from": "diffusion-agent",
+    "text": "{\"type\":\"task_assignment\",\"taskId\":\"2\",\"subject\":\"Part A Phase 1: Prisma schema + Diffusion planner pure functions\",\"description\":\"1. Add 4 new tables to schema.prisma: RelayPool, RelayPoolMember, DiffusionOperation, DiffusionHop. Add DIFFUSION to FundOperationType enum.\\n2. Create packages/common/src/diffusion/types.ts with DiffusionPlanInput/Output, PlannedHop, DiffusionPlanConfig\\n3. Create packages/common/src/diffusion/planner.ts with DiffusionPlanner class (chain/tree/mesh strategies)\\n4. Create packages/common/src/diffusion/amount-splitter.ts for amount splitting with variance\\n5. Create packages/common/src/diffusion/index.ts barrel export\\n6. Create packages/common/src/diffusion/planner.spec.ts with comprehensive tests\\n7. Export from packages/common/src/index.ts\",\"assignedBy\":\"diffusion-agent\",\"timestamp\":\"2026-03-06T05:10:33.820Z\"}",
+    "timestamp": "2026-03-06T05:10:33.820Z",
+    "color": "green",
+    "read": false
+  }
+]

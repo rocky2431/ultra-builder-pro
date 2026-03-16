@@ -1,0 +1,45 @@
+{
+  "session_id": "f2607420-1d26-4365-a5f9-fe4a8a4292fa",
+  "project_path": "/Users/rocky243/ai-midea/AiToEarn",
+  "start_time": "2026-03-09T03:50:34.388Z",
+  "duration_minutes": 1,
+  "user_message_count": 2,
+  "assistant_message_count": 24,
+  "tool_counts": {
+    "Bash": 9,
+    "Read": 9,
+    "Glob": 3
+  },
+  "languages": {
+    "Markdown": 4,
+    "YAML": 1,
+    "JSON": 3
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 8796,
+  "output_tokens": 1863,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 5,
+  "tool_error_categories": {
+    "Command Failed": 2,
+    "Other": 3
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-03-09T03:50:37.035Z",
+    "2026-03-09T03:50:37.035Z"
+  ]
+}

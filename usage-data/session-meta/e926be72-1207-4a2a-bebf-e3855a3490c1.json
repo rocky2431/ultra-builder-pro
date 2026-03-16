@@ -1,0 +1,39 @@
+{
+  "session_id": "e926be72-1207-4a2a-bebf-e3855a3490c1",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-21T19:14:17.932Z",
+  "duration_minutes": 1,
+  "user_message_count": 2,
+  "assistant_message_count": 8,
+  "tool_counts": {
+    "Glob": 2,
+    "Read": 3
+  },
+  "languages": {
+    "JSON": 3
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 11,
+  "output_tokens": 127,
+  "first_prompt": "No prompt",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    3,
+    3
+  ],
+  "user_message_timestamps": [
+    "2026-02-21T19:14:30.193Z",
+    "2026-02-21T19:14:30.193Z"
+  ]
+}

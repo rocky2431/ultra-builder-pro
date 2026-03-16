@@ -1,0 +1,53 @@
+{
+  "session_id": "1f11d97b-f2a9-4f32-bcc5-5657fca8ef05",
+  "project_path": "/Users/rocky243/paimon.finance/nft-paimon-frontend",
+  "start_time": "2026-02-18T03:44:00.590Z",
+  "duration_minutes": 31,
+  "user_message_count": 3,
+  "assistant_message_count": 43,
+  "tool_counts": {
+    "WebFetch": 1,
+    "Task": 5,
+    "Read": 5,
+    "Glob": 1,
+    "Write": 2,
+    "ExitPlanMode": 2,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "TypeScript": 4,
+    "JSON": 1,
+    "Markdown": 2
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 23539,
+  "output_tokens": 1801,
+  "first_prompt": "我当前希望加入https://github.com/tambo-ai/tambo 这个开源项目 生成式的UI组建 用户进入网站有两个选择 一个是金典的样式（现在的页面一个是AI2UI就是我们即将要做的 可以通过一个button进行切换）仔细的思考一下我们应该如何开始这个东西？组建一个最强的专家团队来讨论一下这个事情 诚实的给到我一个置信度90%以上的方案",
+  "user_interruptions": 1,
+  "user_response_times": [
+    193.288,
+    155.108
+  ],
+  "tool_errors": 2,
+  "tool_error_categories": {
+    "User Rejected": 2
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": true,
+  "lines_added": 1099,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    11,
+    11,
+    12
+  ],
+  "user_message_timestamps": [
+    "2026-02-18T03:46:49.679Z",
+    "2026-02-18T03:56:35.038Z",
+    "2026-02-18T04:15:29.588Z"
+  ]
+}

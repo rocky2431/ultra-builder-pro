@@ -1,0 +1,19 @@
+{
+  "name": "production-enhancement",
+  "description": "三方向生产化增强: Part B (Swagger), Part A (Diffusion), Part C (Behavior Engine)",
+  "createdAt": 1772773657416,
+  "leadAgentId": "team-lead@production-enhancement",
+  "leadSessionId": "059033cd-6f54-4e9b-8a9e-0d2c3b1da90b",
+  "members": [
+    {
+      "agentId": "team-lead@production-enhancement",
+      "name": "team-lead",
+      "agentType": "team-lead",
+      "model": "claude-opus-4-6",
+      "joinedAt": 1772773657416,
+      "tmuxPaneId": "",
+      "cwd": "/Users/rocky243/paimon.finance/web3studio",
+      "subscriptions": []
+    }
+  ]
+}

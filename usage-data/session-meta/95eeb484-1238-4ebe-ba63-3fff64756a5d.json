@@ -1,0 +1,60 @@
+{
+  "session_id": "95eeb484-1238-4ebe-ba63-3fff64756a5d",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-12T12:26:27.089Z",
+  "duration_minutes": 14,
+  "user_message_count": 6,
+  "assistant_message_count": 63,
+  "tool_counts": {
+    "Bash": 14,
+    "Glob": 5,
+    "Read": 2,
+    "mcp__context7__resolve-library-id": 1,
+    "mcp__exa__web_search_exa": 1,
+    "mcp__context7__query-docs": 2,
+    "Write": 9
+  },
+  "languages": {
+    "Markdown": 11
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 111,
+  "output_tokens": 5533,
+  "first_prompt": "看下这个项目 这个skill 和我的对比 有什么区别https://github.com/sanyuan0704/code-review-expert",
+  "user_interruptions": 1,
+  "user_response_times": [
+    76.849,
+    32.389,
+    111.091,
+    79.695,
+    83.971
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "Other": 3
+  },
+  "uses_task_agent": false,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 788,
+  "lines_removed": 0,
+  "files_modified": 6,
+  "message_hours": [
+    20,
+    20,
+    20,
+    20,
+    20,
+    20
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T12:27:00.851Z",
+    "2026-02-12T12:29:36.082Z",
+    "2026-02-12T12:30:47.253Z",
+    "2026-02-12T12:32:05.955Z",
+    "2026-02-12T12:35:15.319Z",
+    "2026-02-12T12:40:33.277Z"
+  ]
+}

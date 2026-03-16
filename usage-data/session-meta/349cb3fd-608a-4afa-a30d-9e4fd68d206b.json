@@ -1,0 +1,34 @@
+{
+  "session_id": "349cb3fd-608a-4afa-a30d-9e4fd68d206b",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-banckend",
+  "start_time": "2026-03-04T00:59:35.373Z",
+  "duration_minutes": 1,
+  "user_message_count": 1,
+  "assistant_message_count": 3,
+  "tool_counts": {
+    "Agent": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 9,
+  "output_tokens": 607,
+  "first_prompt": "这里为什么计算出来是这样的？",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    8
+  ],
+  "user_message_timestamps": [
+    "2026-03-04T00:59:47.848Z"
+  ]
+}

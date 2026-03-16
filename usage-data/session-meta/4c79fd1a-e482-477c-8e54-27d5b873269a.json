@@ -1,0 +1,53 @@
+{
+  "session_id": "4c79fd1a-e482-477c-8e54-27d5b873269a",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-12T11:51:46.334Z",
+  "duration_minutes": 22,
+  "user_message_count": 2,
+  "assistant_message_count": 71,
+  "tool_counts": {
+    "mcp__Railway__get-logs": 1,
+    "mcp__Railway__list-deployments": 3,
+    "Read": 8,
+    "Edit": 4,
+    "Bash": 5,
+    "mcp__Railway__deploy": 1,
+    "Task": 6,
+    "EnterPlanMode": 1,
+    "Grep": 4,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 11,
+    "Markdown": 2
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 18611,
+  "output_tokens": 8865,
+  "first_prompt": "几个问题 前端没有钱包组啊现在 让我怎么选择你看看 fund里面的钱包多选的组建 然后 当前的选项需要满足 pp合约的交互 以及staking合约 能理解吧 StakingModule implementation: 0x3C26B08988D12765B7e6d9E5ab36b1B24071e799   StakingModule proxy: 0xBac2f856FCbac35112bfbd1…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    193.975
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": true,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 280,
+  "lines_removed": 4,
+  "files_modified": 3,
+  "message_hours": [
+    19,
+    19
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T11:51:46.334Z",
+    "2026-02-12T11:59:46.081Z"
+  ]
+}

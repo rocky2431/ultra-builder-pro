@@ -1,0 +1,58 @@
+{
+  "session_id": "b0deb62b-1b89-4deb-8749-bd04013a7943",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-16T08:51:32.340Z",
+  "duration_minutes": 2,
+  "user_message_count": 10,
+  "assistant_message_count": 33,
+  "tool_counts": {
+    "Bash": 9,
+    "Edit": 1,
+    "TaskUpdate": 3
+  },
+  "languages": {
+    "Markdown": 1
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 61,
+  "output_tokens": 316,
+  "first_prompt": "<task-notification> <task-id>a9120a1</task-id> <status>completed</status> <summary>Agent \"Review test quality\" completed</summary> <result>Wrote 5 findings (P0:0 P1:1 P2:3 P3:1) to /Users/rocky243/tes…",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 1,
+  "lines_removed": 1,
+  "files_modified": 1,
+  "message_hours": [
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-16T08:51:32.340Z",
+    "2026-02-16T08:52:50.901Z",
+    "2026-02-16T08:52:56.345Z",
+    "2026-02-16T08:53:02.673Z",
+    "2026-02-16T08:53:06.398Z",
+    "2026-02-16T08:53:10.261Z",
+    "2026-02-16T08:53:13.727Z",
+    "2026-02-16T08:53:18.114Z",
+    "2026-02-16T08:53:22.626Z",
+    "2026-02-16T08:53:26.875Z"
+  ]
+}

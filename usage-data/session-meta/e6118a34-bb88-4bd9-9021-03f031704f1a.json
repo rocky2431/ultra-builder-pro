@@ -1,0 +1,42 @@
+{
+  "session_id": "e6118a34-bb88-4bd9-9021-03f031704f1a",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-28T00:02:17.590Z",
+  "duration_minutes": 0,
+  "user_message_count": 1,
+  "assistant_message_count": 18,
+  "tool_counts": {
+    "Read": 8,
+    "Glob": 4,
+    "Bash": 2
+  },
+  "languages": {
+    "Python": 3,
+    "TypeScript": 3,
+    "JSON": 2
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 34,
+  "output_tokens": 401,
+  "first_prompt": "Implement the following plan:  # Plan: 补齐前端设置 UI 缺失的高级配置项  ## Context  `.env.example` 中列出了所有后端支持的配置项，但前端设置 UI 缺少 4 类高级配置的管理界面： - VLM 模型（屏幕分析） - Embedding 模型（记忆向量化） - Workspace 路径 - API Base URL（STT/TT…",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 4,
+  "tool_error_categories": {
+    "Other": 4
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    8
+  ],
+  "user_message_timestamps": [
+    "2026-02-28T00:02:17.501Z"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "session_id": "8079d782-5c40-428f-80b2-e9fef684b6e9",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio",
+  "start_time": "2026-02-28T01:01:10.936Z",
+  "duration_minutes": 7,
+  "user_message_count": 1,
+  "assistant_message_count": 110,
+  "tool_counts": {
+    "Read": 28,
+    "Glob": 4,
+    "Grep": 8,
+    "TaskCreate": 5,
+    "TaskUpdate": 12,
+    "Edit": 6,
+    "Write": 5,
+    "Bash": 6
+  },
+  "languages": {
+    "TypeScript": 39
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 128,
+  "output_tokens": 26459,
+  "first_prompt": "Implement the following plan:  # Web3Studio 修复计划  ## Context  审计报告（report.md）评分 75/100，核心缺口： 1. **WorkflowProcessor 不存在** — `PHASE_EXECUTE` 任务入队后无消费�

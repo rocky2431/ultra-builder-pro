@@ -1,0 +1,68 @@
+{
+  "session_id": "17dc7e84-5322-4643-baec-09f23d952d72",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-21T13:37:24.241Z",
+  "duration_minutes": 18,
+  "user_message_count": 8,
+  "assistant_message_count": 53,
+  "tool_counts": {
+    "Bash": 16,
+    "EnterPlanMode": 1,
+    "Task": 3,
+    "Grep": 6,
+    "Read": 6,
+    "Glob": 2,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 5,
+    "JSON": 1,
+    "Markdown": 1
+  },
+  "git_commits": 1,
+  "git_pushes": 1,
+  "input_tokens": 431,
+  "output_tokens": 8468,
+  "first_prompt": "当前是否全部commit了改动",
+  "user_interruptions": 1,
+  "user_response_times": [
+    51.41,
+    121.829,
+    8.984,
+    96.925
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "File Not Found": 1,
+    "Other": 1,
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 107,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21,
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-02-21T13:37:25.376Z",
+    "2026-02-21T13:37:24.239Z",
+    "2026-02-21T13:37:25.376Z",
+    "2026-02-21T13:37:57.106Z",
+    "2026-02-21T13:39:00.625Z",
+    "2026-02-21T13:42:06.161Z",
+    "2026-02-21T13:42:47.305Z",
+    "2026-02-21T13:55:12.515Z"
+  ]
+}

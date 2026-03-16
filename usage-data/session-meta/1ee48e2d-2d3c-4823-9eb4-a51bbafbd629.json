@@ -1,0 +1,63 @@
+{
+  "session_id": "1ee48e2d-2d3c-4823-9eb4-a51bbafbd629",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U/desktop",
+  "start_time": "2026-02-16T17:50:44.213Z",
+  "duration_minutes": 1077,
+  "user_message_count": 11,
+  "assistant_message_count": 35,
+  "tool_counts": {
+    "Bash": 14,
+    "Read": 1,
+    "Edit": 1,
+    "TaskUpdate": 3
+  },
+  "languages": {
+    "Markdown": 2
+  },
+  "git_commits": 2,
+  "git_pushes": 0,
+  "input_tokens": 61,
+  "output_tokens": 772,
+  "first_prompt": "<task-notification> <task-id>a06ca0d</task-id> <status>completed</status> <summary>Agent \"Review error handling\" completed</summary> <result>Wrote 3 findings (P0:0 P1:0 P2:2 P3:1) to .ultra/reviews/20…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    3.059
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "Command Failed": 1
+  },
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 1,
+  "lines_removed": 1,
+  "files_modified": 1,
+  "message_hours": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    19,
+    19,
+    19
+  ],
+  "user_message_timestamps": [
+    "2026-02-16T17:50:44.214Z",
+    "2026-02-16T17:52:46.944Z",
+    "2026-02-16T17:52:51.730Z",
+    "2026-02-16T17:52:55.225Z",
+    "2026-02-16T17:53:00.363Z",
+    "2026-02-16T17:53:05.545Z",
+    "2026-02-16T17:53:09.600Z",
+    "2026-02-16T17:53:14.562Z",
+    "2026-02-17T11:47:58.951Z",
+    "2026-02-17T11:47:58.951Z",
+    "2026-02-17T11:47:58.951Z"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "session_id": "575fa0de-520b-4b45-83d6-955f2a611bd3",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-03-12T03:14:45.362Z",
+  "duration_minutes": 1,
+  "user_message_count": 1,
+  "assistant_message_count": 2,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 6,
+  "output_tokens": 507,
+  "first_prompt": "这是为什么 什么叫high memory usd？",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-03-12T03:15:39.379Z"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "session_id": "80402bfb-cc7c-492f-8440-cc72b0dc6f47",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-rwa-contracts",
+  "start_time": "2026-03-04T03:17:27.160Z",
+  "duration_minutes": 15,
+  "user_message_count": 1,
+  "assistant_message_count": 79,
+  "tool_counts": {
+    "Agent": 2,
+    "Read": 7,
+    "Glob": 1,
+    "TaskCreate": 6,
+    "TaskUpdate": 15,
+    "Bash": 9,
+    "Write": 10,
+    "TaskOutput": 1,
+    "Edit": 1
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 45108,
+  "output_tokens": 42264,
+  "first_prompt": "Implement the following plan:  # Paimon RWA Launchpad 合约支持方案  ## Context  Paimon RWA Launchpad 需要合约层支持一个分层定价(4-Layer)、积分驱动(Conviction-Weighted)的 RWA 资产发售系统。前端(`nft-paimon-frontend | feature/launchpad-…",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 2592,
+  "lines_removed": 3,
+  "files_modified": 10,
+  "message_hours": [
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-03-04T03:17:27.109Z"
+  ]
+}

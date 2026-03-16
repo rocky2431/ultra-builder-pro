@@ -1,0 +1,42 @@
+{
+  "session_id": "156b5858-1f9c-44d8-834b-3da3c82a4d30",
+  "project_path": "/Users/rocky243/.claude",
+  "start_time": "2026-02-17T17:10:34.424Z",
+  "duration_minutes": 592,
+  "user_message_count": 6,
+  "assistant_message_count": 0,
+  "tool_counts": {},
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "first_prompt": "No prompt",
+  "user_interruptions": 1,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    1,
+    1,
+    1,
+    11,
+    11,
+    11
+  ],
+  "user_message_timestamps": [
+    "2026-02-17T17:10:38.699Z",
+    "2026-02-17T17:10:38.699Z",
+    "2026-02-17T17:10:40.427Z",
+    "2026-02-18T03:02:08.555Z",
+    "2026-02-18T03:02:08.554Z",
+    "2026-02-18T03:02:08.554Z"
+  ]
+}

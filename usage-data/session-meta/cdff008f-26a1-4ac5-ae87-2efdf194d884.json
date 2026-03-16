@@ -1,0 +1,63 @@
+{
+  "session_id": "cdff008f-26a1-4ac5-ae87-2efdf194d884",
+  "project_path": "/Users/rocky243/paimon.finance/web3studio/apps/api",
+  "start_time": "2026-02-21T20:11:55.485Z",
+  "duration_minutes": 51,
+  "user_message_count": 7,
+  "assistant_message_count": 50,
+  "tool_counts": {
+    "Bash": 2,
+    "Glob": 4,
+    "TaskList": 1,
+    "TaskUpdate": 1,
+    "Task": 4,
+    "Read": 7,
+    "Grep": 3,
+    "Write": 1,
+    "ExitPlanMode": 1
+  },
+  "languages": {
+    "Markdown": 2,
+    "TypeScript": 6
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 3688,
+  "output_tokens": 12311,
+  "first_prompt": "<task-notification> <task-id>b615587</task-id> <tool-use-id>toolu_01T37V3sPtQTjLii76rMEGcF</tool-use-id> <output-file>/private/tmp/claude-501/-Users-rocky243-paimon-finance-web3studio/tasks/b615587.ou…",
+  "user_interruptions": 1,
+  "user_response_times": [
+    1780.531,
+    51.807,
+    84.372
+  ],
+  "tool_errors": 1,
+  "tool_error_categories": {
+    "User Rejected": 1
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 363,
+  "lines_removed": 0,
+  "files_modified": 1,
+  "message_hours": [
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    5
+  ],
+  "user_message_timestamps": [
+    "2026-02-21T20:11:55.485Z",
+    "2026-02-21T20:13:07.674Z",
+    "2026-02-21T20:13:13.375Z",
+    "2026-02-21T20:13:18.828Z",
+    "2026-02-21T20:43:06.013Z",
+    "2026-02-21T20:49:30.918Z",
+    "2026-02-21T21:02:58.612Z"
+  ]
+}

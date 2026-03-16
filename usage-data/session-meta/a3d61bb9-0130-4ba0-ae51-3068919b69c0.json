@@ -1,0 +1,54 @@
+{
+  "session_id": "a3d61bb9-0130-4ba0-ae51-3068919b69c0",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/anima",
+  "start_time": "2026-02-21T12:41:18.850Z",
+  "duration_minutes": 55,
+  "user_message_count": 4,
+  "assistant_message_count": 236,
+  "tool_counts": {
+    "Task": 5,
+    "TaskCreate": 10,
+    "TaskUpdate": 25,
+    "Read": 35,
+    "Edit": 36,
+    "Glob": 2,
+    "Grep": 24,
+    "Bash": 5,
+    "Write": 3,
+    "EnterPlanMode": 1
+  },
+  "languages": {
+    "TypeScript": 68
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 8700,
+  "output_tokens": 20078,
+  "first_prompt": "Implement the following plan:  # Anima 完整功能交付修复计划  ## Context  **问题**: 审计发现项目后端包实现质量高(~95%)，但前后端闭环可用性仅~58%。核心问题不在于代码质量，而在于**集成布线断裂** — 已实现的模块未连接到运行进程、关键输入使用硬编码桩、前端 store 未初始化。  **目标**: 将 INTEGRATION_P…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    1102.696,
+    220.354
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 704,
+  "lines_removed": 41,
+  "files_modified": 9,
+  "message_hours": [
+    20,
+    20,
+    21,
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-02-21T12:41:18.823Z",
+    "2026-02-21T12:57:46.048Z",
+    "2026-02-21T13:19:56.930Z",
+    "2026-02-21T13:36:05.409Z"
+  ]
+}

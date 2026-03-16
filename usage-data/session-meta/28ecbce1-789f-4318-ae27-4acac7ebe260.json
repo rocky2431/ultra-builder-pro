@@ -1,0 +1,44 @@
+{
+  "session_id": "28ecbce1-789f-4318-ae27-4acac7ebe260",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you/backend",
+  "start_time": "2026-02-12T02:20:29.453Z",
+  "duration_minutes": 0,
+  "user_message_count": 6,
+  "assistant_message_count": 13,
+  "tool_counts": {
+    "TaskOutput": 4
+  },
+  "languages": {},
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 21,
+  "output_tokens": 63,
+  "first_prompt": "<task-notification> <task-id>a8c900e</task-id> <status>completed</status> <summary>Agent \"Analyze test coverage gaps\" completed</summary> <result>Good. Now I have the full picture. Let me analyze ever…",
+  "user_interruptions": 0,
+  "user_response_times": [],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": false,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 0,
+  "lines_removed": 0,
+  "files_modified": 0,
+  "message_hours": [
+    10,
+    10,
+    10,
+    10,
+    10,
+    10
+  ],
+  "user_message_timestamps": [
+    "2026-02-12T02:20:29.453Z",
+    "2026-02-12T02:20:38.624Z",
+    "2026-02-12T02:20:38.762Z",
+    "2026-02-12T02:20:38.881Z",
+    "2026-02-12T02:20:39.009Z",
+    "2026-02-12T02:20:39.136Z"
+  ]
+}

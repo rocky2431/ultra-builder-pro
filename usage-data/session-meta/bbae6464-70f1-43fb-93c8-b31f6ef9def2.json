@@ -1,0 +1,72 @@
+{
+  "session_id": "bbae6464-70f1-43fb-93c8-b31f6ef9def2",
+  "project_path": "/Users/rocky243/paimon.finance/nft-paimon-frontend",
+  "start_time": "2026-02-16T09:23:54.864Z",
+  "duration_minutes": 168,
+  "user_message_count": 13,
+  "assistant_message_count": 177,
+  "tool_counts": {
+    "Grep": 17,
+    "TaskList": 1,
+    "Task": 10,
+    "TaskUpdate": 20,
+    "Read": 22,
+    "Bash": 7,
+    "Glob": 1,
+    "TaskCreate": 10,
+    "Edit": 3,
+    "Write": 1
+  },
+  "languages": {
+    "TypeScript": 25,
+    "Markdown": 1
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 3404,
+  "output_tokens": 6579,
+  "first_prompt": "<task-notification> <task-id>acd6d22</task-id> <status>completed</status> <summary>Agent \"Replace borderRadius in presale/ files\" completed</summary> <result>All 8 files have the import. Here is a sum…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    505.203
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 43,
+  "lines_removed": 5,
+  "files_modified": 3,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    18,
+    20
+  ],
+  "user_message_timestamps": [
+    "2026-02-16T09:23:54.864Z",
+    "2026-02-16T09:39:37.971Z",
+    "2026-02-16T09:39:55.797Z",
+    "2026-02-16T09:40:05.143Z",
+    "2026-02-16T09:40:09.633Z",
+    "2026-02-16T09:40:14.330Z",
+    "2026-02-16T09:40:18.997Z",
+    "2026-02-16T09:40:23.691Z",
+    "2026-02-16T09:40:28.301Z",
+    "2026-02-16T09:40:32.414Z",
+    "2026-02-16T09:49:02.044Z",
+    "2026-02-16T10:00:54.973Z",
+    "2026-02-16T12:04:45.209Z"
+  ]
+}

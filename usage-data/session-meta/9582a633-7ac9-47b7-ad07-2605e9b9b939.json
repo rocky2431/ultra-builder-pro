@@ -1,0 +1,64 @@
+{
+  "session_id": "9582a633-7ac9-47b7-ad07-2605e9b9b939",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you/backend",
+  "start_time": "2026-02-13T09:16:05.447Z",
+  "duration_minutes": 253,
+  "user_message_count": 8,
+  "assistant_message_count": 118,
+  "tool_counts": {
+    "TaskList": 1,
+    "Read": 5,
+    "Edit": 25,
+    "Task": 4,
+    "Bash": 20,
+    "Grep": 3,
+    "TaskUpdate": 9,
+    "AskUserQuestion": 1
+  },
+  "languages": {
+    "Python": 23,
+    "JSON": 2,
+    "Markdown": 5
+  },
+  "git_commits": 2,
+  "git_pushes": 1,
+  "input_tokens": 23606,
+  "output_tokens": 7461,
+  "first_prompt": "<task-notification> <task-id>abd6bfd</task-id> <status>completed</status> <summary>Agent \"Code review for file tool\" completed</summary> <result>Good. Now I have all the context needed for the review.…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    3.564
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "Other": 1,
+    "Command Failed": 2
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 252,
+  "lines_removed": 51,
+  "files_modified": 4,
+  "message_hours": [
+    17,
+    17,
+    17,
+    17,
+    17,
+    21,
+    21,
+    21
+  ],
+  "user_message_timestamps": [
+    "2026-02-13T09:16:05.447Z",
+    "2026-02-13T09:38:18.270Z",
+    "2026-02-13T09:38:29.723Z",
+    "2026-02-13T09:38:39.189Z",
+    "2026-02-13T09:38:49.309Z",
+    "2026-02-13T13:29:20.702Z",
+    "2026-02-13T13:29:20.702Z",
+    "2026-02-13T13:29:20.702Z"
+  ]
+}

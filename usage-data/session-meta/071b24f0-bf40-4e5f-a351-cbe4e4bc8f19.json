@@ -1,0 +1,40 @@
+{
+  "session_id": "071b24f0-bf40-4e5f-a351-cbe4e4bc8f19",
+  "project_path": "/Users/rocky243/paimon.finance/paimon-banckend",
+  "start_time": "2026-03-12T03:13:55.571Z",
+  "duration_minutes": 23,
+  "user_message_count": 5,
+  "assistant_message_count": 99,
+  "tool_counts": {
+    "Grep": 13,
+    "Read": 13,
+    "ToolSearch": 2,
+    "mcp__Railway__get-logs": 1,
+    "Agent": 2,
+    "Glob": 2,
+    "Write": 5,
+    "Bash": 11,
+    "Edit": 7,
+    "mcp__Railway__list-variables": 1
+  },
+  "languages": {
+    "Python": 20
+  },
+  "git_commits": 0,
+  "git_pushes": 0,
+  "input_tokens": 133,
+  "output_tokens": 44463,
+  "first_prompt": "这是什么情况 为什么失败了",
+  "user_interruptions": 0,
+  "user_response_times": [
+    153.156,
+    71.299,
+    84.791,
+    63.711
+  ],
+  "tool_errors": 3,
+  "tool_error_categories": {
+    "Command Failed": 3
+  },
+  "uses_task_agent": true,
+  "use

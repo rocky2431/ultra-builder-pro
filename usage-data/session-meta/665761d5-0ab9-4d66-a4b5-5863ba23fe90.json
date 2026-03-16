@@ -1,0 +1,69 @@
+{
+  "session_id": "665761d5-0ab9-4d66-a4b5-5863ba23fe90",
+  "project_path": "/Users/rocky243/testing-project/the-ai-you",
+  "start_time": "2026-02-15T05:48:11.465Z",
+  "duration_minutes": 140,
+  "user_message_count": 12,
+  "assistant_message_count": 80,
+  "tool_counts": {
+    "Read": 7,
+    "Edit": 5,
+    "Grep": 2,
+    "Task": 4,
+    "TaskOutput": 3,
+    "Bash": 14
+  },
+  "languages": {
+    "Python": 3,
+    "TypeScript": 9
+  },
+  "git_commits": 2,
+  "git_pushes": 2,
+  "input_tokens": 20042,
+  "output_tokens": 1813,
+  "first_prompt": "需要的",
+  "user_interruptions": 0,
+  "user_response_times": [
+    107.554,
+    2370.731,
+    55.902,
+    102.179
+  ],
+  "tool_errors": 0,
+  "tool_error_categories": {},
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 5,
+  "lines_removed": 5,
+  "files_modified": 4,
+  "message_hours": [
+    13,
+    13,
+    13,
+    13,
+    13,
+    14,
+    14,
+    14,
+    14,
+    14,
+    14,
+    16
+  ],
+  "user_message_timestamps": [
+    "2026-02-15T05:48:11.465Z",
+    "2026-02-15T05:50:13.388Z",
+    "2026-02-15T05:51:13.646Z",
+    "2026-02-15T05:54:43.079Z",
+    "2026-02-15T05:55:11.142Z",
+    "2026-02-15T06:34:47.887Z",
+    "2026-02-15T06:35:49.531Z",
+    "2026-02-15T06:37:01.655Z",
+    "2026-02-15T06:37:07.192Z",
+    "2026-02-15T06:38:57.474Z",
+    "2026-02-15T06:40:58.703Z",
+    "2026-02-15T08:07:45.624Z"
+  ]
+}

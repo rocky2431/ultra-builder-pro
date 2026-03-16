@@ -1,0 +1,15 @@
+{
+  "underlying_goal": "User ran a local /context command to check token usage; no actual request was made to Claude",
+  "goal_categories": {
+    "warmup_minimal": 1
+  },
+  "outcome": "unclear_from_transcript",
+  "user_satisfaction_counts": {},
+  "claude_helpfulness": "unhelpful",
+  "session_type": "single_task",
+  "friction_counts": {},
+  "friction_detail": "",
+  "primary_success": "none",
+  "brief_summary": "User only ran a local /context command to check token usage; no interaction with Claude occurred.",
+  "session_id": "8c72897b-62ac-4888-9d6d-fa2b89c52722"
+}

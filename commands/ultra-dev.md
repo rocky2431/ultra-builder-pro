@@ -220,14 +220,14 @@ Before launching ultra-review:
 
 #### Phase 1: Run /ultra-review
 
-Execute the ultra-review skill in `all` mode (force all 6 agents, no auto-skip):
+Execute the ultra-review skill in `all` mode (force all 5 agents, no auto-skip):
 
 ```
 /ultra-review all
 ```
 
 This automatically:
-1. Launches 6 specialized review agents in parallel (review-code, review-tests, review-errors, review-types, review-comments, review-simplify)
+1. Launches 5 specialized review agents in parallel (review-code, review-tests, review-errors, review-comments, review-design)
 2. Aggregates and deduplicates findings via review-coordinator
 3. Generates SUMMARY.json with verdict (APPROVE / COMMENT / REQUEST_CHANGES)
 4. Reports top findings to conversation

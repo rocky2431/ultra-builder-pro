@@ -1,0 +1,70 @@
+{
+  "session_id": "25b4f65c-721f-4d9d-9246-e749c638ae14",
+  "project_path": "/Users/rocky243/testing-project/aiGFproject/the-ai-U",
+  "start_time": "2026-02-23T19:56:31.038Z",
+  "duration_minutes": 506,
+  "user_message_count": 6,
+  "assistant_message_count": 240,
+  "tool_counts": {
+    "Bash": 40,
+    "Read": 65,
+    "Glob": 3,
+    "TeamCreate": 1,
+    "TaskCreate": 4,
+    "TaskUpdate": 9,
+    "Task": 2,
+    "TaskOutput": 2,
+    "Edit": 23,
+    "Write": 12,
+    "Grep": 3,
+    "SendMessage": 2,
+    "TeamDelete": 1
+  },
+  "languages": {
+    "TypeScript": 81,
+    "JSON": 6,
+    "YAML": 2,
+    "Shell": 1,
+    "Markdown": 4
+  },
+  "git_commits": 2,
+  "git_pushes": 1,
+  "input_tokens": 270,
+  "output_tokens": 10643,
+  "first_prompt": "Implement the following plan:  # the-ai-U Phase 5-8: 全面提升计划  ## Context  Phase 0-4 已完成，解决了全部 7 个 P0 致命差距和 9/12 个 P1 重要差距。当前 619 测试全部通过 (542 前端 + 77 后端)。  **本计划范围**: 补齐剩余差距，提升生产就绪度。 **排除项**: 跨平台、Live2D…",
+  "user_interruptions": 0,
+  "user_response_times": [
+    46.333,
+    87.759,
+    87.756,
+    87.756
+  ],
+  "tool_errors": 5,
+  "tool_error_categories": {
+    "Other": 3,
+    "Command Failed": 2
+  },
+  "uses_task_agent": true,
+  "uses_mcp": false,
+  "uses_web_search": false,
+  "uses_web_fetch": false,
+  "lines_added": 585,
+  "lines_removed": 21,
+  "files_modified": 23,
+  "message_hours": [
+    3,
+    12,
+    12,
+    12,
+    12,
+    12
+  ],
+  "user_message_timestamps": [
+    "2026-02-23T19:56:31.015Z",
+    "2026-02-24T04:18:24.457Z",
+    "2026-02-24T04:20:35.356Z",
+    "2026-02-24T04:22:16.180Z",
+    "2026-02-24T04:22:16.177Z",
+    "2026-02-24T04:22:16.177Z"
+  ]
+}
