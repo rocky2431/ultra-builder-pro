@@ -139,10 +139,19 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 | Test execution | tdd-runner |
 | Bug diagnosis | debugger |
 
-**12 agents**: 5 interactive (smart-contract-specialist/auditor, code-reviewer, tdd-runner, debugger) + 7 pipeline (review-code/tests/errors/types/comments/simplify + coordinator)
+**11 agents**: 5 interactive (smart-contract-specialist/auditor, code-reviewer, tdd-runner, debugger) + 6 pipeline (review-code/tests/errors/design/comments + coordinator)
 **All agents**: persistent memory — consult and update each session
 **Skills**: User: ultra-review | Agent-only: testing-rules, security-rules, code-review-expert, integration-rules
 **Hooks**: code quality, mock detection, security scan, branch protection, dangerous command blocking, subagent lifecycle, review gate
+
+**Agent Teams vs Subagents**:
+| Scenario | Agent Teams (TeamCreate) | Subagents (Agent tool) |
+|----------|--------------------------|------------------------|
+| Multi-dimensional parallel analysis with inter-agent communication | ✅ | ❌ |
+| User says "team/teammates/collaborate/multi-agent/团队/协作" | ✅ | ❌ |
+| Review pipeline (/ultra-review) | ❌ (4-6x costlier) | ✅ |
+| Single-purpose research/search/analysis | ❌ | ✅ |
+Workflow: TeamCreate → TaskCreate → Agent(team_name+name) → SendMessage → TeamDelete
 </agent_system>
 
 <data_persistence>

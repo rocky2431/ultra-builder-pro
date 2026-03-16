@@ -106,9 +106,8 @@ Select all applicable agents based on diff content:
 | review-code | Never skip | - |
 | review-tests | No test files in diff AND no source files without tests | WARN: "Code changed without test updates" |
 | review-errors | No error handling code detected | - |
-| review-types | No type definitions in diff | - |
+| review-design | No type definitions AND no function-level changes in diff | - |
 | review-comments | No comment changes in diff | - |
-| review-simplify | No function-level changes | - |
 
 **Auto-skip detection commands:**
 ```bash
@@ -162,8 +161,8 @@ After writing the JSON file, output one line: "Wrote N findings (P0:X P1:X P2:X 
 
 **Important**: Set `run_in_background: true` on every Task call. Do NOT read TaskOutput — this avoids injecting agent results into main context.
 
-Maximum 15 findings per agent. If you find more, report only the top 15 by severity (P0 first),
-then confidence. Note total count in your output line: "Wrote 15/23 findings..."
+Maximum 12 findings per agent. If you find more, report only the top 12 by severity (P0 first),
+then confidence. Note total count in your output line: "Wrote 12/23 findings..."
 
 **CRITICAL PROHIBITION**: After launching background agents, you MUST:
 1. Call `review_wait.py` IMMEDIATELY — do NOT process idle notifications
@@ -427,9 +426,8 @@ This skill integrates with the TDD workflow:
   │   ├── review-code.json
   │   ├── review-tests.json
   │   ├── review-errors.json
-  │   ├── review-types.json
+  │   ├── review-design.json
   │   ├── review-comments.json
-  │   ├── review-simplify.json
   │   ├── SUMMARY.json
   │   └── SUMMARY.md
   └── 20260214-113000-feat-task-3-auth-iter2/       # Recheck after fixes

@@ -6,7 +6,7 @@ description: |
 tools: Read, Grep, Glob, Bash, Write
 model: opus
 memory: project
-maxTurns: 25
+maxTurns: 18
 skills:
   - testing-rules
 ---

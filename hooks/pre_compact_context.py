@@ -23,6 +23,41 @@ GIT_TIMEOUT = 3
 COMPACT_MARKER = f".claude_compact_ts_{os.getuid()}"
 
 
+def get_active_subagents() -> list:
+    """Read subagent-log.jsonl and find agents that started but never stopped."""
+    try:
+        log_dir = Path.cwd() / ".ultra" / "debug"
+        log_file = log_dir / "subagent-log.jsonl"
+        if not log_file.exists():
+            log_file = Path.home() / ".claude" / "debug" / "subagent-log.jsonl"
+        if not log_file.exists():
+            return []
+
+        started = {}
+        stopped = set()
+        for line in log_file.read_text(encoding="utf-8").splitlines()[-100:]:
+            try:
+                entry = json.loads(line)
+                aid = entry.get("agent_id", "")
+                if entry.get("event") == "subagent_start":
+                    started[aid] = entry
+                elif entry.get("event") == "subagent_stop":
+                    stopped.add(aid)
+            except (json.JSONDecodeError, ValueError):
+                continue
+
+        active = []
+        for aid, entry in started.items():
+            if aid not in stopped:
+                active.append({
+                    "agent_id": aid,
+                    "agent_type": entry.get("agent_type", "unknown"),
+                })
+        return active[-5:]  # max 5 to keep snapshot small
+    except OSError:
+        return []
+
+
 def get_git_context():
     """Get git state: branch, recent commits, modified files."""
     ctx = {}
@@ -180,6 +215,15 @@ def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp, snapshot_path)
         if workflow.get('review_session'):
             lines.append(f"- Review: {workflow['review_session']}")
         lines.append(f"- Resume: Read `.ultra/workflow-state.json` and skip to step {workflow.get('step', '?')}")
+        lines.append("")
+
+    # Inject active subagent status
+    active_subagents = get_active_subagents()
+    if active_subagents:
+        lines.append("## Active Subagents")
+        lines.append("These subagents were running at compact time:")
+        for sa in active_subagents:
+            lines.append(f"- {sa['agent_type']} (id: {sa['agent_id'][:12]}...)")
         lines.append("")
 
     # Inject branch-relevant session memory

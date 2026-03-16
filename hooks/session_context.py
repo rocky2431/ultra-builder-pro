@@ -180,6 +180,52 @@ def get_branch_memory(branch: str) -> list:
     return []
 
 
+def get_semantic_context(source: str) -> list:
+    """Use Chroma semantic search to find related sessions.
+
+    Only activates for startup sessions (not compact) and when there are
+    enough sessions (5+) to make semantic search worthwhile.
+    Adds ~100 tokens. Fails silently.
+    """
+    if source != "startup":
+        return []
+
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        import memory_db
+
+        db_path = memory_db.get_db_path()
+        if not db_path.exists():
+            return []
+
+        conn = memory_db.init_db(db_path)
+        total = conn.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
+        if total < 5:
+            conn.close()
+            return []
+
+        # Use CWD basename as semantic query
+        cwd_name = Path.cwd().name
+        results = memory_db.semantic_search(cwd_name, limit=3, conn=conn)
+        conn.close()
+
+        if not results:
+            return []
+
+        lines = ["Semantically related sessions:"]
+        for s in results:
+            date = s.get("last_active", "")[:10]
+            summary = s.get("summary", "")
+            if summary:
+                short = summary.split("\n")[0].strip()
+                if len(short) > 100:
+                    short = short[:97] + "..."
+                lines.append(f"  - [{date}] {short}")
+        return lines if len(lines) > 1 else []
+    except Exception:
+        return []
+
+
 def main():
     try:
         input_data = sys.stdin.read()
@@ -231,6 +277,12 @@ def main():
         context_lines.append("")
         context_lines.append("Related sessions on this branch:")
         context_lines.extend(branch_mem)
+
+    # Semantic recall (opt-in: only when enough sessions exist)
+    semantic_lines = get_semantic_context(source)
+    if semantic_lines:
+        context_lines.append("")
+        context_lines.extend(semantic_lines)
 
     # Output context for AI
     result = {

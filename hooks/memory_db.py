@@ -594,6 +594,56 @@ def get_session_by_content_id(conn: sqlite3.Connection,
     return dict(row) if row else None
 
 
+def get_subagent_observations(conn: sqlite3.Connection,
+                               session_id: str,
+                               kinds: list | None = None,
+                               limit: int = 20) -> list:
+    """Get observations from the current session, useful for subagent context.
+
+    Allows a subagent to see what the main agent (or prior subagents)
+    have done: file edits, test results, etc.
+    """
+    if kinds:
+        placeholders = ",".join("?" for _ in kinds)
+        rows = conn.execute(
+            f"SELECT kind, title, detail, tool_name, files, created_at "
+            f"FROM observations WHERE session_id = ? AND kind IN ({placeholders}) "
+            f"ORDER BY created_at DESC LIMIT ?",
+            (session_id, *kinds, limit)
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT kind, title, detail, tool_name, files, created_at "
+            "FROM observations WHERE session_id = ? "
+            "ORDER BY created_at DESC LIMIT ?",
+            (session_id, limit)
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_session_context_for_subagent(conn: sqlite3.Connection,
+                                     content_session_id: str) -> dict | None:
+    """Get session context suitable for injection into subagent prompts.
+
+    Returns session info + recent observations for cross-agent awareness.
+    """
+    row = conn.execute(
+        "SELECT id, branch, initial_request FROM sessions "
+        "WHERE content_session_id = ? LIMIT 1",
+        (content_session_id,)
+    ).fetchone()
+    if not row:
+        return None
+
+    obs = get_subagent_observations(conn, row["id"], limit=10)
+    return {
+        "session_id": row["id"],
+        "branch": row["branch"],
+        "initial_request": row["initial_request"] or "",
+        "recent_observations": obs,
+    }
+
+
 def get_stats(conn: sqlite3.Connection) -> dict:
     """Get memory database statistics."""
     total = conn.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]

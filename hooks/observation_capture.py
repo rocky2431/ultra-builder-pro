@@ -69,10 +69,6 @@ def main():
     # Resolve internal session ID from content_session_id
     try:
         db_path = memory_db.get_db_path()
-        if not db_path.exists():
-            print(json.dumps({}))
-            return
-
         conn = memory_db.init_db(db_path)
 
         # Find our session by content_session_id
@@ -82,11 +78,20 @@ def main():
         ).fetchone()
 
         if not row:
-            conn.close()
-            print(json.dumps({}))
-            return
-
-        internal_id = row["id"]
+            # Create minimal session shell so observations are not lost.
+            # Stop hook's upsert_session will merge via content_session_id.
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc)
+            internal_id = now.strftime("%Y%m%d-%H%M%S") + f"-{now.microsecond // 1000:03d}"
+            conn.execute(
+                "INSERT OR IGNORE INTO sessions "
+                "(id, started_at, last_active, content_session_id) "
+                "VALUES (?, ?, ?, ?)",
+                (internal_id, now.isoformat(), now.isoformat(), session_id)
+            )
+            conn.commit()
+        else:
+            internal_id = row["id"]
 
         # Check observation count cap
         count = conn.execute(
