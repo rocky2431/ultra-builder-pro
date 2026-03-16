@@ -424,17 +424,28 @@ def main():
         print(json.dumps({}))
         return
 
-    # Build block message with actionable review suggestions
-    lines = [
-        f"[Pre-Stop Check] {len(code_files)} code file(s) changed but not reviewed:",
-    ]
-    for f in code_files[:8]:
-        lines.append(f"  - {f}")
-    if len(code_files) > 8:
-        lines.append(f"  ... and {len(code_files) - 8} more")
+    # Filter out config-only changes (settings.json, .json configs, .md docs)
+    config_only_extensions = {'.json', '.md', '.yml', '.yaml', '.toml'}
+    source_files = [f for f in code_files
+                    if os.path.splitext(f)[1].lower() not in config_only_extensions]
+
+    # Config-only changes → don't block
+    if not source_files:
+        print(json.dumps({}))
+        return
 
     # Layer 3: Detect security-sensitive files
-    security_files = detect_security_files(code_files)
+    security_files = detect_security_files(source_files)
+
+    # Build block message with SPECIFIC review recommendation
+    lines = [
+        f"[Pre-Stop Check] {len(source_files)} source file(s) changed but not reviewed:",
+    ]
+    for f in source_files[:8]:
+        lines.append(f"  - {f}")
+    if len(source_files) > 8:
+        lines.append(f"  ... and {len(source_files) - 8} more")
+
     if security_files:
         lines.append("")
         lines.append(f"[Security] {len(security_files)} security-sensitive file(s) detected:")
@@ -449,9 +460,11 @@ def main():
 
     lines.append("")
     if security_files:
-        lines.append("Run code-reviewer agent for security review before stopping.")
+        lines.append("Action: Run code-reviewer agent for security review.")
+    elif len(source_files) >= 5:
+        lines.append("Action: Run /ultra-review (5+ source files changed).")
     else:
-        lines.append("Consider running /ultra-review or code-reviewer agent.")
+        lines.append("Action: Run code-reviewer agent.")
 
     block_stop(session_id, "\n".join(lines))
 
