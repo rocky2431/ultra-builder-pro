@@ -88,13 +88,13 @@ All review agents MUST output findings in this exact format. No deviations.
 |-------|---------|
 | `security` | review-code, review-errors |
 | `error-handling` | review-errors, review-code |
-| `code-quality` | review-code, review-simplify |
+| `code-quality` | review-code, review-design |
 | `test-quality` | review-tests |
-| `type-design` | review-types |
+| `type-design` | review-design |
 | `comments` | review-comments |
-| `simplification` | review-simplify |
-| `performance` | review-code, review-simplify |
-| `architecture` | review-code, review-types |
+| `simplification` | review-design |
+| `performance` | review-code, review-design |
+| `architecture` | review-code, review-design |
 | `integration` | review-code |
 | `forbidden-pattern` | review-code, review-tests, review-comments |
 

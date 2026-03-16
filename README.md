@@ -142,9 +142,8 @@ Used exclusively by `/ultra-review`. Each agent writes JSON findings to `.ultra/
 | `review-code` | CLAUDE.md compliance, code quality, architecture, integration | `review-code.json` |
 | `review-tests` | Test quality, mock violations, coverage gaps | `review-tests.json` |
 | `review-errors` | Silent failures, empty catches, swallowed errors | `review-errors.json` |
-| `review-types` | Type design, encapsulation, domain modeling | `review-types.json` |
+| `review-design` | Type design, encapsulation, complexity analysis | `review-design.json` |
 | `review-comments` | Stale, misleading, or low-value comments | `review-comments.json` |
-| `review-simplify` | Complexity hotspots, simplification opportunities | `review-simplify.json` |
 | `review-coordinator` | Aggregate, deduplicate, generate SUMMARY | `SUMMARY.md` + `SUMMARY.json` |
 
 **Verdict Logic**: P0 > 0 = REQUEST_CHANGES | P1 > 3 = REQUEST_CHANGES | P1 > 0 = COMMENT | else APPROVE
@@ -481,9 +480,8 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- review-code.md               # Pipeline (ultra-review)
 |   |-- review-tests.md              # Pipeline (ultra-review)
 |   |-- review-errors.md             # Pipeline (ultra-review)
-|   |-- review-types.md              # Pipeline (ultra-review)
+|   |-- review-design.md             # Pipeline (ultra-review, merged types+simplify)
 |   |-- review-comments.md           # Pipeline (ultra-review)
-|   |-- review-simplify.md           # Pipeline (ultra-review)
 |   |-- review-coordinator.md        # Pipeline (ultra-review)
 |
 |-- .ultra/                   # Project-level output (in each project, gitignored)
@@ -761,7 +759,7 @@ Multi-step tasks use the Task system:
 **Enhanced Files** (9):
 - `commands/ultra-dev.md`, `skills/ultra-review/SKILL.md`, `hooks/post_edit_guard.py`
 - `skills/ultra-review/scripts/review_wait.py`, `hooks/pre_compact_context.py`
-- `agents/review-errors.md`, `agents/review-types.md`, `agents/review-comments.md`, `agents/review-simplify.md`
+- `agents/review-errors.md`, `agents/review-design.md`, `agents/review-comments.md`
 
 ### v5.8.0 (2026-02-20) - AI Summarization + Vector Search
 
@@ -894,9 +892,8 @@ Multi-step tasks use the Task system:
 - `review-code`: CLAUDE.md compliance, code quality, architecture
 - `review-tests`: Test quality, mock violations, coverage gaps
 - `review-errors`: Silent failures, empty catches, swallowed errors
-- `review-types`: Type design, encapsulation, domain modeling
+- `review-design`: Type design, encapsulation, complexity analysis (merged types+simplify)
 - `review-comments`: Stale, misleading, or low-value comments
-- `review-simplify`: Complexity hotspots, simplification suggestions
 - `review-coordinator`: Aggregate findings, deduplicate, generate SUMMARY
 
 **New Skill: `/ultra-review`**:
