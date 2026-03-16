@@ -460,11 +460,11 @@ def main():
 
     lines.append("")
     if security_files:
-        lines.append("Action: Run code-reviewer agent for security review.")
+        lines.append("Action: Run /ultra-review security")
     elif len(source_files) >= 5:
-        lines.append("Action: Run /ultra-review (5+ source files changed).")
+        lines.append("Action: Run /ultra-review")
     else:
-        lines.append("Action: Run code-reviewer agent.")
+        lines.append("Action: Run /ultra-review quick")
 
     block_stop(session_id, "\n".join(lines))
 
