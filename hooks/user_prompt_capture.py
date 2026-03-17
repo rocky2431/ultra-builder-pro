@@ -9,6 +9,7 @@ Execution target: < 50ms (single DB write, no AI processing).
 """
 
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,6 +36,11 @@ def main():
         return
 
     if not isinstance(data, dict):
+        print(json.dumps({}))
+        return
+
+    # Skip when running inside AI summarize daemon (prevents ghost sessions)
+    if os.environ.get("ULTRA_AI_DAEMON") == "1":
         print(json.dumps({}))
         return
 

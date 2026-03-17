@@ -52,6 +52,11 @@ def main():
         print(json.dumps({}))
         return
 
+    # Skip when running inside AI summarize daemon (prevents ghost sessions)
+    if os.environ.get("ULTRA_AI_DAEMON") == "1":
+        print(json.dumps({}))
+        return
+
     tool_name = data.get("tool_name", "")
     tool_input = data.get("tool_input", {})
     tool_output = data.get("tool_output", {})

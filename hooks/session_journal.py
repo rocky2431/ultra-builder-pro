@@ -436,6 +436,7 @@ def _try_claude_cli(prompt: str) -> str:
         env = {k: v for k, v in os.environ.items()
                if k in DAEMON_ENV_WHITELIST}
         env.setdefault("PATH", "/usr/bin:/usr/local/bin")
+        env["ULTRA_AI_DAEMON"] = "1"
 
         result = subprocess.run(
             ["claude", "-p", "--model", AI_MODEL_CLI,
@@ -463,6 +464,11 @@ def main():
         pass
 
     hook_data = parse_hook_input(raw_input)
+
+    # Skip when running inside AI summarize daemon (prevents ghost sessions)
+    if os.environ.get("ULTRA_AI_DAEMON") == "1":
+        print(json.dumps({}))
+        return
 
     # v2: skip DB write entirely on re-trigger (root cause of stop_count=4306)
     is_retrigger = hook_data.get("stop_hook_active", False)
