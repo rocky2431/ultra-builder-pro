@@ -71,6 +71,7 @@ def is_in_comment(line_content):
 CODE_QUALITY_EXT = {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.py', '.go', '.rs', '.java'}
 MOCK_DETECTOR_EXT = {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'}
 SECURITY_EXT = {'.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.py', '.go', '.rs', '.java', '.rb', '.php'}
+TDD_SOURCE_EXT = {'.ts', '.tsx', '.js', '.jsx', '.py', '.go', '.rs', '.java', '.rb'}
 ALL_CODE_EXT = CODE_QUALITY_EXT | SECURITY_EXT
 
 
@@ -276,6 +277,78 @@ def check_security(file_path, content, lines):
     return critical, []
 
 
+# -- Checker: TDD Test File Pairing --
+
+# Directories that indicate source code (not config, not generated)
+_SOURCE_DIRS = {'src', 'lib', 'app', 'pkg', 'internal', 'services', 'domain', 'core', 'modules'}
+
+# Test file search patterns per language
+_TEST_PATTERNS = {
+    '.ts': ['.test.ts', '.spec.ts', '_test.ts'],
+    '.tsx': ['.test.tsx', '.spec.tsx'],
+    '.js': ['.test.js', '.spec.js', '_test.js'],
+    '.jsx': ['.test.jsx', '.spec.jsx'],
+    '.py': ['_test.py', 'test_'],
+    '.go': ['_test.go'],
+    '.rs': [],  # Rust tests are inline (#[cfg(test)])
+    '.java': ['Test.java'],
+    '.rb': ['_test.rb', '_spec.rb'],
+}
+
+
+def check_test_file_exists(file_path):
+    """Check if a source file has a corresponding test file. Returns warning string or None."""
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext not in TDD_SOURCE_EXT:
+        return None
+
+    # Skip test files, config files, generated files, hook files
+    if is_test_file(file_path) or is_config_file(file_path):
+        return None
+    if is_generated_file(file_path) or is_hook_file(file_path):
+        return None
+
+    # Skip files not in recognizable source directories
+    path_parts = file_path.replace('\\', '/').lower().split('/')
+    if not any(d in path_parts for d in _SOURCE_DIRS):
+        return None
+
+    # Rust uses inline tests - skip
+    if ext == '.rs':
+        return None
+
+    basename = os.path.splitext(os.path.basename(file_path))[0]
+    dirpath = os.path.dirname(file_path)
+    patterns = _TEST_PATTERNS.get(ext, [])
+
+    # Search in same dir, test/ sibling, tests/ sibling, __tests__/ sibling
+    search_dirs = [dirpath]
+    parent = os.path.dirname(dirpath)
+    for test_dir_name in ['test', 'tests', '__tests__', 'spec']:
+        candidate = os.path.join(parent, test_dir_name)
+        if os.path.isdir(candidate):
+            search_dirs.append(candidate)
+        # Also check test dir mirroring source structure
+        rel = os.path.relpath(dirpath, parent)
+        candidate_mirror = os.path.join(parent, test_dir_name, rel)
+        if os.path.isdir(candidate_mirror):
+            search_dirs.append(candidate_mirror)
+
+    for search_dir in search_dirs:
+        for pat in patterns:
+            if ext == '.py' and pat == 'test_':
+                test_path = os.path.join(search_dir, f"test_{basename}.py")
+            elif ext == '.java':
+                test_path = os.path.join(search_dir, f"{basename}Test.java")
+            else:
+                test_path = os.path.join(search_dir, f"{basename}{pat}")
+            if os.path.exists(test_path):
+                return None
+
+    fname = os.path.basename(file_path)
+    return f"[TDD] No test file found for {fname}"
+
+
 # -- Output Formatting --
 
 def _fmt_code_quality(file_path, blocks, warnings):
@@ -393,6 +466,13 @@ def main():
             all_issues.extend(section)
         if sec_critical:
             has_blocks = True
+
+    # 4. TDD test file pairing (source files only, warn not block)
+    tdd_warning = check_test_file_exists(file_path)
+    if tdd_warning:
+        if all_issues:
+            all_issues.append("")
+        all_issues.append(tdd_warning)
 
     if all_issues:
         warning_message = "\n".join(all_issues)

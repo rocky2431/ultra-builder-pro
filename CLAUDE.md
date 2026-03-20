@@ -38,6 +38,8 @@ Functional Core (Pure): Domain Entities, Value Objects, Domain Services, State M
 
 <testing>
 **TDD**: RED → GREEN → REFACTOR (all new code)
+**Workflow**: Write failing test FIRST → verify it fails → write minimal implementation → verify it passes → refactor
+**Test pairing**: Every source file must have a corresponding test file. No implementation ships without tests.
 
 | Layer | Test Type | Mock Strategy |
 |-------|-----------|---------------|
@@ -48,6 +50,7 @@ Functional Core (Pure): Domain Entities, Value Objects, Domain Services, State M
 
 **Coverage**: 80% overall, 100% Functional Core, critical paths for Shell
 **Integration**: Every external boundary use case needs ≥1 real round-trip test
+**Enforcement**: post_edit_guard hook detects missing test files. Run tests before claiming "done".
 </testing>
 
 <forbidden_patterns>
@@ -123,6 +126,17 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 **Alerts**: Error >1% / p99 > SLA / Health fail → immediate
 </observability>
 
+<debugging>
+**4-Phase Methodology** (all bug fixes, not just agent-delegated):
+1. **Root Cause Investigation** (MANDATORY before any fix): Read error completely → reproduce → check recent changes (`git diff`, dependency updates) → trace data flow backward to origin
+2. **Pattern Analysis**: Find working example of similar functionality → compare completely → list every difference
+3. **Hypothesis Testing**: Form single hypothesis ("X because Y") → test smallest change → verify before next hypothesis
+4. **Fix Implementation**: Write failing test capturing bug FIRST → implement single fix at root cause → verify no regressions
+
+**3-Fix Rule**: 3 consecutive fix attempts fail, each revealing new problems → STOP. This is architectural, not a bug. Report to user with evidence.
+**Iron Law**: No fixes without root cause investigation first. "Quick fix for now" = later = never.
+</debugging>
+
 <evidence_honesty>
 **Triggers**: SDK/API mechanics, best practices, "should/recommended" → lookup before asserting
 **Priority**: 1) Repo source 2) Official docs (Context7) 3) Community (Exa)
@@ -131,19 +145,20 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 </evidence_honesty>
 
 <agent_system>
-**Auto-trigger**: `.sol` → smart-contract-specialist + auditor | `/auth/login/password/payment/token/` → code-reviewer (MANDATORY)
+**Recommended trigger**: `/auth/login/password/payment/token/` → code-reviewer | `.sol` → smart-contract-specialist + auditor
 
-| Task | Agent |
-|------|-------|
-| Interactive review | code-reviewer |
-| Pipeline review | /ultra-review (6 agents + coordinator → JSON) |
-| Test execution | tdd-runner |
-| Bug diagnosis | debugger |
+| Task | Agent | When to Use |
+|------|-------|-------------|
+| Interactive review | code-reviewer | After code changes, before commit. Fix-First mode for auto-fix. |
+| Pipeline review | /ultra-review | Full audit: 6 agents + coordinator → JSON. User-initiated. |
+| Test execution (escalation) | tdd-runner | ONLY when test output exceeds ~200 lines and needs context isolation. Main agent runs tests directly for normal cases. |
+| Deep debugging (escalation) | debugger | ONLY after 3+ failed fix attempts or when bug spans multiple components. Main agent handles routine debugging using `<debugging>` methodology. |
 
 **11 agents**: 5 interactive (smart-contract-specialist/auditor, code-reviewer, tdd-runner, debugger) + 6 pipeline (review-code/tests/errors/design/comments + coordinator)
+**Daily workflow**: Main agent follows `<testing>` TDD workflow and `<debugging>` methodology directly. Agents are for escalation, not routine work (Anthropic principle: "do the simplest thing that works").
 **All agents**: persistent memory — consult and update each session
 **Skills**: User: ultra-review | Agent-only: testing-rules, security-rules, code-review-expert, integration-rules
-**Hooks**: code quality, mock detection, security scan, branch protection, dangerous command blocking, subagent lifecycle, review gate
+**Hooks**: code quality, mock detection, security scan, test file pairing, dangerous command blocking, subagent lifecycle, review gate
 
 **Agent Teams vs Subagents**:
 | Scenario | Agent Teams (TeamCreate) | Subagents (Agent tool) |
