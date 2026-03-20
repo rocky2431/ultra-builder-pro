@@ -1,4 +1,4 @@
-# Ultra Builder Pro 6.4.0
+# Ultra Builder Pro 6.5.0
 
 <div align="center">
 
@@ -6,7 +6,7 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-6.4.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-6.5.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
 [![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
 [![Skills](https://img.shields.io/badge/skills-18-orange)](skills/)
@@ -82,8 +82,8 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 | Command | Purpose | Key Features |
 |---------|---------|--------------|
 | `/ultra-init` | Initialize project | Auto-detect type/stack, copy templates, git setup |
-| `/ultra-research` | Interactive discovery | 5 rounds (Discovery>User>Feature>Architecture>Quality), 90%+ confidence |
-| `/ultra-plan` | Task planning | Dependency analysis, complexity assessment, context files |
+| `/ultra-research` | Interactive discovery | Forcing Questions + 5 rounds (Discovery>User>Feature>Architecture>Quality), 90%+ confidence |
+| `/ultra-plan` | Task planning | Scope Mode (EXPAND/SELECTIVE/HOLD/REDUCE), dependency analysis, complexity assessment |
 | `/ultra-dev` | TDD development | RED>GREEN>REFACTOR, Ultra Review gate, auto git flow |
 | `/ultra-test` | Quality audit | Anti-Pattern, Coverage gaps, E2E, Performance, Security |
 | `/ultra-deliver` | Release preparation | CHANGELOG, build, version bump, tag, push |
@@ -129,7 +129,7 @@ All agents have **project-scoped persistent memory** (`memory: project`) that ac
 |-------|---------|---------|-------|--------|
 | `smart-contract-specialist` | Solidity, gas optimization, secure patterns | .sol files | opus | project |
 | `smart-contract-auditor` | Contract security audit, vulnerability detection | .sol files | opus | project |
-| `code-reviewer` | Code review for quality, security, maintainability | After code changes, pre-commit | opus | project |
+| `code-reviewer` | Code review with Fix-First mode (report or auto-fix) | After code changes, pre-commit | opus | project |
 | `tdd-runner` | Test execution, failure analysis, coverage | "run tests", test suite | opus | project |
 | `debugger` | Root cause analysis, minimal fix implementation | Errors, test failures | opus | project |
 
@@ -139,7 +139,7 @@ Used exclusively by `/ultra-review`. Each agent writes JSON findings to `.ultra/
 
 | Agent | Purpose | Output |
 |-------|---------|--------|
-| `review-code` | CLAUDE.md compliance, code quality, architecture, integration | `review-code.json` |
+| `review-code` | Scope drift detection + CLAUDE.md compliance, code quality, architecture, integration | `review-code.json` |
 | `review-tests` | Test quality, mock violations, coverage gaps | `review-tests.json` |
 | `review-errors` | Silent failures, empty catches, swallowed errors | `review-errors.json` |
 | `review-design` | Type design, encapsulation, complexity analysis | `review-design.json` |
@@ -184,7 +184,7 @@ Used exclusively by `/ultra-review`. Each agent writes JSON findings to `.ultra/
 
 ### Integration with ultra-dev
 
-Step 4.5 of `/ultra-dev` runs `/ultra-review all` (forced full coverage) as a mandatory quality gate before commit. The `pre_stop_check.py` hook also blocks session stop if unresolved P0/P1 issues exist (with marker-based escape hatch on second attempt).
+Step 4.5 of `/ultra-dev` runs `/ultra-review all` (forced full coverage) as a mandatory quality gate before commit. The `pre_stop_check.py` hook blocks session stop if source files are changed but not reviewed (circuit breaker allows stop after 2 blocks).
 
 ---
 
@@ -363,7 +363,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |------|---------|----------|---------|
 | `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner + branch memory from DB | 10s |
 | `session_journal.py` | Stop | Auto-capture session + spawn AI summary daemon (Haiku, non-blocking) → SQLite + Chroma | 5s |
-| `pre_stop_check.py` | Stop | Five-layer check: `stop_hook_active` fast path + circuit breaker + review artifacts (P0/P1 block) + code change detection + security-sensitive file detection (skipped on main/master) | 5s |
+| `pre_stop_check.py` | Stop | Two-layer check: `stop_hook_active` / circuit breaker fast path + source file change detection → suggest code-reviewer | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
 | `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` + write freshness marker + branch memory (project-level) | 10s |
 | `post_compact_inject.py` | SessionStart(compact) | Post-compact context recovery: parse snapshot, inject ~800 tokens of git state/tasks/workflow/memory for continuity | 10s |
@@ -423,7 +423,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- user_prompt_capture.py       # UserPromptSubmit: initial request capture (5s)
 |   |-- session_context.py           # SessionStart: load dev context + last session (10s)
 |   |-- session_journal.py           # Stop: auto-capture + AI summary daemon → SQLite + Chroma (5s)
-|   |-- pre_stop_check.py            # Stop: five-layer check + security file detection (5s)
+|   |-- pre_stop_check.py            # Stop: source change detection → suggest code-reviewer (5s)
 |   |-- subagent_tracker.py          # SubagentStart/Stop: lifecycle logging (5s)
 |   |-- pre_compact_context.py       # PreCompact: preserve context + freshness marker (10s)
 |   |-- post_compact_inject.py       # SessionStart(compact): post-compact context recovery (10s)
@@ -565,6 +565,33 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v6.5.0 (2026-03-20) - Product Velocity Fusion
+
+**Fast product iteration + engineering discipline**, inspired by [garrytan/gstack](https://github.com/garrytan/gstack) context engineering patterns:
+
+**Product Thinking Layer**:
+- `/ultra-research` Round 0.0: **Problem Validation with 6 Forcing Questions** — Demand Reality, Status Quo, Desperate Specificity, Narrowest Wedge, Observation & Surprise, Future-Fit. Smart routing by product stage (pre-product/has users/paying/engineering)
+- `/ultra-plan` Step 0: **Scope Mode Selection** — EXPAND (think bigger), SELECTIVE (cherry-pick expansions), HOLD (make bulletproof), REDUCE (cut to minimum). Commitment rule: no silent drift
+
+**Review Acceleration**:
+- `review-code` agent Step 0: **Scope Drift Detection** — compares stated intent (tasks/branch/commits) vs actual diff, detects scope creep (P1) and missing requirements (P0)
+- `code-reviewer` agent: **Fix-First dual mode** — `report` (findings only) and `fix` (AUTO-FIX mechanical issues, ASK judgment calls). Now has Write/Edit tools
+- Unified schema: new `scope-drift` and `spec-compliance` categories
+
+**CLAUDE.md Enhancements**:
+- `<ask_user_format>`: standardized AskUserQuestion format (re-ground context, simplify, recommend, options, dual-scale effort)
+- **Completeness Principle**: KISS decides WHAT to build; Completeness decides HOW THOROUGH. No half-finished features
+- `<red_flags>` + `<verification>`: new Completeness row and "Scope correct" verification
+- `<work_style>`: proactive stage detection (suggest skills based on user's current phase)
+
+**Stop Hook Simplification**:
+- `pre_stop_check.py`: 474 → 154 lines. Three-layer → two-layer check
+- Removed: review artifact scanning, security file detection, incomplete work patterns, /ultra-review routing
+- Kept: circuit breaker + source file change detection → unified code-reviewer suggestion
+- Design: complex audits are user's responsibility via `/ultra-review`
+
+**Enhanced Files** (8): `CLAUDE.md`, `agents/review-code.md`, `agents/code-reviewer.md`, `commands/ultra-research.md`, `commands/ultra-plan.md`, `hooks/pre_stop_check.py`, `skills/ultra-review/references/unified-schema.md`, `README.md`
 
 ### v6.3.0 (2026-03-09) - Memory System v2
 

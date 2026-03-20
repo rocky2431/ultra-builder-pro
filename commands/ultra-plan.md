@@ -31,6 +31,26 @@ model: opus
 
 Generate task breakdown from complete specifications (created by /ultra-research).
 
+## Step 0: Scope Mode Selection
+
+Use AskUserQuestion to determine planning posture before any analysis:
+
+| Mode | Posture | When to Use |
+|------|---------|-------------|
+| **EXPAND** | Challenge scope upward. For each task, ask "what would make this 10x better for 2x effort?" Surface expansion opportunities as individual AskUserQuestion decisions. | New product, greenfield, user wants to think bigger |
+| **SELECTIVE** | Hold current scope as baseline. Surface optional expansions individually — user cherry-picks. Neutral recommendation posture. | Most common. Existing product, feature work. |
+| **HOLD** | Scope is locked. Make it bulletproof — catch every failure mode, test every edge case. Do not add or remove scope. | User has clear requirements, just needs execution plan |
+| **REDUCE** | Find the minimum viable version. Cut everything non-essential. Be ruthless. | Time pressure, MVP, proof of concept |
+
+**Default**: SELECTIVE (if user doesn't specify)
+
+**Commitment rule**: Once mode is selected, COMMIT to it. Do not silently drift. EXPAND mode does not argue for less work. REDUCE mode does not sneak scope back in.
+
+**Dual-scale effort** (show on every expansion decision in EXPAND/SELECTIVE mode):
+`Complete: ~X LOC, AI ~Y min | Shortcut: ~X LOC, saves Y min but ___`
+
+---
+
 ## Pre-Execution Checks
 
 ### Specification Completeness Validation

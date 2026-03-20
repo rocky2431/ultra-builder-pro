@@ -31,6 +31,24 @@ You will receive:
 
 ## Process
 
+0. **Scope Drift Detection** (before quality review):
+   - Read commit messages: `git log --oneline` for the diff range
+   - Read task context: check `.ultra/tasks/` for active tasks, or parse branch name for intent
+   - Read PR body if available: `gh pr view --json body --jq .body 2>/dev/null`
+   - Compare **stated intent** (task/branch/PR/commit messages) vs **actual diff** (`git diff --stat`)
+   - Detect **scope creep**: files changed unrelated to stated intent
+   - Detect **missing requirements**: stated goals not addressed in the diff
+   - Output exactly:
+     ```
+     Scope Check: CLEAN | DRIFT | MISSING
+     Intent: <1-line summary of what was requested>
+     Delivered: <1-line summary of what the diff actually does>
+     [If DRIFT: list each out-of-scope change with file path]
+     [If MISSING: list each unaddressed requirement]
+     ```
+   - Category for findings: `scope-drift`, severity P1 (creep) or P0 (missing critical requirement)
+   - This is **informational for CLEAN/DRIFT**, **blocking only if critical requirement is completely missing**
+
 1. **Load Context**: Read CLAUDE.md rules, load code-review-expert checklists
 2. **Scope Changes**: Run `git diff` for the specified range, understand what changed
 3. **Review Each File** using the 7-step code-review-expert workflow:
@@ -73,6 +91,9 @@ You will receive:
 | Boundary crossing without integration test | P1 |
 | Horizontal-only change (no end-to-end path) | P2 |
 | Missing shared interface/contract at boundary | P2 |
+| Critical requirement completely missing from diff | P0 |
+| Scope creep: files changed unrelated to stated intent | P1 |
+| Requirement partially addressed or untested | P1 |
 
 7. **Spec Compliance Check** (if `.ultra/tasks/contexts/` directory exists):
    - Identify current task from branch name (e.g., `feat/task-3-*` → task ID 3)

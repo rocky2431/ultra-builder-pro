@@ -84,6 +84,7 @@ If thinking any of these → STOP, follow rules:
 | NIH | "Quick utility" / "Simple helper" / "Easy to implement" → Easy ≠ correct; search first |
 | Integration | "Wire later" / "Not ready" / "Works in isolation" / "Integration tests later" → Wire now; define contract; prove connection |
 | Confidence | "Should work" / "I'm confident" → Confidence ≠ evidence |
+| Completeness | "Add tests later" / "Skip edge cases for now" / "MVP doesn't need error handling" → Once you commit to building it, tests/error handling/edge cases cost near-zero with AI; no half-finished features |
 </red_flags>
 
 <error_handling>
@@ -182,9 +183,10 @@ Workflow: TeamCreate → TaskCreate → Agent(team_name+name) → SendMessage �
 | "Build succeeds" | exit 0 |
 | "Bug fixed" | Original symptom test passes |
 | "Done" | Line-by-line checklist |
-| "Feature complete" | E2E/integration test proving end-to-end data flow |
+| "Feature complete" | E2E/integration test proving end-to-end data flow + full coverage of tests, edge cases, and error paths |
 | "Component works" | Entry point trace: handler → use case → domain → persistence |
 | "API ready" | Contract test with real HTTP request/response validation |
+| "Scope correct" | Diff covers all stated requirements, no scope creep, no missing items |
 
 **Forbidden without evidence**: "should work", "I'm confident", "looks good"
 </verification>
@@ -224,4 +226,16 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - Trust tool output over assumptions; restate goals before complex work
 - Independent tasks → parallel subagents; large output → delegate to subagent (context isolation)
 - Pre-delegation: state (1) what (2) why this agent (3) expected output
+- Proactive stage detection: new requirement → suggest `/ultra-research`; discussing scope/architecture → suggest `/ultra-plan`; code complete → suggest `/ultra-review`; ready to ship → suggest `/commit`. Suggest once per stage, never repeat; if user declines, stop suggesting for this session
 </work_style>
+
+<ask_user_format>
+**All AskUserQuestion calls MUST follow this format**:
+1. **Re-ground**: State the project, current branch, current task (1-2 sentences; assume user hasn't looked at screen for 20 minutes)
+2. **Simplify**: Explain in plain language a smart non-technical person could follow; describe what it DOES, not what it's CALLED
+3. **Recommend**: `RECOMMENDATION: Choose X because ___`
+4. **Options**: `A) ... B) ... C) ...`
+5. **Dual-scale effort** (only when presenting "complete vs shortcut" choice): `Complete: ~X LOC, AI ~Y min | Shortcut: ~X LOC, saves Y min but ___`
+
+**Completeness Principle**: KISS decides WHAT to build; Completeness decides HOW THOROUGH. Once committed to building a feature → tests, error handling, edge cases must be complete. Marginal cost is near-zero with AI; no half-finished features.
+</ask_user_format>

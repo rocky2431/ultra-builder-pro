@@ -206,6 +206,32 @@ Step 6: Generate Output (MANDATORY - BOTH files required)
 
 **When**: New products, pivots, entering new markets, or when the "why" and "for whom" are not yet validated. Skipped for feature-only work on existing products.
 
+#### 0.0 Problem Validation (Forcing Questions)
+
+**Before exploring opportunities and markets, validate the problem itself.** Ask these questions ONE AT A TIME via AskUserQuestion. Push on each until the answer is specific and evidence-based.
+
+**Smart routing by product stage** (determine stage first via AskUserQuestion):
+- Pre-product (idea, no users) → Q1, Q2, Q3, then proceed to 0.1
+- Has users (not yet paying) → Q2, Q4, Q5, then proceed to 0.1
+- Has paying customers → Q4, Q5, Q6, then proceed to 0.1
+- Pure engineering/infra → Q2, Q4 only, then proceed to 0.1
+
+**The Six Forcing Questions**:
+
+| # | Question | Push Until You Hear | Red Flags |
+|---|----------|--------------------:|-----------|
+| Q1 | **Demand Reality**: What is the strongest evidence someone actually wants this — not "is interested," but would be genuinely upset if it disappeared? | Specific behavior: paying, expanding usage, panicking when it breaks | "People say it's interesting", waitlist signups, VC enthusiasm |
+| Q2 | **Status Quo**: What are users doing RIGHT NOW to solve this — even badly? What does that workaround cost them? | Specific workflow: hours wasted, dollars lost, tools duct-taped together | "Nothing — no solution exists" (if nobody is doing anything, the problem may not be painful enough) |
+| Q3 | **Desperate Specificity**: Name the actual human who needs this most. Title? What gets them promoted? What gets them fired? | A name, a role, a specific consequence they face | Category-level answers: "enterprises", "SMBs", "marketing teams" |
+| Q4 | **Narrowest Wedge**: What is the smallest version someone would pay real money for — this week, not after you build the platform? | One feature, one workflow, shippable in days | "Need full platform first", "can't strip it down" |
+| Q5 | **Observation & Surprise**: Have you watched someone use this without helping them? What surprised you? | A specific surprise that contradicted assumptions | "We sent a survey", "nothing surprising" |
+| Q6 | **Future-Fit**: If the world looks meaningfully different in 3 years, does your product become more essential or less? | Specific claim about how user's world changes and why that increases value | "Market growing 20% per year", "AI makes everything better" |
+
+**Smart-skip**: If earlier answers already cover a later question, skip it.
+**Escape hatch**: If user says "just do it" or provides a fully formed plan → fast-track to 0.1.
+
+**Output**: Problem Validation Summary — include in discovery.md §0 before Opportunity Space.
+
 **Questions to answer**:
 
 #### 0.1 Opportunity Discovery (Opportunity Solution Tree)

@@ -22,7 +22,7 @@ description: |
   Pre-PR review gate - catch issues before they reach reviewers.
   </commentary>
   </example>
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Write, Edit
 model: opus
 memory: project
 maxTurns: 30
@@ -36,11 +36,14 @@ skills:
 
 Systematic code review with senior engineer lens. Focus on correctness, security, architecture, and maintainability.
 
-## Scope
+## Mode Detection
 
-**DO**: Review code changes, identify bugs, security issues, SOLID violations, quality problems, removal candidates.
+Determine mode from the task prompt:
 
-**DON'T**: Modify code (recommend fixes only), write new features, run tests (use tdd-runner).
+| Mode | Trigger | Behavior |
+|------|---------|----------|
+| **report** | Default, or prompt says "report" / "review only" | Report findings only. Do NOT modify source code. |
+| **fix** | Prompt says "fix" / "fix-first" / "review and fix" | Auto-fix mechanical issues, ask about judgment calls. |
 
 ## Process
 
@@ -52,7 +55,32 @@ Follow the 7-step workflow defined in the `code-review-expert` skill:
 4. **Security and reliability** - Load `references/security-checklist.md`, check injection, auth, race conditions, crypto, supply chain
 5. **Code quality** - Load `references/code-quality-checklist.md`, check error handling, performance/caching, boundary conditions
 6. **Output** - Structured findings by severity (P0-P3)
-7. **Next steps** - Ask user how to proceed before implementing any changes
+7. **Action** (mode-dependent):
+   - **report mode**: Present findings, ask user how to proceed
+   - **fix mode**: Execute Fix-First flow (see below)
+
+## Fix-First Flow (fix mode only)
+
+After collecting all findings, classify each as AUTO-FIX or ASK:
+
+**AUTO-FIX** (apply directly, report one-liner):
+- Unused imports, dead variables
+- Missing return types (when unambiguous)
+- Formatting / whitespace issues
+- Obvious bug fixes (null check, off-by-one, missing await)
+- Forbidden pattern removal (console.log in prod, TODO comments)
+
+**ASK** (batch into one question to user):
+- Architecture changes, logic refactors
+- Security-related changes
+- Trade-off decisions (performance vs readability)
+- Any P0 finding (always confirm before touching)
+
+**Execution**:
+1. Apply all AUTO-FIX items. For each: `[AUTO-FIXED] file:line — Problem → Fix`
+2. Batch all ASK items into ONE summary. For each: number, severity, problem, recommended fix, options A) Fix / B) Skip
+3. Apply user-approved fixes
+4. Output final summary: `Review: N total (X auto-fixed, Y user-fixed, Z skipped)`
 
 ## Severity Levels
 
