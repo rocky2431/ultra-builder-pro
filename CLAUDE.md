@@ -226,7 +226,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - Trust tool output over assumptions; restate goals before complex work
 - Independent tasks → parallel subagents; large output → delegate to subagent (context isolation)
 - Pre-delegation: state (1) what (2) why this agent (3) expected output
-- Proactive stage detection: new requirement → suggest `/ultra-research`; discussing scope/architecture → suggest `/ultra-plan`; code complete → suggest `/ultra-review`; ready to ship → suggest `/commit`. Suggest once per stage, never repeat; if user declines, stop suggesting for this session
+- Proactive stage detection: new requirement → suggest `/ultra-research`; discussing scope/architecture → suggest `/ultra-plan`; code complete → suggest `/ultra-review`. Suggest once per stage, never repeat; if user declines, stop suggesting for this session
 </work_style>
 
 <ask_user_format>

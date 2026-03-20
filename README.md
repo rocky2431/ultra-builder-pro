@@ -77,7 +77,7 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 
 ---
 
-## Commands (10)
+## Commands (9)
 
 | Command | Purpose | Key Features |
 |---------|---------|--------------|
@@ -89,7 +89,6 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 | `/ultra-deliver` | Release preparation | CHANGELOG, build, version bump, tag, push |
 | `/ultra-status` | Progress monitoring | Real-time stats, risk analysis, recommendations |
 | `/ultra-think` | Deep analysis | Structured reasoning, multi-dimension comparison |
-| `/commit` | Standardized commits | Conventional commit format, co-author attribution |
 | `/learn` | Pattern extraction | Extract reusable patterns from session, save to skills/learned/ |
 
 ---
@@ -430,7 +429,7 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- hook_utils.py                # Shared: snapshot path, workflow state, input parsing
 |   |-- memory_db.py                 # Shared: SQLite FTS5 + Chroma vector engine + CLI tool
 |
-|-- commands/                 # /ultra-* commands (10)
+|-- commands/                 # /ultra-* commands (9)
 |   |-- ultra-init.md
 |   |-- ultra-research.md
 |   |-- ultra-plan.md
@@ -439,7 +438,6 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 |   |-- ultra-deliver.md
 |   |-- ultra-status.md
 |   |-- ultra-think.md
-|   |-- commit.md
 |   |-- learn.md
 |
 |-- skills/                   # Domain skills (18 + learned)
