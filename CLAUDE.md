@@ -132,6 +132,7 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 </debugging>
 
 <evidence_honesty>
+**Tools First**: NEVER assume file contents, project state, or runtime behavior from memory. Re-read files when user indicates changes ("just changed", "latest", "updated"). When tool output contradicts expectation, tool output wins — always.
 **Triggers**: SDK/API mechanics, best practices, "should/recommended" → lookup before asserting
 **Priority**: 1) Repo source 2) Official docs (Context7) 3) Community (Exa)
 **Labels**: Fact (verified) | Inference (deduced) | Speculation (unverified → list verification steps)
