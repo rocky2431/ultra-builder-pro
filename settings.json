@@ -190,11 +190,6 @@
       }
     ]
   },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/ccline/ccline",
-    "padding": 0
-  },
   "enabledPlugins": {
     "document-skills@anthropic-agent-skills": true,
     "hookify@claude-plugins-official": true,
@@ -205,9 +200,9 @@
     "ralph-loop@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
     "frontend-design@claude-plugins-official": true,
-    "pua@pua-skills": true
+    "pua@pua-skills": true,
+    "cli-anything@cli-anything": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
@@ -216,16 +211,22 @@
         "url": "https://github.com/kepano/obsidian-skills.git"
       }
     },
-    "chrome-devtools-plugins": {
-      "source": {
-        "source": "github",
-        "repo": "ChromeDevTools/chrome-devtools-mcp"
-      }
-    },
     "pua-skills": {
       "source": {
         "source": "github",
         "repo": "tanweai/pua"
+      }
+    },
+    "cli-anything": {
+      "source": {
+        "source": "github",
+        "repo": "HKUDS/CLI-Anything"
+      }
+    },
+    "apify-agent-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/apify/agent-skills.git"
       }
     }
   },
