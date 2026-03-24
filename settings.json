@@ -141,6 +141,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 ~/.claude/hooks/health_check.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "python3 ~/.claude/hooks/session_context.py",
             "timeout": 10
           }

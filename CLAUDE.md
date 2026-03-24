@@ -147,6 +147,13 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 **Subagents**: Use for parallel research or context isolation. Prefer Grep/Read/Bash directly when possible.
 </agent_system>
 
+<change_discipline>
+**Blast Radius**: Before editing a shared module, post_edit_guard shows all dependents via stderr. Read them.
+**Fail Loud**: Never write silent catches (`except:pass`). All error paths must log with context. Hook enforced.
+**Verify**: After editing, run tests if they exist. post_edit_guard shows the test path. "Should work" is not evidence.
+**Doctor**: Run `python3 hooks/system_doctor.py` to audit system integrity when suspecting degradation.
+</change_discipline>
+
 <data_persistence>
 **Must Persist**: Financial data, permissions/auth, business transactions, audit logs, consistency-affecting state
 **May Cache**: Derived data, temp sessions (TTL), performance optimization data

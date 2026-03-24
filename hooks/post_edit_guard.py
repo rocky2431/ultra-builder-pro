@@ -349,6 +349,91 @@ def check_test_file_exists(file_path):
     return f"[TDD] No test file found for {fname}"
 
 
+# -- Checker: Silent Catch Detection --
+
+SILENT_CATCH_PATTERN = re.compile(
+    r'except\s*(?:\([^)]*\)|[\w.,\s]*)?\s*(?:as\s+\w+)?\s*:\s*\n'
+    r'\s+(?:pass|return\s*$|return\s+None|\.\.\.)',
+    re.MULTILINE
+)
+
+
+def check_silent_catches(file_path, content, lines):
+    """Detect except blocks that swallow errors silently."""
+    if is_hook_file(file_path) or is_test_file(file_path):
+        return []
+
+    violations = []
+    for match in SILENT_CATCH_PATTERN.finditer(content):
+        line_num = get_line_number(content, match.start())
+        snippet = match.group(0).strip().split('\n')[0][:80]
+        violations.append((line_num, snippet))
+    return violations
+
+
+# -- Checker: Blast Radius --
+
+def check_blast_radius(file_path):
+    """Find files that import/reference the edited file. Returns list of dependent paths."""
+    basename = os.path.basename(file_path)
+    module_name = os.path.splitext(basename)[0]
+
+    if not module_name or module_name.startswith('.'):
+        return []
+
+    # Only check for Python files in hooks dir or source files in project
+    parent_dir = os.path.dirname(file_path)
+    if not parent_dir:
+        return []
+
+    dependents = []
+    try:
+        for fname in os.listdir(parent_dir):
+            fpath = os.path.join(parent_dir, fname)
+            if fpath == file_path or not fname.endswith('.py'):
+                continue
+            # Skip test files and __pycache__
+            if '/tests/' in fpath or '__pycache__' in fpath:
+                continue
+            try:
+                with open(fpath, 'r', encoding='utf-8') as f:
+                    head = f.read(5000)  # Only scan first 5KB for imports
+                if re.search(rf'\bimport\s+{re.escape(module_name)}\b|from\s+{re.escape(module_name)}\b', head):
+                    dependents.append(fname)
+            except (OSError, UnicodeDecodeError):
+                pass
+    except OSError:
+        pass
+
+    return dependents
+
+
+# -- Checker: Test File Reminder --
+
+def check_test_reminder(file_path):
+    """If edited file has a corresponding test file, remind to run it."""
+    if is_test_file(file_path) or is_config_file(file_path):
+        return None
+
+    basename = os.path.basename(file_path)
+    name_no_ext = os.path.splitext(basename)[0]
+    parent = os.path.dirname(file_path)
+
+    # Check common test file locations
+    candidates = [
+        os.path.join(parent, 'tests', f'test_{basename}'),
+        os.path.join(parent, 'tests', f'test_{name_no_ext}.py'),
+        os.path.join(parent, f'{name_no_ext}.test.ts'),
+        os.path.join(parent, f'{name_no_ext}.spec.ts'),
+        os.path.join(parent, '__tests__', f'{name_no_ext}.test.ts'),
+    ]
+
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+    return None
+
+
 # -- Output Formatting --
 
 def _fmt_code_quality(file_path, blocks, warnings):
@@ -473,6 +558,32 @@ def main():
         if all_issues:
             all_issues.append("")
         all_issues.append(tdd_warning)
+
+    # 5. Silent catch detection (block)
+    if ext == '.py' and not is_hook_file(file_path):
+        silent_violations = check_silent_catches(file_path, content, lines)
+        if silent_violations:
+            if all_issues:
+                all_issues.append("")
+            all_issues.append("[SILENT-CATCH:BLOCK] Silent exception handlers detected:")
+            for line_num, snippet in silent_violations[:5]:
+                all_issues.append(f"  L{line_num}: {snippet}")
+            all_issues.append("  → Add logging or handle the error explicitly.")
+            has_blocks = True
+
+    # 6. Blast radius (info via stderr, never blocks)
+    dependents = check_blast_radius(file_path)
+    if dependents:
+        short = os.path.basename(file_path)
+        dep_list = ", ".join(dependents[:8])
+        extra = f" +{len(dependents)-8} more" if len(dependents) > 8 else ""
+        print(f"[Impact] {short} is imported by: {dep_list}{extra}", file=sys.stderr)
+
+    # 7. Test reminder (info via stderr, never blocks)
+    test_file = check_test_reminder(file_path)
+    if test_file:
+        rel_test = os.path.relpath(test_file)
+        print(f"[Test] Run: pytest {rel_test}", file=sys.stderr)
 
     if all_issues:
         warning_message = "\n".join(all_issues)
