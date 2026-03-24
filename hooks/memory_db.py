@@ -286,11 +286,15 @@ def upsert_session(conn: sqlite3.Connection, branch: str, cwd: str,
         if row:
             existing_files = json.loads(row["files_modified"])
             merged_files = sorted(set(existing_files + files_modified))
+            # Backfill branch/cwd if the shell was created without them
             conn.execute(
                 "UPDATE sessions SET last_active = ?, files_modified = ?, "
-                "stop_count = ? WHERE id = ?",
+                "stop_count = ?, "
+                "branch = CASE WHEN branch = '' OR branch IS NULL THEN ? ELSE branch END, "
+                "cwd = CASE WHEN cwd = '' OR cwd IS NULL THEN ? ELSE cwd END "
+                "WHERE id = ?",
                 (now.isoformat(), json.dumps(merged_files),
-                 row["stop_count"] + 1, row["id"])
+                 row["stop_count"] + 1, branch, cwd, row["id"])
             )
             conn.commit()
             return row["id"]
@@ -473,6 +477,14 @@ def cleanup(conn: sqlite3.Connection,
             days: int = DEFAULT_RETENTION_DAYS) -> int:
     """Delete sessions older than N days. Returns count deleted."""
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+
+    # Collect IDs to delete from Chroma before removing from SQLite
+    expired_ids = [
+        r[0] for r in conn.execute(
+            "SELECT id FROM sessions WHERE last_active < ?", (cutoff,)
+        ).fetchall()
+    ]
+
     cursor = conn.execute(
         "DELETE FROM sessions WHERE last_active < ?", (cutoff,)
     )
@@ -486,6 +498,32 @@ def cleanup(conn: sqlite3.Connection,
         "(SELECT id FROM sessions)"
     )
     conn.commit()
+
+    # Clean up Chroma embeddings for expired sessions
+    if expired_ids:
+        try:
+            collection = get_chroma_collection()
+            collection.delete(ids=expired_ids)
+        except Exception:
+            pass  # Chroma cleanup is best-effort
+
+    # Trim JSONL backup: keep only entries newer than cutoff
+    try:
+        jsonl_path = get_jsonl_path()
+        if jsonl_path.exists():
+            kept = []
+            for line in jsonl_path.read_text(encoding="utf-8").splitlines():
+                try:
+                    entry = json.loads(line)
+                    if entry.get("ts", "") >= cutoff:
+                        kept.append(line)
+                except (json.JSONDecodeError, ValueError):
+                    pass
+            jsonl_path.write_text("\n".join(kept) + "\n" if kept else "",
+                                 encoding="utf-8")
+    except OSError:
+        pass  # JSONL cleanup is best-effort
+
     return cursor.rowcount
 
 
@@ -871,16 +909,35 @@ def hybrid_search(conn: sqlite3.Connection, query: str,
 
 
 def reindex_chroma(conn: sqlite3.Connection) -> int:
-    """Reindex all sessions with summaries into Chroma."""
+    """Reindex all sessions with summaries into Chroma.
+
+    Indexes both legacy summaries and structured summaries (v2).
+    Structured summaries take priority when both exist.
+    """
+    # Build summary text for each session: prefer structured over legacy
     rows = conn.execute(
-        """SELECT id, branch, files_modified, summary
-           FROM sessions WHERE summary != ''"""
+        """SELECT s.id, s.branch, s.files_modified, s.summary,
+                  ss.completed, ss.learned
+           FROM sessions s
+           LEFT JOIN session_summaries ss ON s.id = ss.session_id
+           WHERE s.summary != '' OR ss.completed IS NOT NULL"""
     ).fetchall()
 
     count = 0
     for row in rows:
+        # Prefer structured summary (richer content)
+        if row["completed"]:
+            summary = row["completed"]
+            if row["learned"]:
+                summary += " | " + row["learned"]
+        else:
+            summary = row["summary"] or ""
+
+        if not summary:
+            continue
+
         files = json.loads(row["files_modified"])
-        if upsert_embedding(row["id"], row["summary"], row["branch"], files):
+        if upsert_embedding(row["id"], summary, row["branch"], files):
             count += 1
 
     return count

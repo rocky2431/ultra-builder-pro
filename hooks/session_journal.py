@@ -30,7 +30,21 @@ TRANSCRIPT_MAX_CHARS = 15000   # Total budget (head + tail)
 TRANSCRIPT_MAX_MESSAGES = 100  # Increased from 50 for better coverage
 AI_MODEL_CLI = "haiku"
 AI_MAX_TOKENS = 1000
-DAEMON_LOG = Path.home() / ".claude" / "memory" / "daemon-errors.log"
+
+
+def _get_daemon_log() -> Path:
+    """Get project-scoped daemon error log path."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, timeout=GIT_TIMEOUT,
+            cwd=os.getcwd()
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return Path(result.stdout.strip()) / ".ultra" / "memory" / "daemon-errors.log"
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    return Path.home() / ".claude" / "memory" / "daemon-errors.log"
 
 # Allowed parent directories for transcript files
 ALLOWED_TRANSCRIPT_DIRS = [
@@ -286,8 +300,9 @@ def _log_daemon_error() -> None:
     """Write daemon exception to log file (stdio is /dev/null)."""
     import traceback
     try:
-        DAEMON_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with open(DAEMON_LOG, "a", encoding="utf-8") as f:
+        log_path = _get_daemon_log()
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(log_path, "a", encoding="utf-8") as f:
             f.write(f"{datetime.now(timezone.utc).isoformat()} "
                     f"{traceback.format_exc()}\n")
     except OSError:
