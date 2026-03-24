@@ -1,4 +1,4 @@
-# Ultra Builder Pro 6.5.0
+# Ultra Builder Pro 6.6.0
 
 <div align="center">
 
@@ -6,12 +6,13 @@
 
 ---
 
-[![Version](https://img.shields.io/badge/version-6.5.0-blue)](README.md#version-history)
+[![Version](https://img.shields.io/badge/version-6.6.0-blue)](README.md#version-history)
 [![Status](https://img.shields.io/badge/status-production--ready-green)](README.md)
-[![Commands](https://img.shields.io/badge/commands-10-purple)](commands/)
-[![Skills](https://img.shields.io/badge/skills-18-orange)](skills/)
+[![Commands](https://img.shields.io/badge/commands-9-purple)](commands/)
+[![Skills](https://img.shields.io/badge/skills-17-orange)](skills/)
 [![Agents](https://img.shields.io/badge/agents-11-red)](agents/)
-[![Hooks](https://img.shields.io/badge/hooks-13-yellow)](hooks/)
+[![Hooks](https://img.shields.io/badge/hooks-15-yellow)](hooks/)
+[![Tests](https://img.shields.io/badge/tests-84-brightgreen)](hooks/tests/)
 
 </div>
 
@@ -93,7 +94,7 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 
 ---
 
-## Skills (18 + Learned Patterns)
+## Skills (17 + Learned Patterns)
 
 | Skill | Purpose | User-Invocable |
 |-------|---------|----------------|
@@ -118,7 +119,7 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 
 ---
 
-## Agents (12)
+## Agents (11)
 
 All agents have **project-scoped persistent memory** (`memory: project`) that accumulates patterns per project, preventing cross-project pollution.
 
@@ -331,9 +332,9 @@ Mandatory for all new code:
 
 ---
 
-## Hooks System (13 Hooks)
+## Hooks System (15 Hooks)
 
-Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks have **timeout** configured to prevent UI freeze. Shared utilities in `hook_utils.py` eliminate ~130 lines of duplication.
+Automated enforcement via Python hooks in `hooks/`. **Hooks are deterministic — unlike CLAUDE.md rules which are advisory, hooks guarantee the action happens.**
 
 **Protocol compliance**: 100% — all hooks follow official Claude Code hook protocol (stdin JSON, stdout JSON, exit codes 0/2).
 
@@ -342,30 +343,32 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 | Hook | Trigger | Detection | Timeout |
 |------|---------|-----------|---------|
 | `block_dangerous_commands.py` | Bash | rm -rf, fork bombs, chmod 777, force push main | 5s |
+| `mid_workflow_recall.py` | Write/Edit | Inject past test failures + edit history + learned lessons from memory.db for the file being edited (rate-limited) | 3s |
 
 ### PostToolUse Hooks (Quality gate after execution)
 
 | Hook | Trigger | Detection | Timeout |
 |------|---------|-----------|---------|
-| `post_edit_guard.py` | Edit/Write | TODO/FIXME, NotImplemented, hardcoded config, mock patterns (jest.fn/InMemory), security (secrets, SQL injection, empty catch) | 5s |
-| `observation_capture.py` | Edit/Write/Bash | Capture file changes and test failures as session observations (max 20/session, deduped) | 5s |
+| `post_edit_guard.py` | Edit/Write | Code quality (TODO/FIXME), mocks, security, TDD pairing, **blast radius** (show dependents), **silent catch detection** (block except:pass), **test reminder** | 5s |
+| `observation_capture.py` | Edit/Write/Bash | Capture file changes, test failures, and significant commands (git/build/deploy) as session observations | 3s |
 
 ### User Input Hooks
 
 | Hook | Trigger | Function | Timeout |
 |------|---------|----------|---------|
-| `user_prompt_capture.py` | UserPromptSubmit | Capture initial user request per session for structured summaries | 5s |
+| `user_prompt_capture.py` | UserPromptSubmit | Capture initial user request per session for structured summaries | 3s |
 
 ### Session & Lifecycle Hooks
 
 | Hook | Trigger | Function | Timeout |
 |------|---------|----------|---------|
+| `health_check.py` | SessionStart | **System Health**: verify agents exist, hooks syntax, DB health, settings refs, CLAUDE.md | 5s |
 | `session_context.py` | SessionStart | Load git branch, commits, modified files + last session one-liner + branch memory from DB | 10s |
 | `session_journal.py` | Stop | Auto-capture session + spawn AI summary daemon (Haiku, non-blocking) → SQLite + Chroma | 5s |
-| `pre_stop_check.py` | Stop | Two-layer check: `stop_hook_active` / circuit breaker fast path + source file change detection → suggest code-reviewer | 5s |
+| `pre_stop_check.py` | Stop | Source file change detection + workflow state check + **completion compliance checklist** (Taskmaster-inspired excuse detection) | 5s |
 | `subagent_tracker.py` | SubagentStart/Stop | Log agent lifecycle to `.ultra/debug/subagent-log.jsonl` (project-level) | 5s |
-| `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` + write freshness marker + branch memory (project-level) | 10s |
-| `post_compact_inject.py` | SessionStart(compact) | Post-compact context recovery: parse snapshot, inject ~800 tokens of git state/tasks/workflow/memory for continuity | 10s |
+| `pre_compact_context.py` | PreCompact | Preserve task state and git context to `.ultra/compact-snapshot.md` + branch memory | 10s |
+| `post_compact_inject.py` | SessionStart(compact) | Post-compact context recovery: parse snapshot, inject git state/tasks/workflow/memory | 10s |
 
 ### Notification & Cleanup Hooks
 
@@ -374,12 +377,23 @@ Automated enforcement of CLAUDE.md rules via Python hooks in `hooks/`. All hooks
 | macOS notification | Notification(permission_prompt\|idle_prompt) | Desktop alert with sound when Claude needs user input | 5s |
 | Counter cleanup | SessionEnd | Remove stale stop-count temp files (>60min old) | 5s |
 
-### Shared Utilities
+### Shared Utilities & Tools
 
 | File | Purpose |
 |------|---------|
-| `hook_utils.py` | Shared functions: `get_snapshot_path()`, `get_workflow_state()`, `parse_hook_input()` — used by pre_compact, post_compact, and other hooks |
-| `memory_db.py` | SQLite FTS5 + Chroma vector engine + CLI tool — used by session_journal, session_context, pre_compact |
+| `hook_utils.py` | Shared functions: `get_snapshot_path()`, `get_workflow_state()`, `parse_hook_input()` |
+| `memory_db.py` | SQLite FTS5 + Chroma vector engine + CLI tool — foundation for all memory hooks |
+| `system_doctor.py` | Deep audit: cross-references, DB quality, Chroma consistency, silent catch scan. Run: `python3 hooks/system_doctor.py` |
+| `tests/` | **84 pytest tests** covering block_dangerous, observation_capture, memory_db, pre_stop_check, mid_workflow_recall |
+
+### Change Discipline (Hook-Enforced)
+
+| Discipline | Enforcement | How |
+|------------|-------------|-----|
+| **Blast Radius** | `post_edit_guard.py` stderr | When editing shared module, shows all files that import it |
+| **Fail Loud** | `post_edit_guard.py` block | Detects `except:pass` patterns, blocks commit |
+| **Verify After Change** | `post_edit_guard.py` stderr | Shows corresponding test file path when it exists |
+| **System Health** | `health_check.py` SessionStart | Catches missing agents, broken hooks, DB issues at session start |
 
 ---
 
