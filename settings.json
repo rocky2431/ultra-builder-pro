@@ -113,6 +113,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/mid_workflow_recall.py",
+            "timeout": 3
+          }
+        ]
       }
     ],
     "SessionEnd": [
@@ -202,7 +212,8 @@
     "typescript-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "pua@pua-skills": true,
-    "cli-anything@cli-anything": true
+    "cli-anything@cli-anything": true,
+    "claude-hud@claude-hud": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
@@ -228,12 +239,22 @@
         "source": "git",
         "url": "https://github.com/apify/agent-skills.git"
       }
+    },
+    "claude-hud": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-hud"
+      }
     }
   },
   "language": "chinese",
   "sandbox": {
     "enabled": false,
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash -c 'plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec \"/Users/rocky243/.bun/bin/bun\" --env-file /dev/null \"${plugin_dir}src/index.ts\"'"
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",

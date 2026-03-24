@@ -32,6 +32,26 @@ SOURCE_EXTENSIONS = {
     '.sol', '.rb', '.vue', '.svelte', '.css', '.scss', '.html', '.sh',
 }
 
+COMPLIANCE_CHECKLIST = """
+## Completion Compliance Check
+
+Before stopping, verify ALL of the following:
+
+1. **Goal Check**: Re-read the user's original request. Is it FULLY achieved? Not partially — DONE.
+2. **Verification**: Did you actually run tests and show passing output? "Should work" is not evidence.
+3. **Loose Ends**: Any TODO/FIXME/placeholder? Any promised tests not written? Any skipped edge cases?
+4. **Task List**: Are ALL tasks marked completed? Check with TaskList.
+
+The following are NOT valid reasons to stop:
+- "made good progress" / "mostly done" / "diminishing returns"
+- "would require broader architectural changes"
+- "the rest can be done manually"
+- "beyond the scope of this session"
+- "should work based on the pattern" / "I'm confident"
+
+If ANY check fails → continue working. Stop ONLY when everything is verifiably complete.
+""".strip()
+
 
 def cleanup_old_counters() -> None:
     try:
@@ -101,6 +121,41 @@ def get_changed_source_files() -> list[str]:
         return []
 
 
+def get_git_toplevel() -> str:
+    """Get git repo root, or empty string."""
+    try:
+        proc = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True, text=True, timeout=GIT_TIMEOUT
+        )
+        if proc.returncode == 0:
+            return proc.stdout.strip()
+    except (subprocess.TimeoutExpired, Exception):
+        pass
+    return ""
+
+
+def check_workflow_state() -> str | None:
+    """Check .ultra/workflow-state.json for incomplete workflow."""
+    try:
+        toplevel = get_git_toplevel()
+        if not toplevel:
+            return None
+        state_path = os.path.join(toplevel, ".ultra", "workflow-state.json")
+        if not os.path.exists(state_path):
+            return None
+        with open(state_path) as f:
+            state = json.load(f)
+        status = state.get("status", "")
+        if status in ("committed", "completed", "done"):
+            return None
+        step = state.get("step", "unknown")
+        command = state.get("command", "unknown")
+        return f"Active workflow '{command}' at step {step} (status: {status})"
+    except Exception:
+        return None
+
+
 def allow_stop() -> None:
     print(json.dumps({}))
 
@@ -133,21 +188,32 @@ def main():
         allow_stop()
         return
 
+    # Collect block reasons from multiple layers
+    reasons = []
+
     # Layer 1: Source files changed → suggest code-reviewer
     source_files = get_changed_source_files()
-    if not source_files:
+    if source_files:
+        lines = [f"[Pre-Stop] {len(source_files)} source file(s) changed but not reviewed:"]
+        for f in source_files[:8]:
+            lines.append(f"  - {f}")
+        if len(source_files) > 8:
+            lines.append(f"  ... and {len(source_files) - 8} more")
+        lines.append("Action: Run code-reviewer agent before stopping.")
+        reasons.append("\n".join(lines))
+
+    # Layer 2: Incomplete workflow state
+    workflow_issue = check_workflow_state()
+    if workflow_issue:
+        reasons.append(f"[Pre-Stop] {workflow_issue} — complete the workflow before stopping.")
+
+    if not reasons:
         allow_stop()
         return
 
-    lines = [f"[Pre-Stop Check] {len(source_files)} source file(s) changed but not reviewed:"]
-    for f in source_files[:8]:
-        lines.append(f"  - {f}")
-    if len(source_files) > 8:
-        lines.append(f"  ... and {len(source_files) - 8} more")
-    lines.append("")
-    lines.append("Action: Run code-reviewer agent before stopping.")
-
-    block_stop(session_id, "\n".join(lines))
+    # Append compliance checklist to any block
+    full_reason = "\n\n".join(reasons) + "\n\n" + COMPLIANCE_CHECKLIST
+    block_stop(session_id, full_reason)
 
 
 if __name__ == '__main__':
