@@ -140,29 +140,11 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 </evidence_honesty>
 
 <agent_system>
-**Recommended trigger**: `/auth/login/password/payment/token/` → code-reviewer | `.sol` → smart-contract-specialist + auditor
-
-| Task | Agent | When to Use |
-|------|-------|-------------|
-| Interactive review | code-reviewer | After code changes, before commit. Fix-First mode for auto-fix. |
-| Pipeline review | /ultra-review | Full audit: 6 agents + coordinator → JSON. User-initiated. |
-| Test execution (escalation) | tdd-runner | ONLY when test output exceeds ~200 lines and needs context isolation. Main agent runs tests directly for normal cases. |
-| Deep debugging (escalation) | debugger | ONLY after 3+ failed fix attempts or when bug spans multiple components. Main agent handles routine debugging using `<debugging>` methodology. |
-
-**11 agents**: 5 interactive (smart-contract-specialist/auditor, code-reviewer, tdd-runner, debugger) + 6 pipeline (review-code/tests/errors/design/comments + coordinator)
-**Daily workflow**: Main agent follows `<testing>` TDD workflow and `<debugging>` methodology directly. Agents are for escalation, not routine work (Anthropic principle: "do the simplest thing that works").
-**All agents**: persistent memory — consult and update each session
-**Skills**: User: ultra-review | Agent-only: testing-rules, security-rules, code-review-expert, integration-rules
-**Hooks**: code quality, mock detection, security scan, test file pairing, dangerous command blocking, subagent lifecycle, review gate
-
-**Agent Teams vs Subagents**:
-| Scenario | Agent Teams (TeamCreate) | Subagents (Agent tool) |
-|----------|--------------------------|------------------------|
-| Multi-dimensional parallel analysis with inter-agent communication | ✅ | ❌ |
-| User says "team/teammates/collaborate/multi-agent/团队/协作" | ✅ | ❌ |
-| Review pipeline (/ultra-review) | ❌ (4-6x costlier) | ✅ |
-| Single-purpose research/search/analysis | ❌ | ✅ |
-Workflow: TeamCreate → TaskCreate → Agent(team_name+name) → SendMessage → TeamDelete
+**Trigger**: auth/payment/PII → code-reviewer | `.sol` → smart-contract-specialist + auditor
+**Daily**: Main agent handles TDD + debugging directly. Agents for escalation only.
+**Escalation**: tdd-runner (output >200 lines) | debugger (3+ failed fixes) | code-reviewer (before commit)
+**Review pipeline**: `/ultra-review` — skill handles agent routing internally.
+**Subagents**: Use for parallel research or context isolation. Prefer Grep/Read/Bash directly when possible.
 </agent_system>
 
 <data_persistence>
@@ -234,8 +216,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - Before finalizing: verify correct/secure/maintainable
 - Conflict: `rule {higher} overrides rule {lower} → {action}`
 - Trust tool output over assumptions; restate goals before complex work
-- Independent tasks → parallel subagents; large output → delegate to subagent (context isolation)
-- Pre-delegation: state (1) what (2) why this agent (3) expected output
+- Subagents only when parallel or context isolation needed; prefer direct tools (Grep/Read/Bash) for simple queries
 - Proactive stage detection: new requirement → suggest `/ultra-research`; discussing scope/architecture → suggest `/ultra-plan`; code complete → suggest `/ultra-review`. Suggest once per stage, never repeat; if user declines, stop suggesting for this session
 </work_style>
 
