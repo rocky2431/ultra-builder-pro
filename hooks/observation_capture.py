@@ -20,14 +20,30 @@ MAX_OBS_PER_SESSION = 20
 
 # Patterns that indicate test execution
 TEST_CMD_PATTERNS = re.compile(
-    r"(npm\s+test|npx\s+jest|pytest|python.*-m\s+pytest|cargo\s+test|go\s+test|"
-    r"npx\s+vitest|bun\s+test|mocha|jest\b)", re.IGNORECASE
+    r"(npm\s+test|npx\s+(jest|vitest|mocha)|yarn\s+test|pnpm\s+test|"
+    r"bun\s+test|jest\b|vitest\b|mocha\b|"
+    r"pytest\b|python.*-m\s+(pytest|unittest)|"
+    r"cargo\s+test|go\s+test|"
+    r"dotnet\s+test|mix\s+test|flutter\s+test|"
+    r"php\s+artisan\s+test|phpunit|"
+    r"rspec|rake\s+test|ruby.*-e.*test|"
+    r"make\s+test|gradle\s+test|mvn\s+test)", re.IGNORECASE
 )
 
 # Patterns that indicate test failure in output
 TEST_FAIL_PATTERNS = re.compile(
-    r"(FAIL|FAILED|FAILURES|ERROR|error:|AssertionError|"
-    r"tests?\s+failed|failing|✗|✘|BROKEN)", re.IGNORECASE
+    r"(FAIL[ED]*\b|FAILURES?\b|ERROR[S]?\b|error:|"
+    r"AssertionError|AssertError|assert\w*Error|"
+    r"tests?\s+failed|failing|failed\s+\d|"
+    r"✗|✘|BROKEN|panic:|EXCEPTION)", re.IGNORECASE
+)
+
+# Extract file paths from test command or output
+FILE_PATH_PATTERN = re.compile(
+    r'(?:^|\s|[/\\])(\S+\.(?:test|spec|_test|_spec)\.\w+)'  # test files
+    r'|(?:FAIL|Error in|at )\s+(\S+\.\w{2,4})'               # failure references
+    r'|(?:^|\s)((?:src|lib|app|tests?|spec)/\S+\.\w{2,4})',   # src paths
+    re.MULTILINE
 )
 
 
@@ -153,6 +169,20 @@ def _capture_file_change(conn, session_id: str, tool_name: str,
     )
 
 
+def _extract_related_files(command: str, output: str) -> list:
+    """Extract file paths from test command and output for cross-session matching."""
+    files = set()
+    for text in (command, output[:2000]):
+        for match in FILE_PATH_PATTERN.finditer(text):
+            for group in match.groups():
+                if group:
+                    # Clean up and keep just the filename or short path
+                    path = group.strip().strip("'\"(),:")
+                    if path and 2 < len(path) < 200:
+                        files.add(path)
+    return list(files)[:5]
+
+
 def _capture_test_result(conn, session_id: str, tool_input,
                          tool_output) -> None:
     """Capture test failure observation from Bash output."""
@@ -165,15 +195,24 @@ def _capture_test_result(conn, session_id: str, tool_input,
     if not command or not TEST_CMD_PATTERNS.search(command):
         return
 
-    # Get output text
+    # Reject package install commands (false positives for "pip install pytest" etc.)
+    if re.search(r'\b(pip3?|pipx|npm|yarn|pnpm|bun)\s+install\b', command, re.IGNORECASE):
+        return
+
+    # Get output text — handle both string and dict formats
     output = ""
     if isinstance(tool_output, dict):
         output = tool_output.get("stdout", "") + tool_output.get("stderr", "")
+        if not output:
+            output = tool_output.get("output", "")
     elif isinstance(tool_output, str):
         output = tool_output
 
     if not output:
         return
+
+    # Extract related file paths for cross-session matching
+    related_files = _extract_related_files(command, output)
 
     # Check for failures
     if TEST_FAIL_PATTERNS.search(output):
@@ -191,6 +230,7 @@ def _capture_test_result(conn, session_id: str, tool_input,
             title=title,
             detail=command[:500],
             tool_name="Bash",
+            files=related_files,
         )
     else:
         # Test passed — also useful signal
@@ -199,6 +239,7 @@ def _capture_test_result(conn, session_id: str, tool_input,
             kind="test_pass",
             title=f"Tests passed: {command[:100]}",
             tool_name="Bash",
+            files=related_files,
         )
 
 

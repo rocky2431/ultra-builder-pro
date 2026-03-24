@@ -67,11 +67,17 @@ def mark_recalled(session_id: str, file_path: str) -> None:
 
 
 def query_file_observations(db_path: Path, filename: str,
-                            content_session_id: str) -> list:
-    """Query past test failures and edits for a file from other sessions."""
+                            content_session_id: str) -> dict:
+    """Query past observations for a file from other sessions.
+
+    Returns dict with 'test_failures' and 'edit_history' lists.
+    """
+    result = {"test_failures": [], "edit_history": []}
     try:
         conn = sqlite3.connect(str(db_path), timeout=1)
         conn.row_factory = sqlite3.Row
+
+        # Test failures (highest priority signal)
         rows = conn.execute(
             """SELECT o.kind, o.title, o.detail, o.created_at, s.branch
                FROM observations o
@@ -83,26 +89,45 @@ def query_file_observations(db_path: Path, filename: str,
                LIMIT 3""",
             (f'%{filename}%', content_session_id)
         ).fetchall()
-        results = [dict(r) for r in rows]
+        result["test_failures"] = [dict(r) for r in rows]
+
+        # Cross-session edit history (useful context even without test failures)
+        rows = conn.execute(
+            """SELECT o.title, o.created_at, s.branch,
+                      ss.request as session_request
+               FROM observations o
+               JOIN sessions s ON o.session_id = s.id
+               LEFT JOIN session_summaries ss ON o.session_id = ss.session_id
+               WHERE o.files LIKE ?
+               AND o.kind = 'edit'
+               AND s.content_session_id != ?
+               ORDER BY o.created_at DESC
+               LIMIT 3""",
+            (f'%{filename}%', content_session_id)
+        ).fetchall()
+        result["edit_history"] = [dict(r) for r in rows]
+
         conn.close()
-        return results
     except Exception:
-        return []
+        pass
+    return result
 
 
 def query_learned_lessons(db_path: Path, filename: str) -> list:
-    """Query past session learnings mentioning this file."""
+    """Query past session learnings and completions mentioning this file."""
     try:
         conn = sqlite3.connect(str(db_path), timeout=1)
         conn.row_factory = sqlite3.Row
+        # Search both learned AND completed fields for file mentions
         rows = conn.execute(
-            """SELECT ss.learned, s.started_at, s.branch
+            """SELECT ss.learned, ss.completed, s.started_at, s.branch
                FROM session_summaries ss
                JOIN sessions s ON ss.session_id = s.id
-               WHERE ss.learned LIKE ? AND ss.learned != ''
+               WHERE (ss.learned LIKE ? OR ss.completed LIKE ?)
+               AND (ss.learned != '' OR ss.completed != '')
                ORDER BY s.started_at DESC
                LIMIT 2""",
-            (f'%{filename}%',)
+            (f'%{filename}%', f'%{filename}%')
         ).fetchall()
         results = [dict(r) for r in rows]
         conn.close()
@@ -149,17 +174,21 @@ def main():
         print(json.dumps({}))
         return
 
-    observations = query_file_observations(db_path, filename, session_id or "")
+    obs_data = query_file_observations(db_path, filename, session_id or "")
     lessons = query_learned_lessons(db_path, filename)
 
-    if not observations and not lessons:
+    test_failures = obs_data.get("test_failures", [])
+    edit_history = obs_data.get("edit_history", [])
+
+    if not test_failures and not edit_history and not lessons:
         print(json.dumps({}))
         return
 
     # Format concise injection
     lines = [f"[Memory: {filename}]"]
 
-    for obs in observations[:2]:
+    # Test failures (highest priority)
+    for obs in test_failures[:2]:
         date = obs["created_at"][:10]
         branch = obs.get("branch", "")
         prefix = f"({date}" + (f", {branch}" if branch else "") + ")"
@@ -167,9 +196,27 @@ def main():
         if obs.get("detail"):
             lines.append(f"    cmd: {obs['detail'][:80]}")
 
+    # Cross-session edit history (only if no test failures, to keep it concise)
+    if not test_failures and edit_history:
+        seen_branches = set()
+        for edit in edit_history[:2]:
+            branch = edit.get("branch", "")
+            if branch in seen_branches:
+                continue
+            seen_branches.add(branch)
+            date = edit["created_at"][:10]
+            ctx = edit.get("session_request", "")
+            if ctx:
+                ctx = f" — {ctx[:60]}"
+            lines.append(f"  Previously edited ({date}, {branch}){ctx}")
+
+    # Learned lessons / completed context
     for lesson in lessons[:1]:
-        learned = lesson["learned"].replace("|", ", ")[:150]
-        lines.append(f"  Learned ({lesson['started_at'][:10]}): {learned}")
+        learned = lesson.get("learned", "")
+        if learned:
+            lines.append(f"  Learned ({lesson['started_at'][:10]}): {learned.replace('|', ', ')[:150]}")
+        elif lesson.get("completed"):
+            lines.append(f"  Context ({lesson['started_at'][:10]}): {lesson['completed'].replace('|', ', ')[:150]}")
 
     print("\n".join(lines), file=sys.stderr)
 

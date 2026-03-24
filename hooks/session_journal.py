@@ -314,11 +314,14 @@ def _run_ai_summarize(session_id: str, transcript_path: str,
         "Schema:\n"
         '{"request": "what the user asked for (1-2 sentences)",'
         ' "completed": "what was built/fixed/completed (2-5 bullets, pipe-separated)",'
-        ' "learned": "key decisions and insights (1-3 bullets, pipe-separated, empty string if none)",'
+        ' "learned": "key decisions, insights, and gotchas (1-3 bullets, pipe-separated, empty string if none)",'
         ' "next_steps": "pending work or follow-ups (1-3 bullets, pipe-separated, empty string if none)"}\n\n'
         "Rules:\n"
         "- Each bullet max 30 words\n"
-        "- Include specific file names, function names, and error messages\n"
+        "- CRITICAL: Include specific file names (e.g. auth.ts, memory_db.py) in completed AND learned fields\n"
+        "- In 'learned', mention which file the lesson applies to (e.g. 'validate token in auth.ts before decode')\n"
+        "- In 'completed', list each file created or modified by name\n"
+        "- Include function names and error messages when relevant\n"
         "- Use | as bullet separator within each field\n"
         "- Empty string for fields with nothing to report\n\n"
         f"Session transcript:\n{text}"
@@ -480,11 +483,11 @@ def main():
     content_session_id = hook_data.get("session_id", "")
     transcript_path = hook_data.get("transcript_path", "")
 
-    # Must be in a git repo
+    # Get branch (fallback to "unknown" for detached HEAD / edge cases)
     branch = run_git("branch", "--show-current")
     if not branch:
-        print(json.dumps({}))
-        return
+        # Try HEAD ref as fallback (detached HEAD, tags, etc.)
+        branch = run_git("rev-parse", "--short", "HEAD") or "unknown"
 
     cwd = os.getcwd()
     files_modified = get_modified_files()
