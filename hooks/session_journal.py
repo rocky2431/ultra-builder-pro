@@ -465,9 +465,35 @@ def _try_claude_cli(prompt: str) -> str:
             output = result.stdout.strip()
             if len(output) > 20:
                 return output
-    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
-        pass
+            # Output too short — log it
+            _log_daemon_failure(
+                f"CLI returned OK but output too short ({len(output)} chars): "
+                f"{output[:100]}"
+            )
+        else:
+            _log_daemon_failure(
+                f"CLI exit code {result.returncode}\n"
+                f"  stderr: {result.stderr[:300]}\n"
+                f"  stdout: {result.stdout[:200]}"
+            )
+    except subprocess.TimeoutExpired:
+        _log_daemon_failure("CLI timed out after 60s")
+    except FileNotFoundError:
+        _log_daemon_failure("'claude' CLI not found in PATH")
+    except OSError as e:
+        _log_daemon_failure(f"OSError: {e}")
     return ""
+
+
+def _log_daemon_failure(msg: str) -> None:
+    """Log daemon failure to project-scoped error log."""
+    try:
+        log_path = _get_daemon_log()
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.now(timezone.utc).isoformat()} [CLI] {msg}\n")
+    except OSError:
+        pass
 
 
 # -- Main Entry Points --

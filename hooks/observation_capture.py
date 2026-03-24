@@ -38,6 +38,16 @@ TEST_FAIL_PATTERNS = re.compile(
     r"✗|✘|BROKEN|panic:|EXCEPTION)", re.IGNORECASE
 )
 
+# Significant non-test Bash commands worth recording
+SIGNIFICANT_CMD_PATTERNS = re.compile(
+    r"(git\s+(commit|push|merge|rebase|cherry-pick|tag)|"
+    r"(npm|yarn|pnpm|bun|pip3?|cargo|go)\s+(run\s+build|build|install|add|publish)|"
+    r"docker\s+(build|push|compose)|"
+    r"make\b|gradle\s+build|mvn\s+(package|install|deploy)|"
+    r"terraform\s+(apply|plan|destroy)|"
+    r"kubectl\s+(apply|delete|rollout))", re.IGNORECASE
+)
+
 # Extract file paths from test command or output
 FILE_PATH_PATTERN = re.compile(
     r'(?:^|\s|[/\\])(\S+\.(?:test|spec|_test|_spec)\.\w+)'  # test files
@@ -129,7 +139,16 @@ def main():
         if tool_name in ("Write", "Edit"):
             _capture_file_change(conn, internal_id, tool_name, tool_input)
         elif tool_name == "Bash":
-            _capture_test_result(conn, internal_id, tool_input, tool_output)
+            # Try test capture first, fall back to significant command capture
+            command = ""
+            if isinstance(tool_input, dict):
+                command = tool_input.get("command", "")
+            elif isinstance(tool_input, str):
+                command = tool_input
+            if command and TEST_CMD_PATTERNS.search(command):
+                _capture_test_result(conn, internal_id, tool_input, tool_output)
+            elif command:
+                _capture_significant_command(conn, internal_id, command)
 
         conn.close()
     except Exception:
@@ -166,6 +185,26 @@ def _capture_file_change(conn, session_id: str, tool_name: str,
         title=title,
         tool_name=tool_name,
         files=[short_path],
+    )
+
+
+def _capture_significant_command(conn, session_id: str, command: str) -> None:
+    """Capture significant Bash commands (git, build, deploy) as lightweight observations."""
+    if not SIGNIFICANT_CMD_PATTERNS.search(command):
+        return
+
+    # Reject package install guard (same as test capture)
+    if re.search(r'\b(pip3?|pipx)\s+install\s+(pytest|unittest)', command, re.IGNORECASE):
+        return
+
+    # Short title from first meaningful part of command
+    title = command.strip().split("\n")[0][:150]
+
+    memory_db.save_observation(
+        conn, session_id,
+        kind="command",
+        title=title,
+        tool_name="Bash",
     )
 
 

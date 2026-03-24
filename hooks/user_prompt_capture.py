@@ -53,12 +53,8 @@ def main():
 
     # Store initial request (only first prompt per session)
     try:
-        db_path = memory_db.get_db_path()
-        if not db_path.exists():
-            print(json.dumps({}))
-            return
-
-        conn = memory_db.init_db(db_path)
+        # init_db creates DB + tables if they don't exist yet
+        conn = memory_db.init_db()
 
         # Find session by content_session_id
         row = conn.execute(
