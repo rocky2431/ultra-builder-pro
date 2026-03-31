@@ -209,6 +209,11 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/ccline/ccline",
+    "padding": 0
+  },
   "enabledPlugins": {
     "document-skills@anthropic-agent-skills": true,
     "hookify@claude-plugins-official": true,
@@ -216,13 +221,14 @@
     "obsidian@obsidian-skills": true,
     "planning-with-files@planning-with-files": true,
     "pyright-lsp@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "pua@pua-skills": true,
     "cli-anything@cli-anything": true,
-    "claude-hud@claude-hud": true
+    "claude-hud@claude-hud": true,
+    "minimax-skills@minimax-skills": true,
+    "codex@openai-codex": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
@@ -254,6 +260,18 @@
         "source": "github",
         "repo": "jarrodwatts/claude-hud"
       }
+    },
+    "minimax-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/MiniMax-AI/skills.git"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
     }
   },
   "language": "chinese",
@@ -261,14 +279,10 @@
     "enabled": false,
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/ccline/ccline",
-    "padding": 0
-  },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
+  "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "_comment_project": "Ultra Builder Pro 6.1.0",
-  "_comment_version": "6.1.0 - Product Discovery Round 0"
+  "teammateMode": "tmux",
+  "_comment_project": "Ultra Builder Pro 6.8.0",
+  "_comment_version": "6.8.0 - Research Step-File Architecture (BMAD-inspired)"
 }

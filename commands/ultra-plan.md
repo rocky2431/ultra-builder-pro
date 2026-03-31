@@ -55,28 +55,51 @@ Use AskUserQuestion to determine planning posture before any analysis:
 
 ### Specification Completeness Validation
 
-**Check both files exist and are complete**:
+**Check all files exist and are complete**:
 - `.ultra/specs/product.md`
 - `.ultra/specs/architecture.md`
+- `.ultra/specs/research-distillate.md` (preferred primary context — if exists, use it)
+
+**Field-level validation checklist** (not just "file exists"):
+
+**discovery.md** (if exists):
+- [ ] §0 Problem Validation — has demand signal + confidence %
+- [ ] §2 Market Assessment — has TAM/SAM/SOM with numeric values + sources
+- [ ] §3 Competitive Landscape — has ≥2 competitors in comparison matrix
+- [ ] §4 Product Strategy — has ≥3 strategic trade-offs stated
+
+**product.md**:
+- [ ] §2 Personas — has ≥2 personas with goals + pain points
+- [ ] §3 Scenarios — has ≥3 scenarios with current + desired flow
+- [ ] §4 User Stories — all stories have acceptance criteria (Given/When/Then)
+- [ ] §5 Feature Scope — has Features Out section with rationale
+- [ ] §6 Success Metrics — North Star metric has specific numeric target
+
+**architecture.md**:
+- [ ] §1 Quality Goals — has ≥3 goals with measurable scenarios
+- [ ] §4 Solution Strategy — tech stack choices have rationale + source URL
+- [ ] §5 Building Blocks — modules map to features
+- [ ] §6 Runtime Scenarios — ≥1 scenario with data flow
 
 **Validation criteria**:
 - ❌ **BLOCK if**: File has [NEEDS CLARIFICATION] markers
 - ❌ **BLOCK if**: File is empty or missing
-- ❌ **BLOCK if**: Required sections are missing
-- ✅ **PROCEED if**: All sections complete, no markers
+- ❌ **BLOCK if**: Any checklist item above fails
+- ✅ **PROCEED if**: All items pass
 
 **If validation fails**:
 ```
 ⚠️  Specifications incomplete
 
-Issues:
-- [Specific missing or incomplete sections]
+Failed checks:
+- [Specific checklist items that failed]
 
-Solution: Run /ultra-research first
+Solution: Run /ultra-research to fill gaps (step-file architecture will target specific sections)
 ```
 
 ### Optional Checks
 
+- Check for `.ultra/specs/research-distillate.md` → Use as primary context (token-efficient)
 - Check for existing tasks → Ask whether to replace/extend/cancel
 - Clarify scope: Full project plan vs specific feature tasks
 
@@ -84,8 +107,9 @@ Solution: Run /ultra-research first
 
 ### 1. Requirements Analysis
 
-**Load specifications**:
-- `.ultra/specs/discovery.md` - Market context, strategy, assumptions (if exists)
+**Load specifications** (prefer distillate when available):
+- `.ultra/specs/research-distillate.md` - Token-efficient summary (PRIMARY if exists)
+- `.ultra/specs/discovery.md` - Market context, strategy, assumptions
 - `.ultra/specs/product.md` - User stories, features
 - `.ultra/specs/architecture.md` - Technical decisions
 

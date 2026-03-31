@@ -66,14 +66,15 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 ```
 /ultra-init -> /ultra-research -> /ultra-plan -> /ultra-dev -> /ultra-test -> /ultra-deliver
      |              |                |              |             |             |
-  Project       5-Round          Task         TDD Cycle      Quality       Release
-  Setup      Discovery R0-4    Breakdown      RED>GREEN      Audit        & Deploy
-               (optional)                        |
-              Round 0: Product Discovery   /ultra-review
-              Round 1: User & Scenario    (Quality Gate)
-              Round 2: Feature Definition
-              Round 3: Architecture
-              Round 4: Quality & Deploy
+  Project      17-Step           Task         TDD Cycle      Quality       Release
+  Setup     Step-File Arch    Breakdown      RED>GREEN      Audit        & Deploy
+               (JIT load)                       |
+              Steps 00-05: Product Discovery  /ultra-review
+              Steps 10-11: User & Scenario   (Quality Gate)
+              Steps 20-22: Feature Definition
+              Steps 30-32: Architecture
+              Steps 40-41: Quality & Deploy
+              Step 99: Synthesis → Distillate
 ```
 
 ---
@@ -83,7 +84,7 @@ If ANY component is fake/mocked/simulated -> Quality = 0
 | Command | Purpose | Key Features |
 |---------|---------|--------------|
 | `/ultra-init` | Initialize project | Auto-detect type/stack, copy templates, git setup |
-| `/ultra-research` | Interactive discovery | Forcing Questions + 5 rounds (Discovery>User>Feature>Architecture>Quality), 90%+ confidence |
+| `/ultra-research` | Interactive discovery | 17 step-files (JIT loaded, ~200 lines each), mandatory web search + structured output templates, research distillate for /ultra-plan |
 | `/ultra-plan` | Task planning | Scope Mode (EXPAND/SELECTIVE/HOLD/REDUCE), dependency analysis, complexity assessment |
 | `/ultra-dev` | TDD development | RED>GREEN>REFACTOR, Ultra Review gate, auto git flow |
 | `/ultra-test` | Quality audit | Anti-Pattern, Coverage gaps, E2E, Performance, Security |
@@ -454,7 +455,11 @@ Automated enforcement via Python hooks in `hooks/`. **Hooks are deterministic �
 |   |-- ultra-think.md
 |   |-- learn.md
 |
-|-- skills/                   # Domain skills (18 + learned)
+|-- skills/                   # Domain skills (19 + learned)
+|   |-- ultra-research/       # Step-file research architecture (v6.8.0)
+|   |   |-- SKILL.md          # Orchestrator with step routing
+|   |   |-- steps/            # 17 step files (step-00 to step-99)
+|   |   |-- templates/        # Output templates (reserved)
 |   |-- ultra-review/         # Parallel review orchestration
 |   |   |-- scripts/          # review_wait.py, review_verdict_update.py
 |   |-- ultra-verify/         # Three-way AI verification (Claude+Gemini+Codex)
@@ -577,6 +582,25 @@ Multi-step tasks use the Task system:
 ---
 
 ## Version History
+
+### v6.8.0 (2026-03-31) - Research Step-File Architecture
+
+**Core change**: Replaced monolithic `ultra-research.md` (491 lines) with **step-file architecture** inspired by [BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) (42.9k stars).
+
+**What changed**:
+- `skills/ultra-research/SKILL.md` — orchestrator with step routing and project type detection
+- `skills/ultra-research/steps/step-{00-99}.md` — 17 self-contained step files (3122 lines total, ~200 lines/step)
+- Each step has: MANDATORY RULES, SEARCH STRATEGY (pre-written queries), OUTPUT TEMPLATE (field-level structure), SUCCESS METRICS, FAILURE MODES
+- `step-99-synthesis.md` — generates `research-distillate.md` (token-efficient summary for /ultra-plan)
+- `commands/ultra-research.md` — slimmed to 60-line router pointing to SKILL.md
+
+**Why**: Previous single-file approach had ~16 lines of instruction per step. LLM attention was diluted across 5 Rounds. Now each step gets focused, dense instructions → **~11x instruction density increase**.
+
+**Key improvements**: Mandatory web search with pre-written queries per step | Structured output templates with field-level specs | Write-immediately discipline (no context loss) | [C] Continue user gates | Research distillate for /ultra-plan consumption | Field-level spec validation in /ultra-plan
+
+**Updated files** (8): `commands/ultra-research.md`, `commands/ultra-init.md`, `commands/ultra-plan.md`, `.ultra-template/specs/discovery.md`, `.ultra-template/specs/product.md`, `.ultra-template/specs/architecture.md`, `settings.json`, `README.md`
+
+**New files** (18): `skills/ultra-research/SKILL.md` + 17 step files in `skills/ultra-research/steps/`
 
 ### v6.5.0 (2026-03-20) - Product Velocity Fusion
 

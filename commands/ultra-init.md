@@ -203,20 +203,22 @@ Show in Chinese:
 - Research completes these templates through interactive discovery
 - Skipping research leads to: vague requirements, wrong tech choices, missing constraints
 
-**Think-Driven Interactive Discovery**:
-  - Round 0: Product Discovery - Opportunity space, market sizing, competitive analysis, strategy (discovery §1-5)
-  - Round 1: User & Scenario - Define personas and user scenarios (§1-3)
-  - Round 2: Feature Definition - Define features and success metrics (§4-6)
-  - Round 3: Architecture Design - Design system architecture (arch §1-6)
-  - Round 4: Quality & Deployment - Define quality and deployment (arch §7-12)
+**Step-File Architecture** (17 steps, each with mandatory web search + structured output):
+  - Steps 00-05: Product Discovery — Problem validation, opportunities, market sizing, competition, strategy, assumptions
+  - Steps 10-11: User & Scenario — Personas with goals/pain points, user journey scenarios
+  - Steps 20-22: Feature Definition — User stories, feature scope, success metrics
+  - Steps 30-32: Architecture — Quality goals, tech stack decisions, module decomposition
+  - Steps 40-41: Quality & Deploy — Infrastructure, CI/CD, risks, quality scenarios
+  - Step 99: Synthesis — Validate completeness, generate research distillate for /ultra-plan
 
-**ROI**: Thorough research saves significant rework
+**ROI**: Each step writes structured output immediately to spec files with source citations
 
 **After Research Completes**:
-  - .ultra/specs/discovery.md: Validated opportunities, market data, strategy, and assumptions
-  - .ultra/specs/product.md: 100% complete (no [NEEDS CLARIFICATION] markers)
-  - .ultra/specs/architecture.md: 100% complete with justified decisions
-  - Research reports saved to .ultra/docs/research/
+  - .ultra/specs/discovery.md: Validated opportunities, market data, strategy, and assumptions (§0-§5)
+  - .ultra/specs/product.md: 100% complete (no [NEEDS CLARIFICATION] markers, §1-§6)
+  - .ultra/specs/architecture.md: 100% complete with justified decisions (§1-§12)
+  - .ultra/specs/research-distillate.md: Token-efficient summary for /ultra-plan consumption
+  - .ultra/docs/research/*.md: Per-round research reports with confidence scores
 
 **Then Run**: `/ultra-plan` to generate task breakdown from complete specs
 
@@ -245,18 +247,20 @@ Show in Chinese:
 
 **DO NOT skip research!** This is the most important phase.
 
-**Think-Driven Interactive Discovery**:
-- Round 0: Product Discovery - Opportunity space, market sizing, competitive analysis, strategy (discovery §1-5)
-- Round 1: User & Scenario - Define personas and user scenarios (§1-3)
-- Round 2: Feature Definition - Define features and success metrics (§4-6)
-- Round 3: Architecture Design - Design system architecture (arch §1-6)
-- Round 4: Quality & Deployment - Define quality and deployment (arch §7-12)
+**Step-File Architecture** (17 focused steps with mandatory web search + structured output templates):
+- Steps 00-05: Product Discovery — Problem, opportunities, market, competition, strategy, assumptions
+- Steps 10-11: User & Scenario — Personas, user journey scenarios
+- Steps 20-22: Feature Definition — Stories, scope, metrics
+- Steps 30-32: Architecture — Context, tech stack, modules
+- Steps 40-41: Quality & Deploy — Infrastructure, risks
+- Step 99: Synthesis — Completeness validation + research distillate
 
 **Output**:
-- ✅ .ultra/specs/discovery.md: Validated opportunities, market data, strategy, and assumptions
-- ✅ .ultra/specs/product.md: 100% complete (all [NEEDS CLARIFICATION] filled)
-- ✅ .ultra/specs/architecture.md: 100% complete with justified decisions
-- ✅ Research reports: Saved to .ultra/docs/research/
+- ✅ .ultra/specs/discovery.md: §0-§5 with source citations
+- ✅ .ultra/specs/product.md: §1-§6 complete (all [NEEDS CLARIFICATION] filled)
+- ✅ .ultra/specs/architecture.md: §1-§12 with justified decisions
+- ✅ .ultra/specs/research-distillate.md: Token-efficient context for /ultra-plan
+- ✅ .ultra/docs/research/*.md: Per-round reports with confidence scores
 
 **Why This Matters**:
 - Without research: Vague requirements → rework, wrong tech → refactor, missing constraints → fixes
