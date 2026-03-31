@@ -304,7 +304,7 @@ Output summary:
 ## Integration
 
 - **Prerequisites**: `/ultra-research` (specs must be complete)
-- **Input**: `.ultra/specs/discovery.md` (optional), `.ultra/specs/product.md`, `.ultra/specs/architecture.md`
+- **Input**: `.ultra/specs/research-distillate.md` (primary), `.ultra/specs/discovery.md` (optional), `.ultra/specs/product.md`, `.ultra/specs/architecture.md`
 - **Output**: `.ultra/tasks/tasks.json`, `.ultra/tasks/contexts/*.md`
 - **Next**: `/ultra-dev`
 

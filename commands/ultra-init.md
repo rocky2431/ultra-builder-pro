@@ -1,5 +1,5 @@
 ---
-description: Initialize Ultra Builder Pro 6.1.0 project with native task management
+description: Initialize Ultra Builder Pro 6.8.0 project with native task management
 argument-hint: <name> <type> <stack> [git]
 allowed-tools: Read, Write, Bash, Grep, Glob, Task, AskUserQuestion
 model: opus
@@ -29,7 +29,7 @@ model: opus
 
 ## Purpose
 
-Initialize Ultra Builder Pro 6.1.0 project structure with native task management.
+Initialize Ultra Builder Pro 6.8.0 project structure with native task management.
 
 ## Arguments
 
@@ -142,7 +142,7 @@ Create `.ultra/` by copying from template (`~/.claude/.ultra-template/`):
 
 **Specification-Driven Structure**:
 - `.ultra/specs/` - Specification source of truth
-  - `discovery.md` - Opportunity Space, Market Assessment, Competitive Landscape, Product Strategy, Assumptions & Validation Plan (§1-5)
+  - `discovery.md` - Problem Validation, Opportunity Space, Market Assessment, Competitive Landscape, Product Strategy, Assumptions & Validation Plan (§0-5)
   - `product.md` - Problem Statement, Personas, User Scenarios, User Stories, Features Out, Success Metrics (§1-6)
   - `architecture.md` - arc42 structure (§1-12)
 
@@ -180,7 +180,7 @@ Create `.ultra/tasks/tasks.json`:
   - Exclude `.ultra/backups`
   - Exclude secrets, build artifacts
 - Create basic `README.md` (if not exists)
-- Suggest first commit: `git add . && git commit -m "feat: initialize Ultra Builder Pro 6.1.0"`
+- Suggest first commit: `git add . && git commit -m "feat: initialize Ultra Builder Pro 6.8.0"`
 
 **If user chose "Keep existing Git repository"** or **"Don't use Git"**:
 - Skip Git operations
