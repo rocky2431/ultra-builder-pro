@@ -4,13 +4,11 @@
     {
       "id": 1,
       "prompt": "/codex-collab review",
-      "expected_output": "Claude creates a session directory, invokes codex review to review uncommitted changes, reads the output file, and presents a synthesis report",
+      "expected_output": "Claude delegates to /codex:review (official plugin), then adds its own perspective and presents a dual-AI synthesis report",
       "assertions": [
-        "Creates a session directory under .ultra/collab/ with codex-review in the name",
-        "Uses 'codex review --uncommitted' (not codex exec) for review mode",
-        "Captures output with '2>&1 | tee' (codex review has no -o flag)",
-        "Uses Read tool to read the output file",
-        "Extracts review findings from raw output",
+        "Delegates to /codex:review instead of invoking codex CLI directly",
+        "Does NOT run 'codex review --uncommitted' directly",
+        "After receiving Codex output, Claude adds its own review perspective",
         "Presents a synthesis with Consensus and Divergent Views sections"
       ]
     },
@@ -30,11 +28,11 @@
     {
       "id": 3,
       "prompt": "/codex-collab review --base main with a focus on security",
-      "expected_output": "Claude uses codex exec for custom security review (since scope flags cannot be combined with custom prompts in codex review)",
+      "expected_output": "Claude delegates to /codex:adversarial-review for security-focused review, then synthesizes",
       "assertions": [
-        "Uses codex review or codex exec for the security-focused review",
-        "Does NOT use hardcoded model names (uses -m <model> or default)",
-        "All paths use .ultra/collab/ (not /tmp/)",
+        "Delegates to /codex:review or /codex:adversarial-review (official plugin)",
+        "Does NOT invoke codex CLI directly for review tasks",
+        "After receiving output, presents dual-AI synthesis",
         "Reads output with Read tool, not Bash stdout"
       ]
     }

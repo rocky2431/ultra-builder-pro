@@ -6,24 +6,19 @@ Model selection: pass any available OpenAI model via `-m <model>`. Omit for defa
 
 **Sandbox note**: `--full-auto` implies `-s workspace-write`. For read-only analysis, use `-s read-only` without `--full-auto`.
 
-## Review
+## Review — Delegated to Official Plugin
 
-### General Review (use `codex review` directly)
-```bash
-codex review --uncommitted 2>&1 | tee "${SESSION_PATH}/raw.txt"
-```
+Review mode now delegates to the official Codex plugin. Do NOT invoke `codex review` directly.
 
-### Review Against Branch
-```bash
-codex review --base main 2>&1 | tee "${SESSION_PATH}/raw.txt"
-```
+| Request | Delegate to |
+|---------|-------------|
+| General review | `/codex:review` |
+| Review against branch | `/codex:review --base main` |
+| Security/adversarial review | `/codex:adversarial-review` |
 
-### Security Review (use `codex review` with custom prompt, or `codex exec` for full control)
-```bash
-codex review "Perform a security audit. Check for injection, XSS, path traversal, auth flaws, data exposure, OWASP Top 10. For each: severity, location, exploit scenario, remediation." 2>&1 | tee "${SESSION_PATH}/raw.txt"
-```
+After receiving the plugin's output, apply the dual-AI synthesis protocol (Consensus / Divergent Views).
 
-### Performance Review (pipe file via stdin)
+### Performance Review (still uses `codex exec`)
 ```bash
 cat "$FILE" | codex exec "Analyze this code for performance issues: algorithm complexity, unnecessary allocations, N+1 queries, missing caching, blocking ops, memory leaks. Quantify impact." -s read-only -o "${SESSION_PATH}/output.md" 2>"${SESSION_PATH}/error.log"
 ```

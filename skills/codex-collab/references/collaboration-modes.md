@@ -2,18 +2,16 @@
 
 5 modes for dual-AI collaboration. Each mode follows the file-based output protocol defined in `collab-protocol.md`.
 
-## 1. Code Review (`review`)
+## 1. Code Review (`review`) — Delegated to Official Plugin
 
-External AI independently reviews code changes, then Claude merges findings.
+Review mode delegates Codex invocation to the official `/codex:review` plugin. Claude adds dual-AI synthesis on top.
 
-1. Create session directory
-2. Gather the diff or file content to review
-3. Send to external AI, redirect output to file
-4. Read the output file with Read tool
-5. Claude adds its own review perspective
-6. Present unified report:
+1. Invoke `/codex:review` (or `/codex:adversarial-review` for security focus)
+2. Receive Codex's review output from the official plugin
+3. Claude adds its own review perspective
+4. Present unified report:
    - **Consensus**: issues both AIs agree on (highest confidence)
-   - **{Agent}-only**: issues only the external AI spotted (worth investigating)
+   - **Codex-only**: issues only Codex spotted (worth investigating)
    - **Claude-only**: issues only Claude spotted
    - **Disagreements**: where the two AIs differ (discuss trade-offs)
 

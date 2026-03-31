@@ -11,6 +11,9 @@ codex login
 
 ## Mode 1: `codex review` — Built-in Code Review
 
+> **Note**: In codex-collab, review mode delegates to the official `/codex:review` plugin.
+> This section is kept as CLI reference for direct usage and other contexts.
+
 Purpose-built for reviewing code changes. Outputs review findings to stdout/stderr.
 
 ```bash
