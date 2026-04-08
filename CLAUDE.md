@@ -216,6 +216,21 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 </git_workflow>
 
+<context_budget>
+**Degradation Tiers** — self-assess from conversation length + tool call count:
+
+| Tier | Signal | Behavior |
+|------|--------|----------|
+| PEAK (0-30%) | Fresh session, <15 tool calls | Full reads, spawn agents freely |
+| GOOD (30-50%) | 15-40 tool calls | Normal ops, prefer targeted reads over full-file |
+| DEGRADING (50-70%) | 40-70 tool calls or noticing vagueness | Frontmatter-only reads, delegate to subagents, warn user |
+| POOR (70%+) | >70 tool calls or skipping steps | **Checkpoint immediately**: write workflow state → `/compact` → resume |
+
+**Warning signs** (self-monitor): silent partial completion, increasing vagueness ("appropriate handling"), skipped protocol steps.
+**Plan sizing**: Tasks should be completable within 40% context. Max 8 files touched per task. Complexity ≥7 → split or spawn subagent.
+**Proactive warning**: If in DEGRADING tier, output: "⚠️ Context budget heavy — consider /compact or splitting remaining work."
+</context_budget>
+
 <work_style>
 - Batch parallel calls; stop when sufficient; avoid repeated queries
 - Keep acting until solved; yes → execute directly; incomplete action > perfect inaction

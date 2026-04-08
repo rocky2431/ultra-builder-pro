@@ -61,6 +61,37 @@ Suggest next optimal task based on:
 - Complexity (balance with velocity)
 - Context (similar to recent tasks)
 
+### Phase 5: Workflow Routing (▶ Next Up)
+
+**Detect workflow position from existing artifacts** (no extra state file needed):
+
+| Check | Condition | Route |
+|-------|-----------|-------|
+| No `.ultra/` dir | Missing | → `/ultra-init` |
+| No specs | `product.md` missing or has `[NEEDS CLARIFICATION]` | → `/ultra-research` |
+| No tasks | `tasks.json` missing or empty | → `/ultra-plan` |
+| Tasks pending | Any task status "pending" | → `/ultra-dev` (show which task) |
+| All tasks done | All tasks "completed" | → `/ultra-test` |
+| Test passed | `test-report.json` `passed: true` | → `/ultra-deliver` |
+| Test failed | `test-report.json` `passed: false` | → `/ultra-dev` (show blocking issues) |
+| Delivered | `delivery-report.json` exists | → Done. Suggest next milestone |
+
+**Safety checks before routing**:
+- If routing to deliver but `test-report.json` `git_commit` ≠ HEAD → "Tests stale, re-run `/ultra-test`"
+- If `git status` has uncommitted changes → warn
+
+**Output format** (standardized continuation block):
+```markdown
+---
+## ▶ Next Up
+**{command}** — {description}
+`/clear` then: `/{command}`
+---
+**Also available:**
+- `/{alt}` — {description}
+---
+```
+
 ## Usage
 
 ```bash

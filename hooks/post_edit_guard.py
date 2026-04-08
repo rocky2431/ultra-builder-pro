@@ -108,6 +108,32 @@ CQ_WARN_PATTERNS = [
 ]
 
 
+# -- Scope Reduction Patterns (WARN only, non-test source files) --
+
+SCOPE_REDUCTION_PATTERNS = [
+    (r'(?:simplified|basic)\s+(?:version|implementation|approach)',
+     'Scope reduction language - implement full spec or split task'),
+    (r'(?:static|hardcoded)\s+for\s+now',
+     'Scope deferral - implement dynamic per spec'),
+    (r'\bplaceholder\b',
+     'Placeholder detected - complete implementation per spec'),
+    (r'\bv1\b.*(?:later|future|next|v2)',
+     'Scope versioning (v1/v2) - deliver full spec or propose task split'),
+    (r'(?:will\s+be|to\s+be)\s+(?:wired|connected|integrated)\s+later',
+     'Deferred wiring - integrate now or flag as blocked'),
+    (r'(?:future|later)\s+(?:enhancement|improvement|phase|iteration)',
+     'Scope deferral to future - deliver now or split task'),
+    (r'\bminimal\s+(?:implementation|version|viable)',
+     'Minimal implementation - deliver full spec scope'),
+    (r'\bskip(?:ped|ping)?\s+for\s+now',
+     'Skipped scope - implement or flag as blocked'),
+    (r'\bstub(?:bed)?\b(?!\s*(?:test|spec|mock))',
+     'Stub detected - complete implementation'),
+    (r'\bnot\s+(?:wired|connected|hooked)\s+(?:to|up|yet)',
+     'Unwired code - integrate before commit'),
+]
+
+
 # -- Mock Detector Patterns --
 
 MOCK_FORBIDDEN_PATTERNS = [
@@ -211,6 +237,29 @@ def check_code_quality(_file_path, content, lines):
 
     # WARN patterns deferred to review-code agent (reduces PostToolUse noise)
     return blocks, []
+
+
+# -- Checker: Scope Reduction Detection --
+
+def check_scope_reduction(file_path, content, lines):
+    """Detect scope reduction language in non-test source files. Returns warnings list."""
+    if is_test_file(file_path) or is_config_file(file_path):
+        return []
+    if is_generated_file(file_path) or is_hook_file(file_path):
+        return []
+    if is_example_or_docs(file_path):
+        return []
+
+    warnings = []
+    for pattern, message in SCOPE_REDUCTION_PATTERNS:
+        for match in re.finditer(pattern, content, re.IGNORECASE):
+            line_num = get_line_number(content, match.start())
+            line_content = lines[line_num - 1].strip() if line_num <= len(lines) else ''
+            # Only flag if the pattern appears in comments or string literals
+            # (scope reduction language is typically in code comments, not variable names)
+            if is_in_comment(line_content) or re.search(r'["\'].*' + re.escape(match.group(0)[:20]) + r'.*["\']', line_content):
+                warnings.append({'line': line_num, 'message': message, 'code': line_content[:80]})
+    return warnings
 
 
 # -- Checker: Mock Detector --
@@ -470,6 +519,18 @@ def _fmt_security(file_path, critical, high):
     return out
 
 
+def _fmt_scope_reduction(file_path, warnings):
+    if not warnings:
+        return []
+    fname = os.path.basename(file_path)
+    out = []
+    for w in warnings[:5]:
+        out.append(f"[SCOPE:WARN] {fname}:{w['line']} {w['message']}")
+    if len(warnings) > 5:
+        out.append(f"[SCOPE] +{len(warnings)-5} more")
+    return out
+
+
 # -- Main --
 
 def main():
@@ -552,14 +613,23 @@ def main():
         if sec_critical:
             has_blocks = True
 
-    # 4. TDD test file pairing (source files only, warn not block)
+    # 4. Scope reduction detection (source files only, warn not block)
+    if ext in CODE_QUALITY_EXT and not is_generated_file(file_path):
+        scope_warnings = check_scope_reduction(file_path, content, lines)
+        scope_section = _fmt_scope_reduction(file_path, scope_warnings)
+        if scope_section:
+            if all_issues:
+                all_issues.append("")
+            all_issues.extend(scope_section)
+
+    # 5. TDD test file pairing (source files only, warn not block)
     tdd_warning = check_test_file_exists(file_path)
     if tdd_warning:
         if all_issues:
             all_issues.append("")
         all_issues.append(tdd_warning)
 
-    # 5. Silent catch detection (block)
+    # 6. Silent catch detection (block)
     if ext == '.py' and not is_hook_file(file_path):
         silent_violations = check_silent_catches(file_path, content, lines)
         if silent_violations:
@@ -571,7 +641,7 @@ def main():
             all_issues.append("  → Add logging or handle the error explicitly.")
             has_blocks = True
 
-    # 6. Blast radius (info via stderr, never blocks)
+    # 7. Blast radius (info via stderr, never blocks)
     dependents = check_blast_radius(file_path)
     if dependents:
         short = os.path.basename(file_path)
@@ -579,7 +649,7 @@ def main():
         extra = f" +{len(dependents)-8} more" if len(dependents) > 8 else ""
         print(f"[Impact] {short} is imported by: {dep_list}{extra}", file=sys.stderr)
 
-    # 7. Test reminder (info via stderr, never blocks)
+    # 8. Test reminder (info via stderr, never blocks)
     test_file = check_test_reminder(file_path)
     if test_file:
         rel_test = os.path.relpath(test_file)

@@ -205,6 +205,7 @@ Solution: Run /ultra-research to fill gaps (step-file architecture will target s
 - Ideal complexity: 3-5 (completable in one session)
 - Too large (>6): Break down into subtasks
 - Too small (<3): Merge with related tasks
+- **Context budget**: Target 40% context window per task. Max 8 files touched. Complexity ≥7 must split.
 
 **Integration task generation**:
 
@@ -277,6 +278,36 @@ For every task in tasks.json, create `.ultra/tasks/contexts/task-{id}.md` using 
 - List `.ultra/tasks/contexts/` → count files
 - **If counts don't match → create missing context files before proceeding**
 
+### 5.5. Plan Verification (BLOCKING)
+
+**Programmatic checks before presenting to user. If any CRITICAL check fails → fix before proceeding.**
+
+**5.5.1 Requirement Coverage**:
+- Read `.ultra/specs/product.md` §4 (User Stories) — extract all story IDs (US-XX)
+- For each story, verify ≥1 task in tasks.json has `trace_to` referencing that story
+- **CRITICAL**: Any unmapped user story → create missing task or flag to user
+
+**5.5.2 Dependency Acyclicity**:
+- Build dependency graph from tasks.json `dependencies` field
+- Traverse for cycles (DFS with visited/recursion-stack)
+- **CRITICAL**: Cycle detected → report exact cycle chain, block plan
+
+**5.5.3 trace_to Completeness**:
+- For each task, verify `trace_to` path points to an existing section in specs
+- **WARN**: Missing or broken trace_to → suggest correction
+
+**5.5.4 Scope Sanity**:
+- Tasks with complexity ≥ 7 → WARN "Consider splitting into subtasks"
+- Tasks touching > 8 target files → WARN "Large blast radius, consider split"
+- Total tasks > 20 for a single plan cycle → WARN "Consider phased delivery"
+
+**5.5.5 Context Budget**:
+- Estimate: each task consumes ~(complexity × 5)% of context window
+- If any single task > 40% estimated context → WARN "Task may exhaust context, split recommended"
+
+**If all checks pass** → present plan overview to user for approval (Step 6)
+**If CRITICAL failures** → auto-fix or present issues before continuing
+
 ### 6. Report
 
 Output summary:
@@ -310,5 +341,28 @@ Output summary:
 
 **Workflow**:
 ```
-/ultra-init → /ultra-research → /ultra-plan → /ultra-dev
+/ultra-init → /ultra-research → /ultra-plan → /ultra-dev → /ultra-test → /ultra-deliver
+```
+
+## Continuation Format (MANDATORY)
+
+End output with standardized next-step block:
+
+```markdown
+---
+
+## ▶ Next Up
+
+**Start Development** — TDD workflow on Task #1: {first task title}
+
+`/clear` then:
+
+`/ultra-dev`
+
+---
+
+**Also available:**
+- `/ultra-status` — View project overview and workflow routing
+
+---
 ```

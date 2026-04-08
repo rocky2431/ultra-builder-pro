@@ -159,6 +159,12 @@ Find and change the status header line:
 
 **RED → GREEN → REFACTOR**
 
+**Subagent isolation** (complexity ≥ 7):
+For tasks with complexity ≥ 7, consider spawning the TDD cycle (Steps 3.1-3.3) as an independent subagent. The subagent reads the task context file, executes TDD, commits, and returns a summary. The main session stays lean for review and commit steps. This is optional and depends on runtime support.
+
+**Mid-TDD compact checkpoint** (complexity ≥ 6):
+After GREEN phase completes (Step 3.2), write workflow-state.json checkpoint and consider running `/compact` if context feels heavy (>40 tool calls in session). Then resume from Step 3.3.
+
 **RED Phase**: Write failing tests
 - Use Acceptance section from context file as test spec
 - Cover test dimensions:
@@ -241,7 +247,16 @@ This automatically:
 | APPROVE | any | Proceed to Step 5 |
 | COMMENT | any | Review P1s, fix if warranted, proceed |
 | REQUEST_CHANGES | 1 | Fix ALL P0, re-run tests, `/ultra-review recheck` |
-| REQUEST_CHANGES | 2 | Fix remaining P0s, log unresolved to UNRESOLVED.md, proceed with warning |
+| REQUEST_CHANGES | 2 | **Stall check first** (see below), then fix or escalate |
+
+**Stall Detection** (before iteration 2 fix attempt):
+1. Read SUMMARY.json from iteration 1 → count P0 + P1 issues = `prev_count`
+2. Read SUMMARY.json from iteration 2 → count P0 + P1 issues = `curr_count`
+3. **If `curr_count >= prev_count`**: Review loop stalled — escalate immediately:
+   - Write `UNRESOLVED.md` with all remaining issues
+   - WARN user: "Review stalled (issue count not decreasing: {prev_count} → {curr_count}). Escalating."
+   - Proceed to Step 5 with warning
+4. **If `curr_count < prev_count`**: Progress detected — continue fix attempt
 
 If iteration >= 2 and P0s remain:
 - Write `{SESSION_PATH}/UNRESOLVED.md` with remaining P0/P1 findings
@@ -375,15 +390,29 @@ Output:
 
 **Process**:
 
-1. **Update specs immediately** (`.ultra/specs/product.md` or `architecture.md`)
+1. **Classify the change** (MANDATORY before updating specs):
+
+   | Classification | Description | Action |
+   |---------------|-------------|--------|
+   | **EXPANSION** | New requirement discovered during implementation | Update spec, record in Change Log |
+   | **CORRECTION** | Spec error or ambiguity found | Update spec, record in Change Log |
+   | **REDUCTION** | Removing or weakening a requirement | **STOP** → AskUserQuestion for approval |
+
+   **REDUCTION gate**: If the change would remove scope, weaken acceptance criteria, or defer functionality, use AskUserQuestion:
+   - Explain what is being reduced and why
+   - Option A: "Approve reduction — update spec" (user accepts simpler scope)
+   - Option B: "Keep original scope — find alternative implementation"
+   - Option C: "Split into separate task — defer to next cycle"
+
+2. **Update specs immediately** (`.ultra/specs/product.md` or `architecture.md`)
    - Keep specifications current for parallel tasks
 
-2. **Record change in context file** Change Log:
+3. **Record change in context file** Change Log:
    ```markdown
-   | {date} | {change description} | specs/{file}#{section} | {reason} |
+   | {date} | {classification} | {change description} | specs/{file}#{section} | {reason} |
    ```
 
-**Key principle**: `specs/` is source of truth, `contexts/` tracks implementation history.
+**Key principle**: `specs/` is source of truth, `contexts/` tracks implementation history. Specs may grow (EXPANSION) or be corrected (CORRECTION), but never silently shrink (REDUCTION).
 
 ---
 

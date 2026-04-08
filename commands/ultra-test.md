@@ -81,6 +81,35 @@ Pre-delivery quality audit. Validates test health, coverage gaps, E2E functional
 - MEDIUM: Utility functions untested
 - LOW: Config/constants untested
 
+### Step 2.5: Wiring Verification
+
+**Purpose**: Detect orphaned code — files that exist and pass tests but are not connected to anything.
+
+**What to do**:
+1. Find all exported symbols in source files (functions, classes, constants)
+2. For each export, search ALL non-test source files for imports of that symbol
+3. Report exports with 0 non-test imports as orphaned
+
+**Wiring Patterns to Verify** (when applicable):
+- **Component → API**: Components with fetch/axios calls should target existing API routes
+- **API → Database**: Route handlers should import and use DB clients (prisma, db, mongoose)
+- **Form → Handler**: onSubmit handlers should have real logic (not empty `() => {}`)
+- **State → Render**: State variables should appear in JSX/template output
+
+**Stub Detection** (Level 2 — Substantive):
+- Functions returning empty arrays `return []` or `return {}` without DB/API calls
+- Functions with only `console.log()` as body
+- Event handlers that only call `e.preventDefault()` with no further logic
+- Components returning only `<div>Placeholder</div>` or similar static text
+
+**Output**: Append to `.ultra/docs/test-coverage-gaps.md` under "## Wiring Gaps" section
+
+**Priority**:
+- HIGH: Orphaned exports in core business logic
+- HIGH: Stub implementations (empty returns, log-only handlers)
+- MEDIUM: Orphaned utility functions
+- LOW: Orphaned type definitions
+
 ---
 
 ### Step 3: E2E Testing
