@@ -2,7 +2,7 @@
   "cleanupPeriodDays": 30,
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "MAX_THINKING_TOKENS": "31999"
+    "MAX_THINKING_TOKENS": "63999"
   },
   "attribution": {
     "commit": "🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
@@ -228,7 +228,11 @@
     "cli-anything@cli-anything": true,
     "claude-hud@claude-hud": true,
     "minimax-skills@minimax-skills": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "impeccable@impeccable": true,
+    "context7@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true,
+    "caveman@caveman": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
@@ -272,6 +276,18 @@
         "source": "github",
         "repo": "openai/codex-plugin-cc"
       }
+    },
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
+      }
+    },
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
     }
   },
   "language": "chinese",
@@ -280,6 +296,7 @@
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
   "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
   "teammateMode": "tmux",
