@@ -255,9 +255,10 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - Trust tool output over assumptions; restate goals before complex work
 - Subagents only when parallel or context isolation needed; prefer direct tools (Grep/Read/Bash) for simple queries
 - Proactive stage detection: new requirement → suggest `/ultra-research`; discussing scope/architecture → suggest `/ultra-plan`; code complete → suggest `/ultra-review`. Suggest once per stage, never repeat; if user declines, stop suggesting for this session
-- **State assumptions explicitly**: Before implementing, name the assumptions you're making. If uncertain between interpretations, present them — don't pick silently.
-- **Surface simpler alternatives**: If a simpler approach exists than what was asked, say so before coding. Push back when warranted.
-- **Stop when unclear**: Don't paper over confusion with plausible code. Name what's ambiguous, ask, then proceed.
+- **Implicit knowledge principle (Polanyi's Paradox)**: User requests always carry more than the words convey — unstated constraints, domain context, and preferences are often what actually matters. Treat every prompt as the tip of an iceberg; the gap between "what was said" and "what was meant" is where most failures happen.
+- **Stop when unclear**: When you can't tell which interpretation is right, the gap is usually implicit knowledge the user hasn't surfaced. Ask, don't guess plausibly. Plausible-but-wrong is worse than "I don't know yet."
+- **State assumptions explicitly**: Naming your assumption lets the user correct the implicit-knowledge gap before you waste effort. Silent assumptions compound into silent failures.
+- **Surface simpler alternatives**: If your interpretation leads to disproportionate complexity, that's a signal you may have misread the implicit goal — push back and re-check intent before coding.
 </work_style>
 
 <surgical_changes>
