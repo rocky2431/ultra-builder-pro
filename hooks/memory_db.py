@@ -59,15 +59,23 @@ def get_git_toplevel() -> str:
     return ""
 
 
-def get_db_path() -> Path:
-    """Get project-level DB path (.ultra/memory/memory.db).
+def _resolve_memory_root() -> Path:
+    """Resolve the memory root directory for this invocation.
 
-    Falls back to ~/.claude/memory/memory.db if not in a git repo.
+    Global config dir ~/.claude is not a project, so its memory routes to
+    ~/.claude/memory/ — shared across all sessions started under it. Real
+    projects get their own {project}/.ultra/memory/ subtree.
     """
+    claude_home = Path.home() / ".claude"
     toplevel = get_git_toplevel()
-    if toplevel:
-        return Path(toplevel) / ".ultra" / "memory" / "memory.db"
-    return Path.home() / ".claude" / "memory" / "memory.db"
+    if toplevel and Path(toplevel).resolve() != claude_home.resolve():
+        return Path(toplevel) / ".ultra" / "memory"
+    return claude_home / "memory"
+
+
+def get_db_path() -> Path:
+    """Get memory.db path for the current invocation context."""
+    return _resolve_memory_root() / "memory.db"
 
 
 def get_jsonl_path() -> Path:
@@ -802,11 +810,8 @@ def format_oneliner(s: dict) -> str:
 
 
 def get_chroma_dir() -> Path:
-    """Get Chroma storage directory (.ultra/memory/chroma/)."""
-    toplevel = get_git_toplevel()
-    if toplevel:
-        return Path(toplevel) / ".ultra" / "memory" / "chroma"
-    return Path.home() / ".claude" / "memory" / "chroma"
+    """Get Chroma storage directory (sibling of memory.db)."""
+    return _resolve_memory_root() / "chroma"
 
 
 def get_chroma_collection():
