@@ -30,6 +30,7 @@ CLI usage:
 import hashlib
 import json
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -886,9 +887,94 @@ def semantic_search(query: str, limit: int = 10,
         return []
 
 
+def _classify_query(query: str) -> str:
+    """Classify query type for search routing. No LLM call."""
+    if re.search(
+        r'(昨天|前天|上周|本周|上个月|今天|'
+        r'最近\d+[天日]|past\s+\d+\s*days?|'
+        r'last\s+(week|\d+\s*days?)|yesterday|today|this\s+week)',
+        query, re.I
+    ):
+        return "temporal"
+    words = query.split()
+    if len(words) <= 3 and not any(c in query for c in '?？怎么为什么如何'):
+        return "keyword"
+    return "semantic"
+
+
+def _parse_temporal_range(query: str) -> tuple | None:
+    """Extract date range from temporal query. Returns (start, end) ISO strings."""
+    now = datetime.now(timezone.utc)
+
+    if re.search(r'(今天|today)', query, re.I):
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    elif re.search(r'(昨天|yesterday)', query, re.I):
+        start = (now - timedelta(days=1)).replace(
+            hour=0, minute=0, second=0, microsecond=0)
+    elif re.search(r'(前天|day\s+before)', query, re.I):
+        start = (now - timedelta(days=2)).replace(
+            hour=0, minute=0, second=0, microsecond=0)
+    elif m := re.search(
+        r'最近(\d+)[天日]|past\s+(\d+)\s*days?|last\s+(\d+)\s*days?',
+        query, re.I
+    ):
+        days = int(m.group(1) or m.group(2) or m.group(3))
+        start = now - timedelta(days=days)
+    elif re.search(r'(上周|last\s+week)', query, re.I):
+        start = now - timedelta(days=7)
+    elif re.search(r'(本周|this\s+week)', query, re.I):
+        start = (now - timedelta(days=now.weekday())).replace(
+            hour=0, minute=0, second=0, microsecond=0)
+    elif re.search(r'(上个月|last\s+month)', query, re.I):
+        start = now - timedelta(days=30)
+    else:
+        return None
+
+    return (start.isoformat(), now.isoformat())
+
+
+def get_by_date_range(conn: sqlite3.Connection, start_date: str,
+                      end_date: str, limit: int = 10) -> list:
+    """Get sessions within a date range (ISO format strings)."""
+    rows = conn.execute(
+        """SELECT s.id, s.started_at, s.last_active, s.branch, s.cwd,
+                  s.files_modified, s.summary, s.tags, s.stop_count,
+                  ss.request as ss_request, ss.completed as ss_completed,
+                  ss.learned as ss_learned, ss.next_steps as ss_next_steps
+           FROM sessions s
+           LEFT JOIN session_summaries ss ON s.id = ss.session_id
+           WHERE s.last_active >= ? AND s.last_active <= ?
+           ORDER BY s.last_active DESC
+           LIMIT ?""",
+        (start_date, end_date, limit)
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def hybrid_search(conn: sqlite3.Connection, query: str,
                   limit: int = 10, k: int = 60) -> list:
-    """Hybrid search: FTS5 + Chroma semantic, merged via RRF."""
+    """Hybrid search: FTS5 + Chroma semantic, merged via weighted RRF.
+
+    Routes by query type (inspired by Cognee's rule-based router):
+    - temporal: date-range query first, FTS fallback
+    - keyword: FTS5 weighted 2x
+    - semantic: Chroma weighted 2x
+    """
+    query_type = _classify_query(query)
+
+    # Temporal: date-range results take priority
+    if query_type == "temporal":
+        date_range = _parse_temporal_range(query)
+        if date_range:
+            results = get_by_date_range(
+                conn, date_range[0], date_range[1], limit)
+            if results:
+                return results
+
+    # Weighted RRF by query type
+    fts_w = 2.0 if query_type == "keyword" else 1.0
+    sem_w = 2.0 if query_type == "semantic" else 1.0
+
     fts_results = search(conn, query, limit=limit * 2)
     fts_ids = [s["id"] for s in fts_results]
 
@@ -897,9 +983,9 @@ def hybrid_search(conn: sqlite3.Connection, query: str,
 
     scores: dict[str, float] = {}
     for rank, sid in enumerate(fts_ids):
-        scores[sid] = scores.get(sid, 0.0) + 1.0 / (k + rank + 1)
+        scores[sid] = scores.get(sid, 0.0) + fts_w / (k + rank + 1)
     for rank, sid in enumerate(sem_ids):
-        scores[sid] = scores.get(sid, 0.0) + 1.0 / (k + rank + 1)
+        scores[sid] = scores.get(sid, 0.0) + sem_w / (k + rank + 1)
 
     sorted_ids = sorted(
         scores.keys(), key=lambda x: scores[x], reverse=True

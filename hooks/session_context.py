@@ -180,7 +180,7 @@ def get_branch_memory(branch: str) -> list:
     return []
 
 
-def get_semantic_context(source: str) -> list:
+def get_semantic_context(source: str, branch: str = "") -> list:
     """Use Chroma semantic search to find related sessions.
 
     Only activates for startup sessions (not compact) and when there are
@@ -204,9 +204,17 @@ def get_semantic_context(source: str) -> list:
             conn.close()
             return []
 
-        # Use CWD basename as semantic query
-        cwd_name = Path.cwd().name
-        results = memory_db.semantic_search(cwd_name, limit=3, conn=conn)
+        # Build richer query: branch + last commit (MemPalace L1 inspired)
+        query_parts = []
+        if branch:
+            query_parts.append(branch)
+        last_commit = run_cmd(["git", "log", "--oneline", "-1", "--format=%s"])
+        if last_commit:
+            query_parts.append(last_commit)
+        if not query_parts:
+            query_parts.append(Path.cwd().name)
+        query = " ".join(query_parts)
+        results = memory_db.semantic_search(query, limit=3, conn=conn)
         conn.close()
 
         if not results:
@@ -221,6 +229,52 @@ def get_semantic_context(source: str) -> list:
                 if len(short) > 100:
                     short = short[:97] + "..."
                 lines.append(f"  - [{date}] {short}")
+        return lines if len(lines) > 1 else []
+    except Exception:
+        return []
+
+
+def get_recent_learnings() -> list:
+    """Get recent non-trivial learned insights across all branches.
+
+    Surfaces Haiku-extracted 'learned' field from session_summaries.
+    Inspired by Hindsight's consolidation: make past learnings visible.
+    Adds ~100 tokens. Fails silently.
+    """
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        import memory_db
+
+        db_path = memory_db.get_db_path()
+        if not db_path.exists():
+            return []
+
+        conn = memory_db.init_db(db_path)
+        rows = conn.execute(
+            """SELECT ss.learned, s.branch, s.last_active
+               FROM session_summaries ss
+               JOIN sessions s ON ss.session_id = s.id
+               WHERE ss.learned != '' AND ss.status = 'ready'
+               ORDER BY s.last_active DESC LIMIT 5""",
+        ).fetchall()
+        conn.close()
+
+        if not rows:
+            return []
+
+        lines = ["Recent learnings:"]
+        seen = set()
+        for row in rows:
+            learned = row["learned"].strip()
+            if learned and learned not in seen:
+                seen.add(learned)
+                date = row["last_active"][:10]
+                branch_name = row["branch"] or "?"
+                short = learned.replace("|", ",")
+                if len(short) > 120:
+                    short = short[:117] + "..."
+                lines.append(f"  - [{date}, {branch_name}] {short}")
+
         return lines if len(lines) > 1 else []
     except Exception:
         return []
@@ -279,10 +333,16 @@ def main():
         context_lines.extend(branch_mem)
 
     # Semantic recall (opt-in: only when enough sessions exist)
-    semantic_lines = get_semantic_context(source)
+    semantic_lines = get_semantic_context(source, branch)
     if semantic_lines:
         context_lines.append("")
         context_lines.extend(semantic_lines)
+
+    # Recent learnings (Hindsight-inspired: surface past insights)
+    learnings_lines = get_recent_learnings()
+    if learnings_lines:
+        context_lines.append("")
+        context_lines.extend(learnings_lines)
 
     # Output context for AI
     result = {
