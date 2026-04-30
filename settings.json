@@ -193,6 +193,15 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/session_trail.py",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SubagentStart": [
