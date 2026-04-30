@@ -20,6 +20,7 @@ import sys
 import json
 import re
 import os
+import subprocess
 from pathlib import Path
 
 # v7: progress.json maintenance helper
@@ -572,11 +573,50 @@ def _extract_ac_bullets(ctx_path, max_lines=2):
     return bullets
 
 
+def _git_short(args, cwd):
+    """Run git with timeout; return stdout stripped, '' on any failure."""
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            capture_output=True, text=True, timeout=2,
+            cwd=str(cwd),
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        pass
+    return ""
+
+
+def _git_context_fallback(file_path, toplevel):
+    """Phase 5C: stderr line for source files outside any task.
+
+    Triggered only when the project IS an Ultra project (relations.json
+    exists) but the edited file is not in the file→task index. Stays quiet
+    in non-Ultra projects to avoid global noise.
+    """
+    fname = os.path.basename(file_path)
+    branch = _git_short(["rev-parse", "--abbrev-ref", "HEAD"], cwd=toplevel) or "?"
+    try:
+        rel_fp = os.path.relpath(file_path, toplevel)
+    except ValueError:
+        rel_fp = file_path
+    last = _git_short(
+        ["log", "-1", "--pretty=format:%h %s (%cr)", "--", rel_fp],
+        cwd=toplevel,
+    )
+    if last:
+        return [f"[Trace] (no task) {fname} on branch {branch}; last: {last[:80]}"]
+    return [f"[Trace] (no task) {fname} on branch {branch}; uncommitted (no history)"]
+
+
 def check_task_trace(file_path):
     """v7+ reverse trace: file → task(s) → first AC bullets via relations.json.
 
     Returns stderr lines describing which tasks own this file. Empty list if
-    no relations index, no match, or any error (best-effort, never raises).
+    not in an Ultra project (no relations.json) or any error (best-effort,
+    never raises). For Ultra projects where the file is not in any task's
+    file index, falls back to a single git-context line (Phase 5C).
     """
     toplevel = get_git_toplevel()
     if not toplevel:
@@ -593,21 +633,21 @@ def check_task_trace(file_path):
         return []
 
     files_index = rel_data.get("files") or {}
-    if not files_index:
-        return []
 
     try:
         rel_fp = os.path.relpath(file_path, toplevel)
     except ValueError:
         return []
 
-    entry = files_index.get(rel_fp)
+    entry = files_index.get(rel_fp) if files_index else None
     if not entry:
-        return []
+        # Phase 5C: in an Ultra project but the file is not owned by any task.
+        # Surface git context so the agent still gets situational awareness.
+        return _git_context_fallback(file_path, toplevel)
 
     task_ids = entry.get("tasks") or []
     if not task_ids:
-        return []
+        return _git_context_fallback(file_path, toplevel)
 
     tasks_meta = rel_data.get("tasks") or {}
     out = []

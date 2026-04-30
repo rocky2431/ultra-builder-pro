@@ -123,7 +123,10 @@ def test_post_edit_guard_injects_trace(fake_repo):
     assert "in_progress" in stderr
 
 
-def test_post_edit_guard_silent_for_unowned_file(fake_repo):
+def test_post_edit_guard_falls_back_for_unowned_file(fake_repo):
+    """Phase 5C: in an Ultra project, a file that no task owns still gets a
+    git-context fallback line — so the agent always has situational awareness.
+    Previously this case was silent."""
     sync_payload = {
         "tool_name": "Edit",
         "tool_input": {"file_path": str(fake_repo / ".ultra" / "tasks" / "tasks.json")},
@@ -137,4 +140,7 @@ def test_post_edit_guard_silent_for_unowned_file(fake_repo):
     }
     _stdout, stderr, code = _run_hook(POST_EDIT, edit_payload, fake_repo)
     assert code == 0
-    assert "[Trace]" not in stderr
+    assert "[Trace] (no task)" in stderr
+    assert "unrelated.ts" in stderr
+    # Must NOT mistakenly attribute to an existing task
+    assert "task-1" not in stderr

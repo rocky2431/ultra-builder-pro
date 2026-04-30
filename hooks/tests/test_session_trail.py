@@ -227,3 +227,162 @@ class TestSessionTrailE2E:
         # Context should be unchanged (no trail section added)
         ctx = (repo / ".ultra" / "tasks" / "contexts" / "task-1.md").read_text()
         assert TRAIL_HEADING not in ctx
+
+
+# -- Phase 5A: orphan trail (sessions without active task) -------------------
+
+from session_trail import (
+    build_orphan_line,
+    insert_orphan_line,
+    fold_orphan_trail,
+    ORPHAN_HEADING,
+)
+
+
+class TestBuildOrphanLine:
+    def test_includes_branch_and_files(self):
+        line = build_orphan_line("abcdef1234567890", {
+            "branch": "main",
+            "dirty_files": ["src/a.ts", "src/b.ts"],
+            "last_commit": "abc123 fix: foo",
+        })
+        assert "[sid:abcdef12]" in line
+        assert "branch:main" in line
+        assert "2 files" in line
+        assert "a.ts" in line
+        assert "abc123" in line
+
+    def test_truncates_file_sample(self):
+        line = build_orphan_line("s", {
+            "branch": "main",
+            "dirty_files": ["a.ts", "b.ts", "c.ts", "d.ts", "e.ts"],
+            "last_commit": "",
+        })
+        assert "5 files" in line
+        assert "+2" in line  # 5 - 3 sampled
+
+    def test_no_commit_section_when_empty(self):
+        line = build_orphan_line("s", {
+            "branch": "main",
+            "dirty_files": ["a.ts"],
+            "last_commit": "",
+        })
+        assert "last commit" not in line
+
+
+class TestInsertOrphanLine:
+    HEADER = (
+        "# Orphan Trail — Sessions without active task\n\n"
+        "_Auto-maintained..._\n"
+    )
+
+    def test_creates_section_when_missing(self):
+        result = insert_orphan_line(self.HEADER, "- entry-1", "s1")
+        assert ORPHAN_HEADING in result
+        assert "- entry-1" in result
+
+    def test_prepends_new_entry(self):
+        text = self.HEADER + "\n## Sessions\n\n- old entry [sid:older123]\n"
+        result = insert_orphan_line(text, "- new entry [sid:newer123]", "newer123")
+        new_pos = result.index("new entry")
+        old_pos = result.index("old entry")
+        assert new_pos < old_pos
+
+    def test_replaces_when_same_session(self):
+        text = self.HEADER + "\n## Sessions\n\n- first [sid:samesid0]\n"
+        result = insert_orphan_line(text, "- updated [sid:samesid0]", "samesid0")
+        assert "first" not in result
+        assert "updated" in result
+        assert result.count("[sid:samesid0]") == 1
+
+    def test_caps_at_max(self):
+        bullets = "\n".join(f"- entry-{i} [sid:s{i:08d}]" for i in range(120))
+        text = self.HEADER + "\n## Sessions\n\n" + bullets
+        result = insert_orphan_line(text, "- newone [sid:newone00]", "newone00")
+        # Cap at 100 entries
+        from session_trail import MAX_ORPHAN_ENTRIES
+        section = result.split(ORPHAN_HEADING, 1)[1]
+        bullet_count = sum(1 for line in section.split("\n") if line.strip().startswith("- "))
+        assert bullet_count <= MAX_ORPHAN_ENTRIES
+
+
+class TestFoldOrphanTrail:
+    """Real git repo, real fold to .ultra/sessions/orphan-trail.md."""
+
+    def _real_repo(self, tmp_path: Path) -> Path:
+        import subprocess as sp
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        sp.run(["git", "init", "-q"], cwd=repo, check=True)
+        sp.run(["git", "config", "user.email", "t@t"], cwd=repo, check=True)
+        sp.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+        (repo / "README.md").write_text("init\n")
+        sp.run(["git", "add", "-A"], cwd=repo, check=True)
+        sp.run(["git", "commit", "-q", "-m", "init"],
+               cwd=repo, check=True, capture_output=True)
+        return repo
+
+    def test_no_op_when_clean_tree(self, tmp_path):
+        repo = self._real_repo(tmp_path)
+        # No changes since the initial commit → fold should no-op
+        wrote = fold_orphan_trail("sessionid", repo)
+        assert wrote is False
+        assert not (repo / ".ultra" / "sessions" / "orphan-trail.md").exists()
+
+    def test_writes_when_dirty(self, tmp_path):
+        repo = self._real_repo(tmp_path)
+        # Modify README so it's dirty (.md is in source ext list)
+        (repo / "README.md").write_text("changed!\n")
+        wrote = fold_orphan_trail("abcdef1234567890", repo)
+        assert wrote is True
+        trail = (repo / ".ultra" / "sessions" / "orphan-trail.md").read_text()
+        assert ORPHAN_HEADING in trail
+        assert "[sid:abcdef12]" in trail
+        assert "README.md" in trail
+
+    def test_idempotent_same_session(self, tmp_path):
+        repo = self._real_repo(tmp_path)
+        (repo / "README.md").write_text("changed!\n")
+        fold_orphan_trail("samesid00000000", repo)
+        fold_orphan_trail("samesid00000000", repo)
+        trail = (repo / ".ultra" / "sessions" / "orphan-trail.md").read_text()
+        assert trail.count("[sid:samesid0]") == 1
+
+
+class TestSessionTrailE2EOrphan:
+    """Real subprocess hook against a tmp git repo with no active task."""
+
+    def _real_repo(self, tmp_path: Path) -> Path:
+        import subprocess as sp
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        sp.run(["git", "init", "-q"], cwd=repo, check=True)
+        sp.run(["git", "config", "user.email", "t@t"], cwd=repo, check=True)
+        sp.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+        (repo / "README.md").write_text("init\n")
+        sp.run(["git", "add", "-A"], cwd=repo, check=True)
+        sp.run(["git", "commit", "-q", "-m", "init"],
+               cwd=repo, check=True, capture_output=True)
+        return repo
+
+    def test_routes_to_orphan_when_no_active_task(self, tmp_path):
+        import subprocess as sp
+        repo = self._real_repo(tmp_path)
+        # No tasks.json at all → orphan path is the only option
+        (repo / "src.ts").write_text("export const x = 1;\n")
+        # Make it dirty with respect to HEAD by adding + leaving unstaged
+        sp.run(["git", "add", "src.ts"], cwd=repo, check=True)
+        # Now it's staged → diff --cached --name-only should include it
+
+        proc = sp.run(
+            [sys.executable, str(TRAIL_HOOK)],
+            input=json.dumps({"session_id": "abcdef1234567890"}),
+            cwd=str(repo), capture_output=True, text=True, timeout=10,
+        )
+        assert proc.returncode == 0
+
+        trail_path = repo / ".ultra" / "sessions" / "orphan-trail.md"
+        assert trail_path.exists()
+        text = trail_path.read_text()
+        assert "[sid:abcdef12]" in text
+        assert "src.ts" in text

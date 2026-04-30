@@ -23,6 +23,7 @@ see what every prior session contributed without rereading transcripts.
 
 import sys
 import json
+import subprocess
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -42,7 +43,17 @@ except Exception:  # pragma: no cover — never block hook on import error
 
 
 MAX_TRAIL_ENTRIES = 50
+MAX_ORPHAN_ENTRIES = 100
 TRAIL_HEADING = "## Session Trail"
+ORPHAN_HEADING = "## Sessions"
+
+# Source-code extensions used to filter dirty-file noise (excludes lockfiles,
+# build outputs, generated artifacts).
+ORPHAN_SOURCE_EXT = {
+    ".ts", ".tsx", ".js", ".jsx", ".py", ".go", ".rs", ".java",
+    ".sol", ".rb", ".vue", ".svelte", ".sh", ".md", ".css", ".scss",
+    ".html", ".json", ".yaml", ".yml", ".toml",
+}
 
 
 def build_trail_line(session_id: str, progress: dict) -> str:
@@ -125,6 +136,144 @@ def fold_into_context(text: str, new_line: str, session_id: str) -> str:
     return "\n".join(lines[:heading_idx] + new_body + lines[body_end:])
 
 
+# -- Orphan trail path: sessions without an active task -----------------------
+
+def _git(args: list, cwd: Path) -> str:
+    """Run git with timeout; return stdout stripped, or empty string on error."""
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            capture_output=True, text=True, timeout=3,
+            cwd=str(cwd),
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        pass
+    return ""
+
+
+def collect_orphan_facts(root: Path) -> dict:
+    """Snapshot working state for an orphan session.
+
+    Returns:
+      branch:       current branch name
+      dirty_files:  source files modified or staged (excludes untracked
+                    to avoid build artifacts)
+      last_commit:  short hash + subject of HEAD
+    """
+    branch = _git(["rev-parse", "--abbrev-ref", "HEAD"], cwd=root) or "?"
+
+    diff_out = _git(["diff", "--name-only", "HEAD"], cwd=root)
+    cached_out = _git(["diff", "--cached", "--name-only"], cwd=root)
+    seen: set = set()
+    dirty: list = []
+    for line in (diff_out + "\n" + cached_out).split("\n"):
+        f = line.strip()
+        if not f or f in seen:
+            continue
+        seen.add(f)
+        if Path(f).suffix.lower() in ORPHAN_SOURCE_EXT:
+            dirty.append(f)
+
+    last = _git(["log", "-1", "--pretty=format:%h %s"], cwd=root)
+    return {"branch": branch, "dirty_files": dirty, "last_commit": last}
+
+
+def build_orphan_line(session_id: str, facts: dict) -> str:
+    """One bullet line summarizing an orphan session."""
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+    sid_tag = f" [sid:{session_id[:8]}]" if session_id else ""
+    branch = facts.get("branch") or "?"
+    files = facts.get("dirty_files") or []
+    n = len(files)
+    sample = ", ".join(Path(f).name for f in files[:3])
+    if n > 3:
+        sample += f", +{n - 3}"
+    files_part = f"{n} files"
+    if sample:
+        files_part += f" ({sample})"
+    last = (facts.get("last_commit") or "")[:60]
+
+    parts = [f"- {ts}{sid_tag}", f"branch:{branch}", files_part]
+    if last:
+        parts.append(f"last commit: {last}")
+    return "; ".join(parts)
+
+
+def insert_orphan_line(text: str, new_line: str, session_id: str) -> str:
+    """Insert/replace under ## Sessions heading. Idempotent by session_id."""
+    lines = text.split("\n")
+    heading_idx = -1
+    for i, line in enumerate(lines):
+        if line.strip() == ORPHAN_HEADING:
+            heading_idx = i
+            break
+
+    if heading_idx == -1:
+        # Append heading + first bullet
+        base = text.rstrip()
+        sep = "\n\n" if base else ""
+        return f"{base}{sep}{ORPHAN_HEADING}\n\n{new_line}\n"
+
+    body_start = heading_idx + 1
+    while body_start < len(lines) and not lines[body_start].strip():
+        body_start += 1
+
+    bullets = [l for l in lines[body_start:] if l.strip().startswith("- ")]
+    sid_tag = f"[sid:{session_id[:8]}]" if session_id else None
+    if sid_tag and bullets and sid_tag in bullets[0]:
+        bullets[0] = new_line
+    else:
+        bullets.insert(0, new_line)
+    bullets = bullets[:MAX_ORPHAN_ENTRIES]
+
+    return "\n".join(lines[:heading_idx + 1] + [""] + bullets) + "\n"
+
+
+def fold_orphan_trail(session_id: str, root: Path) -> bool:
+    """Write a session entry to .ultra/sessions/orphan-trail.md.
+
+    Returns True if a line was written. No-op (returns False) if no source
+    file is dirty in the working tree.
+    """
+    facts = collect_orphan_facts(root)
+    if not facts.get("dirty_files"):
+        return False
+
+    sessions_dir = root / ".ultra" / "sessions"
+    try:
+        sessions_dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return False
+    trail_path = sessions_dir / "orphan-trail.md"
+
+    if trail_path.exists():
+        try:
+            text = trail_path.read_text(encoding="utf-8")
+        except OSError:
+            text = ""
+    else:
+        text = (
+            "# Orphan Trail — Sessions without active task\n\n"
+            "_Auto-maintained by session_trail.py. Each line records a "
+            "session that edited code without an active task. Newest first._\n"
+        )
+
+    line = build_orphan_line(session_id, facts)
+    new_text = insert_orphan_line(text, line, session_id)
+
+    if new_text == text:
+        return False
+    try:
+        trail_path.write_text(new_text, encoding="utf-8")
+    except OSError:
+        return False
+    return True
+
+
+# -- Main dispatcher ----------------------------------------------------------
+
 def main() -> None:
     try:
         data = json.loads(sys.stdin.read())
@@ -134,21 +283,32 @@ def main() -> None:
 
     session_id = data.get("session_id", "") or ""
 
-    task = get_active_task()
-    if not task:
-        print(json.dumps({}))
-        return
-    tid = task.get("id")
-    if tid is None or tid == "":
-        print(json.dumps({}))
-        return
-    tid = str(tid)
-
     toplevel = get_git_toplevel()
     if not toplevel:
         print(json.dumps({}))
         return
     root = Path(toplevel)
+
+    task = get_active_task()
+    if not task:
+        # Orphan path: no in_progress task, but session may have edited
+        # source files. Fold facts into .ultra/sessions/orphan-trail.md.
+        try:
+            fold_orphan_trail(session_id, root)
+        except Exception:
+            pass
+        print(json.dumps({}))
+        return
+    tid = task.get("id")
+    if tid is None or tid == "":
+        # Same orphan fallback when task is malformed
+        try:
+            fold_orphan_trail(session_id, root)
+        except Exception:
+            pass
+        print(json.dumps({}))
+        return
+    tid = str(tid)
 
     progress_path = root / ".ultra" / "tasks" / "progress" / f"task-{tid}.json"
     if not progress_path.exists():

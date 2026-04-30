@@ -205,6 +205,103 @@ class TestGenerateWiki:
         assert first == second
 
 
+class TestRecentActivity:
+    """Phase 5B: Recent Activity section merges progress.json + orphan-trail.md."""
+
+    def _setup_progress(self, tmp_path: Path, task_id: str, last_updated: str,
+                       files: list, n_advisories: int = 0):
+        prog_dir = tmp_path / ".ultra" / "tasks" / "progress"
+        prog_dir.mkdir(parents=True, exist_ok=True)
+        (prog_dir / f"task-{task_id}.json").write_text(json.dumps({
+            "task_id": task_id,
+            "last_updated": last_updated,
+            "files_touched": files,
+            "advisories": [{"msg": f"a{i}"} for i in range(n_advisories)],
+        }))
+
+    def _setup_orphan(self, tmp_path: Path, lines: list):
+        sessions = tmp_path / ".ultra" / "sessions"
+        sessions.mkdir(parents=True, exist_ok=True)
+        body = "\n".join(lines)
+        (sessions / "orphan-trail.md").write_text(
+            "# Orphan Trail\n\n## Sessions\n\n" + body + "\n"
+        )
+
+    def test_parse_orphan_trail_returns_entries(self, tmp_path):
+        from wiki_generator import parse_orphan_trail
+        self._setup_orphan(tmp_path, [
+            "- 2026-04-30T08:30Z [sid:abc12345]; branch:main; 2 files (a.ts, b.ts)",
+            "- 2026-04-29T12:00Z [sid:def67890]; branch:explore; 1 files (c.ts)",
+        ])
+        entries = parse_orphan_trail(tmp_path)
+        assert len(entries) == 2
+        assert entries[0][0] == "2026-04-30T08:30Z"
+        assert "branch:main" in entries[0][1]
+
+    def test_parse_orphan_trail_skips_malformed_lines(self, tmp_path):
+        from wiki_generator import parse_orphan_trail
+        self._setup_orphan(tmp_path, [
+            "- 2026-04-30T08:30Z [sid:abc12345]; branch:main; 2 files",
+            "- not a real entry",
+            "- 2026-04-29T12:00Z [sid:def67890]; branch:explore; 1 files",
+        ])
+        entries = parse_orphan_trail(tmp_path)
+        assert len(entries) == 2  # malformed line dropped
+
+    def test_recent_activity_merges_tasks_and_orphan(self, tmp_path):
+        from datetime import datetime, timezone
+        # Use a recent timestamp so it falls within the 30-day window
+        now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:00+00:00")
+        date_today = now_iso[:10]
+        # Build orphan timestamp matching today's date in expected format
+        orphan_ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+
+        self._setup_progress(tmp_path, "1", now_iso, ["src/a.ts"], n_advisories=1)
+        self._setup_orphan(tmp_path, [
+            f"- {orphan_ts} [sid:abc12345]; branch:main; 1 files (b.ts)",
+        ])
+
+        rel = {"tasks": {"1": {"title": "T", "status": "in_progress"}}}
+        from wiki_generator import _build_recent_activity_section
+        lines = _build_recent_activity_section(rel, tmp_path)
+        md = "\n".join(lines)
+        assert "Recent Activity" in md
+        assert "task-1" in md
+        assert "orphan" in md
+        assert date_today in md
+
+    def test_recent_activity_filters_old_entries(self, tmp_path):
+        # Old timestamp (>30 days) should be excluded
+        self._setup_progress(tmp_path, "1", "2020-01-01T00:00:00+00:00", ["a.ts"])
+        rel = {"tasks": {"1": {"title": "T", "status": "completed"}}}
+        from wiki_generator import _build_recent_activity_section
+        lines = _build_recent_activity_section(rel, tmp_path)
+        # No entries → empty list (section omitted)
+        assert lines == []
+
+    def test_index_md_includes_section_when_root_passed(self, tmp_path):
+        from datetime import datetime, timezone
+        now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:00+00:00")
+        self._setup_progress(tmp_path, "1", now_iso, ["src/a.ts"])
+        rel = {
+            "last_synced": "x",
+            "tasks": {"1": {"title": "T", "status": "in_progress",
+                            "trace_to": [], "context_file": ""}},
+            "specs": {}, "files": {},
+        }
+        md = build_index_md(rel, tmp_path)
+        assert "## Recent Activity" in md
+
+    def test_index_md_omits_section_when_root_none(self):
+        rel = {
+            "tasks": {"1": {"title": "T", "status": "in_progress",
+                            "trace_to": [], "context_file": ""}},
+            "specs": {}, "files": {},
+        }
+        md = build_index_md(rel)  # no root
+        assert "## Recent Activity" not in md
+
+
 class TestRelationsSyncIntegratesWiki:
     """relations_sync.py must invoke generate_wiki at the end of its run."""
 

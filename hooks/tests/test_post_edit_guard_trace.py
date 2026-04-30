@@ -3,8 +3,12 @@
 Verifies file→task reverse lookup via relations.json produces meaningful
 stderr lines (task id + title + first AC bullets). monkeypatch is used to
 fix get_git_toplevel — we are not testing git, only the lookup logic.
+
+Phase 5C tests use a real `git init` so _git_short returns real branch /
+commit data — those tests verify the no-task fallback path.
 """
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -95,7 +99,9 @@ class TestCheckTaskTrace:
         self._fake_repo(tmp_path, monkeypatch)
         assert check_task_trace(str(tmp_path / "src/foo.ts")) == []
 
-    def test_returns_empty_when_relations_has_no_files_index(self, tmp_path, monkeypatch):
+    def test_falls_back_when_files_index_empty(self, tmp_path, monkeypatch):
+        # Phase 5C: in an Ultra project but file index is empty (e.g. plan
+        # not yet run) → emit a single git-context fallback line.
         root = self._fake_repo(tmp_path, monkeypatch)
         (root / ".ultra").mkdir()
         (root / ".ultra" / "relations.json").write_text(json.dumps({
@@ -103,9 +109,14 @@ class TestCheckTaskTrace:
             "tasks": {},
             "specs": {},
         }))
-        assert check_task_trace(str(root / "src/foo.ts")) == []
+        result = check_task_trace(str(root / "src/foo.ts"))
+        assert len(result) == 1
+        assert "[Trace] (no task)" in result[0]
+        assert "foo.ts" in result[0]
 
-    def test_returns_empty_when_file_not_in_index(self, tmp_path, monkeypatch):
+    def test_falls_back_when_file_not_in_index(self, tmp_path, monkeypatch):
+        # Phase 5C: in an Ultra project, file index has entries but not for
+        # this file → fallback. The agent still gets situational awareness.
         root = self._fake_repo(tmp_path, monkeypatch)
         (root / ".ultra").mkdir()
         (root / ".ultra" / "relations.json").write_text(json.dumps({
@@ -113,7 +124,16 @@ class TestCheckTaskTrace:
             "files": {"other/file.ts": {"tasks": ["1"], "from": ["target_files"]}},
             "tasks": {},
         }))
-        assert check_task_trace(str(root / "src/foo.ts")) == []
+        result = check_task_trace(str(root / "src/foo.ts"))
+        assert len(result) == 1
+        assert "[Trace] (no task)" in result[0]
+        assert "foo.ts" in result[0]
+
+    def test_no_fallback_when_no_relations_json(self, tmp_path, monkeypatch):
+        # Non-Ultra project: stay completely silent, no fallback noise.
+        self._fake_repo(tmp_path, monkeypatch)
+        # No .ultra/relations.json created.
+        assert check_task_trace(str(tmp_path / "src/foo.ts")) == []
 
     def test_returns_trace_lines_when_matched(self, tmp_path, monkeypatch):
         root = self._fake_repo(tmp_path, monkeypatch)
@@ -186,3 +206,68 @@ class TestCheckTaskTrace:
         (root / ".ultra").mkdir()
         (root / ".ultra" / "relations.json").write_text("not valid json {")
         assert check_task_trace(str(root / "src/foo.ts")) == []
+
+
+class TestPhase5CFallback:
+    """Phase 5C: real-git fallback for files not owned by any task."""
+
+    def _real_repo(self, tmp_path: Path, monkeypatch) -> Path:
+        """Init a real git repo with one commit so HEAD/branch are resolvable."""
+        repo = tmp_path / "real_repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.email", "t@t"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+        # Initial commit so `rev-parse --abbrev-ref HEAD` returns a real branch
+        (repo / "README.md").write_text("init\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "init"],
+                       cwd=repo, check=True, capture_output=True)
+        monkeypatch.setattr(post_edit_guard, "get_git_toplevel", lambda: str(repo))
+        # Mark as Ultra project so the fallback path is reachable
+        (repo / ".ultra").mkdir()
+        (repo / ".ultra" / "relations.json").write_text(json.dumps({
+            "version": 2, "files": {}, "tasks": {},
+        }))
+        return repo
+
+    def test_fallback_includes_branch_name(self, tmp_path, monkeypatch):
+        repo = self._real_repo(tmp_path, monkeypatch)
+        (repo / "src").mkdir()
+        fpath = repo / "src" / "foo.ts"
+        fpath.write_text("export const x = 1;\n")
+        result = check_task_trace(str(fpath))
+        assert len(result) == 1
+        line = result[0]
+        assert "[Trace] (no task)" in line
+        # Branch name must be resolved (not "?"); git default is main or master
+        assert "branch ?" not in line
+        assert "branch " in line
+
+    def test_fallback_with_commit_history_shows_last(self, tmp_path, monkeypatch):
+        repo = self._real_repo(tmp_path, monkeypatch)
+        (repo / "src").mkdir()
+        fpath = repo / "src" / "foo.ts"
+        fpath.write_text("export const x = 1;\n")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", "feat: initial foo"],
+                       cwd=repo, check=True, capture_output=True)
+
+        result = check_task_trace(str(fpath))
+        assert len(result) == 1
+        line = result[0]
+        assert "last:" in line
+        assert "feat: initial foo" in line
+        assert "uncommitted" not in line
+
+    def test_fallback_uncommitted_marker_for_new_file(self, tmp_path, monkeypatch):
+        # _real_repo already produces an initial commit; a brand-new file
+        # has no git log entry of its own → "uncommitted" marker expected.
+        repo = self._real_repo(tmp_path, monkeypatch)
+        new_file = repo / "src" / "fresh.ts"
+        new_file.parent.mkdir()
+        new_file.write_text("export const y = 2;\n")
+
+        result = check_task_trace(str(new_file))
+        assert len(result) == 1
+        assert "uncommitted" in result[0]
