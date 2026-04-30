@@ -27,6 +27,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from hook_utils import get_git_toplevel
 
+try:
+    from wiki_generator import generate_wiki
+except Exception:  # pragma: no cover — never block hook on import error
+    def generate_wiki(_root: Path) -> bool:  # type: ignore[no-redef]
+        return False
+
 
 def _slugify(heading: str) -> str:
     """Convert '## Foo Bar (Baz)' to 'foo-bar-baz' (GitHub-flavored anchor)."""
@@ -236,6 +242,13 @@ def main() -> None:
                 f"spec section not found. Update task or restore section.",
                 file=sys.stderr,
             )
+
+    # Phase 3: derive human-readable wiki views from the same source state.
+    # Best-effort — never raises, never blocks. See hooks/wiki_generator.py.
+    try:
+        generate_wiki(root)
+    except Exception:
+        pass
 
     print(json.dumps({}))
 
