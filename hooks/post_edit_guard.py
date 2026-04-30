@@ -25,10 +25,12 @@ from pathlib import Path
 # v7: progress.json maintenance helper
 sys.path.insert(0, str(Path(__file__).parent))
 try:
-    from hook_utils import update_task_progress
+    from hook_utils import update_task_progress, get_git_toplevel
 except Exception:  # pragma: no cover — never block hook on import error
     def update_task_progress(*_args, **_kwargs):  # type: ignore[no-redef]
         return
+    def get_git_toplevel() -> str:  # type: ignore[no-redef]
+        return ""
 
 
 # -- Shared Utilities --
@@ -529,6 +531,105 @@ def check_test_reminder(file_path):
     return None
 
 
+# -- Checker: Task Trace (file → task reverse lookup via relations.json) --
+
+def _extract_ac_bullets(ctx_path, max_lines=2):
+    """First N acceptance criteria bullets from a task context md.
+
+    Skips html comments (<!-- ... -->) which the template uses for hidden notes.
+    """
+    if not ctx_path.exists():
+        return []
+    try:
+        text = ctx_path.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    if "## Acceptance Criteria" not in text:
+        return []
+
+    section = text.split("## Acceptance Criteria", 1)[1]
+    section = section.split("\n## ", 1)[0]
+
+    bullets = []
+    in_comment = False
+    for line in section.split("\n"):
+        s = line.strip()
+        if not s:
+            continue
+        if "<!--" in s and "-->" not in s:
+            in_comment = True
+            continue
+        if in_comment:
+            if "-->" in s:
+                in_comment = False
+            continue
+        if s.startswith("<!--") and s.endswith("-->"):
+            continue
+        if s.startswith("- ") and len(s) > 4:
+            bullets.append(s[:140])
+            if len(bullets) >= max_lines:
+                break
+    return bullets
+
+
+def check_task_trace(file_path):
+    """v7+ reverse trace: file → task(s) → first AC bullets via relations.json.
+
+    Returns stderr lines describing which tasks own this file. Empty list if
+    no relations index, no match, or any error (best-effort, never raises).
+    """
+    toplevel = get_git_toplevel()
+    if not toplevel:
+        return []
+
+    root = Path(toplevel)
+    relations_path = root / ".ultra" / "relations.json"
+    if not relations_path.exists():
+        return []
+
+    try:
+        rel_data = json.loads(relations_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+    files_index = rel_data.get("files") or {}
+    if not files_index:
+        return []
+
+    try:
+        rel_fp = os.path.relpath(file_path, toplevel)
+    except ValueError:
+        return []
+
+    entry = files_index.get(rel_fp)
+    if not entry:
+        return []
+
+    task_ids = entry.get("tasks") or []
+    if not task_ids:
+        return []
+
+    tasks_meta = rel_data.get("tasks") or {}
+    out = []
+    fname = os.path.basename(file_path)
+
+    for tid in task_ids[:3]:
+        meta = tasks_meta.get(str(tid), {})
+        title = (meta.get("title") or "?")[:60]
+        status = meta.get("status") or "?"
+        sources = entry.get("from") or []
+        src_hint = f" [{','.join(sources)}]" if sources else ""
+        out.append(f"[Trace]{src_hint} {fname} → task-{tid} ({status}): {title}")
+
+        ctx_rel = meta.get("context_file", "")
+        if ctx_rel:
+            ctx_path = root / ".ultra" / "tasks" / ctx_rel
+            for ac in _extract_ac_bullets(ctx_path, max_lines=2):
+                out.append(f"    AC: {ac}")
+
+    return out
+
+
 # -- Output Formatting --
 
 def _fmt_code_quality(file_path, blocks, warnings):
@@ -688,7 +789,13 @@ def main():
             all_issues.append("  → Add logging or handle the error explicitly.")
             # v7: → advisory (was: has_blocks = True)
 
-    # 7. Blast radius (info via stderr, never blocks)
+    # 7. Task trace (info via stderr, never blocks) — file → owning task + AC
+    trace_lines = check_task_trace(file_path)
+    if trace_lines:
+        for line in trace_lines:
+            print(line, file=sys.stderr)
+
+    # 8. Blast radius (info via stderr, never blocks)
     dependents = check_blast_radius(file_path)
     if dependents:
         short = os.path.basename(file_path)
@@ -696,7 +803,7 @@ def main():
         extra = f" +{len(dependents)-8} more" if len(dependents) > 8 else ""
         print(f"[Impact] {short} is imported by: {dep_list}{extra}", file=sys.stderr)
 
-    # 8. Test reminder (info via stderr, never blocks)
+    # 9. Test reminder (info via stderr, never blocks)
     test_file = check_test_reminder(file_path)
     if test_file:
         rel_test = os.path.relpath(test_file)

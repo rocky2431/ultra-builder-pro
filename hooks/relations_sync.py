@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """PostToolUse Hook - Relations Sync (v7.0)
 
-When `.ultra/specs/*` or `.ultra/tasks/tasks.json` changes, derive
-`.ultra/relations.json`: an at-a-glance map of task ↔ spec section ↔ code.
+When `.ultra/specs/*` or `.ultra/tasks/*` changes, derive
+`.ultra/relations.json`: a bidirectional map of task ↔ spec ↔ code.
 
-Detects dangling references (task.trace_to → deleted/moved spec section) and
-emits stderr advisory. Sensor only — never blocks.
+Maintains:
+  - tasks      → spec sections (forward, from task.trace_to)
+  - spec       → tasks (specs[anchor].referenced_by)
+  - code path  → tasks (files[rel_path].tasks; sources: Target Files in
+                 task context md + files_touched in progress.json)
+  - advisories: dangling trace_to references
+
+Sensor only — never blocks. Reverse code→task index lets PreToolUse hooks
+inject "this file is owned by task X, AC: ..." when an agent edits source.
 
 PHILOSOPHY: enables C4 (Incremental Validation) for the `spec_trace` evidence
 dimension, and supports Cognitive Coherence (specs/tasks/code/docs aligned).
@@ -63,6 +70,83 @@ def normalize_ref(ref: str) -> str:
     return ref
 
 
+def parse_target_files(context_path: Path) -> list:
+    """Extract file paths from a task context's '**Target Files**:' bullet list.
+
+    Section ends at next markdown heading (##) or next bold key (**Foo**:).
+    Paths are pulled from backtick-wrapped tokens on bullet lines.
+    """
+    if not context_path.exists():
+        return []
+    try:
+        text = context_path.read_text(encoding="utf-8")
+    except OSError:
+        return []
+
+    files: list = []
+    in_section = False
+    for raw in text.split("\n"):
+        line = raw.strip()
+        if re.match(r"^\*\*Target [Ff]iles\*\*\s*:?", line):
+            in_section = True
+            for m in re.finditer(r"`([^`]+)`", line):
+                files.append(m.group(1))
+            continue
+        if not in_section:
+            continue
+        if line.startswith("##") or re.match(r"^\*\*[A-Z][^*]+\*\*\s*:?", line):
+            break
+        if line.startswith("- ") or line.startswith("* "):
+            for m in re.finditer(r"`([^`]+)`", line):
+                files.append(m.group(1))
+    return files
+
+
+def index_files_to_tasks(tasks_data: dict, root: Path) -> dict:
+    """Build code→task reverse index.
+
+    Sources:
+      - Target Files in each task's context md (plan-stage intent)
+      - files_touched in progress.json (actual edit footprint)
+
+    Paths normalized to repo-relative form. Returns dict keyed by path.
+    """
+    files_index: dict = {}
+
+    def add(rel_path: str, task_id: str, source: str) -> None:
+        rel = (rel_path or "").strip().lstrip("./")
+        if not rel:
+            return
+        entry = files_index.setdefault(rel, {"tasks": [], "from": []})
+        if task_id not in entry["tasks"]:
+            entry["tasks"].append(task_id)
+        if source not in entry["from"]:
+            entry["from"].append(source)
+
+    for task in tasks_data.get("tasks", []) or []:
+        tid = task.get("id")
+        if tid is None or tid == "":
+            continue
+        tid = str(tid)
+
+        ctx_rel = task.get("context_file", "")
+        if ctx_rel:
+            ctx_path = root / ".ultra" / "tasks" / ctx_rel
+            for fp in parse_target_files(ctx_path):
+                add(fp, tid, "target_files")
+
+        progress_path = root / ".ultra" / "tasks" / "progress" / f"task-{tid}.json"
+        if progress_path.exists():
+            try:
+                progress = json.loads(progress_path.read_text(encoding="utf-8"))
+                for fp in progress.get("files_touched", []) or []:
+                    add(fp, tid, "files_touched")
+            except (json.JSONDecodeError, OSError):
+                pass
+
+    return files_index
+
+
 def main() -> None:
     try:
         data = json.loads(sys.stdin.read())
@@ -100,13 +184,15 @@ def main() -> None:
         return
 
     spec_anchors = index_spec_anchors(root / ".ultra" / "specs")
+    files_index = index_files_to_tasks(tasks_data, root)
 
     rel = {
-        "version": 1,
+        "version": 2,
         "last_synced": datetime.now(timezone.utc).isoformat(),
         "tasks": {},
         "specs": {anchor: {"file": meta["file"], "heading": meta["heading"], "referenced_by": []}
                   for anchor, meta in spec_anchors.items()},
+        "files": files_index,
         "advisories": [],
     }
 
