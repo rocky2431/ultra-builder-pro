@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """
-Session Context Hook - SessionStart
+Session Context Hook - SessionStart (v7.0 — Goal-Always-Present substrate)
+
 Loads development context at session start.
 
 Provides:
 - Current git branch and recent commits
 - Modified files status
 - Last session one-liner from memory DB (~50 tokens)
+- Recent cross-branch learnings (Hindsight-inspired)
+- v7: tools status (rtk / .ultra availability) — quick situational awareness
+- v7: north-star (project goal + active task acceptance criteria) — Goal-Always-Present
 """
 
 import sys
@@ -280,6 +284,131 @@ def get_recent_learnings() -> list:
         return []
 
 
+def _extract_md_section(content: str, header: str, max_chars: int = 300) -> str:
+    """Extract first non-placeholder content from a markdown section header to next `---`.
+
+    Properly handles multi-line HTML comments, blockquotes, and placeholder markers.
+    """
+    if header not in content:
+        return ""
+    section = content.split(header, 1)[1].split('\n---\n', 1)[0]
+    out = []
+    in_comment = False
+    for line in section.split('\n'):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        # Track multi-line HTML comments (line may contain both open and close)
+        if '<!--' in stripped and '-->' not in stripped:
+            in_comment = True
+            continue
+        if in_comment:
+            if '-->' in stripped:
+                in_comment = False
+            continue
+        # Single-line comment
+        if stripped.startswith('<!--') and stripped.endswith('-->'):
+            continue
+        if stripped.startswith('>'):
+            stripped = stripped[1:].strip()
+        if not stripped:
+            continue
+        # Skip placeholder markers like _(not yet defined)_ or _(criterion 1)_
+        if stripped.startswith('_(') and stripped.endswith(')_'):
+            continue
+        # Skip checklist markers without content
+        if stripped in ('- [ ]', '- [x]'):
+            continue
+        out.append(stripped)
+        if sum(len(s) for s in out) > max_chars:
+            break
+    result = ' '.join(out)
+    return result[:max_chars].strip()
+
+
+def get_tools_status() -> list:
+    """v7: report harness tool availability. Minimal — keep token cost low."""
+    lines = []
+    try:
+        rtk_ok = subprocess.run(
+            ['which', 'rtk'], capture_output=True, text=True, timeout=1
+        ).returncode == 0
+        lines.append(f"  rtk: {'✓ active (auto Bash rewrite)' if rtk_ok else '✗ not installed'}")
+    except Exception:
+        pass
+
+    try:
+        proc = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True, text=True, timeout=1
+        )
+        if proc.returncode == 0 and proc.stdout.strip():
+            ultra = Path(proc.stdout.strip()) / '.ultra'
+            if ultra.exists():
+                phil = ultra / 'PHILOSOPHY.md'
+                ns = ultra / 'north-star.md'
+                lines.append(
+                    f"  .ultra: ✓ {'philosophy' if phil.exists() else 'no-philosophy'} | "
+                    f"{'north-star' if ns.exists() else 'no-north-star'}"
+                )
+    except Exception:
+        pass
+
+    return ["[Tools]"] + lines if lines else []
+
+
+def get_north_star_context() -> list:
+    """v7 Goal-Always-Present: inject project + active task north-star at SessionStart."""
+    lines = []
+    try:
+        proc = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True, text=True, timeout=1
+        )
+        if proc.returncode != 0 or not proc.stdout.strip():
+            return []
+        root = Path(proc.stdout.strip())
+        ns_path = root / '.ultra' / 'north-star.md'
+        if not ns_path.exists():
+            return []
+
+        content = ns_path.read_text(encoding='utf-8')
+        one_line = _extract_md_section(content, '## One-line', max_chars=250)
+        hard = _extract_md_section(content, '## Hard Constraints', max_chars=400)
+
+        if one_line:
+            lines.append(f"  Goal: {one_line}")
+        if hard:
+            lines.append(f"  Hard constraints: {hard}")
+
+        # Active task acceptance criteria
+        tasks_path = root / '.ultra' / 'tasks' / 'tasks.json'
+        if tasks_path.exists():
+            try:
+                tasks_data = json.loads(tasks_path.read_text(encoding='utf-8'))
+                in_progress = [
+                    t for t in tasks_data.get('tasks', [])
+                    if t.get('status') == 'in_progress'
+                ]
+                if in_progress:
+                    t = in_progress[0]
+                    tid = t.get('id', '?')
+                    title = t.get('title', '?')
+                    lines.append(f"  Active task {tid}: {title}")
+                    ctx_file = root / '.ultra' / 'tasks' / 'contexts' / f"task-{tid}.md"
+                    if ctx_file.exists():
+                        ctx_md = ctx_file.read_text(encoding='utf-8')
+                        ac = _extract_md_section(ctx_md, '## Acceptance Criteria', max_chars=300)
+                        if ac:
+                            lines.append(f"  Acceptance: {ac}")
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    return ["[North Star]"] + lines if lines else []
+
+
 def main():
     try:
         input_data = sys.stdin.read()
@@ -343,6 +472,18 @@ def main():
     if learnings_lines:
         context_lines.append("")
         context_lines.extend(learnings_lines)
+
+    # v7: tools status (rtk / .ultra availability)
+    tools_lines = get_tools_status()
+    if tools_lines:
+        context_lines.append("")
+        context_lines.extend(tools_lines)
+
+    # v7: north-star (Goal-Always-Present substrate — every session sees the goal)
+    ns_lines = get_north_star_context()
+    if ns_lines:
+        context_lines.append("")
+        context_lines.extend(ns_lines)
 
     # Output context for AI
     result = {

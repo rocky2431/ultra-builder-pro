@@ -65,7 +65,7 @@ def check_claude_md_refs():
         agent_names = {f.stem for f in agents_dir.glob("*.md")}
 
     # Find agent name references in CLAUDE.md
-    for match in re.finditer(r'\b(code-reviewer|debugger|tdd-runner|review-\w+|smart-contract-\w+)\b', content):
+    for match in re.finditer(r'\b(code-reviewer|debugger|review-\w+|smart-contract-\w+)\b', content):
         name = match.group(1)
         if name not in agent_names and name not in ("review-pipeline",):
             print_check(FAIL, f"References agent '{name}' but agents/{name}.md not found")

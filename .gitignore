@@ -88,8 +88,17 @@ bin/
 lib/
 templates/
 
+# v7 exceptions: .ultra-template ships harness substrate that MUST be committed
+!.ultra-template/templates/
+!.ultra-template/templates/**
+
 # Context archives (developer-local, not shared across team)
 .ultra/context-archive/
+
+# v7 ephemeral data (per-task runtime state — should not be committed)
+.ultra/relations.json
+.ultra/tasks/progress/
+.ultra/audit/
 
 # Phase delivery reports (optional - commit if needed for documentation)
 # PHASE_*_DELIVERY_REPORT.md

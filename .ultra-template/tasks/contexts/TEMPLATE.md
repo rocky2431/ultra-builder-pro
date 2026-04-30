@@ -22,18 +22,23 @@
 
 **Tech Notes**: [Framework/library specific guidance]
 
-## Acceptance
+## Acceptance Criteria
 
-**Tests**:
+<!-- Verifiable definition of "done." Read by mid_workflow_recall.py and session_context.py and injected into agent context. Each line should be testable. -->
+
 - [ ] `test command here`
 - [ ] Pass: [scenario 1 description]
 - [ ] Pass: [scenario 2 description]
 
-**Verification**:
-```bash
-# Manual verification command
-curl -X POST localhost:3000/api/example
-```
+<!-- Manual verification (kept out of injected context to avoid noise):
+     curl -X POST localhost:3000/api/example -->
+
+## Definition of Drift
+
+<!-- What WOULD count as drifting from this task's intent? Catches scope creep early. -->
+
+- [Example: "Splitting this into two services" — out of scope unless user agrees]
+- [Example: "Adding caching layer" — out of scope]
 
 ## Trace
 

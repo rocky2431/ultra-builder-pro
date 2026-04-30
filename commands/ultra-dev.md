@@ -187,25 +187,35 @@ After GREEN phase completes (Step 3.2), write workflow-state.json checkpoint and
 
 **Workflow checkpoint**: Write `{"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"3.3","status":"tdd_complete","ts":"ISO8601"}` to `.ultra/workflow-state.json`
 
-### Step 4: Quality Gates
+### Step 4: Quality Gates (incremental)
 
-**Before marking complete**:
+**v7 change**: Gates are read from `.ultra/tasks/progress/task-{id}.json` (`evidence_score` updated continuously by `post_edit_guard.py`). This is **not** a final-gate audit — incremental scores are visible throughout Step 3's TDD cycle, so you should already know where the gaps are. This step **reads** the current state, doesn't recompute.
 
-| Gate | Requirement |
-|------|-------------|
-| Tests pass | All tests green |
-| Coverage | ≥80% (project standard) |
-| No mocks on core logic | Domain/service/state paths use real deps |
-| No degradation | No fallback or demo code |
-| Integration test exists | Boundary-crossing code has ≥ 1 real integration test |
-| Entry point reachable | New modules traceable from at least one handler/listener |
-| Spec compliance | Each acceptance criterion in task context file is implemented AND tested |
+**Read progress**:
+```bash
+cat .ultra/tasks/progress/task-{id}.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d['evidence_score'], indent=2))"
+```
 
-**Test double policy**:
-- ❌ Core logic (domain/service/state) → NO mocking
+**Evidence dimensions** (each 0–100):
+
+| Dimension | Read as |
+|-----------|---------|
+| `tests_written` | Are there tests for the changes? |
+| `tests_passed` | Do they pass? |
+| `persistence_real` | Real DB / object store, not in-memory facades |
+| `feature_flags_audit` | No `default off` to dodge integration |
+| `vertical_slice` | ≥1 entry-point→DB integration test exists |
+| `spec_trace` | task `trace_to` field set to a spec section |
+
+**Test double policy** (informational, enforced as advisory by hooks):
+- ❌ Core logic (domain/service/state) → NO mocking — see `.ultra/templates/testcontainer-*`
 - ✅ External systems → testcontainers/sandbox/stub allowed
 
-**Workflow checkpoint**: Write `{"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"4","status":"gates_passed","ts":"ISO8601"}` to `.ultra/workflow-state.json`
+**Decision**:
+- If all dims ≥80 → record gates_passed and proceed.
+- If any dim < 80 → list which, then **decide whether to fix now or proceed knowingly**. The hook does not block; you are accountable.
+
+**Workflow checkpoint**: Write `{"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"4","status":"gates_read","ts":"ISO8601"}` to `.ultra/workflow-state.json`
 
 ### Step 4.4: Context Checkpoint (Before Review)
 
@@ -240,43 +250,44 @@ This automatically:
 
 #### Phase 2: Act on Verdict
 
-**MAX_REVIEW_ITERATIONS = 2**
+**v7 change**: no hard iteration cap. Each `recheck` writes its issue counts into `.ultra/tasks/progress/task-{id}.json` under `advisories`. Use the trend to decide — don't blindly loop.
 
-| Verdict | Iteration | Action |
-|---------|-----------|--------|
-| APPROVE | any | Proceed to Step 5 |
-| COMMENT | any | Review P1s, fix if warranted, proceed |
-| REQUEST_CHANGES | 1 | Fix ALL P0, re-run tests, `/ultra-review recheck` |
-| REQUEST_CHANGES | 2 | **Stall check first** (see below), then fix or escalate |
+| Verdict | Action |
+|---------|--------|
+| APPROVE | Proceed to Phase 3 |
+| COMMENT | Read P1s; fix if warranted; proceed |
+| REQUEST_CHANGES | Fix P0s, then `/ultra-review recheck` |
 
-**Stall Detection** (before iteration 2 fix attempt):
-1. Read SUMMARY.json from iteration 1 → count P0 + P1 issues = `prev_count`
-2. Read SUMMARY.json from iteration 2 → count P0 + P1 issues = `curr_count`
-3. **If `curr_count >= prev_count`**: Review loop stalled — escalate immediately:
-   - Write `UNRESOLVED.md` with all remaining issues
-   - WARN user: "Review stalled (issue count not decreasing: {prev_count} → {curr_count}). Escalating."
-   - Proceed to Step 5 with warning
-4. **If `curr_count < prev_count`**: Progress detected — continue fix attempt
+**Stall handling** (after each recheck): compare current P0+P1 count to previous. If counts are **not decreasing**, the loop is stalled:
+1. Write `.ultra/tasks/progress/stuck-report-{task_id}.md` containing:
+   - All remaining P0/P1 findings
+   - Recheck history (counts at each iteration)
+   - Hypothesis: which constraint is too aggressive vs. which fix is genuinely insufficient
+2. **Use AskUserQuestion** to surface the choice to the user:
+   - Option A: continue another fix attempt (with named hypothesis)
+   - Option B: ship with known issues recorded in stuck-report
+   - Option C: relax a specific constraint (CAAF Dynamic Override) — e.g. accept a documented mock with rationale
+3. Do NOT auto-escalate or auto-cap. The user owns the trade-off.
 
-If iteration >= 2 and P0s remain:
-- Write `{SESSION_PATH}/UNRESOLVED.md` with remaining P0/P1 findings
-- WARN user: "Review cap reached. N issues remain unresolved."
-- Proceed to Step 5 (pre_stop_check will still enforce its gate)
-
-**Workflow state**: After review completes, write:
+**Workflow state**: After each review pass, write:
 ```json
 {"command":"ultra-dev","task_id":ID,"branch":"BRANCH","step":"4.5","status":"review_done","review_session":"SESSION_ID","review_iteration":N,"ts":"ISO8601"}
 ```
 
-#### Phase 3: Verification (BLOCKING)
+#### Phase 3: Verification (sensor — not a hard gate)
 
-**Before proceeding to Step 5**:
+**Read progress before proceeding**:
 
-- [ ] SUMMARY.json verdict is NOT `REQUEST_CHANGES`
-- [ ] All P0 issues resolved
-- [ ] Tests still passing
+- SUMMARY.json verdict (latest)
+- Outstanding P0 count
+- Test status (latest run)
+- `evidence_score` from progress.json
 
-**Note**: `pre_stop_check.py` hook will also block session stop if unresolved P0s exist.
+**Decision rule**:
+- All ≥80 + verdict APPROVE → proceed to Step 5 silently.
+- Otherwise → use AskUserQuestion to surface a *Re-grounded* summary (project, current task, gap), recommend the best path, options A/B/C. The user decides; this step does not block on its own.
+
+> Why no auto-block: hard final gates triggered the over-correction loop documented in PHILOSOPHY.md (C3 Sensors not Blockers + C4 Incremental Validation).
 
 ### Step 5: Update Status to Completed (MANDATORY)
 
@@ -310,19 +321,29 @@ Add or update the Completion section at the end of the file:
 - Read context file → confirm Completion section exists
 - **If any missing → fix before proceeding**
 
-### Step 5.5: Pre-Commit Checklist (BLOCKING)
+### Step 5.5: Pre-Commit Checklist (advisory + user decision)
 
-**Before `git commit`, verify ALL items**:
+**v7 change**: This is a *summary view* of state, not an automated gate. The hook layer decides what to block (only irreversible operations); humans decide everything else.
 
-- [ ] tasks.json: status = "completed"
-- [ ] context file: header = "completed"
-- [ ] context file: Completion section exists
-- [ ] All tests passing
-- [ ] Ultra Review verdict is NOT `REQUEST_CHANGES`
-- [ ] New modules reachable from at least one entry point (no orphan code)
-- [ ] Boundary-crossing code has integration test
+**Compute state** (each line: `✓` / `✗` / `?` if undeterminable):
 
-**If any unchecked → fix first, do NOT commit**
+- tasks.json: status = "completed"
+- context file: header = "completed"
+- context file: Completion section exists
+- All tests passing (latest run)
+- Ultra Review verdict is NOT `REQUEST_CHANGES`
+- New modules reachable from at least one entry point (no orphan code)
+- Boundary-crossing code has integration test
+- progress.json `evidence_score`: dimensions ≥80%
+
+**Decision rule**:
+- All `✓` → proceed silently to Step 6.
+- Any `✗` → use **AskUserQuestion** with the format from CLAUDE.md `<ask_user_format>`:
+  - **Re-ground** the task and which checks failed (1–2 lines)
+  - **Recommend** the safest path
+  - Options: A) commit anyway (record gaps in commit body), B) fix the missing item now, C) split the task (commit done parts, defer the rest)
+
+> Why no auto-block: a hard pre-commit fail-gate triggers the same over-correction loop that pre_stop_check used to. The user owns the trade-off; the harness surfaces it cleanly.
 
 ### Step 6: Commit and Merge
 

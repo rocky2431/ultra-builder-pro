@@ -19,7 +19,8 @@ import re
 # Dangerous command patterns with explanations
 DANGEROUS_PATTERNS = [
     # Destructive file operations - only block truly dangerous patterns
-    (r'\brm\s+(-[rf]+\s+)*~', 'Recursive delete on home directory'),
+    # Match `rm ~`, `rm -rf ~`, `rm ~/`, `rm -rf ~/`. Anchored so `rm ~/.claude/foo.bak` is allowed.
+    (r'\brm\s+(-[rf]+\s+)*~/?\s*$', 'Recursive delete on home directory'),
     (r'\brm\s+-[rf]*\s*-[rf]*\s+/\s*$', 'Recursive delete on root directory'),
     (r'\brm\s+-[rf]*\s+--no-preserve-root', 'Dangerous rm with --no-preserve-root'),
     (r'\brm\s+-[rf]+\s+/(?!Users|home)', 'Recursive delete on system directory'),

@@ -30,12 +30,19 @@ You will receive:
 ## Process
 
 1. **Identify Test Files**: Find test files related to changed code
-2. **Mock Violation Scan** (highest priority):
+2. **Mock Violation Scan** (highest priority — each violation MUST cite an enabling alternative in the finding):
    - `jest.fn()` on Repository, Service, or Domain objects
+     → enabling: `.ultra/templates/testcontainer-postgres.{ts,py}` (real DB) or `.ultra/templates/persistence-real.ts` (real Repository skeleton)
    - `class InMemoryRepository` / `class MockXxx` / `class FakeXxx`
+     → enabling: `.ultra/templates/persistence-real.ts` to replace the in-memory facade
    - `jest.mock('../services/X')` or `jest.mock('../repositories/X')`
+     → enabling: `.ultra/templates/testcontainer-postgres.ts` + dependency injection in tests
    - `it.skip('...database...')` or similar skip patterns
+     → enabling: `.ultra/templates/testcontainer-postgres.{ts,py}` removes the "DB is too slow" excuse
    - Any mock of Functional Core components
+     → enabling: instantiate the Functional Core directly (no DI container needed for pure code)
+   - **Boundary-crossing code with no real-counterpart test**
+     → enabling: `.ultra/templates/vertical-slice.ts` (HTTP→DB end-to-end)
 3. **Behavioral Coverage Analysis**:
    - Are happy paths tested?
    - Are error paths tested? (not just that they throw, but correct error type/message)
@@ -73,11 +80,25 @@ You will receive:
 
 ## Recommendations
 
-When reporting missing tests, suggest:
-- Testcontainers for database/service integration tests
-- Direct instantiation for Functional Core unit tests
-- Real collaboration over mocked dependencies
-- Specific test scenarios with expected inputs/outputs
+**v7 rule** (PHILOSOPHY C2 — Enabling > Defensive): every violation finding MUST include an `enabling_alternative` field pointing at a copy-pasteable starter in `.ultra/templates/`. Prohibitions without alternatives drive agents to rename mocks to evade detection (the failure mode v7 fixes).
+
+When reporting missing tests, suggest concrete files:
+- DB / queue / external service → `.ultra/templates/testcontainer-postgres.{ts,py}` (or `-redis` etc.)
+- New Repository/Service implementation → `.ultra/templates/persistence-real.ts`
+- HTTP→use case→DB integration proof → `.ultra/templates/vertical-slice.ts`
+- Functional Core (pure logic) → direct instantiation, no template needed
+- Default-off feature flag → run `bash .ultra/templates/feature-flag-default-audit.sh` and surface results
+
+For each finding, the JSON output should carry:
+```json
+{
+  "category": "test-quality",
+  "severity": "P0|P1|P2|P3",
+  "violation": "<what was found>",
+  "enabling_alternative": "<path or short instruction>",
+  "expected_outcome": "<what 'fixed' looks like, in 1 line>"
+}
+```
 
 ## Output
 

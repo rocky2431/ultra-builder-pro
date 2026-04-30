@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
 """
-Post Edit Guard - Unified PostToolUse Hook
-Replaces: code_quality.py, mock_detector.py, security_scan.py
+Post Edit Guard - Unified PostToolUse Hook (v7.0 sensor-first)
 
-Runs all three checkers in a single process with one stdin parse and one file read.
-Decision priority: any block from any checker -> overall block.
+Decision policy:
+  BLOCK (irreversible only): SEC_CRITICAL — hardcoded secrets, SQL injection,
+    arbitrary code execution patterns. These can leak credentials or compromise
+    infrastructure once written; revert is necessary.
+  ADVISORY (recoverable): code quality (TODO/FIXME/console.log/throw),
+    mock patterns in tests, silent-catch handlers, scope reduction, TDD pairing.
+    These get stderr injection + additionalContext for next-turn awareness, but
+    the edit is allowed to stand. Agent decides whether to fix or proceed.
+
+v7.0 rationale: post-edit blocks for recoverable patterns triggered the
+over-correction loop (agent edits to escape, drifts from north-star). Sensor
+mode preserves signal without forcing agents into reactive-fix spirals.
 """
 
 import sys
 import json
 import re
 import os
+from pathlib import Path
+
+# v7: progress.json maintenance helper
+sys.path.insert(0, str(Path(__file__).parent))
+try:
+    from hook_utils import update_task_progress
+except Exception:  # pragma: no cover — never block hook on import error
+    def update_task_progress(*_args, **_kwargs):  # type: ignore[no-redef]
+        return
 
 
 # -- Shared Utilities --
@@ -171,6 +189,10 @@ MOCK_RATIONALE_RE = r'//\s*Test\s+Double\s+rationale:'
 
 # -- Security Patterns --
 
+# IRREVERSIBLE security patterns — HARD BLOCK.
+# Once committed these compromise infrastructure (credentials leaked, SQL injection
+# shipped, arbitrary code paths reachable). PHILOSOPHY C3 reserves block for the
+# truly irreversible — this list is the canonical "block-only" security set.
 SEC_CRITICAL_PATTERNS = [
     (r'["\']sk-[a-zA-Z0-9]{20,}["\']', 'Hardcoded OpenAI API key'),
     (r'["\']ghp_[a-zA-Z0-9]{36,}["\']', 'Hardcoded GitHub token'),
@@ -193,6 +215,14 @@ SEC_CRITICAL_PATTERNS = [
     (r'\beval\s*\([^)]*\buser', 'Dynamic code evaluation with user input - Injection risk'),
     (r'\bexec\s*\([^)]*\buser', 'Dynamic code execution with user input - Injection risk'),
     (r'Function\s*\([^)]*\buser', 'Function() constructor with user input'),
+]
+
+# RECOVERABLE security/quality patterns — ADVISORY only.
+# These are silent-failure / poor-error-handling smells. They are quality issues,
+# not infrastructure compromise. The edit stands; agent receives the signal and
+# decides whether to fix. Blocking these triggered the v7 over-correction loop
+# (agent rewrote tests/specs to escape) — see PHILOSOPHY.md C3.
+SEC_RECOVERABLE_PATTERNS = [
     (r'catch\s*\([^)]*\)\s*\{\s*\}', 'Empty catch block - Log with context and re-throw or handle'),
     (r'catch\s*\([^)]*\)\s*\{\s*return\s+null\s*;?\s*\}',
      'catch returning null - Converts error to invalid state'),
@@ -305,8 +335,16 @@ def check_mocks(_file_path, content, lines):
 # -- Checker: Security Scan --
 
 def check_security(file_path, content, lines):
-    """Returns (critical, high). HIGH patterns deferred to review-code agent."""
+    """Returns (critical, recoverable, high).
+
+    - critical: irreversible patterns (secrets, SQL injection, eval-with-user-input).
+      These trigger HARD BLOCK in main().
+    - recoverable: silent-failure patterns (empty catch, bare except, generic
+      Error messages). These are ADVISORY only (PHILOSOPHY C3).
+    - high: deferred to review-code agent (reduces PostToolUse noise).
+    """
     critical = []
+    recoverable = []
     _is_test = is_test_file(file_path)
     _is_example = is_example_or_docs(file_path)
 
@@ -315,15 +353,23 @@ def check_security(file_path, content, lines):
             line_num = get_line_number(content, match.start())
             line_content = lines[line_num - 1].strip() if line_num <= len(lines) else ''
 
-            if _is_test and 'catch' in message.lower():
-                continue
             if _is_example and 'Hardcoded' in message:
                 continue
 
             critical.append({'line': line_num, 'message': message, 'code': line_content[:80]})
 
-    # HIGH patterns deferred to review-code agent (reduces PostToolUse noise)
-    return critical, []
+    for pattern, message in SEC_RECOVERABLE_PATTERNS:
+        for match in re.finditer(pattern, content, re.IGNORECASE | re.MULTILINE):
+            line_num = get_line_number(content, match.start())
+            line_content = lines[line_num - 1].strip() if line_num <= len(lines) else ''
+
+            # Tests legitimately catch-and-rethrow, skip noisy false positives
+            if _is_test and 'catch' in message.lower():
+                continue
+
+            recoverable.append({'line': line_num, 'message': message, 'code': line_content[:80]})
+
+    return critical, recoverable, []
 
 
 # -- Checker: TDD Test File Pairing --
@@ -489,7 +535,7 @@ def _fmt_code_quality(file_path, blocks, warnings):
     out = []
     fname = os.path.basename(file_path)
     for b in blocks[:5]:
-        out.append(f"[CQ:BLOCK] {fname}:{b['line']} {b['message']}")
+        out.append(f"[CQ:ADVISORY] {fname}:{b['line']} {b['message']}")
     for w in warnings[:3]:
         out.append(f"[CQ:WARN] {fname}:{w['line']} {w['message']}")
     if len(blocks) > 5:
@@ -503,17 +549,19 @@ def _fmt_mock_violations(file_path, violations):
     fname = os.path.basename(file_path)
     out = []
     for v in violations[:5]:
-        out.append(f"[MOCK:BLOCK] {fname}:{v['line']} {v['pattern']}")
+        out.append(f"[MOCK:ADVISORY] {fname}:{v['line']} {v['pattern']} → see .ultra/templates/testcontainer-*")
     if len(violations) > 5:
         out.append(f"[MOCK] +{len(violations)-5} more")
     return out
 
 
-def _fmt_security(file_path, critical, high):
+def _fmt_security(file_path, critical, recoverable, high):
     out = []
     fname = os.path.basename(file_path)
     for c in critical[:5]:
         out.append(f"[SEC:CRIT] {fname}:{c['line']} {c['message']}")
+    for r in recoverable[:5]:
+        out.append(f"[SEC:ADVISORY] {fname}:{r['line']} {r['message']}")
     for h in high[:3]:
         out.append(f"[SEC:HIGH] {fname}:{h['line']} {h['message']}")
     return out
@@ -589,10 +637,9 @@ def main():
         section = _fmt_code_quality(file_path, cq_blocks, cq_warnings)
         if section:
             all_issues.extend(section)
-        if cq_blocks:
-            has_blocks = True
+        # v7: cq_blocks → advisory (was: has_blocks = True). Only SEC_CRITICAL still blocks.
 
-    # 2. Mock detector (test files only)
+    # 2. Mock detector (test files only) — v7: advisory (was block)
     if ext in MOCK_DETECTOR_EXT and is_test_file(file_path):
         mock_violations = check_mocks(file_path, content, lines)
         section = _fmt_mock_violations(file_path, mock_violations)
@@ -600,12 +647,12 @@ def main():
             if all_issues:
                 all_issues.append("")
             all_issues.extend(section)
-            has_blocks = True
+            # v7: mocks → advisory; templates at .ultra/templates/testcontainer-*.{ts,py}
 
-    # 3. Security scan (skip hook files only)
+    # 3. Security scan (skip hook files only) — v7: only IRREVERSIBLE patterns block
     if ext in SECURITY_EXT and not is_hook_file(file_path):
-        sec_critical, sec_high = check_security(file_path, content, lines)
-        section = _fmt_security(file_path, sec_critical, sec_high)
+        sec_critical, sec_recoverable, sec_high = check_security(file_path, content, lines)
+        section = _fmt_security(file_path, sec_critical, sec_recoverable, sec_high)
         if section:
             if all_issues:
                 all_issues.append("")
@@ -629,17 +676,17 @@ def main():
             all_issues.append("")
         all_issues.append(tdd_warning)
 
-    # 6. Silent catch detection (block)
+    # 6. Silent catch detection — v7: advisory (was block)
     if ext == '.py' and not is_hook_file(file_path):
         silent_violations = check_silent_catches(file_path, content, lines)
         if silent_violations:
             if all_issues:
                 all_issues.append("")
-            all_issues.append("[SILENT-CATCH:BLOCK] Silent exception handlers detected:")
+            all_issues.append("[SILENT-CATCH:ADVISORY] Silent exception handlers detected:")
             for line_num, snippet in silent_violations[:5]:
                 all_issues.append(f"  L{line_num}: {snippet}")
             all_issues.append("  → Add logging or handle the error explicitly.")
-            has_blocks = True
+            # v7: → advisory (was: has_blocks = True)
 
     # 7. Blast radius (info via stderr, never blocks)
     dependents = check_blast_radius(file_path)
@@ -657,6 +704,12 @@ def main():
 
     if all_issues:
         warning_message = "\n".join(all_issues)
+
+        # v7 Incremental Validation: persist advisories to progress.json
+        try:
+            update_task_progress(file_path, advisories=all_issues)
+        except Exception:
+            pass
 
         if has_blocks:
             result = {
@@ -676,6 +729,11 @@ def main():
             }
         print(json.dumps(result))
     else:
+        # v7: still record file touch even when no advisories
+        try:
+            update_task_progress(file_path)
+        except Exception:
+            pass
         print(json.dumps({}))
 
 

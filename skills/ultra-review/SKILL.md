@@ -402,7 +402,7 @@ When user selects "Fix all" or "Fix P0 only" after review:
 ## Integration with ultra-dev
 
 This skill integrates with the TDD workflow:
-- After `tdd-runner` confirms tests pass
+- After tests pass
 - Before `commit` or PR creation
 - Quick mode for iterative development
 - Full mode for pre-merge gate

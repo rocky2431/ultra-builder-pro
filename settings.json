@@ -78,6 +78,16 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/relations_sync.py",
+            "timeout": 3
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -114,7 +124,7 @@
         ]
       },
       {
-        "matcher": "Write|Edit",
+        "matcher": "Write|Edit|Grep",
         "hooks": [
           {
             "type": "command",
@@ -218,32 +228,24 @@
     "hookify@claude-plugins-official": true,
     "jdtls-lsp@claude-plugins-official": true,
     "obsidian@obsidian-skills": true,
-    "planning-with-files@planning-with-files": true,
     "pyright-lsp@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "pua@pua-skills": true,
     "cli-anything@cli-anything": true,
     "claude-hud@claude-hud": true,
-    "minimax-skills@minimax-skills": true,
     "codex@openai-codex": true,
     "impeccable@impeccable": true,
     "context7@claude-plugins-official": true,
     "vercel@claude-plugins-official": true,
-    "caveman@caveman": true
+    "caveman@caveman": true,
+    "claude-md-management@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "obsidian-skills": {
       "source": {
         "source": "git",
         "url": "https://github.com/kepano/obsidian-skills.git"
-      }
-    },
-    "pua-skills": {
-      "source": {
-        "source": "github",
-        "repo": "tanweai/pua"
       }
     },
     "cli-anything": {
@@ -262,12 +264,6 @@
       "source": {
         "source": "github",
         "repo": "jarrodwatts/claude-hud"
-      }
-    },
-    "minimax-skills": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/MiniMax-AI/skills.git"
       }
     },
     "openai-codex": {
@@ -297,7 +293,10 @@
   "alwaysThinkingEnabled": true,
   "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
+  "theme": "dark-daltonized",
   "teammateMode": "tmux",
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
   "_comment_project": "Ultra Builder Pro 6.8.0",
   "_comment_version": "6.8.0 - Research Step-File Architecture (BMAD-inspired)"
 }

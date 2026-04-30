@@ -5,17 +5,57 @@ Stores the first user prompt of each session in sessions.initial_request.
 Only writes once per session (ignores subsequent prompts).
 Creates a minimal session shell if Stop hook hasn't run yet.
 
-Execution target: < 50ms (single DB write, no AI processing).
+v7.0 addition: also writes the prompt as the One-line into
+.ultra/north-star.md if the template is unfilled (Goal-Always-Present
+substrate; read by session_context + mid_workflow_recall).
+
+Execution target: < 50ms (single DB write + one optional file write).
 """
 
 import json
 import os
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 import memory_db
+
+
+NORTH_STAR_PLACEHOLDER = "_(not yet defined — run `/ultra-init` or first user request will populate)_"
+
+
+def _try_write_north_star(prompt: str) -> None:
+    """Populate .ultra/north-star.md One-line if template is unfilled.
+
+    Silently no-ops when:
+    - not in a git repo
+    - .ultra/north-star.md missing (project not ultra-init'd)
+    - One-line already populated (do not overwrite user content)
+    """
+    try:
+        result = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True, text=True, timeout=2
+        )
+        if result.returncode != 0 or not result.stdout.strip():
+            return
+        root = Path(result.stdout.strip())
+        ns_path = root / '.ultra' / 'north-star.md'
+        if not ns_path.exists():
+            return
+        content = ns_path.read_text(encoding='utf-8')
+        if NORTH_STAR_PLACEHOLDER not in content:
+            return  # already populated, do not overwrite
+        captured = prompt[:500].strip().replace('\n', ' ')
+        replacement = (
+            f"> {captured}\n>\n"
+            f"> _(auto-captured {datetime.now(timezone.utc).date()} from first session prompt — refine as needed)_"
+        )
+        ns_path.write_text(content.replace(NORTH_STAR_PLACEHOLDER, replacement), encoding='utf-8')
+    except Exception:
+        pass  # never block hook on north-star write
 
 
 def main():
@@ -84,6 +124,9 @@ def main():
         conn.close()
     except Exception:
         print("[user_prompt_capture] DB error", file=sys.stderr)
+
+    # v7: also seed north-star.md One-line (best-effort, never blocks)
+    _try_write_north_star(prompt)
 
     print(json.dumps({}))
 

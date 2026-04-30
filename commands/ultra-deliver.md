@@ -33,18 +33,21 @@ Prepare release after `/ultra-test` passes: update documentation, build, bump ve
 
 ---
 
-## Pre-Delivery Validations
+## Pre-Delivery Validations (v7 — advisory + user decision)
 
-**Before proceeding, you MUST verify these conditions. If any fails, report and block.**
+**v7 change**: validations surface state and recommend; the user decides. Only irreversible operations (real `git push`, real publish, real release tag) hard-block.
 
 ### Validation 1: /ultra-test Passed
 
-Read `.ultra/test-report.json` and verify:
-- File exists (if not: "❌ Run /ultra-test first")
-- `passed` is `true` (if not: show `blocking_issues` and block)
-- `git_commit` matches current HEAD (if not: "⚠️ Code changed since last test, re-run /ultra-test")
+Read `.ultra/test-report.json` and report:
+- File exists? (if not: "Run /ultra-test first" — recommended, not blocking)
+- `passed` is `true`? (if not: list `blocking_issues`)
+- `git_commit` matches current HEAD? (if not: "Code changed since last test")
 
-If validation fails, block delivery.
+If anything fails, **use AskUserQuestion** with `<ask_user_format>`:
+- Re-ground: which validation(s) failed
+- Recommend: re-run /ultra-test before delivering
+- Options: A) Re-run /ultra-test now, B) Proceed anyway and accept risk (records gap), C) Cancel delivery
 
 ### Validation 2: No Uncommitted Changes
 
@@ -81,12 +84,12 @@ If unclean:
 2. If changed → Update usage examples to reflect changes
 3. **Verify**: Read README.md → confirm examples match current API
 
-**1.4 Documentation Checklist**:
-- [ ] CHANGELOG.md updated with new version
-- [ ] technical-debt.md generated/updated
-- [ ] README.md updated (if API changed)
+**1.4 Documentation Checklist** (v7 — advisory):
+- CHANGELOG.md updated with new version
+- technical-debt.md generated/updated
+- README.md updated (if API changed)
 
-**If any required item unchecked → fix before proceeding**
+**If any item missing**, use AskUserQuestion: A) update docs now (recommended for tagged releases), B) skip and note in release body (safe for internal builds), C) cancel delivery.
 
 ### Step 2: Production Build
 
@@ -99,7 +102,7 @@ Detect build command by priority:
 
 **Build validation**:
 - Exit code 0 → proceed
-- Exit code non-zero → block with error output, ask user how to proceed
+- Exit code non-zero → surface error output via AskUserQuestion (re-ground / recommend / options A: fix and retry build, B: investigate dependencies, C: cancel delivery). Do not auto-loop fixes.
 
 ### Step 3: Version & Release (MANDATORY)
 

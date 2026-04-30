@@ -59,7 +59,7 @@ Pre-delivery quality audit. Validates test health, coverage gaps, E2E functional
 3. Use Grep to scan and count matches
 
 **Result**:
-- ❌ BLOCKED: Any critical anti-pattern found
+- 🟡 REPORTED (was BLOCKED): Any critical anti-pattern found
 - ⚠️ WARNING: Minor issues found
 - ✅ PASS: No anti-patterns
 
@@ -127,7 +127,7 @@ Pre-delivery quality audit. Validates test health, coverage gaps, E2E functional
 
 **Result**:
 - ✅ PASS: All pages load, no errors, flows complete
-- ❌ BLOCKED: Critical pages fail or major errors
+- 🟡 REPORTED (was BLOCKED): Critical pages fail or major errors
 
 ---
 
@@ -149,7 +149,7 @@ Pre-delivery quality audit. Validates test health, coverage gaps, E2E functional
 **What to do**: Run dependency vulnerability scan using project's package manager audit command.
 
 **Severity handling**:
-- Critical/High: ❌ BLOCKED
+- Critical/High: 🟡 REPORTED (escalated via AskUserQuestion in Step 6)
 - Medium: ⚠️ Warning
 - Low: ℹ️ Info
 
@@ -203,30 +203,45 @@ Update `.ultra/test-report.json`:
 
 ---
 
-## Auto-Fix Loop
+## Step 6: Report and Surface Decision (v7 — was Auto-Fix Loop)
 
-If any gate fails, attempt automatic fix:
+**v7 change**: no autonomous fix→retry loop. The loop drove over-correction (agent fixing test to escape, drifting from spec). Instead this step **records gaps + surfaces them** for the user to decide.
 
-```
-Loop (max 5 attempts):
-  1. Analyze blocking_issues
-  2. Fix issues → re-run tests → update run_count
-  3. If external dependency issue → break and report
-  4. If all gates pass → done
-```
+**Process**:
 
-**Auto-fix all code issues**:
-- Coverage Gap → Write missing tests
-- Anti-Pattern → Fix test code
-- E2E errors → Fix code
-- Performance → Optimize code (splitting, lazy loading, etc.)
+1. Aggregate all blocking_issues from Steps 1–5 into a structured report.
+2. Write the report to `.ultra/tasks/progress/quality-gaps-{task_id}.md` (or `quality-gaps-current.md` when task is unknown). Format:
+   ```markdown
+   # Quality Gaps Report
+   
+   **Generated**: <ISO8601>
+   **Run**: <run_count>
+   
+   ## Critical (P0) — by category
+   - [Anti-Pattern] <file:line> — <description>
+   - [Coverage Gap] <module> — <description>
+   - ...
+   
+   ## High (P1) — by category
+   - ...
+   
+   ## Recommendations (per gap)
+   - <gap>: suggested fix or template (e.g. `.ultra/templates/testcontainer-postgres.ts`)
+   ```
 
-**External dependency issues** (cannot auto-fix):
-- Security CVE in third-party package → Requires upstream fix or user decision to upgrade
+3. **Use AskUserQuestion** with `<ask_user_format>` from CLAUDE.md:
+   - **Re-ground**: project, task, what `/ultra-test` found
+   - **Recommend** the highest-leverage fix
+   - **Options**:
+     - A) Fix all P0 now (start a focused dev session per gap)
+     - B) Fix selected gaps (user picks which)
+     - C) Accept risk and proceed (gaps recorded; commit body should reference quality-gaps file)
+     - D) Reduce scope (drop one or more checks for this delivery, with rationale)
 
-**If max attempts reached**:
-- Report remaining issues to user
-- Explain what was attempted
+4. Do NOT enter an autonomous fix loop. The user owns the trade-off.
+
+**External dependency issues** (CVE / supply chain):
+- Always option (C) requires the user — never auto-upgrade dependencies.
 
 ### 2. Display Report
 
