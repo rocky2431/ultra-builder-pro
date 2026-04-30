@@ -1,6 +1,6 @@
 ---
 name: ultra-review
-description: "Parallel code review orchestration with 6 specialized agents + coordinator. Zero context pollution - all output via JSON files."
+description: "Parallel code review orchestration with 7 specialized agents + coordinator. Zero context pollution - all output via JSON files."
 user-invocable: true
 ---
 
@@ -108,6 +108,7 @@ Select all applicable agents based on diff content:
 | review-errors | No error handling code detected | - |
 | review-design | No type definitions AND no function-level changes in diff | - |
 | review-comments | No comment changes in diff | - |
+| review-ac-drift | No `.ultra/tasks/contexts/` directory OR no active task locatable | - |
 
 **Auto-skip detection commands:**
 ```bash
@@ -428,6 +429,7 @@ This skill integrates with the TDD workflow:
   │   ├── review-errors.json
   │   ├── review-design.json
   │   ├── review-comments.json
+  │   ├── review-ac-drift.json
   │   ├── SUMMARY.json
   │   └── SUMMARY.md
   └── 20260214-113000-feat-task-3-auth-iter2/       # Recheck after fixes

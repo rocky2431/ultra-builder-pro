@@ -55,7 +55,7 @@ All review agents MUST output findings in this exact format. No deviations.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `$schema` | string | YES | Always `"ultra-review-findings-v1"` |
-| `agent` | string | YES | Agent name: `review-code`, `review-tests`, `review-errors`, `review-comments`, `review-design` |
+| `agent` | string | YES | Agent name: `review-code`, `review-tests`, `review-errors`, `review-comments`, `review-design`, `review-ac-drift` |
 | `session` | string | YES | Session ID provided in the task prompt |
 | `timestamp` | string | YES | ISO 8601 timestamp when review completed |
 | `scope` | object | YES | What was analyzed |
@@ -94,10 +94,10 @@ All review agents MUST output findings in this exact format. No deviations.
 | `comments` | review-comments |
 | `simplification` | review-design |
 | `performance` | review-code, review-design |
-| `architecture` | review-code, review-design |
+| `architecture` | review-code, review-design, review-ac-drift |
 | `integration` | review-code |
-| `scope-drift` | review-code |
-| `spec-compliance` | review-code |
+| `scope-drift` | review-code, review-ac-drift |
+| `spec-compliance` | review-code, review-ac-drift |
 | `forbidden-pattern` | review-code, review-tests, review-comments |
 
 ### Verdict Rules
