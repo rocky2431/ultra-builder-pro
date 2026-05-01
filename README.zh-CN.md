@@ -4,15 +4,15 @@
 
 [English](README.md) · **简体中文**
 
-**为 Claude Code 打造的动态项目知识库 —— 让需求偏移不再是技术债的源头。**
+**为 Claude Code 打造的 production-grade 工程化 harness。**
 
-**解决"PRD 写的是什么" vs "代码实际在做什么"之间的断层 —— 哪怕 50 轮需求变更之后。**
+**6 命令工作流 · sensor-driven 钩子链 · 多 agent 平行评审 · 跨会话记忆 · 活的项目知识库 · 三方 AI 交叉验证。**
 
 [![Version](https://img.shields.io/badge/version-7.1.0-blue?style=for-the-badge)](CHANGELOG.md)
 [![Tests](https://img.shields.io/badge/tests-179_passing-brightgreen?style=for-the-badge)](hooks/tests/)
 [![Hooks](https://img.shields.io/badge/hooks-15-yellow?style=for-the-badge)](docs/architecture.md#hooks-system)
-[![Agents](https://img.shields.io/badge/agents-12-red?style=for-the-badge)](docs/architecture.md#agent-system)
-[![Skills](https://img.shields.io/badge/skills-17-orange?style=for-the-badge)](skills/)
+[![Agents](https://img.shields.io/badge/agents-9-red?style=for-the-badge)](docs/architecture.md#agent-system)
+[![Skills](https://img.shields.io/badge/skills-22-orange?style=for-the-badge)](skills/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 ```bash
@@ -21,7 +21,7 @@ git clone https://github.com/rocky2431/ultra-builder-pro.git ~/.claude
 
 **Claude Code 跑得了的地方就跑得了。** macOS · Linux · Windows.
 
-[为什么做这个](#为什么做这个) · [怎么用](#怎么用) · [动态项目知识库](#动态项目知识库) · [架构细节](docs/architecture.md) · [更新日志](CHANGELOG.md)
+[为什么做这个](#为什么做这个) · [里面有什么](#里面有什么) · [怎么用](#怎么用) · [它为什么管用](#它为什么管用) · [架构](docs/architecture.md) · [更新日志](CHANGELOG.md)
 
 </div>
 
@@ -29,19 +29,30 @@ git clone https://github.com/rocky2431/ultra-builder-pro.git ~/.claude
 
 ## 为什么做这个
 
-我是 DeFi 工程师。大部分时候我不写代码 —— Claude Code 写。
+我是 DeFi 工程师。我不写代码，Claude Code 写。
 
-但发版越多，我越发现同一个问题：**需求一直在偏移，没人盯**。
+但用 Claude Code 把代码 *写出来*，和把代码 *推到 production*，是两回事。当你需要：
 
-真实工程的现实是：PRD 永远不是"终稿"，只是"今天这版"。需求多一个子功能、约束改一个、实施过程中冒出新边界 —— 静态文档跟不上。它会过期。技术债就在 *规约说什么* 和 *代码做什么* 的缝隙里悄悄长。
+- 真的 code review，不是"看起来没问题"
+- 真的测试通过，不是 mock 装出来的绿
+- 经得起 50 轮需求偏移的规约，不是悄悄漂移
+- 跨会话不丢上下文，不是昨天决策今天蒸发
+- 多 AI 互相校验，不是一家之言
 
-BMAD、Speckit、Taskmaster 这些工具在 *规划阶段* 都做得不错。但你做到第 3 个 phase 的时候，PRD 还说"VIP 用户免运费"，代码已经悄悄改成"5 折优惠" —— 没有任何测试能抓到，因为测试是按新代码写的，不是按原始规约。
+—— 单靠对话不够。LLM 会忘、会偷懒、会 silently scope-reduce、会假装通过。会说"VIP 用户免运费"然后实现成"5 折"。
 
-**结构性 lint（types、schema、调用图）看不到这种偏移。只有把 PRD 文本和 diff 一起读的 LLM 能看到。**
+Ultra Builder Pro 是建立在 Claude Code 之上的 **工程化 harness**，让它达到 production-grade。不是单一工具——是六层集成的 substrate：
 
-Ultra Builder Pro 就是这个想法的工程实现。它是一套**动态项目知识库** —— 一个会跟着代码改动**自我更新**的层，能同时浮现 *工程断点*（schema/类型/调用）和 *功能断点*（语义/意图），并把对的上下文喂给 Claude Code 的每一次编辑。
+1. **Spec-driven 6 命令工作流**：从想法到发布
+2. **Sensor-driven 15 钩子链**：v7.0 哲学，提示而不阻挠
+3. **7 agent 平行评审 pipeline**：含语义偏移检测
+4. **跨会话 SQLite + 向量记忆**：结构化 AI 摘要
+5. **活的双向 task ↔ code ↔ spec 知识库** (v7.1)
+6. **三方 AI 验证**：Claude + Gemini + Codex 共识打分
 
-不需要 50 人公司的企业流程。不需要 sprint 仪式。只是 6 个命令 + 一套 sensor-driven 的 harness，让 Claude 在项目持续偏移的过程中保持清醒。
+它不替你思考。它**替你盯住 Claude**——让 LLM 在干活时始终知道目标、看到上下文、跑过测试、过了评审、留下足迹。
+
+别的系统给你其中一部分。BMAD 有工作流，claude-mem 试过记忆然后炸了，GSD 把 spec-driven 做得很到位。Ultra Builder Pro 是集成版本——每一层都和别的层咬合。
 
 — **rocky2431**
 
@@ -49,28 +60,113 @@ Ultra Builder Pro 就是这个想法的工程实现。它是一套**动态项目
 
 ## 适合谁
 
-用 Claude Code 真正在做产品，并且希望系统能：
+用 Claude Code 做真产品、想要：
 
-- **记住**：每个文件什么意思、属于哪个任务、上次改了什么
-- **浮现偏移**：在 "免运费" 悄悄变成 "5 折" 的瞬间发现，不是部署后才发现
-- **不挡路**：6 个命令，不是 30 个；不要 sprint 计划、不要故事点
-- **真测试**：179 个 hook 测试通过，核心路径不 mock
+- **默认就有 production 纪律**——TDD 强制、平行评审、每任务原子 commit
+- **会记事的系统**——跨文件、跨任务、跨会话、跨 AI provider
+- **早抓 drift**——"免运费"刚变成"5 折"就抓到，不是部署后才发现
+- **不要表演式流程**——9 个命令而不是 30 个；不要 sprint 计划、故事点、Jira
 
-如果你想要重型企业流程，用 [BMAD](https://github.com/bmad-code-org/BMAD-METHOD)。想要纯规划工具，用 [Speckit](https://github.com/specifyx/speckit)。想要不动 git 的工作流，这个不适合 —— Ultra Builder 每个任务都 atomic commit。
+如果你想要重型企业流程，用 [BMAD](https://github.com/bmad-code-org/BMAD-METHOD)。要纯规划工具，用 [Speckit](https://github.com/specifyx/speckit)。要轻量 context 工程，用 [GSD](https://github.com/gsd-build/get-shit-done)。Ultra Builder Pro 是 *最大化* 选项——你想要每层都集成的时候选这个。
 
 ---
 
-## 最新版本 — v7.1.0（动态项目知识库）
+## 里面有什么
 
-让知识库活着、跟得上需求偏移。五个增量，全是 sensor 模式（不阻断），全部复用 v7.0 substrate：
+建立在 Claude Code 之上。加六层 production engineering 纪律。
 
-- **反向 trace**（`post_edit_guard.py`）—— 编辑文件时 stderr 注入"该文件属于哪个任务 + 前几条 AC"；不属于任何任务的文件回退到 git 上下文（branch + 最近 commit）
-- **AC 偏移检测**（`review-ac-drift` agent）—— `/ultra-review` 的第 7 个专家；同时读 AC 文本和 diff；抓到结构性 lint 看不到的语义漂移（"免运费 → 5 折"那种）
-- **wiki 视图**（`wiki_generator.py`）—— 从项目状态自动派生 `.ultra/wiki/{index,log}.md`，含 Recent Activity 表
-- **会话 trail**（`session_trail.py`）—— Stop hook 把会话事实 fold 进当前任务的 `## Session Trail` 段
-- **孤儿会话处理** —— 没有 active task 的会话也不丢：写到 `.ultra/sessions/orphan-trail.md` + Recent Activity 合并
+### 1. Spec-Driven 6 命令工作流
 
-→ 完整版本历史见 [CHANGELOG.md](CHANGELOG.md)。架构细节见 [docs/architecture.md](docs/architecture.md)。
+```
+/ultra-init  →  /ultra-research  →  /ultra-plan  →  /ultra-dev  →  /ultra-test  →  /ultra-deliver
+```
+
+每个命令只做一件事；复杂度藏在系统里。背后是：TDD 红绿重构强制、自动 git 流程（每任务一个原子 commit）、walking skeleton 优先、每 3-4 个任务插一个 integration checkpoint。
+
+`/ultra-research` 本身是 17 个 step-file 的架构（BMAD 启发）——每步密集指令、预写好的 web 搜索查询、结构化输出模板、写完就走的纪律。产出：`discovery.md`、`product.md`、`architecture.md`，以及供 `/ultra-plan` 消费的 token 紧凑版 `research-distillate.md`。
+
+→ 见 `commands/ultra-*.md` 和 [docs/architecture.md](docs/architecture.md)。
+
+### 2. Sensor-Driven 钩子链 (15 hooks)
+
+**v7.0 哲学：阻断只留给 *真不可逆* 的动作。** 硬编码 secret、SQL 注入、force-push 到 main、DB 迁移 commit。其他全部——mock、scope reduction、silent catch、TODO/FIXME、默认关闭的 feature flag——都是 *advisory*。Agent 读到、判断、继续。
+
+这反转了 v7 之前的 over-correction 死循环：被阻断的 agent 会偷偷改测试和规约去绕开（比没钩子更糟）。Sensor 模式只给信号，不扭曲。钩子还在决策时刻 **注入目标上下文**：你开始编辑文件时，`mid_workflow_recall.py` 把当前任务 AC + memory.db 里相关的历史失败注入 stderr。
+
+→ 钩子表：[docs/architecture.md#hooks-system](docs/architecture.md#hooks-system)。
+
+### 3. 多 agent 平行评审 pipeline (7 专家)
+
+串行评审会随 finding 累积丢失上下文。`/ultra-review` 把 7 个专家平行 fan-out——每个在新鲜的 200k 上下文里——coordinator 去重 + 排序。**主会话上下文用量保持在 30-40%**，哪怕跑完整套深度评审。
+
+专家们：
+- `review-code`——security、SOLID、forbidden patterns、scope drift
+- `review-tests`——mock 违规、覆盖率缺口、边界测试
+- `review-errors`——silent failure、吞掉的错误、空 catch
+- `review-design`——类型设计、封装、复杂度
+- `review-comments`——过期、误导、低价值的注释
+- `review-ac-drift` (v7.1)——**语义对齐**：同时读 spec 文本和 diff，抓"VIP 免运费 → 5 折"这种结构 lint 看不到的偏移
+- `review-coordinator`——聚合、去重、生成 SUMMARY
+
+verdict 逻辑：P0 > 0 → REQUEST_CHANGES；P1 > 3 → REQUEST_CHANGES；P1 > 0 → COMMENT；否则 APPROVE。Branch-scoped session 索引，支持多次 recheck 形成迭代链。
+
+→ 见 `skills/ultra-review/SKILL.md`。
+
+### 4. 跨会话记忆 + AI 摘要
+
+SQLite FTS5 + Chroma 向量库 + 结构化 Haiku 摘要。**会话结束时** 一个非阻塞 daemon 解析 transcript，生成结构化 JSON 摘要（`request`、`completed`、`learned`、`next_steps`），同时写入 SQLite FTS5 行和 Chroma 向量。**会话开始时** 注入一行（~50 token）讲上次会话——不批量倾倒。
+
+按需用 `/recall` 搜索。混合模式（默认）：FTS5 关键词 + Chroma 语义，通过 RRF (k=60) 融合。还有纯语义 / 纯关键词模式。skill 在 forked context 里跑，搜索结果不污染主对话。
+
+设计成 **claude-mem** 失败之后的安全替代——claude-mem 一次注入 ~25k token 把上下文炸了。
+
+→ 见 `skills/recall/SKILL.md`。
+
+### 5. 活的项目知识库 (v7.1)
+
+`.ultra/relations.json` 维护 task ↔ code ↔ spec 的双向索引。`.ultra/wiki/{index,log}.md` 自动派生 wiki 视图。会话事实 fold 进任务 context md 的 `## Session Trail` 段。没有 active task 的会话也不丢——residue 进 `.ultra/sessions/orphan-trail.md`。
+
+三层架构：
+
+```
+Layer 3 — Schema 层（不变）：    PHILOSOPHY.md, CLAUDE.md, harness 规则
+Layer 2 — Wiki 层（解读）：      wiki/{index,log}.md, ## Session Trail, orphan-trail
+Layer 1 — Facts 层（机器维护）： relations.json, progress/*.json, git history
+```
+
+Wiki 节点**不存事实**，只存解读。**不会有悄悄过期**——事实变了，wiki 重生。编辑某个属于任务的文件 → stderr 显示任务 + AC。编辑无主文件 → git 上下文回退（branch + 最近 commit）。在非 Ultra 项目里编辑 → 完全静默。
+
+→ 见 [CHANGELOG v7.1](CHANGELOG.md#v710-2026-05-01--dynamic-project-knowledge-base)。
+
+### 6. 三方 AI 交叉验证
+
+`/ultra-verify` 把 Claude + Gemini + Codex *独立* 起 background 任务。Claude 在读其他人之前 *先把自己的答案写到文件*——防止污染。然后 Claude 读三份输出做综合，按共识打分：
+
+| 结果 | 信心 |
+|------|------|
+| 3/3 一致 | **共识** |
+| 2/3 一致 | **多数** |
+| 全分歧 | **无共识** |
+
+四个模式：`decision`（架构选择）、`diagnose`（bug 假设）、`audit`（代码审计）、`estimate`（工作量估算）。降级优雅——一个 AI 失败 → 两方比对（信心封顶 Majority）；两个失败 → Claude 单干并显式警告。
+
+底层共享 `ai-collab-base` skill 同步 collab protocol 文件。消除 gemini-collab 和 codex-collab 之间 ~90% 的结构性重复。
+
+→ 见 `skills/ultra-verify/SKILL.md`。
+
+---
+
+## 最新版本 — v7.1.0
+
+**动态项目知识库** —— 在 v7.0 sensor-first 基础上的五个增量：
+
+- 文件 → 任务反向 trace + git 上下文回退（`post_edit_guard.py`）
+- 第 7 个评审专家 `review-ac-drift` 做语义对齐
+- 自动派生 wiki + Recent Activity 表
+- 会话 trail fold 进任务 context
+- 孤儿会话处理（覆盖跨任务 / 无规划 / hotfix）
+
+→ 完整版本历史：[CHANGELOG.md](CHANGELOG.md)。
 
 ---
 
@@ -82,13 +178,13 @@ cd ~/.claude && python3 -m pytest hooks/tests/ --ignore=hooks/tests/test_pre_sto
 # 应该输出：179 passed
 ```
 
-然后到任意项目下：
+到任意项目下：
 
 ```bash
 cd ~/your-project && claude
 ```
 
-在 Claude Code 里跑 `/ultra-init` 初始化新项目（或 `/ultra-status` 验证安装）。
+在 Claude Code 里跑 `/ultra-init` 初始化（或 `/ultra-status` 验证安装）。
 
 ### 推荐：跳过权限确认模式
 
@@ -96,115 +192,24 @@ cd ~/your-project && claude
 claude --dangerously-skip-permissions
 ```
 
-整个系统是为顺畅自动化设计的。一边跑一边停下来批 `date` 和 `git commit` 50 次，背离了初衷。如果你不想全开，可以在 `.claude/settings.json` 的 `permissions.allow` 里白名单具体命令。
+整个 harness 是为顺畅自动化设计的。一边跑一边停下来批 `git commit` 50 次，背离了初衷。如果你不想全开，可以在 `.claude/settings.json` 的 `permissions.allow` 里白名单具体命令。
 
 ---
 
 ## 怎么用
 
-六个命令。每个只做一件事；复杂度藏在系统里面。
+6 命令 pipeline，端到端。每个命令的输出是下一个命令的输入。
 
-### 1. 初始化
+| 步 | 命令 | 做什么 | 产出 |
+|----|------|-------|------|
+| 1 | `/ultra-init` | 自动检测项目类型；从 `.ultra-template/` 复制模板；建立 `.ultra/` 目录 | `.ultra/{specs,tasks,docs}/`、`PHILOSOPHY.md`、`north-star.md` |
+| 2 | `/ultra-research` | 17 步研究 pipeline；每步强制 web 搜索；结构化输出模板 | `discovery.md`、`product.md`、`architecture.md`、`research-distillate.md` |
+| 3 | `/ultra-plan` | 原子任务拆解；模式（EXPAND/SELECTIVE/HOLD/REDUCE）；walking skeleton 优先；integration checkpoint | `tasks.json`、`contexts/task-N.md` 每任务一份 |
+| 4 | `/ultra-dev` | TDD 红绿重构；Goal-Always-Present AC 注入；每任务一个原子 commit；Step 4.5 自动跑 `/ultra-review all` | 实现、测试、commit |
+| 5 | `/ultra-review` | 7 agent 平行评审；coordinator 去重；SUMMARY.json + .md | `.ultra/reviews/<session>/SUMMARY.{json,md}` |
+| 6 | `/ultra-deliver` | Pre-flight 测试 + review verdict APPROVE；CHANGELOG；版本号；tag；push | 发布产物、git tag |
 
-```
-/ultra-init
-```
-
-自动检测项目类型，从 `.ultra-template/` 复制模板，建好 `.ultra/` 目录结构。**产出：** `.ultra/{specs,tasks,docs}/`、`PHILOSOPHY.md`、`north-star.md`。
-
-### 2. Research（可选但建议）
-
-```
-/ultra-research
-```
-
-17 个 step-file（BMAD 风格架构，每个 ~200 行）。每步都有：强制 web search + 预写好的查询、结构化输出模板带字段级 spec、写完就走的纪律。
-
-- Steps 00–05：产品 Discovery（TAM/SAM/SOM、Strategy Canvas、验证计划）
-- Steps 10–11：Personas & Scenarios
-- Steps 20–22：功能定义带 Given/When/Then AC
-- Steps 30–32：架构（每个技术选型都要带来源）
-- Steps 40–41：质量 & 部署
-- Step 99：综合 → `research-distillate.md`
-
-**产出：** `.ultra/specs/{discovery,product,architecture}.md`。
-
-### 3. 规划
-
-```
-/ultra-plan
-```
-
-读规约，生成原子任务拆解。模式选择：EXPAND / SELECTIVE（默认）/ HOLD / REDUCE。每个任务带 Given/When/Then AC、Definition of Drift（防范围蔓延）、目标文件、`trace_to` 指向规约段。Walking skeleton 永远是 Task #1。每 3-4 个任务插一个 Integration Checkpoint。
-
-**产出：** `.ultra/tasks/{tasks.json, contexts/task-N.md}`。
-
-### 4. 开发
-
-```
-/ultra-dev
-```
-
-TDD 流程：RED → GREEN → REFACTOR。**Goal-Always-Present** 机制（`mid_workflow_recall.py`）每次 Edit/Write 都把当前任务 AC 注入 stderr —— Claude 永远知道"完成"长什么样。`progress.json` 持续追踪 6 维 `evidence_score`。Step 4.5 在 commit 前自动跑 `/ultra-review all`。
-
-**产出：** 实现 + 测试 + 每个任务一个 atomic commit。
-
-### 5. 评审
-
-```
-/ultra-review              # 智能跳过（按 diff 内容）
-/ultra-review all          # 强制 7 个 agent（合并前的 gate）
-```
-
-7 个专家 agent 平行跑，各自在新鲜上下文里，把 findings 写到 `.ultra/reviews/<session>/`。Coordinator 聚合 → SUMMARY。第 7 个 agent（`review-ac-drift`，v7.1）同时读 spec 和 diff，做语义对齐。
-
-### 6. 交付
-
-```
-/ultra-deliver
-```
-
-CHANGELOG、版本号、build、tag、push。Pre-flight：完整测试套件 + ultra-review verdict 必须是 APPROVE。
-
----
-
-## 动态项目知识库
-
-和 BMAD/Speckit/Taskmaster 不一样的核心：**这个 KB 是活的**。每次 Edit/Write/Stop 都自动更新，你什么都不用做。
-
-### 三层架构
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Layer 3 — Schema 层（哲学，不变）                           │
-│    .ultra/PHILOSOPHY.md, CLAUDE.md, harness 规则            │
-│                                                              │
-│  Layer 2 — Wiki 层（解读；人 + LLM 都读）                    │
-│    .ultra/wiki/index.md            按状态分组的任务         │
-│    .ultra/wiki/log.md              时间序进度               │
-│    task-*.md ## Session Trail      fold 进来的会话事实      │
-│    .ultra/sessions/orphan-trail.md 无任务会话               │
-│                                                              │
-│  Layer 1 — Facts 层（机器维护）                              │
-│    .ultra/relations.json           task ↔ spec ↔ code       │
-│    .ultra/tasks/progress/          每任务 evidence_score    │
-│    git history                     真理来源                 │
-└─────────────────────────────────────────────────────────────┘
-```
-
-Wiki 节点**不存事实**，只存解读。事实由机器维护新鲜度。**不会有悄悄过期** —— 事实变了，wiki 重新生成。
-
-### 实际行为（你可以试）
-
-| 触发 | 你看到什么 |
-|------|-----------|
-| 编辑某个属于任务的文件 | stderr 出现 `[Trace] task-3 (in_progress): VIP shipping; AC-1: VIP 用户运费 = 0` |
-| 在 Ultra 项目里编辑无主文件 | `[Trace] (no task) shipping.ts on branch main; last: abc123 fix...` |
-| 在非 Ultra 项目里编辑文件 | 完全静默（不打扰） |
-| 有 active task 时 Stop + 改了文件 | 一行 fold 进任务的 `## Session Trail` 段 |
-| 无 active task 时 Stop + 改了文件 | 一行 fold 进 `.ultra/sessions/orphan-trail.md` |
-| 改 spec 或 task 定义 | `relations.json` 重建 + wiki 刷新 |
-| 跑 `/ultra-review all` | 7 个 agent 平行评审；review-ac-drift 同时读 spec + diff 做语义对齐 |
+独立 gate（任意时候用）：`/ultra-status`、`/ultra-verify`、`/ultra-test`、`/ultra-think`。记忆：`/recall`、`/learn`。
 
 ---
 
@@ -212,42 +217,61 @@ Wiki 节点**不存事实**，只存解读。事实由机器维护新鲜度。**
 
 ### Sensor-Not-Blocker 哲学（v7.0）
 
-v7 之前：hook 对每个可恢复问题都阻断（mock、scope 字眼、silent catch）。结果：agent 改测试/规约去 *绕开* 阻断 —— 比没 hook 更糟。
-
-v7 反过来：阻断只留给**真不可逆**的动作（硬编码 secret、SQL 注入、force-push 到 main、DB 迁移 commit）。其他全是 advisory。Agent 读到、判断、继续。
+v7 之前钩子对每个可恢复问题都阻断——agent 用改测试 / 改规约绕开，比没钩子更糟。v7 反过来：阻断只留给不可逆的事，其他全是 advisory。Agent 既有信号又有自主权。PHILOSOPHY.md C3 (Sensors not Blockers) + C4 (Incremental Validation) 把这写成了规则。
 
 ### 双向可追溯
 
 大部分工具只维护 `spec → task`。Ultra Builder 维护三向：
-
 - `task → spec section`（`trace_to`）
 - `spec section → tasks`（`referenced_by`）
 - `code path → tasks`（`files` 反向索引，v7.1）
 
-编辑 `src/checkout/shipping.ts`，系统知道：这是 task-3，trace 到 `specs/product.md#vip-shipping`，有 2 条 AC。编辑的瞬间全部出现在 stderr。
+编辑 `src/checkout/shipping.ts` → 系统知道是 task-3 → trace 到 `specs/product.md#vip-shipping` → 有 2 条 AC。编辑的瞬间全部出现在 stderr。
 
-### 平行多 Agent 评审
+### 平行多 Agent 评审（零上下文污染）
 
-串行评审会随 finding 累积丢失上下文。Ultra Review 把 7 个专家 fan-out 平行跑 —— 每个在新鲜的 200k 上下文里 —— 各自把 findings 写到 JSON 文件，coordinator 去重 + 排序。主会话上下文用量保持在 30-40%。
+串行评审会丢上下文。Ultra Review 把 7 个专家 fan-out 平行跑，每个在新鲜 200k 上下文里，把 finding 写到 JSON 文件；coordinator 去重。主对话从来看不到 raw findings——只看到去重后的 SUMMARY。哪怕跑完 7 路评审，上下文用量也保持在 30-40%。
 
-### 跨会话记忆
+### 跨会话记忆，不批量注入
 
-`session_journal.py` 把结构化摘要写到 SQLite FTS5 + Chroma 向量。下次会话，`mid_workflow_recall.py` 在你编辑文件时注入相关历史失败 + 当前 AC。混合搜索（FTS5 + RRF）由 `/recall` 提供。这是从 claude-mem 失败模式（一次 ~25k token 的批量注入）里学到的：我们 SessionStart 注入 ~50 token，按需搜索。
+claude-mem 在 SessionStart 注入 ~25k token，炸了上下文。我们的方法：开会话时 1 行（~50 token），按需搜索。Stop 时通过异步 daemon 自动捕获（不阻塞热路径）。混合检索：FTS5 + Chroma 向量，通过 Reciprocal Rank Fusion 融合。
+
+### 三方 AI 互相 review
+
+单 LLM 是自己改自己作业。三个不同 family 的 LLM（Anthropic、Google、OpenAI）才是真独立。共识浮现而不是断言。
 
 ---
 
 ## 命令 & 技能
 
-| 类别 | 例子 | 说明 |
-|------|------|------|
-| **工作流** | `/ultra-init` `/ultra-research` `/ultra-plan` `/ultra-dev` `/ultra-test` `/ultra-deliver` | 分步 pipeline |
-| **质量** | `/ultra-review` `/ultra-verify`（三方 AI 验证）`/ultra-status` | 独立 gate |
-| **记忆** | `/recall` `/learn` | 跨会话搜索 + 模式提取 |
-| **思考** | `/ultra-think` | 对抗性推理框架 |
+`commands/` 下 **9 个命令**：
 
-**17 个 skill** 在 `skills/` 下 —— research step-files、review pipeline、三方 verify（Claude + Gemini + Codex）、recall、vercel 最佳实践、Web 设计指南、以及只供 agent 用的清单（security/testing/integration）。
+| 类别 | 命令 |
+|------|------|
+| 工作流 | `ultra-init` `ultra-research` `ultra-plan` `ultra-dev` `ultra-test` `ultra-deliver` |
+| 质量 | `ultra-status` `ultra-think` |
+| 记忆 | `learn` |
 
-**12 个 agent** 在 `agents/` 下 —— 5 个交互式（智能合约专家 + 审计、code-reviewer、tdd-runner、debugger）+ 7 个评审 pipeline。所有 agent 都用 `memory: project`，按项目积累模式。
+`skills/` 下 **22 个 skill**：
+
+| 类别 | Skills |
+|------|--------|
+| 工作流 | `ultra-research`（17 step-files）、`ultra-review`、`ultra-verify`、`recall` |
+| AI 协作 | `ai-collab-base`、`gemini-collab`、`codex-collab` |
+| Agent-only 清单 | `code-review-expert`、`integration-rules`、`security-rules`、`testing-rules` |
+| 工具 | `agent-browser`、`find-skills`、`use-railway`、`market-research` |
+| 设计 / 输出 | `web-design-guidelines`、`guizang-ppt-skill`、`html-ppt` |
+| Vercel 最佳实践 | `vercel-react-best-practices`、`vercel-react-native-skills`、`vercel-composition-patterns` |
+| 模式提取 | `learned/`（由 `/learn` 填充） |
+
+`agents/` 下 **9 个 agent**：
+
+| 类型 | Agents |
+|------|--------|
+| 交互式 | `code-reviewer`、`debugger` |
+| 评审 pipeline（平行） | `review-code`、`review-tests`、`review-errors`、`review-design`、`review-comments`、`review-ac-drift`、`review-coordinator` |
+
+所有 agent 都用 `memory: project` 按项目积累模式。
 
 → 完整参考：[docs/architecture.md](docs/architecture.md)。
 
@@ -255,7 +279,7 @@ v7 反过来：阻断只留给**真不可逆**的动作（硬编码 secret、SQL
 
 ## 配置
 
-项目级配置在 `.ultra/`（按项目走，大部分 gitignore）。全局配置在 `~/.claude/settings.json`。
+项目状态在 `.ultra/`（按项目走，大部分 gitignore）。全局配置在 `~/.claude/settings.json`。
 
 ### 推荐 `.gitignore`
 
@@ -300,6 +324,7 @@ v7 反过来：阻断只留给**真不可逆**的动作（硬编码 secret、SQL
 | Wiki 过期 | 改一下 `.ultra/specs/` 或 `.ultra/tasks/` 任意文件触发；或手动跑 `python3 ~/.claude/hooks/wiki_generator.py /your/repo` |
 | Memory.db locked | 关掉残留 Claude Code 会话（一次只能一个写入） |
 | `relations.json` 有 dangling trace_to | 跑 `/ultra-status`；断链会被高亮 |
+| `ultra-verify` Gemini/Codex 不可用 | 装：`npm i -g @google/gemini-cli @openai/codex`；不可用时降级到仅 Claude 并警告 |
 
 ---
 
@@ -311,6 +336,6 @@ MIT。详见 [LICENSE](LICENSE)。
 
 <div align="center">
 
-**Claude Code 很强。Ultra Builder Pro 让它在项目持续偏移时保持清醒。**
+**Claude Code 很强。Ultra Builder Pro 让它达到 production-grade。**
 
 </div>
