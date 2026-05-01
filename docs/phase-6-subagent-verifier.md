@@ -1,8 +1,8 @@
 # Phase 6 Plan — Subagent Output Verifier
 
-**Status**: deferred (next session)
+**Status**: **v1 SHIPPED 2026-05-02** — `hooks/subagent_verify.py` + 30 tests + registered on `SubagentStop` (8s timeout)
 **Author**: rocky2431 + Claude
-**Date**: 2026-05-01
+**Date**: 2026-05-01 (design) / 2026-05-02 (v1 ship)
 **Resolves**: structural unreliability of subagent output (hallucination)
 
 ---
@@ -242,3 +242,38 @@ The dynamic project KB (Phase 1-5) gave Claude a memory it trusts. Phase 6 gives
 - `agents/review-coordinator.md` — multi-agent dedup pattern (less applicable here, but related)
 - `CHANGELOG.md` v7.0 — sensor-not-blocker doctrine origin
 - This session's transcript-view incident — concrete failure case
+
+---
+
+## v1 implementation log (2026-05-02)
+
+**Hook**: `SubagentStop` (not `PostToolUse(Agent)` — `agent_transcript_path` is documented and stable; `tool_response` schema is undocumented).
+**Source**: `hooks/subagent_verify.py` (~250 lines). **Tests**: `hooks/tests/test_subagent_verify.py` (30 cases, all green, real I/O — no mocks).
+
+### Decision points resolved with these defaults
+1. **Scope**: URL + path + settings field (Q1 minimal start).
+2. **Schema universe**: auto-discover `~/.claude/settings.json` keys (recursive flatten, dotted paths) (Q2 auto-discover).
+3. **Strict mode toggle**: not added — sensor-only forever (Q3 KISS).
+4. **Positive signals**: failures-only; verified/unknown stay silent (Q4 minimize noise).
+5. **Phase 5.5 prerequisite**: skipped — `post_edit_guard` template was mature enough to clone directly (Q5 jump straight).
+6. **Naming**: `subagent_verify.py` (Q6 focused; broaden later if Bash/ToolSearch verification added).
+
+### E2E findings — false-positive insights worth remembering
+
+The first E2E run on a real `Explore` subagent's transcript that had explored an external repo (SuperAGI) produced **49 claims, 42 unverified** — a 91% false-positive rate. Three root causes, all traced to naive design assumptions:
+
+1. **field check too broad**: subagent introduced "settings.json" once at the top, then described another repo's tables (`users`, `agents`, `projects`) — every backtick was flagged. **Fix**: per-sentence proximity — `` `name` `` is checked only if **the same sentence** mentions `settings.json`.
+2. **relative paths un-verifiable**: subagent's working directory ≠ ours. `./install.sh` exists in their repo, not in our cwd → false fail. **Fix**: `PATH_RE` matches only absolute (`/...`) and home (`~/...`) paths; relative paths are skipped.
+3. **URL trailing backtick**: markdown ``` `https://x/api` ``` extracted as `https://x/api\`` → 404. **Fix**: `URL_RE` excludes trailing backtick + paren + bracket.
+
+After the fixes: same transcript yields **8 claims, 1 unverified** — the lone unverified is a real signal (`https://app.superagi.com/api` returned non-2xx).
+
+The lesson: **a verifier that flags 90% false positives is worse than no verifier — agents will train themselves to ignore advisories**. Proximity heuristics + scope conservatism are not optional for this class of hook; they are the design.
+
+### Deferred to v2
+
+- Git commit hash existence (`git cat-file -e <hash>`)
+- Function/class name presence (`grep` against repo)
+- Slash command existence (e.g. `/focus` from the original transcript-view incident — not currently caught)
+- Optional B-route LLM-adversary subagent (`/ultra-verify` already covers high-stakes; v2 may add lighter inline adversary)
+- Memory file integrity tracking (Issue #27430 mitigation: flag entries written by Claude vs verified by user)

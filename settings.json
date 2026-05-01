@@ -222,6 +222,11 @@
             "type": "command",
             "command": "python3 ~/.claude/hooks/subagent_tracker.py stop",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/subagent_verify.py",
+            "timeout": 8
           }
         ]
       }
