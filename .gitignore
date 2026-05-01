@@ -115,8 +115,9 @@ plugins/claude-hud/
 mcp-needs-auth-cache.json
 .archived/
 
-# RTK (Rust Token Killer) runtime artifacts
+# RTK (Rust Token Killer) runtime artifacts — local-only, not part of harness
 hooks/.rtk-hook.sha256
+hooks/rtk-rewrite.sh
 RTK.md
 
 # Phase delivery reports (optional - commit if needed for documentation)
