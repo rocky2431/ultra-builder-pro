@@ -114,13 +114,13 @@ Detailed reference for hooks, project layout, agent system, MCP services, and op
 │   ├── ultra-think.md
 │   └── learn.md
 │
-├── skills/                   # 17 skills (+ learned/)
+├── skills/                   # 22 skills (+ learned/)
 │   ├── ultra-research/       # 17 step-files (step-00 to step-99)
 │   ├── ultra-review/         # Parallel review orchestration
 │   ├── ultra-verify/         # Three-way AI verification
 │   ├── ai-collab-base/       # Shared collab protocol (non-user-invocable)
 │   ├── gemini-collab/
-│   ├── codex-collab/
+│   ├── codex-collab/         # understand/opinion/compare/free (review → /codex:review)
 │   ├── recall/               # Cross-session memory search
 │   ├── code-review-expert/   # Agent-only
 │   ├── integration-rules/    # Agent-only
@@ -129,51 +129,25 @@ Detailed reference for hooks, project layout, agent system, MCP services, and op
 │   ├── agent-browser/
 │   ├── find-skills/
 │   ├── use-railway/
+│   ├── market-research/
 │   ├── vercel-react-best-practices/
 │   ├── vercel-react-native-skills/
 │   ├── vercel-composition-patterns/
 │   ├── web-design-guidelines/
-│   └── learned/
+│   ├── guizang-ppt-skill/
+│   ├── html-ppt/
+│   └── learned/              # Patterns from /learn
 │
-├── agents/                   # 12 agents
-│   ├── smart-contract-specialist.md
-│   ├── smart-contract-auditor.md
-│   ├── code-reviewer.md
-│   ├── tdd-runner.md
-│   ├── debugger.md
-│   ├── review-code.md          # Pipeline (ultra-review)
-│   ├── review-tests.md
-│   ├── review-errors.md
-│   ├── review-design.md
-│   ├── review-comments.md
-│   ├── review-ac-drift.md      # Pipeline (ultra-review, v7.1)
-│   └── review-coordinator.md
-│
-├── .ultra/                   # Project-level output (in each project, gitignored)
-│   ├── memory/               # Cross-session memory (auto-managed)
-│   │   ├── memory.db         # SQLite FTS5 session database
-│   │   ├── chroma/           # Chroma vector embeddings (ONNX)
-│   │   └── sessions.jsonl
-│   ├── reviews/              # Ultra Review output
-│   │   ├── index.json        # Branch-scoped session index
-│   │   └── <session-id>/
-│   ├── tasks/
-│   │   ├── tasks.json
-│   │   ├── contexts/task-*.md
-│   │   └── progress/task-*.json
-│   ├── specs/
-│   │   ├── discovery.md
-│   │   ├── product.md
-│   │   └── architecture.md
-│   ├── wiki/                 # (v7.1) derived human-readable views
-│   │   ├── index.md
-│   │   └── log.md
-│   ├── sessions/             # (v7.1) orphan-session trail
-│   │   └── orphan-trail.md
-│   ├── relations.json        # Bidirectional task ↔ spec ↔ code index (v2)
-│   ├── compact-snapshot.md
-│   ├── workflow-state.json
-│   └── debug/subagent-log.jsonl
+├── agents/                   # 9 agents
+│   ├── code-reviewer.md          # Interactive
+│   ├── debugger.md               # Interactive
+│   ├── review-code.md            # Pipeline (ultra-review)
+│   ├── review-tests.md           # Pipeline
+│   ├── review-errors.md          # Pipeline
+│   ├── review-design.md          # Pipeline
+│   ├── review-comments.md        # Pipeline
+│   ├── review-ac-drift.md        # Pipeline (v7.1)
+│   └── review-coordinator.md     # Pipeline
 │
 └── .ultra-template/          # Project initialization templates
     ├── specs/                # discovery.md, product.md, architecture.md
@@ -184,20 +158,51 @@ Detailed reference for hooks, project layout, agent system, MCP services, and op
     └── north-star.md
 ```
 
+### Per-Project Runtime (`~/your-project/.ultra/`)
+
+`.ultra/` is **not** part of the harness repo — it lives inside every project that uses Ultra Builder Pro, holding that project's local memory. The harness repo `.gitignore`s its own `.ultra/`. Projects copy from `.ultra-template/` to bootstrap a fresh one.
+
+```
+~/your-project/.ultra/        # Per-project runtime (your project gitignores most of this)
+├── specs/                    # ✓ commit: discovery.md, product.md, architecture.md
+│   ├── discovery.md
+│   ├── product.md
+│   └── architecture.md
+├── tasks/
+│   ├── tasks.json            # ✓ commit: task registry
+│   ├── contexts/task-*.md    # ✓ commit: per-task context (AC, target files, drift)
+│   └── progress/task-*.json  # ✗ ignore: 6-dim evidence_score (runtime)
+├── relations.json            # ✓ commit: task ↔ spec ↔ code bidirectional index (v2)
+├── wiki/                     # ✓ commit: useful for code review
+│   ├── index.md              #   tasks by status + spec coverage
+│   └── log.md                #   chronological progress
+├── reviews/                  # ✗ ignore: ultra-review session outputs
+│   ├── index.json            #   branch-scoped session index
+│   └── <session-id>/
+├── memory/                   # ✗ ignore: cross-session memory
+│   ├── memory.db             #   SQLite FTS5
+│   ├── chroma/               #   Chroma vector embeddings
+│   └── sessions.jsonl        #   append-only backup
+├── sessions/                 # ✗ ignore: orphan-session trail (v7.1)
+│   └── orphan-trail.md
+├── collab/                   # ✗ ignore: ultra-verify three-way outputs
+│   └── <session-id>/
+├── compact-snapshot.md       # ✗ ignore: single-session compact state
+├── workflow-state.json       # ✗ ignore: ultra-dev step checkpoint
+└── debug/subagent-log.jsonl  # ✗ ignore: agent lifecycle
+```
+
 ---
 
 ## Agent System
 
-12 agents under `agents/`. All have **project-scoped persistent memory** (`memory: project`) accumulating patterns per project.
+9 agents under `agents/`. All have **project-scoped persistent memory** (`memory: project`) accumulating patterns per project.
 
-### Interactive Agents (5)
+### Interactive Agents (2)
 
 | Agent | Purpose | Trigger | Model |
 |-------|---------|---------|-------|
-| `smart-contract-specialist` | Solidity, gas optimization, secure patterns | `.sol` files | opus |
-| `smart-contract-auditor` | Contract security audit, vulnerability detection | `.sol` files | opus |
 | `code-reviewer` | Code review with Fix-First mode (report or auto-fix) | After code changes, pre-commit | opus |
-| `tdd-runner` | Test execution, failure analysis, coverage | "run tests", test suite | opus |
 | `debugger` | Root cause analysis, minimal fix implementation (4-phase methodology) | Errors, test failures | opus |
 
 ### Pipeline Agents — Ultra Review System (7)
