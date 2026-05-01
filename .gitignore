@@ -92,16 +92,11 @@ templates/
 !.ultra-template/templates/
 !.ultra-template/templates/**
 
-# Context archives (developer-local, not shared across team)
-.ultra/context-archive/
-
-# v7 ephemeral data (per-task runtime state — should not be committed)
-.ultra/relations.json
-.ultra/tasks/progress/
-.ultra/audit/
-.ultra/collab/
-.ultra/sessions/
-.ultra/wiki/
+# .ultra/ is local project runtime memory (specs, tasks, progress,
+# memory.db, reviews, collab artifacts, wiki views, audit, sessions).
+# The harness itself ships .ultra-template/ — projects copy from there
+# to bootstrap their own .ultra/.
+.ultra/
 
 # Top-level Claude Code runtime data (not project source) —
 # historically tracked by accident; cleaned up 2026-05-01.
@@ -145,14 +140,6 @@ tasks/
 
 # Security warnings state (session-specific)
 security_warnings_state_*.json
-
-# Ultra working directories (local)
-.ultra/specs/
-.ultra/tasks/
-.ultra/memory/
-.ultra/reviews/
-.ultra/compact-snapshot.md
-.ultra/debug/
 
 # Chrome extension runtime
 chrome/
