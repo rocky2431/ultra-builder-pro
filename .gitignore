@@ -99,6 +99,30 @@ templates/
 .ultra/relations.json
 .ultra/tasks/progress/
 .ultra/audit/
+.ultra/collab/
+.ultra/sessions/
+.ultra/wiki/
+
+# Top-level Claude Code runtime data (not project source) —
+# historically tracked by accident; cleaned up 2026-05-01.
+usage-data/
+teams/
+agent-memory/
+backups/
+sessions/
+memory/
+compact-snapshot.md
+.context_monitor_state
+plugins/blocklist.json
+plugins/data/
+plugins/cache/
+plugins/claude-hud/
+mcp-needs-auth-cache.json
+.archived/
+
+# RTK (Rust Token Killer) runtime artifacts
+hooks/.rtk-hook.sha256
+RTK.md
 
 # Phase delivery reports (optional - commit if needed for documentation)
 # PHASE_*_DELIVERY_REPORT.md

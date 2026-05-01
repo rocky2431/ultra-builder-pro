@@ -1,8 +1,0 @@
-[
-  {
-    "from": "team-lead",
-    "text": "{\"type\":\"shutdown_request\",\"requestId\":\"shutdown-1772774474107@diffusion-agent\",\"from\":\"team-lead\",\"reason\":\"All tasks completed. Shutting down.\",\"timestamp\":\"2026-03-06T05:21:14.107Z\"}",
-    "timestamp": "2026-03-06T05:21:14.107Z",
-    "read": true
-  }
-]
