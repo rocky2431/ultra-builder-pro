@@ -29,7 +29,7 @@ git clone https://github.com/rocky2431/ultra-builder-pro.git ~/.claude
 
 ## 为什么做这个
 
-我是 DeFi 工程师。我不写代码，Claude Code 写。
+我是 Web3 + AI-native 工程师。我不写代码，Claude Code 写。
 
 但用 Claude Code 把代码 *写出来*，和把代码 *推到 production*，是两回事。当你需要：
 

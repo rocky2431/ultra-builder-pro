@@ -29,7 +29,7 @@ git clone https://github.com/rocky2431/ultra-builder-pro.git ~/.claude
 
 ## Why I Built This
 
-I'm a DeFi engineer. I don't write code — Claude Code does.
+I'm a Web3 + AI-native engineer. I don't write code — Claude Code does.
 
 But getting code *written* and getting code *to production* are two different things. When you need:
 
