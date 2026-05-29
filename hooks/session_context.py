@@ -9,7 +9,7 @@ Provides:
 - Modified files status
 - Last session one-liner from memory DB (~50 tokens)
 - Recent cross-branch learnings (Hindsight-inspired)
-- v7: tools status (rtk / .ultra availability) — quick situational awareness
+- v7: tools status (.ultra availability) — quick situational awareness
 - v7: north-star (project goal + active task acceptance criteria) — Goal-Always-Present
 """
 
@@ -330,14 +330,6 @@ def get_tools_status() -> list:
     """v7: report harness tool availability. Minimal — keep token cost low."""
     lines = []
     try:
-        rtk_ok = subprocess.run(
-            ['which', 'rtk'], capture_output=True, text=True, timeout=1
-        ).returncode == 0
-        lines.append(f"  rtk: {'✓ active (auto Bash rewrite)' if rtk_ok else '✗ not installed'}")
-    except Exception:
-        pass
-
-    try:
         proc = subprocess.run(
             ['git', 'rev-parse', '--show-toplevel'],
             capture_output=True, text=True, timeout=1
@@ -473,7 +465,7 @@ def main():
         context_lines.append("")
         context_lines.extend(learnings_lines)
 
-    # v7: tools status (rtk / .ultra availability)
+    # v7: tools status (.ultra availability)
     tools_lines = get_tools_status()
     if tools_lines:
         context_lines.append("")

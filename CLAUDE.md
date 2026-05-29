@@ -178,7 +178,7 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 </evidence_honesty>
 
 <agent_system>
-**Trigger**: auth/payment/PII → code-reviewer | `.sol` → smart-contract-specialist + auditor
+**Trigger**: auth/payment/PII → code-reviewer
 **Daily**: Main agent handles TDD + debugging directly. Agents for escalation only.
 **Escalation**: debugger (3+ failed fixes) | code-reviewer (before commit)
 **Review pipeline**: `/ultra-review` — skill handles agent routing internally.
@@ -237,7 +237,7 @@ Three pillars: Logs (structured JSON + correlation IDs) | Metrics (counters/gaug
 </learned_patterns>
 
 <session_memory>
-**Auto**: Stop hook → `.ultra/memory/memory.db` (SQLite FTS5). SessionStart injects last session (~50 tokens).
+**Auto**: Stop-hook write PAUSED 2026-05-29 (quality + claude-mem overlap). SessionStart still injects last session (~50 tokens); `/recall` still queries the now-frozen DB (SQLite FTS5). Path: `memory_db.get_db_path()` — `~/.claude/memory/` (global) or `{project}/.ultra/memory/`.
 **`/recall`**: "last time..." / resuming / recurring issue / architecture decision → search keywords
 **`/recall --save`**: significant feature/fix, architecture decision, non-obvious root cause
 </session_memory>
@@ -325,5 +325,3 @@ Strong success criteria enable independent loops; weak criteria force clarificat
 
 **Completeness Principle**: KISS decides WHAT to build; Completeness decides HOW THOROUGH. Once committed to building a feature → tests, error handling, edge cases must be complete. Marginal cost is near-zero with AI; no half-finished features.
 </ask_user_format>
-
-@RTK.md

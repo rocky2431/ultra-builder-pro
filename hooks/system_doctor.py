@@ -17,13 +17,12 @@ import json
 import os
 import re
 import sqlite3
-import subprocess
 import sys
 from pathlib import Path
 
 HOOKS_DIR = Path(__file__).parent
 CLAUDE_DIR = HOOKS_DIR.parent
-GIT_TIMEOUT = 3
+sys.path.insert(0, str(HOOKS_DIR))  # allow `import memory_db` (authoritative path resolver)
 
 PASS = "\033[32mPASS\033[0m"
 FAIL = "\033[31mFAIL\033[0m"
@@ -31,14 +30,15 @@ WARN = "\033[33mWARN\033[0m"
 INFO = "\033[36mINFO\033[0m"
 
 
-def get_git_toplevel() -> str:
-    try:
-        r = subprocess.run(["git", "rev-parse", "--show-toplevel"],
-                           capture_output=True, text=True, timeout=GIT_TIMEOUT,
-                           cwd=str(CLAUDE_DIR))
-        return r.stdout.strip() if r.returncode == 0 else ""
-    except Exception:
-        return ""
+def _memory_root() -> Path:
+    """Authoritative memory root, shared with the write/read hooks.
+
+    Old code hardcoded Path(toplevel)/.ultra/memory which, inside the
+    ~/.claude repo, pointed at an empty dir and made the memory checks
+    silently skip the live DB at ~/.claude/memory/.
+    """
+    import memory_db
+    return memory_db.get_db_path().parent
 
 
 def print_check(status: str, msg: str):
@@ -67,7 +67,7 @@ def check_claude_md_refs():
     # Find agent name references in CLAUDE.md
     for match in re.finditer(r'\b(code-reviewer|debugger|review-\w+|smart-contract-\w+)\b', content):
         name = match.group(1)
-        if name not in agent_names and name not in ("review-pipeline",):
+        if name not in agent_names and name not in ("review-pipeline", "review-graph"):
             print_check(FAIL, f"References agent '{name}' but agents/{name}.md not found")
             issues += 1
 
@@ -113,12 +113,7 @@ def check_settings_hooks():
 def check_memory_quality():
     """Audit memory.db for common data quality issues."""
     print("\n3. memory.db data quality")
-    toplevel = get_git_toplevel()
-    if not toplevel:
-        print_check(INFO, "Not in git repo, skipping")
-        return 0
-
-    db_path = Path(toplevel) / ".ultra" / "memory" / "memory.db"
+    db_path = _memory_root() / "memory.db"
     if not db_path.exists():
         print_check(INFO, "memory.db not found (new project?)")
         return 0
@@ -175,17 +170,12 @@ def check_memory_quality():
 def check_summary_coverage():
     """Check structured summary coverage rate."""
     print("\n4. Summary coverage")
-    toplevel = get_git_toplevel()
-    if not toplevel:
-        return 0
-
-    db_path = Path(toplevel) / ".ultra" / "memory" / "memory.db"
+    db_path = _memory_root() / "memory.db"
     if not db_path.exists():
         return 0
 
     conn = sqlite3.connect(str(db_path), timeout=2)
 
-    total = conn.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
     v2 = conn.execute(
         "SELECT COUNT(*) FROM sessions WHERE content_session_id != '' AND content_session_id IS NOT NULL"
     ).fetchone()[0]
@@ -224,11 +214,8 @@ def check_chroma():
     print("\n5. Chroma consistency")
     try:
         import chromadb
-        toplevel = get_git_toplevel()
-        if not toplevel:
-            return 0
-
-        chroma_dir = Path(toplevel) / ".ultra" / "memory" / "chroma"
+        root = _memory_root()
+        chroma_dir = root / "chroma"
         if not chroma_dir.exists():
             print_check(INFO, "Chroma directory not found")
             return 0
@@ -237,7 +224,7 @@ def check_chroma():
         collection = client.get_or_create_collection("sessions")
         chroma_count = collection.count()
 
-        db_path = Path(toplevel) / ".ultra" / "memory" / "memory.db"
+        db_path = root / "memory.db"
         conn = sqlite3.connect(str(db_path), timeout=2)
         db_with_summary = conn.execute(
             "SELECT COUNT(*) FROM sessions WHERE summary != '' AND summary IS NOT NULL"
@@ -263,11 +250,7 @@ def check_chroma():
 def check_daemon_log():
     """Check for recent daemon errors."""
     print("\n6. Daemon error log")
-    toplevel = get_git_toplevel()
-    paths = []
-    if toplevel:
-        paths.append(Path(toplevel) / ".ultra" / "memory" / "daemon-errors.log")
-    paths.append(Path.home() / ".claude" / "memory" / "daemon-errors.log")
+    paths = [_memory_root() / "daemon-errors.log"]
 
     for log_path in paths:
         if log_path.exists():

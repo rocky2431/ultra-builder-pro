@@ -70,32 +70,11 @@
         ]
       },
       {
-        "matcher": "Edit|Write|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/observation_capture.py",
-            "timeout": 3
-          }
-        ]
-      },
-      {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/relations_sync.py",
-            "timeout": 3
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/user_prompt_capture.py",
             "timeout": 3
           }
         ]
@@ -189,15 +168,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/session_journal.py",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "python3 ~/.claude/hooks/session_trail.py",
             "timeout": 5
           }
@@ -238,46 +208,26 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "document-skills@anthropic-agent-skills": true,
+    "document-skills@anthropic-agent-skills": false,
     "hookify@claude-plugins-official": true,
     "jdtls-lsp@claude-plugins-official": true,
-    "obsidian@obsidian-skills": true,
     "pyright-lsp@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "cli-anything@cli-anything": true,
-    "claude-hud@claude-hud": true,
     "codex@openai-codex": true,
-    "impeccable@impeccable": true,
+    "impeccable@impeccable": false,
     "context7@claude-plugins-official": true,
-    "vercel@claude-plugins-official": true,
+    "vercel@claude-plugins-official": false,
     "caveman@caveman": true,
-    "claude-md-management@claude-plugins-official": true
+    "claude-md-management@claude-plugins-official": true,
+    "claude-mem@thedotmack": true
   },
   "extraKnownMarketplaces": {
-    "obsidian-skills": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/kepano/obsidian-skills.git"
-      }
-    },
-    "cli-anything": {
-      "source": {
-        "source": "github",
-        "repo": "HKUDS/CLI-Anything"
-      }
-    },
     "apify-agent-skills": {
       "source": {
         "source": "git",
         "url": "https://github.com/apify/agent-skills.git"
-      }
-    },
-    "claude-hud": {
-      "source": {
-        "source": "github",
-        "repo": "jarrodwatts/claude-hud"
       }
     },
     "openai-codex": {
@@ -297,6 +247,12 @@
         "source": "github",
         "repo": "JuliusBrussee/caveman"
       }
+    },
+    "thedotmack": {
+      "source": {
+        "source": "github",
+        "repo": "thedotmack/claude-mem"
+      }
     }
   },
   "language": "chinese",
@@ -305,12 +261,17 @@
     "_comment": "Set to true for sandboxed bash execution with file system and network isolation"
   },
   "alwaysThinkingEnabled": true,
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
   "autoDreamEnabled": true,
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark-daltonized",
   "teammateMode": "tmux",
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
+  "voiceEnabled": true,
   "_comment_project": "Ultra Builder Pro 6.8.0",
   "_comment_version": "6.8.0 - Research Step-File Architecture (BMAD-inspired)"
 }

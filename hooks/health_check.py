@@ -15,6 +15,7 @@ from pathlib import Path
 
 HOOKS_DIR = Path(__file__).parent
 CLAUDE_DIR = HOOKS_DIR.parent
+sys.path.insert(0, str(HOOKS_DIR))  # allow `import memory_db` (authoritative path resolver)
 EXPECTED_MIN_AGENTS = 8
 SCHEMA_VERSION = 2
 
@@ -71,19 +72,16 @@ def check_settings_hooks() -> list:
 
 
 def check_memory_db() -> list:
-    """Verify memory.db is accessible and schema version matches."""
+    """Verify memory.db is accessible and schema version matches.
+
+    Resolves via memory_db.get_db_path() — the same resolver the write/read
+    hooks use — so the check targets the live DB (e.g. ~/.claude/memory/ when
+    run inside the ~/.claude repo), not a stale hardcoded .ultra/memory/ path.
+    """
     issues = []
     try:
-        import subprocess
-        result = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, timeout=3
-        )
-        if result.returncode != 0:
-            return []  # Not in git repo, skip DB check
-
-        toplevel = result.stdout.strip()
-        db_path = Path(toplevel) / ".ultra" / "memory" / "memory.db"
+        import memory_db
+        db_path = memory_db.get_db_path()
 
         if not db_path.exists():
             return []  # DB not yet created, ok for new projects
@@ -103,6 +101,8 @@ def check_memory_db() -> list:
         conn.close()
     except (sqlite3.Error, OSError) as e:
         issues.append(f"memory.db: {e}")
+    except Exception as e:
+        issues.append(f"memory.db: path resolve failed: {e}")
     return issues
 
 
@@ -117,13 +117,6 @@ def check_claude_md() -> list:
 
 
 def main():
-    # Only run on fresh session start, not compact resume
-    try:
-        raw = sys.stdin.read()
-        data = json.loads(raw) if raw.strip() else {}
-    except Exception:
-        data = {}
-
     all_issues = []
     all_issues.extend(check_agents())
     all_issues.extend(check_hooks_syntax())

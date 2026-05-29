@@ -110,7 +110,6 @@ References: Anthropic *Effective harnesses for long-running agents*, OpenAI *Har
 | Hook event + matcher | Hook script | Notes |
 |---------------------|-------------|-------|
 | `PreToolUse:Bash` | `block_dangerous_commands.py` | irreversible-ops gate |
-| `PreToolUse:Bash` | `rtk-rewrite.sh` | enabling: token rewrite |
 | `PreToolUse:Write\|Edit\|Grep` | `mid_workflow_recall.py` | matcher MUST include `Grep` for symbol-query advisory (v7 addition) |
 | `PostToolUse:Edit\|Write` | `post_edit_guard.py` | only SEC_CRITICAL blocks |
 | `PostToolUse:Edit\|Write\|Bash` | `observation_capture.py` | passive sensor |
