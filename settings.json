@@ -48,11 +48,12 @@
   "hooks": {
     "Notification": [
       {
-        "matcher": "permission_prompt|idle_prompt",
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "osascript -e 'display notification \"Claude Code needs your input\" with title \"Claude Code\" sound name \"Ping\"'",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" Notification",
+            "async": true,
             "timeout": 5
           }
         ]
@@ -78,6 +79,17 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" PostToolUse",
+            "async": true,
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PreCompact": [
@@ -87,6 +99,17 @@
             "type": "command",
             "command": "python3 ~/.claude/hooks/pre_compact_context.py",
             "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" PreCompact",
+            "async": true,
+            "timeout": 5
           }
         ]
       }
@@ -111,6 +134,17 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" PreToolUse",
+            "async": true,
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SessionEnd": [
@@ -119,6 +153,17 @@
           {
             "type": "command",
             "command": "bash -c 'find \"$TMPDIR\" -name \".claude_stop_count_*\" -mmin +60 -delete 2>/dev/null; exit 0'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" SessionEnd",
+            "async": true,
             "timeout": 5
           }
         ]
@@ -152,6 +197,26 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/historical_context_guard.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" SessionStart",
+            "async": true,
+            "timeout": 5
+          }
+        ]
       }
     ],
     "Stop": [
@@ -172,6 +237,17 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" Stop",
+            "async": true,
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SubagentStart": [
@@ -180,6 +256,17 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/subagent_tracker.py start",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" SubagentStart",
+            "async": true,
             "timeout": 5
           }
         ]
@@ -197,6 +284,94 @@
             "type": "command",
             "command": "python3 ~/.claude/hooks/subagent_verify.py",
             "timeout": 8
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" SubagentStop",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" UserPromptSubmit",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" PostToolUseFailure",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Elicitation": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" Elicitation",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" PostCompact",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/opt/homebrew/bin/node\" \"/Applications/Clawd on Desk.app/Contents/Resources/app.asar.unpacked/hooks/clawd-hook.js\" StopFailure",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "http",
+            "url": "http://127.0.0.1:23333/permission",
+            "timeout": 600
           }
         ]
       }
@@ -273,5 +448,6 @@
   "agentPushNotifEnabled": true,
   "voiceEnabled": true,
   "_comment_project": "Ultra Builder Pro 6.8.0",
-  "_comment_version": "6.8.0 - Research Step-File Architecture (BMAD-inspired)"
+  "_comment_version": "6.8.0 - Research Step-File Architecture (BMAD-inspired)",
+  "skipWorkflowUsageWarning": true
 }

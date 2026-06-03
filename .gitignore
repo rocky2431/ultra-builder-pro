@@ -158,3 +158,18 @@ image-cache/
 __pycache__/
 *.pyc
 *.pyo
+
+# ===== Sensitive runtime / local-only (2026-06-02; PUBLIC repo — never commit) =====
+security/
+daemon/
+jobs/
+uploads/
+vercel-plugin-device-id
+vercel-plugin-telemetry-preference
+policy-limits.json
+.last-cleanup
+.last-update-result.json
+settings.json.bak.*
+
+# Internal analysis kept local (contains 3rd-party critique + local absolute paths)
+docs/ecc-vs-ultra-optimization.md

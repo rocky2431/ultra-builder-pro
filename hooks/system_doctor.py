@@ -4,11 +4,11 @@
 Automates the manual audits that catch silent degradation:
 1. CLAUDE.md cross-references vs actual files
 2. settings.json hook references
-3. memory.db data quality
-4. Chroma vs DB consistency
-5. Summary coverage
-6. Daemon error log
-7. JSONL vs DB consistency
+3. Silent catch patterns in hooks
+
+Memory归位 (2026-06-02): the self-built memory.db + Chroma were removed
+(claude-mem now owns cross-session memory), so the former memory-quality,
+summary-coverage, chroma-consistency, and daemon-log checks were dropped.
 
 Usage: python3 hooks/system_doctor.py
 """
@@ -16,29 +16,16 @@ Usage: python3 hooks/system_doctor.py
 import json
 import os
 import re
-import sqlite3
 import sys
 from pathlib import Path
 
 HOOKS_DIR = Path(__file__).parent
 CLAUDE_DIR = HOOKS_DIR.parent
-sys.path.insert(0, str(HOOKS_DIR))  # allow `import memory_db` (authoritative path resolver)
 
 PASS = "\033[32mPASS\033[0m"
 FAIL = "\033[31mFAIL\033[0m"
 WARN = "\033[33mWARN\033[0m"
 INFO = "\033[36mINFO\033[0m"
-
-
-def _memory_root() -> Path:
-    """Authoritative memory root, shared with the write/read hooks.
-
-    Old code hardcoded Path(toplevel)/.ultra/memory which, inside the
-    ~/.claude repo, pointed at an empty dir and made the memory checks
-    silently skip the live DB at ~/.claude/memory/.
-    """
-    import memory_db
-    return memory_db.get_db_path().parent
 
 
 def print_check(status: str, msg: str):
@@ -108,172 +95,11 @@ def check_settings_hooks():
     return issues
 
 
-# -- Check 3: memory.db data quality --
-
-def check_memory_quality():
-    """Audit memory.db for common data quality issues."""
-    print("\n3. memory.db data quality")
-    db_path = _memory_root() / "memory.db"
-    if not db_path.exists():
-        print_check(INFO, "memory.db not found (new project?)")
-        return 0
-
-    issues = 0
-    conn = sqlite3.connect(str(db_path), timeout=2)
-    conn.row_factory = sqlite3.Row
-
-    # Empty branch sessions
-    empty_branch = conn.execute(
-        "SELECT COUNT(*) FROM sessions WHERE branch = '' OR branch IS NULL"
-    ).fetchone()[0]
-    if empty_branch > 0:
-        print_check(WARN, f"{empty_branch} session(s) with empty branch")
-        issues += 1
-    else:
-        print_check(PASS, "No empty-branch sessions")
-
-    # Orphan observations (no parent session)
-    orphan_obs = conn.execute(
-        "SELECT COUNT(*) FROM observations WHERE session_id NOT IN (SELECT id FROM sessions)"
-    ).fetchone()[0]
-    if orphan_obs > 0:
-        print_check(WARN, f"{orphan_obs} orphan observation(s)")
-        issues += 1
-    else:
-        print_check(PASS, "No orphan observations")
-
-    # Orphan summaries
-    orphan_sum = conn.execute(
-        "SELECT COUNT(*) FROM session_summaries WHERE session_id NOT IN (SELECT id FROM sessions)"
-    ).fetchone()[0]
-    if orphan_sum > 0:
-        print_check(WARN, f"{orphan_sum} orphan summary(ies)")
-        issues += 1
-    else:
-        print_check(PASS, "No orphan summaries")
-
-    # FTS5 sync check
-    db_count = conn.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
-    fts_count = conn.execute("SELECT COUNT(*) FROM sessions_fts").fetchone()[0]
-    if db_count != fts_count:
-        print_check(WARN, f"FTS5 out of sync: sessions={db_count}, fts={fts_count}")
-        issues += 1
-    else:
-        print_check(PASS, f"FTS5 in sync ({fts_count} entries)")
-
-    conn.close()
-    return issues
-
-
-# -- Check 4: Summary coverage --
-
-def check_summary_coverage():
-    """Check structured summary coverage rate."""
-    print("\n4. Summary coverage")
-    db_path = _memory_root() / "memory.db"
-    if not db_path.exists():
-        return 0
-
-    conn = sqlite3.connect(str(db_path), timeout=2)
-
-    v2 = conn.execute(
-        "SELECT COUNT(*) FROM sessions WHERE content_session_id != '' AND content_session_id IS NOT NULL"
-    ).fetchone()[0]
-    structured = conn.execute(
-        "SELECT COUNT(*) FROM session_summaries WHERE status = 'ready'"
-    ).fetchone()[0]
-
-    if v2 > 0:
-        rate = structured * 100 // v2
-        status = PASS if rate >= 60 else WARN
-        print_check(status, f"Structured summaries: {structured}/{v2} v2 sessions ({rate}%)")
-    else:
-        print_check(INFO, "No v2 sessions yet")
-
-    # Recent 7 days
-    recent = conn.execute("SELECT COUNT(*) FROM sessions WHERE started_at > date('now', '-7 days')").fetchone()[0]
-    recent_struct = conn.execute("""
-        SELECT COUNT(*) FROM session_summaries ss
-        JOIN sessions s ON ss.session_id = s.id
-        WHERE s.started_at > date('now', '-7 days') AND ss.status = 'ready'
-    """).fetchone()[0]
-
-    if recent > 0:
-        rate = recent_struct * 100 // recent
-        status = PASS if rate >= 70 else WARN
-        print_check(status, f"Last 7 days: {recent_struct}/{recent} ({rate}%)")
-
-    conn.close()
-    return 0
-
-
-# -- Check 5: Chroma consistency --
-
-def check_chroma():
-    """Check Chroma entries vs DB sessions."""
-    print("\n5. Chroma consistency")
-    try:
-        import chromadb
-        root = _memory_root()
-        chroma_dir = root / "chroma"
-        if not chroma_dir.exists():
-            print_check(INFO, "Chroma directory not found")
-            return 0
-
-        client = chromadb.PersistentClient(path=str(chroma_dir))
-        collection = client.get_or_create_collection("sessions")
-        chroma_count = collection.count()
-
-        db_path = root / "memory.db"
-        conn = sqlite3.connect(str(db_path), timeout=2)
-        db_with_summary = conn.execute(
-            "SELECT COUNT(*) FROM sessions WHERE summary != '' AND summary IS NOT NULL"
-        ).fetchone()[0]
-        conn.close()
-
-        diff = abs(chroma_count - db_with_summary)
-        if diff <= 2:
-            print_check(PASS, f"Chroma={chroma_count}, DB with summary={db_with_summary}")
-        else:
-            print_check(WARN, f"Chroma={chroma_count}, DB with summary={db_with_summary} (gap={diff})")
-            return 1
-    except ImportError:
-        print_check(INFO, "chromadb not installed, skipping")
-    except Exception as e:
-        print_check(WARN, f"Chroma check failed: {e}")
-        return 1
-    return 0
-
-
-# -- Check 6: Daemon error log --
-
-def check_daemon_log():
-    """Check for recent daemon errors."""
-    print("\n6. Daemon error log")
-    paths = [_memory_root() / "daemon-errors.log"]
-
-    for log_path in paths:
-        if log_path.exists():
-            content = log_path.read_text(encoding="utf-8").strip()
-            lines = content.split("\n") if content else []
-            if len(lines) > 0:
-                print_check(WARN, f"{len(lines)} daemon error(s) in {log_path.name}")
-                for line in lines[-3:]:
-                    print(f"    {line[:120]}")
-                return 1
-            else:
-                print_check(PASS, "Daemon log exists but empty (no errors)")
-                return 0
-
-    print_check(PASS, "No daemon error log (no errors recorded)")
-    return 0
-
-
-# -- Check 7: Silent catch audit --
+# -- Check 3: Silent catch audit --
 
 def check_silent_catches():
     """Scan hook files for silent exception handling."""
-    print("\n7. Silent catch patterns in hooks")
+    print("\n3. Silent catch patterns in hooks")
     silent_pattern = re.compile(
         r'except\s*(?:\([^)]*\)|[\w.,\s]*)?\s*(?:as\s+\w+)?\s*:\s*\n\s+pass\s*$',
         re.MULTILINE
@@ -306,10 +132,6 @@ def main():
     total_issues = 0
     total_issues += check_claude_md_refs()
     total_issues += check_settings_hooks()
-    total_issues += check_memory_quality()
-    total_issues += check_summary_coverage()
-    total_issues += check_chroma()
-    total_issues += check_daemon_log()
     total_issues += check_silent_catches()
 
     print("\n" + "=" * 50)

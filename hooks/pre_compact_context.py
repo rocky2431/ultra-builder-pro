@@ -121,57 +121,6 @@ def get_cwd_info():
     return info
 
 
-def get_branch_memory(branch: str) -> list:
-    """Query memory DB for recent sessions with summaries on this branch.
-
-    Prefers structured summaries (session_summaries.completed) over legacy.
-    Returns formatted summary lines for inclusion in compact snapshot.
-    """
-    if not branch:
-        return []
-
-    try:
-        sys.path.insert(0, str(Path(__file__).parent))
-        import memory_db
-
-        db_path = memory_db.get_db_path()
-        if not db_path.exists():
-            return []
-
-        conn = memory_db.init_db(db_path)
-        rows = conn.execute(
-            """SELECT s.id, s.last_active, s.summary,
-                      ss.completed as ss_completed, ss.request as ss_request
-               FROM sessions s
-               LEFT JOIN session_summaries ss ON s.id = ss.session_id
-               WHERE s.branch = ? AND (s.summary != '' OR ss.status = 'ready')
-               ORDER BY s.last_active DESC LIMIT 5""",
-            (branch,)
-        ).fetchall()
-        conn.close()
-
-        lines = []
-        for row in rows:
-            date = row["last_active"][:10]
-
-            # Prefer structured summary
-            if row["ss_completed"]:
-                summary = row["ss_completed"]
-            elif row["summary"]:
-                summary = row["summary"]
-            else:
-                continue
-
-            if len(summary) > 200:
-                summary = summary[:197] + "..."
-            lines.append(f"- [{date}] {summary}")
-
-        return lines
-    except Exception:
-        pass
-    return []
-
-
 def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp, snapshot_path):
     """Build the full snapshot content for disk persistence."""
     lines = [
@@ -224,15 +173,6 @@ def build_snapshot(git_ctx, ultra_tasks, native_tasks, timestamp, snapshot_path)
         lines.append("These subagents were running at compact time:")
         for sa in active_subagents:
             lines.append(f"- {sa['agent_type']} (id: {sa['agent_id'][:12]}...)")
-        lines.append("")
-
-    # Inject branch-relevant session memory
-    branch = git_ctx.get("branch", "")
-    branch_mem = get_branch_memory(branch)
-    if branch_mem:
-        lines.append("## Session Memory (this branch)")
-        lines.append("Recent session summaries for context continuity:")
-        lines.extend(branch_mem)
         lines.append("")
 
     lines.append("## Recovery Instructions")

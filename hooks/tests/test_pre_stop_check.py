@@ -1,42 +1,21 @@
-"""Tests for pre_stop_check.py — stop check logic."""
+"""Tests for pre_stop_check.py — stop check logic.
+
+v7.0 (sensor mode): the pre-v7 circuit breaker (get_stop_count /
+increment_stop_count / MAX_STOP_BLOCKS) was removed BY DESIGN — see
+pre_stop_check.py docstring + PHILOSOPHY.md C3 (sensors not blockers). The
+TestStopCounter tests for those removed symbols were dropped accordingly.
+Remaining surface: workflow-state check + compliance checklist content.
+"""
 import json
-import os
 import sys
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
-
-import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from pre_stop_check import (
     COMPLIANCE_CHECKLIST,
-    get_stop_count,
-    increment_stop_count,
     check_workflow_state,
-    MAX_STOP_BLOCKS,
 )
-
-
-class TestStopCounter:
-    """Stop count tracking via temp files."""
-
-    def test_initial_count_is_zero(self):
-        count = get_stop_count("test-session-nonexistent")
-        assert count == 0
-
-    def test_increment_returns_new_count(self):
-        sid = f"test-stop-{os.getpid()}"
-        count = increment_stop_count(sid)
-        assert count == 1
-        count = increment_stop_count(sid)
-        assert count == 2
-        # Cleanup
-        path = os.path.join(tempfile.gettempdir(), f".claude_stop_count_{sid}")
-        os.unlink(path)
-
-    def test_circuit_breaker_threshold(self):
-        assert MAX_STOP_BLOCKS == 2
 
 
 class TestCheckWorkflowState:

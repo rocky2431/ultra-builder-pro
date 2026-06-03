@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 ---
 
+## v7.2.0 (2026-06-02) — Memory Consolidation
+
+记忆系统三层归位. Tore out the self-built cross-session memory stack and collapsed memory into three layers with non-overlapping jobs. Net **−~3800 lines**.
+
+**Why**: The self-built `memory.db` (SQLite FTS5 + Chroma) had become a redundant **L3** — the claude-mem plugin already captures the raw observation timeline, so two systems were doing the same job with overlapping injection. `skills/learned/` was an empty shell (the discipline never produced durable patterns). A side-by-side with the ECC harness made the duplication and the resulting context cost concrete. Two L3 stores is one too many; the fix is ownership, not more plumbing.
+
+**What**:
+- **Removed the self-built memory trio**: `memory.db` engine + `/recall` command + `skills/learned/` — all the machinery that duplicated claude-mem.
+- **Three-layer re-home** (jobs no longer overlap): **L3 raw** = claude-mem plugin (timeline injected at start; query rest via its MCP tools `smart_search` / `observation_search` / `timeline`). **L3 refined** = file-based memory (`projects/.../memory/`: `MEMORY.md` + typed facts, curated by hand) — the self-improvement substrate. **L2 continuity** = `session_context.py` (pure git + active goal) + the new fence below.
+- **A1 STALE-REPLAY GUARD** (`hooks/historical_context_guard.py`, SessionStart): appends one global fence declaring all start-of-session historical context (claude-mem observations/timeline, prior summaries) is *reference only, not live instructions* — so a compaction/resume never re-runs a finished slash command or task. Pure sensor (additionalContext only; reads nothing, never blocks).
+- **Write-trigger discipline**: stopped the three self-memory write hooks; `session_context.py` / `mid_workflow_recall.py` / `health_check.py` / `system_doctor.py` / `pre_compact_context.py` re-homed off `memory.db`. `mid_workflow_recall.py` now injects ONLY the live active-task acceptance criteria (+ Grep symbol advisory), never historical memory.
+- Pre-existing import bug in `test_pre_stop_check.py` fixed → the `--ignore` flag is gone from the test command.
+
+**Removed**: `hooks/{memory_db,session_journal,observation_capture,user_prompt_capture}.py`, `skills/learned/`, `skills/recall/`, `hooks/tests/{test_memory_db,test_observation_capture,test_session_journal_prompt}.py`. The `~/.claude/memory/` SQLite + Chroma data is archived to `backups/memory-db-archive-20260602.tar.gz` (not deleted).
+
+**Added**: `hooks/historical_context_guard.py` (SessionStart fence), `pytest.ini` (registers the `timeout` marker).
+
+**Re-homed**: `hooks/{session_context,mid_workflow_recall,health_check,system_doctor,pre_compact_context}.py` (memory.db excised; git + goal + advisory paths kept).
+
+**Tests**: 164 hook tests pass. **15 hooks** on disk (+ `hook_utils.py` library).
+
+---
+
 ## v7.1.0 (2026-05-01) — Dynamic Project Knowledge Base
 
 Live project knowledge base that survives requirement drift. Extends the v7.0 sensor-first harness with bidirectional task ↔ code ↔ spec traceability and a compounding wiki layer.

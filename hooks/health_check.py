@@ -5,19 +5,19 @@ Verifies critical components exist and are functional.
 Reports issues via stderr (visible to Claude, never blocks).
 
 Performance target: <200ms total.
+
+Memory归位 (2026-06-02): the memory.db schema check was removed — memory.db is
+gone (claude-mem now owns cross-session memory).
 """
 
 import json
 import os
-import sqlite3
 import sys
 from pathlib import Path
 
 HOOKS_DIR = Path(__file__).parent
 CLAUDE_DIR = HOOKS_DIR.parent
-sys.path.insert(0, str(HOOKS_DIR))  # allow `import memory_db` (authoritative path resolver)
 EXPECTED_MIN_AGENTS = 8
-SCHEMA_VERSION = 2
 
 
 def check_agents() -> list:
@@ -71,41 +71,6 @@ def check_settings_hooks() -> list:
     return issues
 
 
-def check_memory_db() -> list:
-    """Verify memory.db is accessible and schema version matches.
-
-    Resolves via memory_db.get_db_path() — the same resolver the write/read
-    hooks use — so the check targets the live DB (e.g. ~/.claude/memory/ when
-    run inside the ~/.claude repo), not a stale hardcoded .ultra/memory/ path.
-    """
-    issues = []
-    try:
-        import memory_db
-        db_path = memory_db.get_db_path()
-
-        if not db_path.exists():
-            return []  # DB not yet created, ok for new projects
-
-        conn = sqlite3.connect(str(db_path), timeout=1)
-        conn.row_factory = sqlite3.Row
-
-        # Check tables exist
-        tables = {r[0] for r in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ).fetchall()}
-
-        for required in ("sessions", "session_summaries", "observations"):
-            if required not in tables:
-                issues.append(f"memory.db: missing table '{required}'")
-
-        conn.close()
-    except (sqlite3.Error, OSError) as e:
-        issues.append(f"memory.db: {e}")
-    except Exception as e:
-        issues.append(f"memory.db: path resolve failed: {e}")
-    return issues
-
-
 def check_claude_md() -> list:
     """Verify CLAUDE.md exists and is non-empty."""
     claude_md = CLAUDE_DIR / "CLAUDE.md"
@@ -121,7 +86,6 @@ def main():
     all_issues.extend(check_agents())
     all_issues.extend(check_hooks_syntax())
     all_issues.extend(check_settings_hooks())
-    all_issues.extend(check_memory_db())
     all_issues.extend(check_claude_md())
 
     if all_issues:

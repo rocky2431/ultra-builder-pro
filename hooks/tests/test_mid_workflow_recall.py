@@ -1,110 +1,23 @@
-"""Tests for mid_workflow_recall.py — recall queries + rate limiting."""
-import json
+"""Tests for mid_workflow_recall.py — Grep advisory + rate limiting.
+
+Memory归位 (2026-06-02): query_file_observations / query_learned_lessons were
+removed (memory.db is gone — claude-mem now owns cross-session recall), so their
+tests were dropped. Remaining surface: rate limiting, source-extension gating,
+and the symbol-query heuristic that drives the Grep routing advisory.
+"""
 import os
 import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from mid_workflow_recall import (
-    query_file_observations,
-    query_learned_lessons,
     load_recalled,
     mark_recalled,
     SOURCE_EXTENSIONS,
     MAX_INJECTIONS,
+    _looks_like_symbol_query,
 )
-
-
-class TestQueryFileObservations:
-    """query_file_observations: test failures + edit history from other sessions."""
-
-    def test_finds_test_failures(self, seeded_conn, tmp_path):
-        db_path = tmp_path / "test.db"
-        # Write seeded_conn to file for the function
-        import sqlite3
-        file_conn = sqlite3.connect(str(db_path))
-        seeded_conn.backup(file_conn)
-        file_conn.close()
-
-        result = query_file_observations(db_path, "auth.ts", "csid-999")
-        assert len(result["test_failures"]) > 0
-        assert "TypeError" in result["test_failures"][0]["title"]
-
-    def test_finds_edit_history(self, seeded_conn, tmp_path):
-        db_path = tmp_path / "test.db"
-        import sqlite3
-        file_conn = sqlite3.connect(str(db_path))
-        seeded_conn.backup(file_conn)
-        file_conn.close()
-
-        result = query_file_observations(db_path, "auth.ts", "csid-999")
-        assert len(result["edit_history"]) > 0
-
-    def test_excludes_current_session(self, seeded_conn, tmp_path):
-        db_path = tmp_path / "test.db"
-        import sqlite3
-        file_conn = sqlite3.connect(str(db_path))
-        seeded_conn.backup(file_conn)
-        file_conn.close()
-
-        # csid-003 owns the test_failure observation
-        result = query_file_observations(db_path, "auth.ts", "csid-003")
-        # Should exclude s3's observations since it's the "current" session
-        for tf in result["test_failures"]:
-            assert tf.get("branch") != "main" or "csid-003" not in str(tf)
-
-    def test_returns_empty_for_unknown_file(self, seeded_conn, tmp_path):
-        db_path = tmp_path / "test.db"
-        import sqlite3
-        file_conn = sqlite3.connect(str(db_path))
-        seeded_conn.backup(file_conn)
-        file_conn.close()
-
-        result = query_file_observations(db_path, "nonexistent.xyz", "csid-999")
-        assert len(result["test_failures"]) == 0
-        assert len(result["edit_history"]) == 0
-
-    def test_returns_empty_for_missing_db(self, tmp_path):
-        result = query_file_observations(tmp_path / "nope.db", "auth.ts", "x")
-        assert result == {"test_failures": [], "edit_history": []}
-
-
-class TestQueryLearnedLessons:
-    """query_learned_lessons: search learned + completed fields."""
-
-    def test_finds_learned_by_filename(self, seeded_conn, tmp_path):
-        db_path = tmp_path / "test.db"
-        import sqlite3
-        file_conn = sqlite3.connect(str(db_path))
-        seeded_conn.backup(file_conn)
-        file_conn.close()
-
-        results = query_learned_lessons(db_path, "auth.ts")
-        assert len(results) > 0
-        assert any("auth.ts" in (r.get("learned", "") or "") for r in results)
-
-    def test_finds_by_completed_field(self, seeded_conn, tmp_path):
-        db_path = tmp_path / "test.db"
-        import sqlite3
-        file_conn = sqlite3.connect(str(db_path))
-        seeded_conn.backup(file_conn)
-        file_conn.close()
-
-        results = query_learned_lessons(db_path, "api.ts")
-        assert len(results) > 0
-
-    def test_empty_for_unknown_file(self, seeded_conn, tmp_path):
-        db_path = tmp_path / "test.db"
-        import sqlite3
-        file_conn = sqlite3.connect(str(db_path))
-        seeded_conn.backup(file_conn)
-        file_conn.close()
-
-        results = query_learned_lessons(db_path, "zzz_nonexistent.py")
-        assert len(results) == 0
 
 
 class TestRateLimiting:
@@ -137,3 +50,17 @@ class TestSourceExtensions:
     def test_excludes_non_source(self):
         for ext in [".json", ".md", ".txt", ".yaml", ".toml", ".lock"]:
             assert ext not in SOURCE_EXTENSIONS, f"Should exclude: {ext}"
+
+
+class TestSymbolQueryHeuristic:
+    """_looks_like_symbol_query: gates the Grep symbol-routing advisory."""
+
+    def test_matches_symbol_declarations(self):
+        assert _looks_like_symbol_query("class UserRepo")
+        assert _looks_like_symbol_query("function authenticate")
+        assert _looks_like_symbol_query("getUserById")
+
+    def test_rejects_fuzzy_text(self):
+        assert not _looks_like_symbol_query("TODO")
+        assert not _looks_like_symbol_query("error.*timeout")
+        assert not _looks_like_symbol_query("foo bar")
